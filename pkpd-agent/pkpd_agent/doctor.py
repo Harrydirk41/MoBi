@@ -35,7 +35,8 @@ def _py_pkg(name: str) -> tuple[bool, str]:
 
 def _run(cmd: list[str], timeout: int = 30) -> tuple[bool, str]:
     try:
-        p = subprocess.run(cmd, capture_output=True, text=True, timeout=timeout)
+        p = subprocess.run(cmd, capture_output=True, text=True,
+                           encoding="utf-8", errors="replace", timeout=timeout)
         out = (p.stdout or p.stderr).strip().splitlines()
         return p.returncode == 0, (out[0] if out else "")
     except FileNotFoundError:

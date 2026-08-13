@@ -84,7 +84,8 @@ class OSPEngine:
         with tempfile.TemporaryDirectory() as d:
             out_path = os.path.join(d, "out.json")
             proc = subprocess.run([rs, _OSP_WORKER, path, out_path],
-                                  capture_output=True, text=True, timeout=1200)
+                                  capture_output=True, text=True, encoding="utf-8",
+                                  errors="replace", timeout=1200)
             if not os.path.exists(out_path):
                 raise RuntimeError(f"OSP worker produced no output: {proc.stderr[:400]}")
             with open(out_path, encoding="utf-8") as fh:

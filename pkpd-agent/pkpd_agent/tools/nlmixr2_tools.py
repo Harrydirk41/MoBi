@@ -44,7 +44,8 @@ class Nlmixr2Engine:
         try:
             p = subprocess.run(
                 [rs, "-e", "cat(requireNamespace('nlmixr2', quietly=TRUE))"],
-                capture_output=True, text=True, timeout=60)
+                capture_output=True, text=True, encoding="utf-8",
+                errors="replace", timeout=60)
             if "TRUE" in p.stdout:
                 return True, rs
             return False, "R found but nlmixr2 package not installed"
@@ -83,7 +84,8 @@ class Nlmixr2Engine:
             self._write_csv(data, csv_path)
             proc = subprocess.run(
                 [rs, _WORKER, csv_path, out_path, model, self.config.nlmixr2_est],
-                capture_output=True, text=True, timeout=1200)
+                capture_output=True, text=True, encoding="utf-8",
+                errors="replace", timeout=1200)
             if not os.path.exists(out_path):
                 raise RuntimeError(f"nlmixr2 worker produced no output: "
                                    f"{proc.stderr[:400]}")
