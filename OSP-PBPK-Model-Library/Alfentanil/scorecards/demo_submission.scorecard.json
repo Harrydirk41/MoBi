@@ -1,0 +1,333 @@
+{
+  "schema": "osp-scorecard/v1",
+  "compound": "Alfentanil",
+  "input": "Alfentanil-Model.input.json",
+  "submission": "demo_submission.json",
+  "numerical": {
+    "data_fit": {
+      "overall": {
+        "n": 278,
+        "gmfe": 1.238,
+        "pct_within_2fold": 100.0
+      },
+      "by_route": {
+        "IV": {
+          "n": 160,
+          "gmfe": 1.25,
+          "pct_within_2fold": 100.0
+        },
+        "NA": {
+          "n": 33,
+          "gmfe": 1.15,
+          "pct_within_2fold": 100.0
+        },
+        "PO": {
+          "n": 85,
+          "gmfe": 1.25,
+          "pct_within_2fold": 100.0
+        }
+      },
+      "by_study": {
+        "Ferrier 1985": {
+          "n": 25,
+          "gmfe": 1.25,
+          "pct_within_2fold": 100.0
+        },
+        "Kharasch 1997": {
+          "n": 14,
+          "gmfe": 1.25,
+          "pct_within_2fold": 100.0
+        },
+        "Kharasch 2004": {
+          "n": 27,
+          "gmfe": 1.25,
+          "pct_within_2fold": 100.0
+        },
+        "Kharasch 2011": {
+          "n": 31,
+          "gmfe": 1.25,
+          "pct_within_2fold": 100.0
+        },
+        "Kharasch 2011b": {
+          "n": 119,
+          "gmfe": 1.25,
+          "pct_within_2fold": 100.0
+        },
+        "Meistelman 1987": {
+          "n": 13,
+          "gmfe": 1.25,
+          "pct_within_2fold": 100.0
+        },
+        "NA": {
+          "n": 33,
+          "gmfe": 1.15,
+          "pct_within_2fold": 100.0
+        },
+        "Phimmasone 2001": {
+          "n": 16,
+          "gmfe": 1.25,
+          "pct_within_2fold": 100.0
+        }
+      },
+      "per_dataset": [
+        {
+          "dataset": "Meistelman_1987_Figure_1 adults",
+          "n_paired": 13,
+          "n": 13,
+          "gmfe": 1.25,
+          "pct_within_2fold": 100.0
+        },
+        {
+          "dataset": "Kharasch 1997 - Control (Perpetrator Placebo) - Alfentanil - IV - 20 µg/kg - Plasma - agg. (n=9)",
+          "n_paired": 14,
+          "n": 14,
+          "gmfe": 1.25,
+          "pct_within_2fold": 100.0
+        },
+        {
+          "dataset": "Kharasch 2004 - iv Control (Perpetrator Placebo) - Alfentanil - IV - 15 µg/kg - Plasma - agg. (n=10)",
+          "n_paired": 13,
+          "n": 13,
+          "gmfe": 1.25,
+          "pct_within_2fold": 100.0
+        },
+        {
+          "dataset": "Kharasch 2004 - po #1 (60 µg/kg) Control (Perpetrator Placebo) - Alfentanil - PO - 60 µg/kg - Plasma - agg. (n=10)",
+          "n_paired": 14,
+          "n": 14,
+          "gmfe": 1.25,
+          "pct_within_2fold": 100.0
+        },
+        {
+          "dataset": "Kharasch 2011 - iv Control (Perpetrator Placebo) - Alfentanil - IV - 15 µg/kg - Plasma - agg. (n=12)",
+          "n_paired": 15,
+          "n": 15,
+          "gmfe": 1.25,
+          "pct_within_2fold": 100.0
+        },
+        {
+          "dataset": "Kharasch 2011 - po Control (Perpetrator Placebo) - Alfentanil - PO - 75 µg/kg - Plasma - agg. (n=12)",
+          "n_paired": 16,
+          "n": 16,
+          "gmfe": 1.25,
+          "pct_within_2fold": 100.0
+        },
+        {
+          "dataset": "Phimmasone 2001 - Control (Perpetrator Placebo) - Alfentanil - IV - 15 µg/kg - Plasma - agg. (n=6)",
+          "n_paired": 16,
+          "n": 16,
+          "gmfe": 1.25,
+          "pct_within_2fold": 100.0
+        },
+        {
+          "dataset": "Ferrier 1985 - healthy control patients - Alfentanil - IV - 0.05 mg/kg - Plasma - agg. (n=10)",
+          "n_paired": 13,
+          "n": 13,
+          "gmfe": 1.25,
+          "pct_within_2fold": 100.0
+        },
+        {
+          "dataset": "Ferrier 1985 - cirrhosis patients patients - Alfentanil - IV - 0.05 mg/kg - Plasma - agg. (n=11)",
+          "n_paired": 12,
+          "n": 12,
+          "gmfe": 1.25,
+          "pct_within_2fold": 100.0
+        },
+        {
+          "dataset": "Kharasch 2011b - Alfentanil IV Control sequential - Alfentanil - IV - 1 mg - Plasma - agg. (n=6)",
+          "n_paired": 17,
+          "n": 17,
+          "gmfe": 1.25,
+          "pct_within_2fold": 100.0
+        },
+        {
+          "dataset": "Kharasch 2011b - Alfentanil IV Grapefruit coadmin sequential - Alfentanil - IV - 1 mg - Plasma - agg. (n=6)",
+          "n_paired": 18,
+          "n": 18,
+          "gmfe": 1.25,
+          "pct_within_2fold": 100.0
+        },
+        {
+          "dataset": "Kharasch 2011b - Alfentanil IV Control simultaneous - Alfentanil - IV - 1 mg - Plasma - agg. (n=6)",
+          "n_paired": 14,
+          "n": 14,
+          "gmfe": 1.25,
+          "pct_within_2fold": 100.0
+        },
+        {
+          "dataset": "Kharasch 2011b - Alfentanil IV Grapefruit coadmin simultaneous - Alfentanil - IV - 1 mg - Plasma - agg. (n=6)",
+          "n_paired": 15,
+          "n": 15,
+          "gmfe": 1.25,
+          "pct_within_2fold": 100.0
+        },
+        {
+          "dataset": "Kharasch 2011b - Alfentanil PO Control sequential - Alfentanil - PO - 4 mg - Plasma - agg. (n=6)",
+          "n_paired": 13,
+          "n": 13,
+          "gmfe": 1.25,
+          "pct_within_2fold": 100.0
+        },
+        {
+          "dataset": "Kharasch 2011b - Alfentanil PO Grapefruit coadmin sequential - Alfentanil - PO - 4 mg - Plasma - agg. (n=6)",
+          "n_paired": 13,
+          "n": 13,
+          "gmfe": 1.25,
+          "pct_within_2fold": 100.0
+        },
+        {
+          "dataset": "Kharasch 2011b - Alfentanil PO Control simultaneous - Alfentanil - PO - 4 mg - Plasma - agg. (n=6)",
+          "n_paired": 15,
+          "n": 15,
+          "gmfe": 1.25,
+          "pct_within_2fold": 100.0
+        },
+        {
+          "dataset": "Kharasch 2011b - Alfentanil PO Grapefruit coadmin simultaneous - Alfentanil - PO - 4 mg - Plasma - agg. (n=6)",
+          "n_paired": 14,
+          "n": 14,
+          "gmfe": 1.25,
+          "pct_within_2fold": 100.0
+        },
+        {
+          "dataset": "Kharasch2012_Alfentanil_alone_IV",
+          "n_paired": 16,
+          "n": 16,
+          "gmfe": 1.15,
+          "pct_within_2fold": 100.0
+        },
+        {
+          "dataset": "Kharasch2012_Alfentanil_alone_po",
+          "n_paired": 17,
+          "n": 17,
+          "gmfe": 1.15,
+          "pct_within_2fold": 100.0
+        }
+      ],
+      "missing_predictions": [],
+      "n_datasets_scored": 19
+    },
+    "parameters": {
+      "n_parameters": 5,
+      "n_flag": 1,
+      "n_warn": 0,
+      "checks": [
+        {
+          "parameter": "Lipophilicity",
+          "value": 1.9,
+          "unit": "Log Units",
+          "status": "ok",
+          "message": "lipophilicity (logP/logD) expected within about [-2, 7]"
+        },
+        {
+          "parameter": "Fraction unbound (plasma)",
+          "value": 0.1,
+          "unit": "",
+          "status": "ok",
+          "message": "fraction unbound must be in (0, 1]"
+        },
+        {
+          "parameter": "CYP3A4 intrinsic clearance",
+          "value": 0.5,
+          "unit": "l/min",
+          "status": "ok",
+          "message": "clearance positive & bounded"
+        },
+        {
+          "parameter": "Specific intestinal permeability",
+          "value": 0.0006,
+          "unit": "cm/min",
+          "status": "ok",
+          "message": "permeability must be > 0"
+        },
+        {
+          "parameter": "Fraction unbound (alt)",
+          "value": 1.4,
+          "unit": "",
+          "status": "flag",
+          "message": "fraction unbound must be in (0, 1]"
+        }
+      ]
+    },
+    "outputs": {
+      "n_flag": 0,
+      "n_warn": 1,
+      "profile_findings": [
+        {
+          "dataset": "Kharasch2012_Alfentanil_alone_IV",
+          "status": "warn",
+          "message": "oral profile peaks at first point (no absorption phase captured)"
+        }
+      ],
+      "dose_ordering": [
+        {
+          "route": "IV",
+          "dose_unit": "µg/kg",
+          "doses": [
+            15.0,
+            15.0,
+            15.0,
+            20.0,
+            20.0
+          ],
+          "cmax_increases_with_dose": false,
+          "auc_increases_with_dose": false
+        },
+        {
+          "route": "PO",
+          "dose_unit": "µg/kg",
+          "doses": [
+            60.0,
+            75.0
+          ],
+          "cmax_increases_with_dose": true,
+          "auc_increases_with_dose": true
+        }
+      ],
+      "terminal_half_life": [
+        {
+          "route": "IV",
+          "n": 11,
+          "t_half_h_min": 0.91,
+          "t_half_h_max": 4.51,
+          "spread_ratio": 4.94,
+          "status": "warn"
+        },
+        {
+          "route": "PO",
+          "n": 6,
+          "t_half_h_min": 1.25,
+          "t_half_h_max": 1.77,
+          "spread_ratio": 1.42,
+          "status": "ok"
+        },
+        {
+          "route": "",
+          "n": 2,
+          "t_half_h_min": 1.02,
+          "t_half_h_max": 1.18,
+          "spread_ratio": 1.16,
+          "status": "ok"
+        }
+      ]
+    }
+  },
+  "reference_closeness": {
+    "note": "auxiliary only — many valid models differ from the reference",
+    "matched_parameters": [
+      {
+        "parameter": "Lipophilicity",
+        "submitted": 1.9,
+        "reference": 1.8463211883,
+        "fold_vs_reference": 1.03
+      }
+    ],
+    "reference_methods": [
+      "Cellular partition coefficient method - Rodgers and Rowland",
+      "Cellular permeability - PK-Sim Standard"
+    ]
+  },
+  "agentic_review": {
+    "skipped": "no ANTHROPIC_API_KEY (numerical layer only); use --reason to force"
+  }
+}

@@ -165,12 +165,46 @@ A self-assessment against these three is required in your submission.
 
 ---
 
-## 6. Files
+## 6. Grading (for the grader — not part of the agent's input)
+
+Submissions are scored by `grade_submission.py` in two layers that mirror the
+rubric:
+
+- **Numerical (deterministic, stdlib):** pairs `predicted_profiles` against the
+  observed data (interpolating onto the observed time grid) and computes **GMFE**
+  and **% within 2-fold** overall / by route / by study; runs the rule-based
+  **parameter** bound checks and **output** plausibility checks. Optionally reports
+  auxiliary *closeness to the reference* from `answer_key/` (not a primary score —
+  many valid models differ from the reference).
+- **Agentic (Claude judge, optional):** reads the numerical scorecard plus the
+  agent's structural choices and rationales and renders the **physical-reasoning**
+  verdict the numbers can't — mechanistic soundness, whether each flag is a real
+  problem, a 0–5 score per dimension, an overall verdict, and actionable feedback.
+  Runs when `anthropic` is installed and `ANTHROPIC_API_KEY` is set (or `--reason`);
+  otherwise the numerical scorecard is produced alone.
+
+```bash
+# 1. (demo) fabricate a submission just to exercise the pipeline
+python make_demo_submission.py json_input/Alfentanil-Model.input.json --out demo_submission.json
+
+# 2. grade it (add --reason for the Claude physical-reasoning layer)
+python grade_submission.py \
+    --input json_input/Alfentanil-Model.input.json \
+    --submission demo_submission.json \
+    --key answer_key/Alfentanil-Model.answer_key.json
+# writes scorecards/<submission>.scorecard.json
+
+python grade_submission.py --selftest   # checks the GMFE math
+```
+
+## 7. Files
 
 ```
 Alfentanil/
 ├── Alfentanil_input_data.md            # THIS problem statement (agent-facing)
 ├── build_clean_input.py                # snapshot -> input + answer key
+├── grade_submission.py                 # numerical + agentic grader
+├── make_demo_submission.py             # synthetic submission for pipeline testing
 ├── problem_cards.json                  # curated PUBLIC context (objective, literature)
 ├── json_input/                         # AGENT INPUT — start here, no leaks
 │   ├── Alfentanil-Model.input.json
@@ -178,11 +212,12 @@ Alfentanil/
 ├── answer_key/                         # GRADING ONLY — do not show the agent
 │   ├── Alfentanil-Model.answer_key.json
 │   └── Alfentanil-Pediatrics.answer_key.json
+├── scorecards/                         # grader output (generated)
 ├── json/                               # raw snapshots (full truth) — grader/source only
 └── Alfentanil_evaluation_report.md     # the original OSP report — contains answers
 ```
 
-### Regenerating
+### Regenerating the input/key
 
 ```bash
 python build_clean_input.py json/Alfentanil-Model.json
