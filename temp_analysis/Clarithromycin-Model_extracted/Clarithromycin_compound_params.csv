@@ -1,0 +1,19 @@
+parameter,value,unit
+Lipophilicity,2.3,Log Units
+"Fraction unbound (plasma, reference value)",0.3,
+Solubility at reference pH,12.17,mg/ml
+Reference pH,2.4,
+Specific intestinal permeability (transcellular),1.23e-06,dm/min
+In vitro Vmax for liver microsomes,0.0,pmol/min/mg mic. protein
+Km,48.7,µmol/l
+kcat,76.5,1/min
+Body weight,71.5,kg
+Blood flow rate (kidney),1.31,l/min
+Fraction unbound (experiment),0.4,
+Plasma clearance,1.75,ml/min/kg
+Ki,4.1,µmol/l
+kinact,0.04,1/min
+K_kinact_half,6.04,µmol/l
+Ki,5.3,µmol/l
+Ki,14.0,µmol/l
+Molecular weight,747.9534,g/mol

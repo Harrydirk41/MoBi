@@ -261,3 +261,4 @@ src/**/licenses.licx
 /MoBi.v3.ncrunchsolution
 /src/MoBi/Properties/launchSettings.json
 /Directory.Build.props
+*.pksim5
