@@ -11,9 +11,10 @@
 # model - adjust to match your simulation's structure.
 
 args <- commandArgs(trailingOnly = TRUE)
-if (length(args) < 2) stop("usage: osp_sim.R <sim.pkml> <out.json> [path=value ...]")
+if (length(args) < 2) stop("usage: osp_sim.R <sim.pkml> <out.json> [output] [path=value ...]")
 pkml <- args[[1]]; out_json <- args[[2]]
-overrides <- if (length(args) > 2) args[3:length(args)] else character(0)
+want_output <- if (length(args) >= 3) args[[3]] else ""
+overrides <- if (length(args) > 3) args[4:length(args)] else character(0)
 
 emit_error <- function(msg) {
   writeLines(jsonlite::toJSON(list(ok = FALSE, message = msg, source = "ospsuite"),
@@ -45,9 +46,14 @@ res <- tryCatch(runSimulations(sim)[[1]],
                                                      conditionMessage(e))))
 
 df <- simulationResultsToDataFrame(res)
-# pick the first output path present
-outpath <- unique(df$paths)[1]
-sub <- df[df$paths == outpath, ]
+paths <- unique(df[["paths"]])
+# select the requested output (substring match), else the first available
+outpath <- if (nzchar(want_output) && any(grepl(want_output, paths, fixed = TRUE))) {
+  paths[grepl(want_output, paths, fixed = TRUE)][1]
+} else {
+  paths[1]
+}
+sub <- df[df[["paths"]] == outpath, ]
 vals <- sub$simulationValues
 times <- sub$Time
 

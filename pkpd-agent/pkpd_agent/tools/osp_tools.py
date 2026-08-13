@@ -83,7 +83,7 @@ class OSPEngine:
             raise RuntimeError("Rscript not found for OSP (set config.rscript_path)")
         with tempfile.TemporaryDirectory() as d:
             out_path = os.path.join(d, "out.json")
-            proc = subprocess.run([rs, _OSP_WORKER, path, out_path],
+            proc = subprocess.run([rs, _OSP_WORKER, path, out_path, output or ""],
                                   capture_output=True, text=True, encoding="utf-8",
                                   errors="replace", timeout=1200)
             if not os.path.exists(out_path):
