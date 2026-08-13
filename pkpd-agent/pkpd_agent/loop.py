@@ -36,9 +36,18 @@ class DecisionLoop:
         from .llm import LLMPolicy
         return LLMPolicy(self.config, self.registry, SYSTEM_PROMPT)
 
-    def run(self, goal: str, session: Optional[ModelingSession] = None) -> ModelingSession:
+    def run(self, goal: str, session: Optional[ModelingSession] = None,
+            on_event=None) -> ModelingSession:
+        """Drive the loop. ``on_event(event)`` is called after each event is
+        recorded, so callers can stream the trace live (each step includes a
+        slow tool call, so batched output would look frozen)."""
         session = session or ModelingSession(goal=goal)
         policy = self.policy or self._build_policy()
+
+        def emit(ev):
+            session.record(ev)
+            if on_event is not None:
+                on_event(ev)
 
         for _ in range(self.config.max_steps):
             if hasattr(policy, "observe"):
@@ -48,12 +57,13 @@ class DecisionLoop:
 
             # Finish?
             if step.__class__.__name__ == "FinishStep":
-                session.record(Finish(step.text))
+                emit(Finish(step.text))
                 break
 
-            # Act: record the decision, then execute each call under the gate.
+            # Act: record the decision (emit before the slow dispatch), then
+            # execute each call under the gate.
             calls = step.calls
-            session.record(Decision(text=getattr(step, "text", ""), calls=calls))
+            emit(Decision(text=getattr(step, "text", ""), calls=calls))
 
             halted = False
             for call in calls:
@@ -66,9 +76,9 @@ class DecisionLoop:
                     content=result.to_content(),
                     findings=findings,
                 )
-                session.record(obs)
+                emit(obs)
                 if obs.blocked and self.config.stop_on_block:
-                    session.record(Finish(
+                    emit(Finish(
                         "Halted: a verification BLOCK was raised and "
                         "stop_on_block is set.\n"
                         + "\n".join(f"[{f.level.upper()}] {f.gate}: {f.message}"
@@ -79,7 +89,7 @@ class DecisionLoop:
             if halted:
                 break
         else:
-            session.record(Finish(f"Reached max_steps ({self.config.max_steps})."))
+            emit(Finish(f"Reached max_steps ({self.config.max_steps})."))
 
         return session
 

@@ -106,31 +106,39 @@ def main() -> None:
     loop = DecisionLoop(config=cfg, registry=registry, policy=policy)
 
     print(f"== LLM PBPK loop on {os.path.basename(args.snapshot)} "
-          f"(target GMFE {args.target}, max {args.max_steps} steps) ==\n")
-    session = ModelingSession(goal=goal)
-    session = loop.run(goal, session)
+          f"(target GMFE {args.target}, max {args.max_steps} steps) ==")
+    print("(each osp_try_model runs 12 PK-Sim simulations - a few minutes per "
+          "step; progress streams below)\n")
 
-    # replay the decision/observation trace
-    for ev in session.transcript:
+    def show(ev):
         if isinstance(ev, Decision):
             if ev.text:
-                print(f"\n[reason] {ev.text[:600]}")
+                print(f"\n[reason] {ev.text[:800]}")
             for c in ev.calls:
                 ed = c.arguments.get("edits")
                 print(f"  -> {c.name}" + (f" {json.dumps(ed, ensure_ascii=False)}"
                                           if ed else ""))
+                if c.name == "osp_try_model":
+                    print("     ...running PK-Sim (12 simulations), please wait...",
+                          flush=True)
         elif isinstance(ev, Observation):
             msg = ev.content.get("message", "")
-            print(f"  <- {ev.tool}: {msg}")
+            print(f"  <- {ev.tool}: {msg}", flush=True)
             br = ev.content.get("by_route")
             if br:
                 for r, m in br.items():
                     print(f"       {r}: GMFE {m.get('gmfe')} bias {m.get('bias')} "
                           f"within2fold {m.get('within_2fold_pct')}%")
+            wf = ev.content.get("worst_datasets")
+            if wf:
+                print(f"       worst: {[ (w['route'], w['gmfe']) for w in wf ]}")
             for f in ev.findings:
                 print(f"     [{f.level.upper()}] {f.message}")
         elif isinstance(ev, Finish):
             print(f"\n=== SUMMARY ===\n{ev.text}")
+
+    session = ModelingSession(goal=goal)
+    session = loop.run(goal, session, on_event=show)
 
     print(f"\nbest GMFE reached: {session.get('osp_best_gmfe')}")
     print(f"best edits: {json.dumps(session.get('osp_best_edits'), ensure_ascii=False)}")
