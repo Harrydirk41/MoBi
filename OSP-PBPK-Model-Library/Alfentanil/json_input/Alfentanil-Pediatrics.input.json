@@ -1,0 +1,867 @@
+{
+  "schema": "osp-clean-input/v1",
+  "source_snapshot": "Alfentanil-Pediatrics.json",
+  "compound": "Alfentanil",
+  "objective": "Predict pediatric alfentanil plasma concentration-time profiles (den Hollander 1992, Meistelman 1987, Goresky 1987; ages ~0.3-14 y) by scaling the adult PBPK model to children via body physiology and enzyme ontogeny. This is an extrapolation task: NO parameters are re-estimated. The observed pediatric data is the target to reproduce.",
+  "data_overview": {
+    "n_observed_datasets": 3,
+    "routes": [
+      "IV"
+    ],
+    "studies": [
+      "Goresky 1987",
+      "Meistelman 1987",
+      "den Hollander 1992"
+    ],
+    "n_given_physchem_params": 8,
+    "n_parameters_to_identify": 0,
+    "n_study_designs": 15,
+    "n_demographics": 39
+  },
+  "compound_identity": {
+    "name": "Alfentanil",
+    "is_small_molecule": true,
+    "plasma_protein_binding_partner": "Glycoprotein",
+    "pka": [
+      {
+        "type": "Base",
+        "pka": 6.5,
+        "source": "Hanke 2018"
+      }
+    ]
+  },
+  "given_physicochemical": [
+    {
+      "parameter": "Lipophilicity",
+      "value": 1.75,
+      "unit": "Log Units",
+      "source": "Hanke 2018"
+    },
+    {
+      "parameter": "Fraction unbound (plasma, reference value)",
+      "value": 0.1,
+      "unit": "",
+      "source": "Hanke 2018"
+    },
+    {
+      "parameter": "Solubility at reference pH",
+      "value": 992.0,
+      "unit": "mg/l",
+      "source": "Hanke 2018"
+    },
+    {
+      "parameter": "Reference pH",
+      "value": 6.5,
+      "unit": "",
+      "source": "Hanke 2018"
+    },
+    {
+      "parameter": "Specific intestinal permeability (transcellular)",
+      "value": 3.48e-06,
+      "unit": "cm/min",
+      "source": "Hanke 2018"
+    },
+    {
+      "parameter": "Intrinsic clearance",
+      "value": 0.504,
+      "unit": "l/min",
+      "source": "Hanke 2018"
+    },
+    {
+      "parameter": "GFR fraction",
+      "value": 0.06,
+      "unit": "",
+      "source": "Hanke 2018"
+    },
+    {
+      "parameter": "Molecular weight",
+      "value": 416.52,
+      "unit": "g/mol",
+      "source": "Hanke 2018"
+    }
+  ],
+  "parameters_to_identify": [],
+  "clinical_observed_data": [
+    {
+      "dataset": "den Hollander 1992 - I3 - Alfentanil - IV - 1.7 mg - Arterial Plasma - indiv.",
+      "study": "den Hollander 1992",
+      "molecule": "Alfentanil",
+      "route": "IV",
+      "dose": "1.7 mg",
+      "matrix": "Arterial Blood/Plasma",
+      "patient_group": null,
+      "n_points": 8,
+      "time_unit": "h",
+      "conc_unit": "mg/L",
+      "mol_weight_g_per_mol": 416.52,
+      "time_h": [
+        0.05,
+        0.08333,
+        0.11667,
+        0.16667,
+        0.25,
+        0.5,
+        0.75,
+        0.83333
+      ],
+      "conc_mg_L": [
+        0.4436824,
+        0.6916811,
+        0.9063229,
+        1.057683,
+        0.5486521,
+        0.3015718,
+        0.18974608,
+        0.1657618
+      ],
+      "conc_native": [
+        443.6824,
+        691.6811,
+        906.3229,
+        1057.683,
+        548.6521,
+        301.5718,
+        189.746078,
+        165.7618
+      ],
+      "conc_native_unit": "µg/l"
+    },
+    {
+      "dataset": "Meistelman 1987 - mean child - Alfentanil - IV - 20 µg/kg - Plasma - agg. (n=8)",
+      "study": "Meistelman 1987",
+      "molecule": "Alfentanil",
+      "route": "IV",
+      "dose": "20 µg/kg",
+      "matrix": "Peripheral Venous Blood/Plasma",
+      "patient_group": null,
+      "n_points": 13,
+      "time_unit": "h",
+      "conc_unit": "mg/L",
+      "mol_weight_g_per_mol": 416.52,
+      "time_h": [
+        0.01667,
+        0.05,
+        0.08333,
+        0.16667,
+        0.25,
+        0.75,
+        1.0,
+        1.5,
+        2.0,
+        3.0,
+        4.0,
+        5.0,
+        6.0
+      ],
+      "conc_mg_L": [
+        0.2290868,
+        0.15696022,
+        0.1004859,
+        0.06559068,
+        0.04856415,
+        0.01789087,
+        0.01390458,
+        0.00634023,
+        0.00426063,
+        0.00166361,
+        0.00068184,
+        0.00024877,
+        0.00014737
+      ],
+      "conc_native": [
+        0.2290868,
+        0.156960219,
+        0.1004859,
+        0.06559068,
+        0.04856415,
+        0.0178908687,
+        0.01390458,
+        0.00634023361,
+        0.00426062942,
+        0.00166361406,
+        0.0006818427,
+        0.000248765078,
+        0.0001473741
+      ],
+      "conc_native_unit": "mg/l",
+      "sd_mg_L": [
+        0.3124186,
+        0.2475621,
+        0.23131861,
+        0.1357162,
+        0.08604722,
+        0.02636651,
+        0.01952209,
+        0.00916443,
+        0.00609906,
+        0.00280816,
+        0.00113984,
+        0.00035611,
+        0.00021097
+      ]
+    },
+    {
+      "dataset": "Goresky 1987 - typical individual - Alfentanil - IV - 50 µg/kg - Plasma - typical (n=1)",
+      "study": "Goresky 1987",
+      "molecule": "Alfentanil",
+      "route": "IV",
+      "dose": "50 µg/kg",
+      "matrix": "Peripheral Venous Blood/Plasma",
+      "patient_group": null,
+      "n_points": 14,
+      "time_unit": "h",
+      "conc_unit": "mg/L",
+      "mol_weight_g_per_mol": 416.52,
+      "time_h": [
+        0.01667,
+        0.03333,
+        0.05,
+        0.08333,
+        0.16667,
+        0.25,
+        0.5,
+        0.75,
+        1.0,
+        1.5,
+        2.0,
+        3.0,
+        4.0,
+        5.0
+      ],
+      "conc_mg_L": [
+        0.3893037,
+        0.2736906,
+        0.2203375,
+        0.1710888,
+        0.1213715,
+        0.08688317,
+        0.0453337,
+        0.03923197,
+        0.02684355,
+        0.01452181,
+        0.00814511,
+        0.00351546,
+        0.00157312,
+        0.00067286
+      ],
+      "conc_native": [
+        0.3893037,
+        0.2736906,
+        0.2203375,
+        0.1710888,
+        0.1213715,
+        0.08688317,
+        0.0453337,
+        0.03923197,
+        0.02684355,
+        0.0145218093,
+        0.008145106,
+        0.00351545983,
+        0.00157312409,
+        0.0006728596
+      ],
+      "conc_native_unit": "mg/l"
+    }
+  ],
+  "study_designs": [
+    {
+      "name": "120 µg/kg infusion",
+      "application_type": "Intravenous",
+      "dosing_interval": "Single",
+      "dose": 0.12,
+      "dose_unit": "mg/kg",
+      "start_time": 0.0,
+      "start_time_unit": "h"
+    },
+    {
+      "name": "50 µg/kg infusion",
+      "application_type": "Intravenous",
+      "dosing_interval": "Single",
+      "dose": 0.05,
+      "dose_unit": "mg/kg",
+      "start_time": 0.0,
+      "start_time_unit": "h"
+    },
+    {
+      "name": "Den Holländer ind C2 2,08mg",
+      "application_type": "Intravenous",
+      "dosing_interval": "Single",
+      "dose": 2.08,
+      "dose_unit": "mg",
+      "start_time": 0.0,
+      "start_time_unit": "h"
+    },
+    {
+      "name": "Den Holländer ind C3 5,12mg",
+      "application_type": "Intravenous",
+      "dosing_interval": "Single",
+      "dose": 5.12,
+      "dose_unit": "mg",
+      "start_time": 0.0,
+      "start_time_unit": "h"
+    },
+    {
+      "name": "Den Holländer ind C4 2,88mg",
+      "application_type": "Intravenous",
+      "dosing_interval": "Single",
+      "dose": 2.88,
+      "dose_unit": "mg",
+      "start_time": 0.0,
+      "start_time_unit": "h"
+    },
+    {
+      "name": "Den Holländer ind C5 3,90mg",
+      "application_type": "Intravenous",
+      "dosing_interval": "Single",
+      "dose": 3.9,
+      "dose_unit": "mg",
+      "start_time": 0.0,
+      "start_time_unit": "h"
+    },
+    {
+      "name": "Den Holländer ind C6 3,70mg",
+      "application_type": "Intravenous",
+      "dosing_interval": "Single",
+      "dose": 3.7,
+      "dose_unit": "mg",
+      "start_time": 0.0,
+      "start_time_unit": "h"
+    },
+    {
+      "name": "Den Holländer ind1 1.3mg",
+      "application_type": "Intravenous",
+      "dosing_interval": "Single",
+      "dose": 1.3,
+      "dose_unit": "mg",
+      "start_time": 0.0,
+      "start_time_unit": "h"
+    },
+    {
+      "name": "Den Holländer ind2 1.28mg",
+      "application_type": "Intravenous",
+      "dosing_interval": "Single",
+      "dose": 1.28,
+      "dose_unit": "mg",
+      "start_time": 0.0,
+      "start_time_unit": "h"
+    },
+    {
+      "name": "Den Holländer ind3 1.7mg",
+      "application_type": "Intravenous",
+      "dosing_interval": "Single",
+      "dose": 1.7,
+      "dose_unit": "mg",
+      "start_time": 0.0,
+      "start_time_unit": "h"
+    },
+    {
+      "name": "Den Holländer ind4 1.02mg",
+      "application_type": "Intravenous",
+      "dosing_interval": "Single",
+      "dose": 1.22,
+      "dose_unit": "mg",
+      "start_time": 0.0,
+      "start_time_unit": "h"
+    },
+    {
+      "name": "Den Holländer ind5 1,22mg",
+      "application_type": "Intravenous",
+      "dosing_interval": "Single",
+      "dose": 1.02,
+      "dose_unit": "mg",
+      "start_time": 0.0,
+      "start_time_unit": "h"
+    },
+    {
+      "name": "Meistelman 20 µg/kg iv bolus",
+      "application_type": "IntravenousBolus",
+      "dosing_interval": "Single",
+      "dose": 0.02,
+      "dose_unit": "mg/kg",
+      "start_time": 0.0,
+      "start_time_unit": "h"
+    },
+    {
+      "name": "Meuldermans 1988, Alfentanil iv",
+      "application_type": null,
+      "dosing_interval": "Single",
+      "dose": null,
+      "dose_unit": null,
+      "start_time": null,
+      "start_time_unit": null
+    },
+    {
+      "name": "Phimmasone 2001, Alfentanil iv",
+      "application_type": null,
+      "dosing_interval": "Single",
+      "dose": null,
+      "dose_unit": null,
+      "start_time": null,
+      "start_time_unit": null
+    }
+  ],
+  "demographics": [
+    {
+      "name": "den Holländer 1992 ind C1 male 1.5y 6.5kg not simulated (bmi out of range)",
+      "kind": "individual",
+      "species": "Human",
+      "population": "European_ICRP_2002",
+      "gender": "MALE",
+      "age": 1.5,
+      "age_unit": "year(s)",
+      "weight": null,
+      "weight_unit": null,
+      "source": "den Holländer 1992"
+    },
+    {
+      "name": "den Holländer 1992 ind C3 male 9y 25.6kg",
+      "kind": "individual",
+      "species": "Human",
+      "population": "European_ICRP_2002",
+      "gender": "MALE",
+      "age": 9.0,
+      "age_unit": "year(s)",
+      "weight": 25.6,
+      "weight_unit": "kg",
+      "source": "den Holländer 1992"
+    },
+    {
+      "name": "den Holländer 1992 ind C2 male 1.3y 10.4kg",
+      "kind": "individual",
+      "species": "Human",
+      "population": "European_ICRP_2002",
+      "gender": "MALE",
+      "age": 1.3,
+      "age_unit": "year(s)",
+      "weight": 10.4,
+      "weight_unit": "kg",
+      "source": "den Holländer 1992"
+    },
+    {
+      "name": "den Holländer 1992 ind C4 female 3.5y 14.4kg",
+      "kind": "individual",
+      "species": "Human",
+      "population": "European_ICRP_2002",
+      "gender": "FEMALE",
+      "age": 3.5,
+      "age_unit": "year(s)",
+      "weight": 14.4,
+      "weight_unit": "kg",
+      "source": "den Holländer 1992"
+    },
+    {
+      "name": "den Holländer 1992 ind C5 female 5.5y 19.5kg",
+      "kind": "individual",
+      "species": "Human",
+      "population": "European_ICRP_2002",
+      "gender": "FEMALE",
+      "age": 5.5,
+      "age_unit": "year(s)",
+      "weight": 19.5,
+      "weight_unit": "kg",
+      "source": "den Holländer 1992"
+    },
+    {
+      "name": "den Holländer 1992 ind C6 male 3.5y 18.5kg",
+      "kind": "individual",
+      "species": "Human",
+      "population": "European_ICRP_2002",
+      "gender": "MALE",
+      "age": 3.5,
+      "age_unit": "year(s)",
+      "weight": 18.5,
+      "weight_unit": "kg",
+      "source": "den Holländer 1992"
+    },
+    {
+      "name": "den Holländer 1992 ind1 male 0.92y 6.5kg",
+      "kind": "individual",
+      "species": "Human",
+      "population": "European_ICRP_2002",
+      "gender": "MALE",
+      "age": 0.92,
+      "age_unit": "year(s)",
+      "weight": 6.5,
+      "weight_unit": "kg",
+      "source": "den Holländer 1992"
+    },
+    {
+      "name": "den Holländer 1992 ind2 female 0.83y 6.4kg",
+      "kind": "individual",
+      "species": "Human",
+      "population": "European_ICRP_2002",
+      "gender": "FEMALE",
+      "age": 0.83,
+      "age_unit": "year(s)",
+      "weight": 6.4,
+      "weight_unit": "kg",
+      "source": "den Holländer 1992"
+    },
+    {
+      "name": "den Holländer 1992 ind3 female 0.99y 8.5kg",
+      "kind": "individual",
+      "species": "Human",
+      "population": "European_ICRP_2002",
+      "gender": "FEMALE",
+      "age": 0.99,
+      "age_unit": "year(s)",
+      "weight": 8.5,
+      "weight_unit": "kg",
+      "source": "den Holländer 1992"
+    },
+    {
+      "name": "den Holländer 1992 ind4 female 0.3y 5.1kg",
+      "kind": "individual",
+      "species": "Human",
+      "population": "European_ICRP_2002",
+      "gender": "FEMALE",
+      "age": 0.3,
+      "age_unit": "year(s)",
+      "weight": 5.1,
+      "weight_unit": "kg",
+      "source": "den Holländer 1992"
+    },
+    {
+      "name": "den Holländer 1992 ind5 female 0.92y 6.1kg",
+      "kind": "individual",
+      "species": "Human",
+      "population": "European_ICRP_2002",
+      "gender": "FEMALE",
+      "age": 0.92,
+      "age_unit": "year(s)",
+      "weight": 6.149,
+      "weight_unit": "kg",
+      "source": "den Holländer 1992"
+    },
+    {
+      "name": "den Holländer 1992 ind6 female 0.46y 4.1kg not simulated (bmi out of range)",
+      "kind": "individual",
+      "species": "Human",
+      "population": "European_ICRP_2002",
+      "gender": "FEMALE",
+      "age": 0.46,
+      "age_unit": "year(s)",
+      "weight": null,
+      "weight_unit": null,
+      "source": "den Holländer 1992"
+    },
+    {
+      "name": "Goreski 1987 Patnr1",
+      "kind": "individual",
+      "species": "Human",
+      "population": "European_ICRP_2002",
+      "gender": "MALE",
+      "age": 0.9,
+      "age_unit": "year(s)",
+      "weight": 10.9,
+      "weight_unit": "kg",
+      "source": "Goreski 1987"
+    },
+    {
+      "name": "Goreski 1987 Patnr10",
+      "kind": "individual",
+      "species": "Human",
+      "population": "European_ICRP_2002",
+      "gender": "FEMALE",
+      "age": 3.7,
+      "age_unit": "year(s)",
+      "weight": 14.5,
+      "weight_unit": "kg",
+      "source": "Goreski 1987"
+    },
+    {
+      "name": "Goreski 1987 Patnr11",
+      "kind": "individual",
+      "species": "Human",
+      "population": "European_ICRP_2002",
+      "gender": "MALE",
+      "age": 4.0,
+      "age_unit": "year(s)",
+      "weight": 15.0,
+      "weight_unit": "kg",
+      "source": "Goreski 1987"
+    },
+    {
+      "name": "Goreski 1987 Patnr12",
+      "kind": "individual",
+      "species": "Human",
+      "population": "European_ICRP_2002",
+      "gender": "MALE",
+      "age": 8.5,
+      "age_unit": "year(s)",
+      "weight": 30.0,
+      "weight_unit": "kg",
+      "source": "Goreski 1987"
+    },
+    {
+      "name": "Goreski 1987 Patnr14",
+      "kind": "individual",
+      "species": "Human",
+      "population": "European_ICRP_2002",
+      "gender": "MALE",
+      "age": 1.3,
+      "age_unit": "year(s)",
+      "weight": 11.2,
+      "weight_unit": "kg",
+      "source": "Goreski 1987"
+    },
+    {
+      "name": "Goreski 1987 Patnr15",
+      "kind": "individual",
+      "species": "Human",
+      "population": "European_ICRP_2002",
+      "gender": "MALE",
+      "age": 1.5,
+      "age_unit": "year(s)",
+      "weight": 12.4,
+      "weight_unit": "kg",
+      "source": "Goreski 1987"
+    },
+    {
+      "name": "Goreski 1987 Patnr16",
+      "kind": "individual",
+      "species": "Human",
+      "population": "European_ICRP_2002",
+      "gender": "FEMALE",
+      "age": 1.1,
+      "age_unit": "year(s)",
+      "weight": 8.1,
+      "weight_unit": "kg",
+      "source": "Goreski 1987"
+    },
+    {
+      "name": "Goreski 1987 Patnr17",
+      "kind": "individual",
+      "species": "Human",
+      "population": "European_ICRP_2002",
+      "gender": "MALE",
+      "age": 14.0,
+      "age_unit": "year(s)",
+      "weight": 51.0,
+      "weight_unit": "kg",
+      "source": "Goreski 1987"
+    },
+    {
+      "name": "Goreski 1987 Patnr18",
+      "kind": "individual",
+      "species": "Human",
+      "population": "European_ICRP_2002",
+      "gender": "MALE",
+      "age": 12.0,
+      "age_unit": "year(s)",
+      "weight": 36.6,
+      "weight_unit": "kg",
+      "source": "Goreski 1987"
+    },
+    {
+      "name": "Goreski 1987 Patnr2",
+      "kind": "individual",
+      "species": "Human",
+      "population": "European_ICRP_2002",
+      "gender": "MALE",
+      "age": 0.2,
+      "age_unit": "year(s)",
+      "weight": 5.2,
+      "weight_unit": "kg",
+      "source": "Goreski 1987"
+    },
+    {
+      "name": "Goreski 1987 Patnr3",
+      "kind": "individual",
+      "species": "Human",
+      "population": "European_ICRP_2002",
+      "gender": "FEMALE",
+      "age": 0.3,
+      "age_unit": "year(s)",
+      "weight": 4.8,
+      "weight_unit": "kg",
+      "source": "Goreski 1987"
+    },
+    {
+      "name": "Goreski 1987 Patnr4",
+      "kind": "individual",
+      "species": "Human",
+      "population": "European_ICRP_2002",
+      "gender": "FEMALE",
+      "age": 0.9,
+      "age_unit": "year(s)",
+      "weight": 9.2,
+      "weight_unit": "kg",
+      "source": "Goreski 1987"
+    },
+    {
+      "name": "Goreski 1987 Patnr5",
+      "kind": "individual",
+      "species": "Human",
+      "population": "European_ICRP_2002",
+      "gender": "MALE",
+      "age": 0.3,
+      "age_unit": "year(s)",
+      "weight": 6.8,
+      "weight_unit": "kg",
+      "source": "Goreski 1987"
+    },
+    {
+      "name": "Goreski 1987 Patnr6",
+      "kind": "individual",
+      "species": "Human",
+      "population": "European_ICRP_2002",
+      "gender": "FEMALE",
+      "age": 4.6,
+      "age_unit": "year(s)",
+      "weight": 17.7,
+      "weight_unit": "kg",
+      "source": "Goreski 1987"
+    },
+    {
+      "name": "Goreski 1987 Patnr7",
+      "kind": "individual",
+      "species": "Human",
+      "population": "European_ICRP_2002",
+      "gender": "MALE",
+      "age": 1.0,
+      "age_unit": "year(s)",
+      "weight": 8.5,
+      "weight_unit": "kg",
+      "source": "Goreski 1987"
+    },
+    {
+      "name": "Goreski 1987 Patnr8",
+      "kind": "individual",
+      "species": "Human",
+      "population": "European_ICRP_2002",
+      "gender": "MALE",
+      "age": 1.6,
+      "age_unit": "year(s)",
+      "weight": 11.2,
+      "weight_unit": "kg",
+      "source": "Goreski 1987"
+    },
+    {
+      "name": "Goreski 1987 Patnr9",
+      "kind": "individual",
+      "species": "Human",
+      "population": "European_ICRP_2002",
+      "gender": "FEMALE",
+      "age": 4.7,
+      "age_unit": "year(s)",
+      "weight": 21.3,
+      "weight_unit": "kg",
+      "source": "Goreski 1987"
+    },
+    {
+      "name": "Meistelman 1987 ped.1",
+      "kind": "individual",
+      "species": "Human",
+      "population": "European_ICRP_2002",
+      "gender": "MALE",
+      "age": 4.7,
+      "age_unit": "year(s)",
+      "weight": 20.0,
+      "weight_unit": "kg",
+      "source": "Meistelman 1987"
+    },
+    {
+      "name": "Meistelman 1987 ped.2",
+      "kind": "individual",
+      "species": "Human",
+      "population": "European_ICRP_2002",
+      "gender": "MALE",
+      "age": 5.5,
+      "age_unit": "year(s)",
+      "weight": 20.0,
+      "weight_unit": "kg",
+      "source": "Meistelman 1987"
+    },
+    {
+      "name": "Meistelman 1987 ped.3",
+      "kind": "individual",
+      "species": "Human",
+      "population": "European_ICRP_2002",
+      "gender": "MALE",
+      "age": 7.7,
+      "age_unit": "year(s)",
+      "weight": 23.0,
+      "weight_unit": "kg",
+      "source": "Meistelman 1987"
+    },
+    {
+      "name": "Meistelman 1987 ped.4",
+      "kind": "individual",
+      "species": "Human",
+      "population": "European_ICRP_2002",
+      "gender": "MALE",
+      "age": 4.5,
+      "age_unit": "year(s)",
+      "weight": 14.0,
+      "weight_unit": "kg",
+      "source": "Meistelman 1987"
+    },
+    {
+      "name": "Meistelman 1987 ped.5",
+      "kind": "individual",
+      "species": "Human",
+      "population": "European_ICRP_2002",
+      "gender": "MALE",
+      "age": 4.8,
+      "age_unit": "year(s)",
+      "weight": 24.0,
+      "weight_unit": "kg",
+      "source": "Meistelman 1987"
+    },
+    {
+      "name": "Meistelman 1987 ped.6",
+      "kind": "individual",
+      "species": "Human",
+      "population": "European_ICRP_2002",
+      "gender": "MALE",
+      "age": 4.5,
+      "age_unit": "year(s)",
+      "weight": 20.0,
+      "weight_unit": "kg",
+      "source": "Meistelman 1987"
+    },
+    {
+      "name": "Meistelman 1987 ped.7",
+      "kind": "individual",
+      "species": "Human",
+      "population": "European_ICRP_2002",
+      "gender": "MALE",
+      "age": 6.2,
+      "age_unit": "year(s)",
+      "weight": 23.0,
+      "weight_unit": "kg",
+      "source": "Meistelman 1987"
+    },
+    {
+      "name": "Meistelman 1987 ped.8",
+      "kind": "individual",
+      "species": "Human",
+      "population": "European_ICRP_2002",
+      "gender": "MALE",
+      "age": 4.9,
+      "age_unit": "year(s)",
+      "weight": 22.0,
+      "weight_unit": "kg",
+      "source": "Meistelman 1987"
+    },
+    {
+      "name": "Goreski 1987 0.52y",
+      "kind": "individual",
+      "species": "Human",
+      "population": "European_ICRP_2002",
+      "gender": "MALE",
+      "age": 0.52,
+      "age_unit": "year(s)",
+      "weight": 7.38,
+      "weight_unit": "kg",
+      "source": "Goreski 1987"
+    },
+    {
+      "name": "Meistelman 1987 Children",
+      "kind": "population",
+      "number_of_individuals": 500,
+      "details": "see snapshot Populations block for full demographic ranges"
+    }
+  ]
+}
