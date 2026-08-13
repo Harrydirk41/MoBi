@@ -24,79 +24,17 @@ from __future__ import annotations
 import argparse
 import json
 import os
-import re
 import sys
 
 from pkpd_agent.config import AgentConfig
 from pkpd_agent.engines.osp_cli import OSPCli
+from pkpd_agent.engines.osp_score import map_predictions
 
 _HERE = os.path.dirname(os.path.abspath(__file__))
 _ALF = os.path.normpath(os.path.join(_HERE, "..", "..",
                                      "OSP-PBPK-Model-Library", "Alfentanil"))
 sys.path.insert(0, _ALF)
 import grade_submission as G          # noqa: E402  (path injected above)
-
-
-_MG = {"µg": 1e-3, "ug": 1e-3, "mg": 1.0, "g": 1e3}
-
-
-def _norm_study(s: str | None) -> str:
-    """Author+year key so 'Kharasch2012_Alfentanil_alone_IV', 'Kharasch 2012'
-    collapse to the same thing while 'Kharasch 2011' vs '2011b' stay distinct."""
-    m = re.search(r"([A-Za-z]+)\s*(\d{4}[a-z]?)", s or "")
-    if m:
-        return (m.group(1) + m.group(2)).lower()
-    return re.sub(r"[^a-z0-9]", "", (s or "").lower())
-
-
-def _norm_route(s) -> str | None:
-    if not s:
-        return None
-    u = str(s).upper()
-    return "PO" if u in ("PO", "ORAL") else ("IV" if "IV" in u else u)
-
-
-def _dose_canon(s) -> tuple[float, bool] | None:
-    """Canonicalize a dose string to (milligrams, per_kg) so that
-    '20 µg/kg' and '0.02 mg/kg' compare equal."""
-    if not s:
-        return None
-    m = re.search(r"([\d.]+)\s*(µg|ug|mg|g)\b\s*(/?\s*kg)?", str(s), re.IGNORECASE)
-    if not m:
-        return None
-    return float(m.group(1)) * _MG[m.group(2).lower()], bool(m.group(3))
-
-
-def _obs_key(o: dict):
-    """(study, route, dose) for an observed dataset, falling back to parsing
-    the dataset name when the metadata fields are empty (e.g. Kharasch 2012)."""
-    from pkpd_agent.engines.osp_cli import OSPCli
-    study, route, dose = o.get("study"), o.get("route"), o.get("dose")
-    if not (study and route):
-        ps, pr, pd = OSPCli._parse_sim_name(o.get("dataset", ""))
-        study = study or ps
-        route = route or pr
-        dose = dose or pd
-    return study, route, dose
-
-
-def _match_score(obs, pred) -> int | None:
-    """None if incompatible; higher = more specific match."""
-    o_study, o_route, o_dose = _obs_key(obs)
-    if _norm_study(o_study) != _norm_study(pred.study):
-        return None
-    score = 1
-    o_r, p_r = _norm_route(o_route), _norm_route(pred.route)
-    if o_r and p_r:
-        if o_r != p_r:
-            return None
-        score += 2
-    o_d, p_d = _dose_canon(o_dose), _dose_canon(pred.dose)
-    if o_d and p_d:
-        if o_d[1] != p_d[1] or abs(o_d[0] - p_d[0]) > 1e-6 + 0.01 * o_d[0]:
-            return None
-        score += 2
-    return score
 
 
 def main() -> None:
@@ -151,24 +89,9 @@ def main() -> None:
     # map simulations -> observed datasets by (study, route, dose)
     with open(args.input, encoding="utf-8") as fh:
         observed = json.load(fh)["given_data"]["clinical_observed_data"]
-    preds = res["profiles"]
-    predicted_profiles = []
-    unmatched_obs, matched = [], 0
-    for o in observed:
-        best, best_score = None, 0
-        for p in preds:
-            s = _match_score(o, p)
-            if s and s > best_score:
-                best, best_score = p, s
-        if best:
-            predicted_profiles.append({"dataset": o["dataset"],
-                                       "time_h": best.time_h,
-                                       "pred_conc_mg_L": best.conc_mg_L,
-                                       "_from_simulation": best.simulation})
-            matched += 1
-        else:
-            unmatched_obs.append(o["dataset"])
-    print(f"  matched {matched}/{len(observed)} observed datasets to simulations")
+    predicted_profiles, unmatched_obs = map_predictions(res["profiles"], observed)
+    print(f"  matched {len(predicted_profiles)}/{len(observed)} "
+          "observed datasets to simulations")
     if unmatched_obs:
         print(f"  UNMATCHED observed ({len(unmatched_obs)}): "
               f"{unmatched_obs[:3]}{' ...' if len(unmatched_obs) > 3 else ''}")
