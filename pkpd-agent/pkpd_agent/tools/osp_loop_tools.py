@@ -78,11 +78,19 @@ def register_osp_loop_tools(registry: ToolRegistry, config, ctx: dict) -> None:
 
     # -- observe -------------------------------------------------------- #
     def inspect(args: dict, session) -> ToolResult:
+        gd = inp.get("given_data", {}) or {}
+        bg = inp.get("background") or {}
         return ToolResult.success(
-            "current model + observed overview",
+            "task description: objective, known biology, literature priors, "
+            "current model, and the observed clinical data",
             objective=inp.get("objective"),
-            given_physicochemical=inp.get("given_data", {}).get(
-                "physicochemical") or inp.get("given_physicochemical"),
+            background=bg.get("description"),
+            known_biology=bg.get("literature_facts"),
+            compound_identity=gd.get("compound_identity"),
+            literature_physicochemical=gd.get("literature_physicochemical")
+            or inp.get("literature_physicochemical"),
+            unknowns_guidance=inp.get("unknowns_guidance"),
+            evaluation_rubric=inp.get("evaluation_rubric"),
             current_model=_current_model(snapshot_path),
             observed_overview=_observed_overview(observed),
             valid_partition_methods=PARTITION_METHODS,
