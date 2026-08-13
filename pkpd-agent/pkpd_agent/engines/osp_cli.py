@@ -91,9 +91,16 @@ class OSPCli:
     keep_workdir: bool = False
 
     # -- public API ------------------------------------------------------ #
+    def simulation_names(self, snapshot_path: str) -> list[str]:
+        with open(snapshot_path, encoding="utf-8") as fh:
+            data = json.load(fh)
+        return [s.get("Name") for s in (data.get("Simulations") or [])
+                if s.get("Name")]
+
     def build_and_run(self, snapshot_path: str,
                       edits: dict | None = None,
                       param_overrides: dict[str, float] | None = None,
+                      simulations: list[str] | None = None,
                       workdir: str | None = None) -> dict[str, Any]:
         """snapshot (optionally edited) -> .pksim5 -> run -> predicted profiles.
 
@@ -144,8 +151,11 @@ class OSPCli:
         if not project:
             return self._fail("no .pksim5 produced by snap", logs, wd)
 
-        # 2. project -> run + results CSV
-        r2 = self._run(["export", "-p", project, "-o", out_dir, "-r", "-c"])
+        # 2. project -> run + results CSV (optionally a subset of simulations)
+        export_args = ["export", "-p", project, "-o", out_dir, "-r", "-c"]
+        if simulations:
+            export_args += ["-s"] + list(simulations)
+        r2 = self._run(export_args)
         logs.append(r2)
         if r2["returncode"] != 0:
             return self._fail("export (run) failed", logs, wd)

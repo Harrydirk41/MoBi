@@ -154,6 +154,77 @@ def register_osp_loop_tools(registry: ToolRegistry, config, ctx: dict) -> None:
         input_schema={"type": "object", "properties": {}},
         handler=inspect, phase="observe"))
 
+    # -- act (numerical parameter identification) ----------------------- #
+    def optimize(args: dict, session) -> ToolResult:
+        from ..engines import osp_optimize as OO
+        estimate = args.get("estimate") or {}
+        if not estimate:
+            return ToolResult.error(
+                "provide 'estimate': {parameter: [lo, hi]} - the parameters to "
+                "fit numerically (choose 2-4 identifiable, uncertain ones)")
+        r = OO.run_optimization(
+            cli, snapshot_path, observed, estimate=estimate,
+            fix=args.get("fix"), structure=args.get("structure"),
+            fit_simulations=args.get("fit_simulations"),
+            max_evals=int(args.get("max_evals") or 30))
+        if not r.get("ok"):
+            return ToolResult.error(f"optimization failed: {r.get('message')}")
+
+        plist = [{"parameter": k, "value": v, "unit": ""}
+                 for k, v in r["optimized"].items()]
+        flags = osp_score.plausibility(plist)
+        gmfe = r["fit"].get("gmfe")
+        hist = session.get("osp_history") or []
+        hist.append({"estimate": list(estimate), "structure": args.get("structure"),
+                     "gmfe": gmfe})
+        session.put("osp_history", hist)
+        best = session.get("osp_best_gmfe")
+        if gmfe is not None and (best is None or gmfe < best):
+            session.put("osp_best_gmfe", gmfe)
+            session.put("osp_best_edits",
+                        {"parameters": r["optimized"], **(args.get("structure") or {})})
+        return ToolResult.success(
+            f"optimized {list(r['optimized'])} on {len(r['fit_simulations'])} "
+            f"study(ies) -> GMFE {gmfe} "
+            f"(best so far {session.get('osp_best_gmfe')})",
+            optimized=r["optimized"], fit=r["fit"], by_route=r["by_route"],
+            worst_datasets=r["worst_datasets"],
+            params_at_bound=r["params_at_bound"], parameter_flags=flags,
+            n_evals=r["n_evals"], fit_simulations=r["fit_simulations"],
+            iteration=len(hist))
+
+    registry.register(Tool(
+        name="osp_optimize",
+        description=(
+            "ACT (numerical fit): you decide WHICH parameters to estimate and "
+            "their plausible bounds; a derivative-free optimizer fits them to the "
+            "observed data (like PK-Sim Parameter Identification, headless). "
+            "estimate={parameter:[lo,hi]} (choose 2-4 identifiable, uncertain "
+            "parameters - clearance, permeabilities, effective lipophilicity - "
+            "not everything). fix={parameter:value} pins parameters at literature "
+            "values. structure={calculation_methods:..,processes:..} sets the "
+            "model structure (not optimized). Returns the optimized values, the "
+            "full-set GMFE + per-route bias, and params_at_bound (a parameter "
+            "pinned to a bound = unidentifiable or wrong structure - reason about "
+            "it). Fits against a representative subset of studies for speed."),
+        input_schema={
+            "type": "object",
+            "properties": {
+                "estimate": {"type": "object",
+                             "description": "{parameter: [lo, hi]} to fit"},
+                "fix": {"type": "object",
+                        "description": "{parameter: value} pinned at literature"},
+                "structure": {"type": "object",
+                              "description": "calculation_methods / processes"},
+                "fit_simulations": {"type": "array", "items": {"type": "string"},
+                                    "description": "optional exact simulation names"},
+                "max_evals": {"type": "integer",
+                              "description": "optimizer budget (default 30)"},
+            },
+            "required": ["estimate"],
+        },
+        handler=optimize, phase="act"))
+
     registry.register(Tool(
         name="osp_try_model",
         description=(
