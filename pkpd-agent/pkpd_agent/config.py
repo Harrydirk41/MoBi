@@ -31,6 +31,10 @@ class AgentConfig:
     rscript_path: str = "Rscript"   # Rscript.exe that has nlmixr2 / ospsuite
     nlmixr2_est: str = "focei"      # nlmixr2 estimation method: focei | saem
     mobi_cli_path: str | None = None  # path to MoBi.CLI executable (non-mock, Windows)
+    pksim_cli_path: str | None = field(
+        default_factory=lambda: os.environ.get("PKPD_PKSIM_CLI"))
+    # ^ PKSim.CLI.exe: builds a .pksim5 from a snapshot and runs it (headless PBPK)
+    pksim_timeout_s: int = 900      # PK-Sim snap+export can take minutes
     nonmem_available: bool = False  # whether pharmpy can reach a NONMEM install
 
     # --- provenance ---
