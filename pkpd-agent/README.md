@@ -34,23 +34,54 @@ The intelligence lives in the policy; the trust lives in the gates.
 
 ## Engines (the action space)
 
-| Engine | Role | Tools |
-|---|---|---|
-| **pharmpy** | population PK/PD (NLME) estimation, AMD, VPC | `pharmpy_load_model`, `pharmpy_fit`, `pharmpy_run_amd`, `pharmpy_vpc` |
-| **OSP** (MoBi / PK-Sim) | mechanistic PBPK / QSP simulation | `osp_load_snapshot`, `osp_set_parameter`, `osp_simulate` |
-| **NCA** | model-free first pass (gap-filling binding) | `nca_analyze` |
+| Engine | Role | Status | Tools |
+|---|---|---|---|
+| **pkfit** | real MLE PK fitting + NCA + Monte-Carlo VPC | **real (runs here)** | `pkfit_load_data`, `pkfit_nca`, `pkfit_fit`, `pkfit_vpc` |
+| **pharmpy** | population PK/PD (NLME) estimation, AMD, VPC | mock / needs backend | `pharmpy_load_model`, `pharmpy_fit`, `pharmpy_run_amd`, `pharmpy_vpc` |
+| **OSP** (MoBi / PK-Sim) | mechanistic PBPK / QSP simulation | mock / Windows-.NET | `osp_load_snapshot`, `osp_set_parameter`, `osp_simulate` |
+| **NCA** | model-free first pass (gap-filling binding) | real (builtin) | `nca_analyze` |
 
-Each engine has a **mock mode** (default) so the whole loop runs with no
-pharmpy, no OSP/R install, and no API key. The real call paths are written
-against the actual engine APIs and guarded behind `config.mock`.
+### The real engine: `pkfit`
 
-## Run it (no dependencies, no API key)
+`pkfit` (`engines/pkfit.py`, numpy/scipy) is a genuine estimator that runs
+in-process with **no NONMEM / nlmixr2 / R**:
+
+- closed-form 1- and 2-compartment oral PK models,
+- **maximum-likelihood** fitting (naive-pooled, proportional error),
+- **standard errors** from the observed information matrix, condition number,
+- real **model comparison** (OFV / AIC / BIC / likelihood-ratio test),
+- optional covariate model (`param = param_pop * (cov/ref) ** coef`, `coef`
+  estimated so a 1-df LRT is meaningful),
+- Monte-Carlo **VPC**.
+
+It ships a builtin dataset **simulated from a known truth** (1-cpt oral,
+allometric WT on CL), so you can watch the fit *recover the truth*.
+
+> Honest scope: `pkfit` is **naive-pooled**, not full nonlinear mixed-effects.
+> Full NLME with random effects is exactly the job that needs an external
+> backend (the pharmpy/NONMEM world). `pkfit` gives the loop a real estimator to
+> drive end to end, with real convergence, precision, and model selection.
+
+The other engines keep a **mock mode** (default) so the whole loop still runs
+with no pharmpy / OSP install; their real call paths are written and guarded
+behind `config.mock`.
+
+## Run it
 
 ```bash
 cd pkpd-agent
-python -m unittest discover -s tests   # 15 tests, stdlib only
-python -m examples.demo_dry_run        # full loop, scripted 'brain', mock engines
+pip install numpy scipy                 # for the real engine
+python -m unittest discover -s tests    # 20 tests (5 exercise the real fits)
+python -m examples.demo_real_fit        # REAL fits + real model selection, no API key
+python -m examples.demo_dry_run         # mock engines, scripted brain (stdlib only)
 ```
+
+`demo_real_fit` runs the `PharmacometricPolicy` (a transparent, non-LLM expert
+system) over the real engine. It fits a base 1-cpt model, tries 2-cpt, **rejects
+it** (the fit is degenerate — the verification gate raises a `[BLOCK]`), **keeps
+WT-on-CL** by a likelihood-ratio test (ΔOFV ≈ 32 ≫ 3.84), qualifies with a VPC,
+and validates the estimates against the known truth. That is "good decision
+making" you can run without an API key.
 
 ## Run it with Claude driving (real decisions)
 
@@ -72,18 +103,38 @@ pkpd_agent/
   system_prompt.py     the 'modeler brain' instructions
   loop.py              DecisionLoop — the small, readable Observe→Decide→Act→Evaluate driver
   llm.py               Policy interface: LLMPolicy (Claude) | ScriptedPolicy (tests)
+  policies.py          PharmacometricPolicy — a transparent, non-LLM decision policy
+  engines/
+    pkfit.py           the REAL estimation engine (numpy/scipy MLE, NCA, VPC)
   tools/
     registry.py        Tool schemas, dispatch, phase tagging (observe/act/evaluate)
-    pharmpy_tools.py   pharmpy adapter + tools
+    pkfit_tools.py     tools for the real engine
+    pharmpy_tools.py   pharmpy adapter + tools (mock / backend)
     osp_tools.py       OSP (snapshot JSON / Rscript / MoBi.CLI) adapter + tools
-    nca_tools.py       NCA binding (the gap pharmpy & OSP don't cover)
+    nca_tools.py       generic NCA binding
   verification/
     gates.py           scientific sanity checks (convergence, RSE, mass balance, VPC coverage)
 ```
 
-The **brain is swappable** (`Policy`): `LLMPolicy` for real runs, `ScriptedPolicy`
-for deterministic tests — the honest statement that the LLM is the judgment
-layer and is cleanly replaceable.
+The **brain is swappable** (`Policy`): `LLMPolicy` (Claude) for production,
+`PharmacometricPolicy` (expert-system statistics) and `ScriptedPolicy` (tests)
+for no-key runs — all interchangeable over the same loop, tools, and gates.
+That is the honest statement that the LLM is the judgment layer and is cleanly
+replaceable.
+
+## Driving the real engine with Claude
+
+```bash
+pip install anthropic numpy scipy
+export ANTHROPIC_API_KEY=...
+python -m examples.run_llm "Load the builtin dataset, build a popPK model \
+(compare 1- vs 2-compartment by AIC, test WT on CL by LRT), qualify it with a \
+VPC, and tell me whether it is trustworthy."
+```
+
+Claude makes the same decisions the expert policy does, but reasons in natural
+language and can depart from the fixed workflow — while every fit still passes
+through the verification gates.
 
 ## Wiring the real engines
 
@@ -95,9 +146,13 @@ layer and is cleanly replaceable.
 
 ## Scope & honesty
 
-This is a **v0 skeleton**: real architecture, mocked engines. It covers the two
-core engine worlds (NLME estimation + mechanistic ODE) plus one gap binding
-(NCA). It does **not** yet cover MCP-Mod, MBMA, optimal design, or PBBM — those
-are additional bindings, by design. What it does demonstrate is the load-bearing
-idea: **an LLM making pharmacometric decisions, each one verified before it
-counts.**
+The estimation engine (`pkfit`) is **real and runs here**. The population-NLME
+(pharmpy) and mechanistic-ODE (OSP) engines are **mocked**, with real call paths
+written and guarded — those are the worlds that need an external backend
+(NONMEM/nlmixr2) or the Windows/.NET runtime. It does **not** yet cover MCP-Mod,
+MBMA, optimal design, or PBBM — additional bindings, by design.
+
+What it demonstrates is the load-bearing idea, end to end on real numbers: **a
+decision-maker (LLM or expert policy) building a pharmacometric model, with
+every fit verified before it counts** — recover the truth, reject the
+over-parameterized model, keep the significant covariate, qualify with a VPC.

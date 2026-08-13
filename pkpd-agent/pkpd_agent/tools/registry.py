@@ -96,9 +96,11 @@ def build_default_registry(config) -> ToolRegistry:
     from .pharmpy_tools import register_pharmpy_tools
     from .osp_tools import register_osp_tools
     from .nca_tools import register_nca_tools
+    from .pkfit_tools import register_pkfit_tools
 
     registry = ToolRegistry()
-    register_pharmpy_tools(registry, config)
-    register_osp_tools(registry, config)
-    register_nca_tools(registry, config)
+    register_pkfit_tools(registry, config)     # the real (runs-here) engine
+    register_pharmpy_tools(registry, config)   # popPK/PD via pharmpy (mock/backend)
+    register_osp_tools(registry, config)       # mechanistic PBPK/QSP via OSP (mock)
+    register_nca_tools(registry, config)       # generic NCA binding
     return registry

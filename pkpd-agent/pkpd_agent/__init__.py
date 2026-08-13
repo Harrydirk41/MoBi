@@ -17,6 +17,13 @@ __version__ = "0.1.0"
 
 from .config import AgentConfig
 from .loop import DecisionLoop
+from .policies import PharmacometricPolicy
 from .state import ModelingSession
 
-__all__ = ["AgentConfig", "DecisionLoop", "ModelingSession", "__version__"]
+__all__ = [
+    "AgentConfig",
+    "DecisionLoop",
+    "ModelingSession",
+    "PharmacometricPolicy",
+    "__version__",
+]

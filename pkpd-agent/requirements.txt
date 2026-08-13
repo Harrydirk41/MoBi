@@ -1,12 +1,14 @@
-# Core skeleton has NO required third-party dependencies (stdlib only) and runs
-# in mock mode out of the box. Install these to drive the real pieces:
+# The REAL estimation engine (pkfit) needs numpy + scipy. Install these to run
+# the real fits / model selection / VPC (examples/demo_real_fit.py):
+numpy>=1.24
+scipy>=1.10
 
-# LLM brain (real runs)
+# LLM brain (real Claude-driven runs):
 anthropic>=0.116
 
-# Population PK/PD engine (real NLME estimation, AMD, VPC).
-# PyPI package name is 'pharmpy-core'; imported as 'pharmpy'.
-# pharmpy-core>=1.0
-
-# OSP (MoBi/PK-Sim) is driven out-of-process via the R package 'ospsuite'
+# Optional external pharmacometric engines:
+# pharmpy-core>=1.0     # population NLME (needs a NONMEM / nlmixr2 backend)
+# OSP (MoBi/PK-Sim) is driven out-of-process via the 'ospsuite' R package
 # (Rscript) or MoBi.CLI on Windows/.NET - not a pip dependency.
+
+# The mock-engine loop and its tests are stdlib-only and need none of the above.

@@ -18,8 +18,12 @@ Gate = Callable[[str, dict[str, Any], "ModelingSession"], list[Finding]]  # noqa
 # Estimation gates (pharmpy)
 # --------------------------------------------------------------------------- #
 
+_FIT_TOOLS = {"pharmpy_fit", "pkfit_fit"}
+_VPC_TOOLS = {"pharmpy_vpc", "pkfit_vpc"}
+
+
 def fit_convergence_gate(tool: str, data: dict[str, Any], session) -> list[Finding]:
-    if tool != "pharmpy_fit":
+    if tool not in _FIT_TOOLS:
         return []
     out: list[Finding] = []
     if data.get("minimization_successful") is False:
@@ -40,7 +44,7 @@ def fit_convergence_gate(tool: str, data: dict[str, Any], session) -> list[Findi
 
 
 def rse_plausibility_gate(tool: str, data: dict[str, Any], session) -> list[Finding]:
-    if tool != "pharmpy_fit":
+    if tool not in _FIT_TOOLS:
         return []
     out: list[Finding] = []
     for name, rse in (data.get("relative_standard_errors") or {}).items():
@@ -89,7 +93,7 @@ def physical_sanity_gate(tool: str, data: dict[str, Any], session) -> list[Findi
 # --------------------------------------------------------------------------- #
 
 def vpc_coverage_gate(tool: str, data: dict[str, Any], session) -> list[Finding]:
-    if tool != "pharmpy_vpc":
+    if tool not in _VPC_TOOLS:
         return []
     inside = data.get("pct_observations_within_90_pi")
     if isinstance(inside, (int, float)) and inside < 80:
