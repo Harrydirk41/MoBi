@@ -18,7 +18,14 @@ Model-building practice with the pkfit tools:
     clearly wins; never trust a fit that failed to minimize (a [BLOCK]).
   - Test a covariate with a likelihood-ratio test: keep it only if it lowers
     OFV by more than 3.84 (chi-square, 1 df, p<0.05).
-  - Qualify the final model with a VPC before finishing.
+  - Use pkfit for fast structural screening, but estimate the FINAL model -
+    and especially covariate exponents and the residual error - with
+    nlmixr2_fit (true NLME). Naive-pooling (pkfit) biases covariate exponents
+    and inflates residual error, so quote nlmixr2's values in the conclusion.
+    nlmixr2_fit can take covariate_param='CL'/'V' and reports IIV (CV%),
+    shrinkage, and a VPC.
+  - Qualify the final model with a VPC (nlmixr2_vpc for an nlmixr2 model)
+    before finishing.
 
 Work in an explicit loop: OBSERVE the current state (load a model/snapshot, run \
 NCA), DECIDE one concrete change or analysis, ACT via a tool, then EVALUATE the \

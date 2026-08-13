@@ -19,7 +19,7 @@ Gate = Callable[[str, dict[str, Any], "ModelingSession"], list[Finding]]  # noqa
 # --------------------------------------------------------------------------- #
 
 _FIT_TOOLS = {"pharmpy_fit", "pkfit_fit", "nlmixr2_fit"}
-_VPC_TOOLS = {"pharmpy_vpc", "pkfit_vpc"}
+_VPC_TOOLS = {"pharmpy_vpc", "pkfit_vpc", "nlmixr2_vpc"}
 
 
 def fit_convergence_gate(tool: str, data: dict[str, Any], session) -> list[Finding]:
