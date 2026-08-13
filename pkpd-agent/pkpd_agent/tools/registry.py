@@ -98,8 +98,10 @@ def build_default_registry(config) -> ToolRegistry:
     from .nca_tools import register_nca_tools
     from .pkfit_tools import register_pkfit_tools
     from .nlmixr2_tools import register_nlmixr2_tools
+    from .snapshot_tools import register_snapshot_tools
 
     registry = ToolRegistry()
+    register_snapshot_tools(registry, config)  # OSP snapshot JSON -> data (stdlib)
     register_pkfit_tools(registry, config)     # real, runs-here (numpy/scipy)
     register_nlmixr2_tools(registry, config)   # real NLME via R (nlmixr2)
     register_pharmpy_tools(registry, config)   # popPK/PD via pharmpy (Python/backend)
