@@ -1,0 +1,9 @@
+{
+  "parameters": {
+    "Lipophilicity": 1.8463211883,
+    "Fraction unbound (plasma, reference value)": 0.1,
+    "Specific intestinal permeability (transcellular)": 0.00057373577138,
+    "Permeability": 0.0068752756625,
+    "Intrinsic clearance": 0.5272297928
+  }
+}

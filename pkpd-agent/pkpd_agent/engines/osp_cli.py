@@ -92,9 +92,14 @@ class OSPCli:
 
     # -- public API ------------------------------------------------------ #
     def build_and_run(self, snapshot_path: str,
+                      edits: dict | None = None,
                       param_overrides: dict[str, float] | None = None,
                       workdir: str | None = None) -> dict[str, Any]:
-        """snapshot (optionally patched) -> .pksim5 -> run -> predicted profiles.
+        """snapshot (optionally edited) -> .pksim5 -> run -> predicted profiles.
+
+        ``edits`` is the structured spec from ``snapshot_edit`` (parameters,
+        calculation_methods, processes). ``param_overrides`` is a shorthand for
+        ``edits={"parameters": ...}`` kept for backwards compatibility.
 
         Returns {ok, message, profiles:[PredictedProfile...], project, logs}.
         """
@@ -103,13 +108,16 @@ class OSPCli:
                     f"PKSim.CLI not found at {self.pksim_cli_path!r}; "
                     "set config.pksim_cli_path or PKPD_PKSIM_CLI.", "profiles": []}
 
+        from .snapshot_edit import apply_edits
         with open(snapshot_path, encoding="utf-8") as fh:
             snap = json.load(fh)
         mol_weight = self._mol_weight(snap)
+
+        edit_spec = dict(edits or {})
         if param_overrides:
-            applied = self._apply_overrides(snap, param_overrides)
-        else:
-            applied = {}
+            edit_spec.setdefault("parameters", {})
+            edit_spec["parameters"] = {**param_overrides, **edit_spec["parameters"]}
+        snap, applied = apply_edits(snap, edit_spec)
 
         wd = workdir or tempfile.mkdtemp(prefix="ospcli_")
         in_dir = os.path.join(wd, "in")
@@ -146,12 +154,16 @@ class OSPCli:
         if not self.keep_workdir and not workdir:
             shutil.rmtree(wd, ignore_errors=True)
 
+        n_edits = (len(applied.get("parameters", {}))
+                   + len(applied.get("calculation_methods", {}))
+                   + len([v for v in applied.get("processes", {}).values()
+                          if v == "disabled"]))
         return {"ok": bool(profiles),
                 "message": (f"ran {len(profiles)} simulation(s); "
-                            f"applied {len(applied)} override(s)")
+                            f"applied {n_edits} edit(s)")
                            if profiles else "no result CSVs parsed",
                 "profiles": profiles, "project": project,
-                "overrides_applied": applied, "logs": logs, "mol_weight": mol_weight}
+                "edits_applied": applied, "logs": logs, "mol_weight": mol_weight}
 
     # -- snapshot helpers ------------------------------------------------ #
     @staticmethod
@@ -161,29 +173,6 @@ class OSPCli:
             if p.get("Name") == "Molecular weight":
                 return p.get("Value")
         return None
-
-    @staticmethod
-    def _apply_overrides(snap: dict, overrides: dict[str, float]) -> dict[str, float]:
-        """Set compound parameter Values by name (matches anywhere in the
-        compound block: Parameters list and nested physchem blocks)."""
-        comp = (snap.get("Compounds") or [{}])[0]
-        want = {k.lower(): v for k, v in overrides.items()}
-        applied: dict[str, float] = {}
-
-        def walk(obj: Any) -> None:
-            if isinstance(obj, dict):
-                nm = obj.get("Name")
-                if isinstance(nm, str) and nm.lower() in want and "Value" in obj:
-                    obj["Value"] = want[nm.lower()]
-                    applied[nm] = want[nm.lower()]
-                for v in obj.values():
-                    walk(v)
-            elif isinstance(obj, list):
-                for v in obj:
-                    walk(v)
-
-        walk(comp)
-        return applied
 
     # -- CSV parsing ----------------------------------------------------- #
     def _parse_results(self, out_dir: str, mol_weight: float | None) \

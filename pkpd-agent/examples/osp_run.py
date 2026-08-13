@@ -108,6 +108,9 @@ def main() -> None:
     ap.add_argument("--overrides", default=None,
                     help='JSON dict of compound param overrides, '
                          'e.g. {"Lipophilicity": 2.0}')
+    ap.add_argument("--edits", default=None,
+                    help='Full edit spec: a JSON file path or inline JSON with '
+                         'keys parameters / calculation_methods / processes')
     ap.add_argument("--pksim", default=None, help="path to PKSim.CLI.exe "
                     "(else config / PKPD_PKSIM_CLI)")
     ap.add_argument("--reason", action="store_true", help="run the Claude judge too")
@@ -120,16 +123,30 @@ def main() -> None:
                  timeout_s=cfg.pksim_timeout_s, keep_workdir=args.keep_workdir)
 
     overrides = json.loads(args.overrides) if args.overrides else None
+    edits = None
+    if args.edits:
+        if os.path.exists(args.edits):
+            with open(args.edits, encoding="utf-8") as fh:
+                edits = json.load(fh)
+        else:
+            edits = json.loads(args.edits)
     print(f"running PK-Sim on {os.path.basename(args.snapshot)} ...")
-    res = cli.build_and_run(args.snapshot, param_overrides=overrides)
+    res = cli.build_and_run(args.snapshot, edits=edits, param_overrides=overrides)
     if not res["ok"]:
         print("ENGINE FAILED:", res["message"])
         for lg in res.get("logs", []):
             print(f"  [{lg['cmd']}] rc={lg['returncode']} {lg['stderr'][:300]}")
         sys.exit(1)
     print(f"  {res['message']}")
-    if res.get("overrides_applied"):
-        print(f"  overrides applied: {res['overrides_applied']}")
+    applied = res.get("edits_applied") or {}
+    if applied.get("parameters"):
+        print(f"  parameters set: {applied['parameters']}")
+    if applied.get("calculation_methods"):
+        print(f"  methods set: {applied['calculation_methods']}")
+    if applied.get("processes"):
+        print(f"  processes: {applied['processes']}")
+    if applied.get("not_found"):
+        print(f"  NOT FOUND (ignored): {applied['not_found']}")
 
     # map simulations -> observed datasets by (study, route, dose)
     with open(args.input, encoding="utf-8") as fh:
@@ -165,8 +182,8 @@ def main() -> None:
             },
             "parameters": [
                 {"parameter": k, "value": v, "fixed_or_estimated": "estimated",
-                 "rationale": "override applied to snapshot"}
-                for k, v in (overrides or {}).items()
+                 "rationale": "edit applied to snapshot"}
+                for k, v in applied.get("parameters", {}).items()
             ],
             "predicted_profiles": predicted_profiles,
         }
