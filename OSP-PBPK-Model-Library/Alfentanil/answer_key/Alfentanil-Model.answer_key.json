@@ -1,0 +1,46 @@
+{
+  "schema": "osp-answer-key/v1",
+  "warning": "REFERENCE ANSWERS - do NOT provide to the agent. Grading only.",
+  "compound": "Alfentanil",
+  "structural_choices": {
+    "calculation_methods": [
+      "Cellular partition coefficient method - Rodgers and Rowland",
+      "Cellular permeability - PK-Sim Standard"
+    ],
+    "metabolizing_processes": [
+      {
+        "molecule": "CYP3A4",
+        "type": "MetabolizationIntrinsic_FirstOrder"
+      }
+    ]
+  },
+  "estimated_parameters": [
+    {
+      "parameter": "Lipophilicity",
+      "value": 1.8463211883,
+      "unit": "Log Units"
+    },
+    {
+      "parameter": "Fraction unbound (plasma, reference value)",
+      "value": 0.1,
+      "unit": ""
+    },
+    {
+      "parameter": "Specific intestinal permeability (transcellular)",
+      "value": 0.00057373577138,
+      "unit": "cm/min"
+    },
+    {
+      "parameter": "Permeability",
+      "value": 0.0068752756625,
+      "unit": "cm/min"
+    },
+    {
+      "parameter": "Intrinsic clearance",
+      "value": 0.5272297928,
+      "unit": "l/min"
+    }
+  ],
+  "reference_metrics": {},
+  "notes": "Reference goodness-of-fit (GMFE) and diagnostic plots are in Alfentanil_evaluation_report.md sections 3.1-3.3."
+}

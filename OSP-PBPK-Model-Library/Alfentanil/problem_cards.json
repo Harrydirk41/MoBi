@@ -1,0 +1,46 @@
+{
+  "_comment": "Curated PUBLIC problem cards, keyed by snapshot stem. Only literature/in-vitro facts and the task objective go here - NO fitted values, method choices, or results. build_clean_input.py merges the matching card into the agent-facing input; anything model-derived is routed to answer_key/ instead.",
+
+  "Alfentanil-Model": {
+    "task_id": "alfentanil-adult-build",
+    "objective": "Build a whole-body PBPK model for alfentanil that reproduces the observed plasma concentration-time data after intravenous and oral dosing across the studies provided. You decide the model structure and any parameters you cannot obtain from the given data, and you justify them. No modeling strategy and no reference results are provided.",
+    "background": {
+      "description": "Alfentanil is a potent, fast- and short-acting synthetic opioid used for anesthesia during surgery.",
+      "literature_facts": [
+        "Metabolized primarily by hepatic CYP3A4 (in vitro and clinical evidence).",
+        "Renal excretion of unchanged drug is <1% (negligible).",
+        "Not a P-glycoprotein substrate.",
+        "Given clinically by IV; some drug-interaction studies also report oral profiles."
+      ]
+    },
+    "literature_physicochemical": [
+      {"parameter": "Molecular weight", "value": 416.52, "unit": "g/mol", "source": "DrugBank DB00802"},
+      {"parameter": "pKa (base)", "value": 6.5, "source": "Jansson 2008"},
+      {"parameter": "Solubility", "value": 992, "unit": "mg/L", "at_pH": 6.5, "source": "Baneyx 2014"},
+      {"parameter": "logD (pH 7.4)", "reported_values": [2.1, 2.2], "source": "Baneyx 2014 / Jansson 2008"},
+      {"parameter": "Fraction unbound in plasma", "reported_range_percent": [8.6, 12.0], "source": "Gertz 2010 / Edginton 2008 / Almond 2016"},
+      {"parameter": "Plasma protein binding partner", "value": "alpha-1-acid glycoprotein"}
+    ]
+  },
+
+  "Alfentanil-Pediatrics": {
+    "task_id": "alfentanil-pediatric-extrapolation",
+    "objective": "Predict pediatric alfentanil plasma concentration-time profiles by scaling a PBPK model to children using age-appropriate body physiology and enzyme ontogeny. This is an extrapolation task: use the same drug properties as in adults and do NOT estimate any parameters from the pediatric data. The pediatric observed data is the target to reproduce, not to fit.",
+    "background": {
+      "description": "Alfentanil PK in children, used to test whether an adult PBPK model extrapolates to pediatric ages via physiology and CYP3A4 ontogeny.",
+      "literature_facts": [
+        "Metabolized primarily by hepatic CYP3A4; CYP3A4 abundance matures with age (ontogeny).",
+        "Renal excretion of unchanged drug is <1% (negligible).",
+        "Not a P-glycoprotein substrate."
+      ]
+    },
+    "literature_physicochemical": [
+      {"parameter": "Molecular weight", "value": 416.52, "unit": "g/mol", "source": "DrugBank DB00802"},
+      {"parameter": "pKa (base)", "value": 6.5, "source": "Jansson 2008"},
+      {"parameter": "Solubility", "value": 992, "unit": "mg/L", "at_pH": 6.5, "source": "Baneyx 2014"},
+      {"parameter": "logD (pH 7.4)", "reported_values": [2.1, 2.2], "source": "Baneyx 2014 / Jansson 2008"},
+      {"parameter": "Fraction unbound in plasma", "reported_range_percent": [8.6, 12.0], "source": "Gertz 2010 / Edginton 2008 / Almond 2016"},
+      {"parameter": "Plasma protein binding partner", "value": "alpha-1-acid glycoprotein"}
+    ]
+  }
+}

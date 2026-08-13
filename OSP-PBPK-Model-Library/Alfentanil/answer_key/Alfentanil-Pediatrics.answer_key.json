@@ -1,0 +1,20 @@
+{
+  "schema": "osp-answer-key/v1",
+  "warning": "REFERENCE ANSWERS - do NOT provide to the agent. Grading only.",
+  "compound": "Alfentanil",
+  "structural_choices": {
+    "calculation_methods": [
+      "Cellular partition coefficient method - Rodgers and Rowland",
+      "Cellular permeability - PK-Sim Standard"
+    ],
+    "metabolizing_processes": [
+      {
+        "molecule": "CYP3A4",
+        "type": "MetabolizationIntrinsic_FirstOrder"
+      }
+    ]
+  },
+  "estimated_parameters": [],
+  "reference_metrics": {},
+  "notes": "Reference goodness-of-fit (GMFE) and diagnostic plots are in Alfentanil_evaluation_report.md sections 3.1-3.3."
+}
