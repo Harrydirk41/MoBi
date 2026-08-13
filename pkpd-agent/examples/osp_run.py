@@ -1,4 +1,4 @@
-"""Stage-1 proof: run the REAL PBPK model headless and grade it.
+r"""Stage-1 proof: run the REAL PBPK model headless and grade it.
 
 Pipeline (no LLM, no GUI):
     snapshot JSON  --PKSim.CLI snap+export-->  simulated profiles

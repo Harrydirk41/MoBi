@@ -294,15 +294,15 @@ def grade_outputs(observed: dict, submission: dict) -> dict[str, Any]:
         route = (route_of.get(name) or "").upper()
 
         if "IV" in route:
-            # bolus: peak should be at/near the first sample, then decline
-            if imax > 1:
+            # IV: a bolus peaks at t0; an infusion peaks at end-of-infusion. Both
+            # are valid, so we don't warn on a late peak. We only flag a genuine
+            # rebound: a secondary rise well AFTER the peak (non-monotone tail).
+            rebound = sum(1 for i in range(imax + 2, len(vals))
+                          if vals[i] > vals[i - 1] * 1.10)
+            if rebound >= 2:
                 findings.append({"dataset": name, "status": "warn",
-                                 "message": f"IV profile peaks at index {imax}, "
-                                            "not near t0 (bolus expected to decline)"})
-            tail_up = sum(1 for i in range(imax + 1, len(vals)) if vals[i] > vals[i - 1] * 1.05)
-            if tail_up:
-                findings.append({"dataset": name, "status": "warn",
-                                 "message": "IV profile rises again after the peak"})
+                                 "message": "IV profile rises again after the peak "
+                                            "(non-monotone elimination)"})
         else:
             # oral: expect a rise to Cmax then a decline
             if imax == 0:
