@@ -1,0 +1,17 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pkpd-agent"
+version = "0.1.0"
+description = "An LLM decision loop over pharmacometric engines (pharmpy + OSP)."
+requires-python = ">=3.10"
+dependencies = []          # core skeleton is stdlib-only; runs in mock mode
+
+[project.optional-dependencies]
+llm = ["anthropic>=0.116"]
+pharmpy = ["pharmpy-core>=1.0"]
+
+[tool.setuptools.packages.find]
+include = ["pkpd_agent*"]

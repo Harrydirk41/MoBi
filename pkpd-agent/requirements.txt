@@ -1,0 +1,12 @@
+# Core skeleton has NO required third-party dependencies (stdlib only) and runs
+# in mock mode out of the box. Install these to drive the real pieces:
+
+# LLM brain (real runs)
+anthropic>=0.116
+
+# Population PK/PD engine (real NLME estimation, AMD, VPC).
+# PyPI package name is 'pharmpy-core'; imported as 'pharmpy'.
+# pharmpy-core>=1.0
+
+# OSP (MoBi/PK-Sim) is driven out-of-process via the R package 'ospsuite'
+# (Rscript) or MoBi.CLI on Windows/.NET - not a pip dependency.
