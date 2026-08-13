@@ -9,6 +9,7 @@ OSP / NONMEM install; set mock=False once the engines are wired to your setup.
     python -m examples.run_llm "Fit a one-compartment popPK model to warfarin.mod"
 """
 
+import os
 import sys
 
 from pkpd_agent.config import AgentConfig
@@ -18,10 +19,14 @@ from pkpd_agent.state import Decision, Finish, Observation
 
 def main() -> None:
     goal = sys.argv[1] if len(sys.argv) > 1 else (
-        "Load warfarin.mod, fit it, run a VPC, and tell me whether the fit is "
-        "trustworthy."
+        "Load the builtin dataset. Fit it with the fast pkfit engine and with "
+        "nlmixr2 (true NLME); compare the residual-error estimates and tell me "
+        "which to trust and why. Qualify the chosen model with a VPC."
     )
-    cfg = AgentConfig(mock=True)  # engines mocked; the LLM decisions are real
+    # REAL engines: pkfit always real; nlmixr2/OSP become real when an Rscript
+    # with the backends is provided via the PKPD_RSCRIPT environment variable.
+    cfg = AgentConfig(mock=False,
+                      rscript_path=os.environ.get("PKPD_RSCRIPT", "Rscript"))
     if not cfg.anthropic_key_present():
         print("ANTHROPIC_API_KEY not set - see demo_dry_run.py for a no-key run.")
         return
