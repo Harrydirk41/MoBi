@@ -97,10 +97,12 @@ def build_default_registry(config) -> ToolRegistry:
     from .osp_tools import register_osp_tools
     from .nca_tools import register_nca_tools
     from .pkfit_tools import register_pkfit_tools
+    from .nlmixr2_tools import register_nlmixr2_tools
 
     registry = ToolRegistry()
-    register_pkfit_tools(registry, config)     # the real (runs-here) engine
-    register_pharmpy_tools(registry, config)   # popPK/PD via pharmpy (mock/backend)
-    register_osp_tools(registry, config)       # mechanistic PBPK/QSP via OSP (mock)
+    register_pkfit_tools(registry, config)     # real, runs-here (numpy/scipy)
+    register_nlmixr2_tools(registry, config)   # real NLME via R (nlmixr2)
+    register_pharmpy_tools(registry, config)   # popPK/PD via pharmpy (Python/backend)
+    register_osp_tools(registry, config)       # mechanistic PBPK/QSP via OSP (R/.NET)
     register_nca_tools(registry, config)       # generic NCA binding
     return registry

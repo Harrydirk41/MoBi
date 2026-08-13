@@ -28,7 +28,8 @@ class AgentConfig:
 
     # --- engines ---
     mock: bool = True               # synthetic engine results; no real deps required
-    rscript_path: str = "Rscript"   # used by the OSP adapter in non-mock mode
+    rscript_path: str = "Rscript"   # Rscript.exe that has nlmixr2 / ospsuite
+    nlmixr2_est: str = "focei"      # nlmixr2 estimation method: focei | saem
     mobi_cli_path: str | None = None  # path to MoBi.CLI executable (non-mock, Windows)
     nonmem_available: bool = False  # whether pharmpy can reach a NONMEM install
 

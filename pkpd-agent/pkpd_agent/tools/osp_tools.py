@@ -15,10 +15,16 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
+import shutil
 import subprocess
+import tempfile
 from typing import Any
 
 from .registry import Tool, ToolRegistry, ToolResult
+
+_OSP_WORKER = os.path.join(os.path.dirname(os.path.dirname(__file__)),
+                           "engines", "r_workers", "osp_sim.R")
 
 
 class OSPEngine:
@@ -67,25 +73,26 @@ class OSPEngine:
         return self._simulate_real(snapshot_id, output)
 
     def _simulate_real(self, snapshot_id: str, output: str) -> dict[str, Any]:
-        """Drive OSP headlessly. Prefers the ospsuite R package; falls back to
-        MoBi.CLI on a snapshot. Both require the Windows/.NET runtime."""
+        """Drive OSP headlessly via the ospsuite R worker (osp_sim.R).
+
+        snapshot_id encodes the path to a .pkml simulation. Requires an Rscript
+        with ospsuite installed (see SETUP_WINDOWS.md)."""
         path = snapshot_id.replace("snap::", "", 1)
-        if self.config.mobi_cli_path:
-            cmd = [self.config.mobi_cli_path, "snapshot",
-                   "--input", path, "--run-simulations"]
-        else:
-            r_script = (
-                "library(ospsuite);"
-                f"sim <- loadSimulation('{path}');"
-                "res <- runSimulations(sim)[[1]];"
-                "cat(exportResultsToJson(res))"
-            )
-            cmd = [self.config.rscript_path, "-e", r_script]
-        proc = subprocess.run(cmd, capture_output=True, text=True, timeout=600)
-        if proc.returncode != 0:
-            raise RuntimeError(f"OSP run failed: {proc.stderr[:400]}")
-        return {"snapshot_id": snapshot_id, "output": output,
-                "raw": proc.stdout[:2000], "source": "osp"}
+        rs = self.config.rscript_path
+        if not (rs and (os.path.exists(rs) or shutil.which(rs))):
+            raise RuntimeError("Rscript not found for OSP (set config.rscript_path)")
+        with tempfile.TemporaryDirectory() as d:
+            out_path = os.path.join(d, "out.json")
+            proc = subprocess.run([rs, _OSP_WORKER, path, out_path],
+                                  capture_output=True, text=True, timeout=1200)
+            if not os.path.exists(out_path):
+                raise RuntimeError(f"OSP worker produced no output: {proc.stderr[:400]}")
+            with open(out_path, encoding="utf-8") as fh:
+                result = json.load(fh)
+        if not result.get("ok", False):
+            raise RuntimeError(result.get("message", "OSP simulation failed"))
+        result["snapshot_id"] = snapshot_id
+        return result
 
     def set_parameter(self, snapshot_id: str, path: str, value: float) -> dict[str, Any]:
         if self.config.mock:

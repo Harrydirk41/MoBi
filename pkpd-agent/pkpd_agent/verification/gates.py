@@ -18,7 +18,7 @@ Gate = Callable[[str, dict[str, Any], "ModelingSession"], list[Finding]]  # noqa
 # Estimation gates (pharmpy)
 # --------------------------------------------------------------------------- #
 
-_FIT_TOOLS = {"pharmpy_fit", "pkfit_fit"}
+_FIT_TOOLS = {"pharmpy_fit", "pkfit_fit", "nlmixr2_fit"}
 _VPC_TOOLS = {"pharmpy_vpc", "pkfit_vpc"}
 
 

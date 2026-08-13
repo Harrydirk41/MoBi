@@ -37,9 +37,22 @@ The intelligence lives in the policy; the trust lives in the gates.
 | Engine | Role | Status | Tools |
 |---|---|---|---|
 | **pkfit** | real MLE PK fitting + NCA + Monte-Carlo VPC | **real (runs here)** | `pkfit_load_data`, `pkfit_nca`, `pkfit_fit`, `pkfit_vpc` |
-| **pharmpy** | population PK/PD (NLME) estimation, AMD, VPC | mock / needs backend | `pharmpy_load_model`, `pharmpy_fit`, `pharmpy_run_amd`, `pharmpy_vpc` |
-| **OSP** (MoBi / PK-Sim) | mechanistic PBPK / QSP simulation | mock / Windows-.NET | `osp_load_snapshot`, `osp_set_parameter`, `osp_simulate` |
+| **nlmixr2** | true NLME popPK (random effects, SAEM/FOCEi) | real via R backend | `nlmixr2_fit` |
+| **pharmpy** | population PK/PD estimation, AMD, VPC | real via Python + backend | `pharmpy_load_model`, `pharmpy_fit`, `pharmpy_run_amd`, `pharmpy_vpc` |
+| **OSP** (MoBi / PK-Sim) | mechanistic PBPK / QSP simulation | real via R (`ospsuite`) | `osp_load_snapshot`, `osp_set_parameter`, `osp_simulate` |
 | **NCA** | model-free first pass (gap-filling binding) | real (builtin) | `nca_analyze` |
+
+**Wiring the real backends:** see **[SETUP_WINDOWS.md](SETUP_WINDOWS.md)** for a
+step-by-step (nlmixr2 + pharmpy + OSP from a conda env). Check what's live with:
+
+```bash
+python -m pkpd_agent.doctor                       # what's installed / what it unlocks
+python -m pkpd_agent.doctor --rscript "C:\...\Rscript.exe"
+```
+
+The real R/.NET backends (nlmixr2, ospsuite) are reached through small worker
+scripts in `engines/r_workers/`; each tool errors *clearly* (never crashes) when
+its backend is absent, so the loop is always runnable.
 
 ### The real engine: `pkfit`
 
