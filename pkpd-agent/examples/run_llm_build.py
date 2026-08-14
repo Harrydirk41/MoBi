@@ -172,7 +172,14 @@ def main() -> None:
         d = report.assemble(session, cfg, cli, inp, args.snapshot,
                             session.get("osp_best_edits") or {},
                             ref_snapshot_path=args.reference, answer_edits=answer)
-        html_path = args.report if args.report.endswith(".html") else args.report + ".html"
+        # always write into the case's report/ folder (case = parent of json_input)
+        case_dir = os.path.dirname(os.path.dirname(os.path.abspath(args.input)))
+        report_dir = os.path.join(case_dir, "report")
+        os.makedirs(report_dir, exist_ok=True)
+        name = os.path.basename(args.report) or "report.html"
+        if not name.endswith(".html"):
+            name += ".html"
+        html_path = os.path.join(report_dir, name)
         report.write_html(d, html_path)
         print(f"wrote {html_path}")
         pdf_path = html_path[:-5] + ".pdf"
