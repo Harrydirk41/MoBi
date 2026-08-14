@@ -180,14 +180,13 @@ def deterministic_narrative(d: "ReportData") -> dict[str, str]:
         lines.append(msg)
     pr = ("The estimated parameters are pharmacologically plausible:\n"
           + "\n".join(lines))
+    # blind conclusion: judged on the model's own fit + plausibility, not the
+    # reference (the ground-truth comparison is a separate, factual section).
     g = d.fit.get("gmfe")
-    rg = d.reference.get("gmfe")
     concl = (f"The model reproduces the observed plasma concentrations with an "
-             f"overall GMFE of {g}"
-             + (f" (reference model {rg})." if rg else ".")
-             + " The fit and the parameter values are consistent with the drug's "
-             "known disposition, supporting the model as an adequate description "
-             "of the pharmacokinetics.")
+             f"overall GMFE of {g}. The fit and the parameter values are "
+             "consistent with the drug's known disposition, supporting the model "
+             "as an adequate description of the pharmacokinetics.")
     return {"model_choice": mc, "parameter_rationale": pr, "conclusion": concl}
 
 
@@ -197,10 +196,15 @@ def llm_narrative(d: "ReportData", config) -> dict[str, str]:
         import anthropic
     except Exception:
         return deterministic_narrative(d)
+    # BLIND: the narrative is written without the ground-truth model, so the
+    # scientific rationale is justified on physics + data, not on "it matches the
+    # reference". The reference stays only in the factual comparison section.
+    blind_params = [{k: v for k, v in p.items() if k != "reference"}
+                    for p in d.parameters]
     payload = {
         "objective": d.objective, "known_biology": d.known_biology,
-        "structure": d.structure, "parameters": d.parameters,
-        "fit": d.fit, "reference_comparison": d.reference,
+        "structure": d.structure, "parameters": blind_params,
+        "fit": {k: v for k, v in d.fit.items() if k != "reference"},
     }
     tool = {"name": "write_sections", "description": "Write the report narrative.",
             "input_schema": {"type": "object", "properties": {
