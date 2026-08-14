@@ -9,6 +9,7 @@ import math
 import os
 import unittest
 
+from pkpd_agent.engines import osp_ddi
 from pkpd_agent.engines.osp_ddi import (analyze_ddi, interaction_ratios,
                                         score_ddi, _auc)
 
@@ -87,6 +88,61 @@ class TestDDIMetric(unittest.TestCase):
 
     def test_auc_trapezoid(self):
         self.assertAlmostEqual(_auc([0, 2], [1.0, 1.0]), 2.0, places=6)
+
+
+
+class TestDDIEditingAndOrchestration(unittest.TestCase):
+    @unittest.skipUnless(os.path.exists(ERY), "Erythromycin snapshot not present")
+    def test_edit_interaction_parameters_on_perpetrator(self):
+        from pkpd_agent.engines.snapshot_edit import apply_edits
+        with open(ERY, encoding="utf-8") as fh:
+            snap = json.load(fh)
+        new, rep = apply_edits(snap, {"interaction_parameters": [
+            {"perpetrator": "Erythromycin", "internal_name": "IrreversibleInhibition",
+             "target": "CYP3A4", "parameters": {"kinact": 0.05, "K_kinact_half": 5.0}}]})
+        ery = next(c for c in new["Compounds"] if c["Name"] == "Erythromycin")
+        mbi = next(p for p in ery["Processes"]
+                   if p.get("InternalName") == "IrreversibleInhibition")
+        vals = {x["Name"]: x["Value"] for x in mbi["Parameters"]}
+        self.assertEqual(vals["kinact"], 0.05)
+        self.assertEqual(vals["K_kinact_half"], 5.0)
+        self.assertIn("Erythromycin/IrreversibleInhibition/kinact",
+                      rep["interaction_parameters"])
+
+    def test_unknown_perpetrator_reported(self):
+        from pkpd_agent.engines.snapshot_edit import apply_edits
+        _, rep = apply_edits({"Compounds": [{"Name": "A"}]},
+                             {"interaction_parameters": [
+                                 {"perpetrator": "Z", "internal_name": "X",
+                                  "parameters": {"Ki": 1}}]})
+        self.assertTrue(any("Z" in m for m in rep["not_found"]))
+
+    def test_orchestration_runs_pairs_and_scores(self):
+        import math
+
+        class P:
+            def __init__(s, n, t, c): s.simulation, s.time_h, s.conc_mg_L = n, t, c
+
+        class Cli:
+            def build_and_run(s, snap, edits=None, simulations=None,
+                              prune_simulations=False, target_molecule=None):
+                assert target_molecule == "Midazolam"
+                pr = []
+                for nm in simulations:
+                    d = 0.2 if nm.startswith("Treatment") else 0.8
+                    pr.append(P(nm, [0, 1, 2, 4, 8],
+                               [0.1 * math.exp(-d * x) for x in [0, 1, 2, 4, 8]]))
+                return {"ok": True, "profiles": pr}
+
+        ddi = {"pairs": [{"control": "Control_S_IV", "treatment": "Treatment_S_IV",
+                          "route": "IV"}]}
+        out = osp_ddi.run_ddi_prediction(
+            Cli(), "x", ddi, "Midazolam",
+            observed_ratios=[{"treatment": "Treatment_S_IV", "auc_ratio": 3.0}])
+        self.assertTrue(out["ok"])
+        self.assertEqual(out["n_ran"], 2)
+        self.assertGreater(out["predicted_ratios"][0]["auc_ratio"], 1.0)
+        self.assertIn("gmfe_aucr", out["score"])
 
 
 if __name__ == "__main__":

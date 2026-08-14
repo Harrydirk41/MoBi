@@ -102,7 +102,8 @@ class OSPCli:
                       param_overrides: dict[str, float] | None = None,
                       simulations: list[str] | None = None,
                       workdir: str | None = None,
-                      prune_simulations: bool = False) -> dict[str, Any]:
+                      prune_simulations: bool = False,
+                      target_molecule: str | None = None) -> dict[str, Any]:
         """snapshot (optionally edited) -> .pksim5 -> run -> predicted profiles.
 
         ``edits`` is the structured spec from ``snapshot_edit`` (parameters,
@@ -169,7 +170,7 @@ class OSPCli:
         if r2["returncode"] != 0:
             return self._fail("export (run) failed", logs, wd)
 
-        profiles = self._parse_results(out_dir, mol_weight)
+        profiles = self._parse_results(out_dir, mol_weight, target_molecule)
         if not self.keep_workdir and not workdir:
             shutil.rmtree(wd, ignore_errors=True)
 
@@ -213,18 +214,20 @@ class OSPCli:
         return None
 
     # -- CSV parsing ----------------------------------------------------- #
-    def _parse_results(self, out_dir: str, mol_weight: float | None) \
+    def _parse_results(self, out_dir: str, mol_weight: float | None,
+                       target_molecule: str | None = None) \
             -> list[PredictedProfile]:
         profiles = []
         for csv_path in sorted(glob.glob(os.path.join(out_dir, "*", "*-Results.csv"))):
             sim_name = os.path.basename(os.path.dirname(csv_path))
-            prof = self._parse_one(csv_path, sim_name, mol_weight)
+            prof = self._parse_one(csv_path, sim_name, mol_weight, target_molecule)
             if prof:
                 profiles.append(prof)
         return profiles
 
     def _parse_one(self, csv_path: str, sim_name: str,
-                   mol_weight: float | None) -> PredictedProfile | None:
+                   mol_weight: float | None,
+                   target_molecule: str | None = None) -> PredictedProfile | None:
         with open(csv_path, encoding="utf-8", errors="replace", newline="") as fh:
             rows = list(csv.reader(fh))
         if len(rows) < 2:
@@ -237,7 +240,8 @@ class OSPCli:
             return None
         t_unit = _unit_in_brackets(header[t_idx])
         # concentration column: peripheral venous plasma, a concentration unit
-        c_idx = self._pick_conc_column(header)
+        # (the target/victim molecule's, when a DDI run has several compounds)
+        c_idx = self._pick_conc_column(header, target_molecule)
         if c_idx is None:
             return None
         c_unit = _unit_in_brackets(header[c_idx])
@@ -270,7 +274,7 @@ class OSPCli:
         return PredictedProfile(sim_name, study, route, dose, time_h, conc_mg_L)
 
     @staticmethod
-    def _pick_conc_column(header: list[str]) -> int | None:
+    def _pick_conc_column(header: list[str], target_molecule: str | None = None) -> int | None:
         conc_cols = []
         for i, h in enumerate(header):
             u = _unit_in_brackets(h)
@@ -278,6 +282,17 @@ class OSPCli:
                 conc_cols.append((i, h))
         if not conc_cols:
             return None
+        # in a DDI run the CSV has a column per compound - pick the target
+        # (victim) molecule's plasma, else the perpetrator's would be scored.
+        if target_molecule:
+            tl = target_molecule.lower()
+            for i, h in conc_cols:
+                hl = h.lower()
+                if tl in hl and "peripheralvenousblood" in hl and "plasma" in hl:
+                    return i
+            for i, h in conc_cols:
+                if tl in h.lower():
+                    return i
         # prefer peripheral venous plasma (matches observed clinical matrix)
         for i, h in conc_cols:
             hl = h.lower()

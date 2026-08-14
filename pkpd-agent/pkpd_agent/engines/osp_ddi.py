@@ -185,3 +185,35 @@ def score_ddi(predicted: list[dict], observed: list[dict]) -> dict[str, Any]:
                      / len(logfolds), 1) if logfolds else None)
     return {"gmfe_aucr": gmfe, "within_2fold_pct": within2, "per_arm": rows,
             "n": len(logfolds)}
+
+
+# --------------------------------------------------------------------------- #
+# orchestration: run the control/treatment pairs and predict the DDI ratio
+# --------------------------------------------------------------------------- #
+
+def run_ddi_prediction(cli, snapshot_path: str, ddi: dict, victim: str,
+                       edits: dict | None = None,
+                       observed_ratios: list | None = None) -> dict[str, Any]:
+    """Build+run the control and treatment simulations, extract the VICTIM's
+    plasma from each, and compute the predicted interaction ratios (optionally
+    scored against observed). ``edits`` may tune the perpetrator's interaction
+    parameters (interaction_parameters). This is the DDI analogue of the
+    single-compound build-and-score path; the model structure (which enzyme, the
+    mechanism) is the ground-truth model's - the agent tunes/predicts the
+    interaction, then checks the ratio."""
+    pairs = ddi.get("pairs") or []
+    sims = sorted({p["control"] for p in pairs} | {p["treatment"] for p in pairs})
+    if not sims:
+        return {"ok": False, "message": "no control/treatment pairs to run"}
+    res = cli.build_and_run(snapshot_path, edits=edits, simulations=sims,
+                            prune_simulations=True, target_molecule=victim)
+    if not res.get("ok"):
+        return {"ok": False, "message": res.get("message"), "edits_applied": res.get("edits_applied")}
+    profiles_by_sim = {p.simulation: {"time_h": p.time_h, "conc": p.conc_mg_L}
+                       for p in res["profiles"]}
+    predicted = interaction_ratios(pairs, profiles_by_sim)
+    out = {"ok": True, "victim": victim, "predicted_ratios": predicted,
+           "n_pairs": len(pairs), "n_ran": len(profiles_by_sim)}
+    if observed_ratios:
+        out["score"] = score_ddi(predicted, observed_ratios)
+    return out

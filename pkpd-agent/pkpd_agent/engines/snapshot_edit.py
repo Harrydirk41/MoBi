@@ -61,7 +61,57 @@ def apply_edits(snapshot: dict, edits: dict | None) -> tuple[dict, dict]:
     _apply_processes(comp, sims, comp_name, edits.get("processes") or {}, report)
     _apply_add_processes(comp, sims, comp_name,
                          edits.get("add_processes") or [], expressed, report)
+    _apply_interaction_parameters(snap.get("Compounds") or [],
+                                  edits.get("interaction_parameters") or [], report)
     return snap, report
+
+
+# --------------------------------------------------------------------------- #
+# DDI: tune a perpetrator's interaction (inhibition / induction) parameters
+# --------------------------------------------------------------------------- #
+
+def _apply_interaction_parameters(compounds: list, specs: list, report: dict) -> None:
+    """Set parameters on a perpetrator compound's interaction process (e.g. the
+    kinact / K_kinact_half of an IrreversibleInhibition on CYP3A4). The values
+    live on the compound-level process (the simulation carries only a reference),
+    so editing here is sufficient. Each spec:
+        {perpetrator, internal_name, target?(molecule), parameters:{name:value}}"""
+    report.setdefault("interaction_parameters", {})
+    by_name = {c.get("Name"): c for c in compounds if isinstance(c, dict)}
+    for spec in specs:
+        if not isinstance(spec, dict):
+            continue
+        pname = spec.get("perpetrator")
+        comp = by_name.get(pname)
+        if comp is None:
+            report["not_found"].append(f"interaction:compound {pname!r} not found")
+            continue
+        inm = spec.get("internal_name")
+        target = spec.get("target")
+        matched = [p for p in comp.get("Processes") or []
+                   if p.get("InternalName") == inm
+                   and (target is None or p.get("Molecule") == target
+                        or p.get("MoleculeName") == target)]
+        if not matched:
+            report["not_found"].append(
+                f"interaction:{pname}/{inm}"
+                + (f" on {target}" if target else "") + " not found")
+            continue
+        wanted = {k.lower(): (k, v) for k, v in (spec.get("parameters") or {}).items()}
+        hit = set()
+        for proc in matched:
+            for par in proc.get("Parameters") or []:
+                nm = par.get("Name")
+                if isinstance(nm, str) and nm.lower() in wanted:
+                    orig, val = wanted[nm.lower()]
+                    par["Value"] = val
+                    par.pop("ValueOrigin", None)
+                    report["interaction_parameters"][f"{pname}/{inm}/{orig}"] = val
+                    hit.add(nm.lower())
+        for low, (orig, _) in wanted.items():
+            if low not in hit:
+                report["not_found"].append(
+                    f"interaction:{pname}/{inm} has no parameter {orig!r}")
 
 
 # --------------------------------------------------------------------------- #

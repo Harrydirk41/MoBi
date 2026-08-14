@@ -106,5 +106,19 @@ class TestSimulationPruning(unittest.TestCase):
         self.assertEqual(len(out["Simulations"]), 4)   # unchanged
 
 
+
+class TestVictimColumnSelection(unittest.TestCase):
+    HDR = ["IndividualId", "Time [min]",
+           "Organism|PeripheralVenousBlood|Erythromycin|Plasma (Peripheral Venous Blood) [µmol/l]",
+           "Organism|PeripheralVenousBlood|Midazolam|Plasma (Peripheral Venous Blood) [µmol/l]"]
+
+    def test_picks_target_molecule(self):
+        self.assertEqual(OSPCli._pick_conc_column(self.HDR, "Midazolam"), 3)
+        self.assertEqual(OSPCli._pick_conc_column(self.HDR, "Erythromycin"), 2)
+
+    def test_default_first_plasma_when_no_target(self):
+        self.assertEqual(OSPCli._pick_conc_column(self.HDR), 2)
+
+
 if __name__ == "__main__":
     unittest.main()
