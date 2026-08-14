@@ -310,7 +310,9 @@ def assemble(session, config, cli, input_dict, snapshot_path, best_edits,
         structure=structure, parameters=params + fixed_rows, fit=fit, reference=ref,
         profiles=profiles, narrative={}, trajectory=_trajectory(session),
         diagnostics=diag, status=_status_banner(diag),
-        odes=_ode_section(structure, params, fixed))
+        odes=_ode_section(structure, params, fixed),
+        literature=(input_dict.get("given_data", {}) or {}).get(
+            "literature_physicochemical", []) or [])
     d.narrative = (llm_narrative(d, config) if config and config.anthropic_key_present()
                    else deterministic_narrative(d))
     return d
@@ -338,11 +340,38 @@ class ReportData:
     diagnostics: dict[str, Any] = field(default_factory=dict)  # honest run self-assessment
     status: str = ""                       # one-line banner shown at the top
     odes: dict[str, Any] = field(default_factory=dict)  # governing equations + param map
+    literature: list = field(default_factory=list)  # literature physchem anchors
 
 
 # --------------------------------------------------------------------------- #
 # deterministic narrative (fallback when no LLM synthesis)
 # --------------------------------------------------------------------------- #
+
+def _lit_anchor(param_name: str, literature: list) -> tuple[float, float] | None:
+    """Map a model parameter to the literature physchem range [lo, hi] if there
+    is a comparable measured value, so the fitted value can be checked against it."""
+    key = param_name.lower()
+    def vals(entry):
+        out = []
+        if entry.get("value") is not None:
+            out.append(float(entry["value"]))
+        out += [float(x) for x in entry.get("reported_values", [])]
+        rp = entry.get("reported_range_percent")
+        if rp:
+            out += [float(x) / 100.0 for x in rp]
+        return out
+    for e in literature or []:
+        pn = str(e.get("parameter", "")).lower()
+        if "lipophil" in key and ("logd" in pn or "logp" in pn):
+            v = vals(e)
+            if v:
+                return (min(v), max(v))
+        if "unbound" in key and "unbound" in pn:
+            v = vals(e)
+            if v:
+                return (min(v), max(v))
+    return None
+
 
 def deterministic_narrative(d: "ReportData") -> dict[str, str]:
     methods = d.structure.get("calculation_methods", [])
@@ -354,23 +383,35 @@ def deterministic_narrative(d: "ReportData") -> dict[str, str]:
     lines = []
     for p in d.parameters:
         rng = p.get("plausible_range")
-        prior = p.get("prior")
         v = p.get("value")
+        if p.get("role") == "fixed":
+            continue   # rationale is about the estimated parameters
         msg = f"- {p['name']} = {v:.4g} {p.get('unit','')}".rstrip()
-        if rng and v is not None and rng[0] <= v <= rng[1]:
+        # compare against the independent literature anchor when one exists
+        anchor = _lit_anchor(p["name"], d.literature) if v is not None else None
+        if anchor:
+            lo, hi = anchor
+            if lo <= v <= hi:
+                msg += f" — consistent with the literature value ({lo:g}–{hi:g})."
+            else:
+                fold = v / ((lo + hi) / 2) if (lo + hi) else None
+                near = lo if v < lo else hi
+                msg += (f" — DEPARTS from the literature value ({lo:g}–{hi:g}): "
+                        f"fitted {'below' if v < near else 'above'} the measured "
+                        f"value{f' (~{fold:.2g}× the midpoint)' if fold else ''}; "
+                        "likely effective-vs-measured difference or optimizer "
+                        "compensation — interpret with caution.")
+        elif "permeab" in p["name"].lower():
+            msg += (" — no independent measurement; identified only from plasma "
+                    "data and typically WEAKLY IDENTIFIABLE, so its absolute value "
+                    "is uncertain.")
+        elif rng and v is not None and rng[0] <= v <= rng[1]:
             msg += f" — within the physiological range {rng}."
         elif rng:
             msg += f" — OUTSIDE the expected range {rng}; review."
-        if prior is not None:
-            try:
-                fold = v / prior if prior else None
-                if fold:
-                    msg += f" ({fold:.2g}x the literature prior {prior:.3g})."
-            except (TypeError, ZeroDivisionError):
-                pass
         lines.append(msg)
-    pr = ("The estimated parameters are pharmacologically plausible:\n"
-          + "\n".join(lines))
+    pr = ("Each estimated parameter, checked against independent literature where "
+          "available:\n" + "\n".join(lines))
     # blind conclusion: judged on the model's own fit + plausibility, not the
     # reference (the ground-truth comparison is a separate, factual section).
     # Tone MUST match the fit - do not call a poor fit adequate.
@@ -413,6 +454,11 @@ def llm_narrative(d: "ReportData", config) -> dict[str, str]:
     payload = {
         "objective": d.objective, "known_biology": d.known_biology,
         "structure": d.structure, "parameters": blind_params,
+        # the independent LITERATURE anchors (measured physchem) so the rationale
+        # can COMPARE each fitted value to what is known, not just rubber-stamp it
+        # as "within range". This is what turns the section from narration into a
+        # critique. (These are public literature values, NOT the fitted reference.)
+        "literature_physicochemical": d.literature,
         "fit": {k: v for k, v in d.fit.items() if k != "reference"},
         # honest facts the narrative MUST respect - do not describe fitting that
         # did not happen, and match the tone to the fit quality.
@@ -433,21 +479,34 @@ def llm_narrative(d: "ReportData", config) -> dict[str, str]:
         import json as _json
         msg = client.messages.create(
             model=config.model, max_tokens=3500,
-            system=("You are a pharmacometrician writing the narrative of a PBPK "
-                    "evaluation report. Be precise and mechanistic: justify the "
-                    "model choice and why each estimated parameter is "
-                    "pharmacologically reasonable (relate to lipophilicity, "
-                    "protein binding, clearance vs organ blood flow, permeability/"
-                    "absorption). Describe ONLY what actually happened: honor "
-                    "run_facts - if optimization_completed is false or "
-                    "parameters_were_fitted is false, do NOT claim parameters were "
-                    "calibrated/fitted; say they were un-fitted/hand-set and the "
-                    "result is preliminary. Match the tone to fit_verdict - never "
-                    "call a 'poor' fit adequate or fit-for-purpose. Each parameter "
-                    "is labelled role=estimated or role=fixed - describe it as such "
-                    "(never call an estimated parameter 'measured'). Keep each "
-                    "section focused: 1-2 tight paragraphs; ALWAYS fill the "
-                    "conclusion. Call write_sections."),
+            system=(
+                "You are a pharmacometrician CRITICALLY evaluating a PBPK model - "
+                "not advertising it. Be precise and mechanistic.\n"
+                "model_choice: justify the structure (distribution/permeability "
+                "method, processes) from the biology.\n"
+                "parameter_rationale: for EACH estimated parameter, COMPARE the "
+                "fitted value against the literature_physicochemical anchor when "
+                "one exists (e.g. fitted lipophilicity vs the reported logD/logP; "
+                "fitted fraction unbound vs the reported range). If the fitted "
+                "value AGREES with literature, say so - that is real support. If it "
+                "DEPARTS from literature (e.g. lipophilicity fitted well below the "
+                "measured logD), you MUST flag it explicitly and explain it "
+                "(effective vs measured lipophilicity, or the optimizer "
+                "compensating across correlated parameters) - do NOT rationalize a "
+                "departure as fine just because it is inside a wide plausible "
+                "range. Parameters identified only from plasma data and lacking a "
+                "literature anchor (tissue/intestinal permeabilities) are typically "
+                "WEAKLY IDENTIFIABLE - state that their absolute values are "
+                "uncertain and should not be over-interpreted. A good fit with a "
+                "parameter far from its expected value is a caution, not a success.\n"
+                "Describe ONLY what happened: honor run_facts - if "
+                "optimization_completed or parameters_were_fitted is false, do NOT "
+                "claim parameters were fitted; call them un-fitted/preliminary. "
+                "Match the tone to fit_verdict - never call a 'poor' fit adequate. "
+                "Each parameter is labelled role=estimated or role=fixed - describe "
+                "it as such (never call an estimated parameter 'measured'). Keep "
+                "each section focused: 1-2 tight paragraphs; ALWAYS fill the "
+                "conclusion. Call write_sections."),
             tools=[tool],
             messages=[{"role": "user", "content": _json.dumps(payload, default=str)}])
         for b in msg.content:

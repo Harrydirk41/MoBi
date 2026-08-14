@@ -91,5 +91,48 @@ class TestNarrativeNeverEmpty(unittest.TestCase):
         self.assertTrue(str(nar.get("conclusion") or "").strip())
 
 
+class TestLiteratureAnchoredRationale(unittest.TestCase):
+    """The rationale must COMPARE fitted values to literature anchors and flag
+    departures / weak identifiability, not rubber-stamp everything as plausible."""
+
+    def _data(self, params):
+        from pkpd_agent.report import ReportData
+        return ReportData(
+            title="t", objective="o", background="", known_biology=[],
+            data_overview={}, nca_rows=[],
+            structure={"calculation_methods": ["Rodgers and Rowland"],
+                       "processes": ["CYP3A4"]},
+            parameters=params, fit={"gmfe": 1.48}, reference={}, profiles=[],
+            narrative={}, trajectory=[],
+            diagnostics={"optimization_succeeded": True, "params_fitted": True,
+                         "fit_verdict": "good", "gmfe": 1.48},
+            literature=[
+                {"parameter": "logD (pH 7.4)", "reported_values": [2.1, 2.2]},
+                {"parameter": "Fraction unbound in plasma",
+                 "reported_range_percent": [8.6, 12.0]}])
+
+    def test_flags_lipophilicity_departure(self):
+        from pkpd_agent.report import deterministic_narrative
+        d = self._data([{"name": "Lipophilicity", "value": 1.45, "unit": "",
+                         "role": "estimated", "plausible_range": [-2, 7]}])
+        pr = deterministic_narrative(d)["parameter_rationale"]
+        self.assertIn("DEPARTS", pr)      # 1.45 vs literature 2.1-2.2
+
+    def test_confirms_fu_consistent(self):
+        from pkpd_agent.report import deterministic_narrative
+        d = self._data([{"name": "Fraction unbound (plasma, reference value)",
+                         "value": 0.116, "unit": "", "role": "estimated",
+                         "plausible_range": [0.001, 1.0]}])
+        pr = deterministic_narrative(d)["parameter_rationale"]
+        self.assertIn("consistent with the literature", pr)
+
+    def test_flags_permeability_weak_identifiability(self):
+        from pkpd_agent.report import deterministic_narrative
+        d = self._data([{"name": "Permeability", "value": 1.4e-4, "unit": "cm/min",
+                         "role": "estimated", "plausible_range": [1e-6, 1.0]}])
+        pr = deterministic_narrative(d)["parameter_rationale"]
+        self.assertIn("WEAKLY IDENTIFIABLE", pr)
+
+
 if __name__ == "__main__":
     unittest.main()
