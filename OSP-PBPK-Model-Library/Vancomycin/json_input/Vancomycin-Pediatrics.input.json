@@ -1,0 +1,306 @@
+{
+  "schema": "osp-agent-task/v2",
+  "task_id": "Vancomycin-Pediatrics",
+  "source_snapshot": "Vancomycin-Pediatrics.json",
+  "compound": "Vancomycin",
+  "objective": "Build a whole-body PBPK model for Vancomycin that reproduces the observed plasma concentration-time data. Decide the model structure and any parameters you cannot obtain from the given data, and justify them. No modeling strategy and no reference results are provided.",
+  "background": {
+    "description": "Vancomycin PBPK modeling task.",
+    "literature_facts": [
+      "Renal clearance via glomerular filtration is present.",
+      "Reference distribution/permeability methods exist but are withheld; choose your own."
+    ]
+  },
+  "given_data": {
+    "compound_identity": {
+      "name": "Vancomycin",
+      "is_small_molecule": true
+    },
+    "literature_physicochemical": [
+      {
+        "parameter": "Solubility at reference pH",
+        "value": 225.0,
+        "unit": "mg/l",
+        "source": "Drugbank"
+      },
+      {
+        "parameter": "Reference pH",
+        "value": 7.0,
+        "unit": "",
+        "source": "Drugbank"
+      },
+      {
+        "parameter": "GFR fraction",
+        "value": 1.0,
+        "unit": "",
+        "source": "Zhou 2016"
+      },
+      {
+        "parameter": "Molecular weight",
+        "value": 1449.3,
+        "unit": "g/mol",
+        "source": "Radke 2017"
+      }
+    ],
+    "clinical_observed_data": [
+      {
+        "dataset": "Schaad 1980 - ID 1 - Vancomycin - IV - 15 mg/kg - Plasma - indiv.",
+        "study": "Schaad 1980",
+        "molecule": "Vancomycin",
+        "route": "IV",
+        "dose": "15 mg/kg",
+        "n_points": 6,
+        "time_unit": "h",
+        "conc_unit": "mg/L",
+        "time_h": [
+          0.5,
+          1.0,
+          1.5,
+          2.5,
+          4.5,
+          6.5
+        ],
+        "conc_mg_L": [
+          29.8,
+          22.799998,
+          19.5,
+          17.7,
+          14.2,
+          11.5
+        ],
+        "sd_mg_L": [
+          3.70405173,
+          3.968627,
+          2.91032648,
+          2.91032648,
+          3.17490149,
+          2.116601
+        ]
+      },
+      {
+        "dataset": "Schaad 1980 - ID 2 - Vancomycin - IV - 10 mg/kg - Plasma - indiv.",
+        "study": "Schaad 1980",
+        "molecule": "Vancomycin",
+        "route": "IV",
+        "dose": "10 mg/kg",
+        "n_points": 6,
+        "time_unit": "h",
+        "conc_unit": "mg/L",
+        "time_h": [
+          1.0,
+          1.5,
+          2.0,
+          3.0,
+          5.0,
+          7.0
+        ],
+        "conc_mg_L": [
+          26.1,
+          17.5,
+          14.6,
+          11.5,
+          8.3,
+          5.9
+        ],
+        "sd_mg_L": [
+          4.156922,
+          4.84974241,
+          4.156922,
+          3.81051183,
+          3.81051183,
+          2.77128124
+        ]
+      },
+      {
+        "dataset": "Schaad 1980 - ID 3 - Vancomycin - IV - 15 mg/kg - Plasma - indiv.",
+        "study": "Schaad 1980",
+        "molecule": "Vancomycin",
+        "route": "IV",
+        "dose": "15 mg/kg",
+        "n_points": 6,
+        "time_unit": "h",
+        "conc_unit": "mg/L",
+        "time_h": [
+          1.0,
+          1.5,
+          2.0,
+          3.0,
+          5.0,
+          7.0
+        ],
+        "conc_mg_L": [
+          28.0,
+          18.5,
+          15.600001,
+          11.1,
+          6.9,
+          5.2
+        ],
+        "sd_mg_L": [
+          2.2,
+          3.8,
+          2.8,
+          4.0,
+          4.2,
+          3.0
+        ]
+      },
+      {
+        "dataset": "Schaad 1980 - ID 4 - Vancomycin - IV - 15 mg/kg - Plasma - indiv.",
+        "study": "Schaad 1980",
+        "molecule": "Vancomycin",
+        "route": "IV",
+        "dose": "15 mg/kg",
+        "n_points": 6,
+        "time_unit": "h",
+        "conc_unit": "mg/L",
+        "time_h": [
+          1.0,
+          1.5,
+          2.0,
+          3.0,
+          5.0,
+          7.0
+        ],
+        "conc_mg_L": [
+          32.5,
+          17.7,
+          13.600001,
+          9.5,
+          5.09999951,
+          3.0
+        ],
+        "sd_mg_L": [
+          4.472136,
+          2.236068,
+          2.01246119,
+          1.34164083,
+          1.118034,
+          0.6708204
+        ]
+      },
+      {
+        "dataset": "Schaad 1980 - ID 5 - Vancomycin - IV - 10 mg/kg - Plasma - indiv.",
+        "study": "Schaad 1980",
+        "molecule": "Vancomycin",
+        "route": "IV",
+        "dose": "10 mg/kg",
+        "n_points": 6,
+        "time_unit": "h",
+        "conc_unit": "mg/L",
+        "time_h": [
+          1.0,
+          1.5,
+          2.0,
+          3.0,
+          5.0,
+          7.0
+        ],
+        "conc_mg_L": [
+          27.200002,
+          16.9,
+          12.4,
+          7.6,
+          4.1,
+          2.6
+        ],
+        "sd_mg_L": [
+          3.17490149,
+          3.17490149,
+          1.58745074,
+          1.58745074,
+          1.0583005,
+          1.0583005
+        ]
+      },
+      {
+        "dataset": "Schaad 1980 - ID 6 - Vancomycin - IV - 10 mg/kg - Plasma - indiv.",
+        "study": "Schaad 1980",
+        "molecule": "Vancomycin",
+        "route": "IV",
+        "dose": "10 mg/kg",
+        "n_points": 6,
+        "time_unit": "h",
+        "conc_unit": "mg/L",
+        "time_h": [
+          0.5,
+          1.0,
+          1.5,
+          2.5,
+          4.5,
+          6.5
+        ],
+        "conc_mg_L": [
+          30.5,
+          18.2,
+          14.4,
+          8.9,
+          4.9,
+          2.6
+        ],
+        "sd_mg_L": [
+          7.593418,
+          4.65403032,
+          4.40908146,
+          2.44948983,
+          1.4696939,
+          0.0489898
+        ]
+      }
+    ],
+    "study_designs": [
+      {
+        "name": "Schaad 10 mg/kg 60min",
+        "application_type": "Intravenous"
+      },
+      {
+        "name": "Schaad 15 mg/kg 30min",
+        "application_type": "Intravenous"
+      },
+      {
+        "name": "Schaad 10 mg/kg 30min",
+        "application_type": "Intravenous"
+      },
+      {
+        "name": "Schaad 15mg/kg 60min",
+        "application_type": "Intravenous"
+      }
+    ],
+    "demographics": [
+      {
+        "name": "Schaad 1980 (3.1 months)",
+        "species": "Human"
+      },
+      {
+        "name": "Schaad 1980 (4.3 months)",
+        "species": "Human"
+      },
+      {
+        "name": "Schaad 1980 (5,583y)",
+        "species": "Human"
+      },
+      {
+        "name": "Schaad 1980 (2.6d )",
+        "species": "Human"
+      },
+      {
+        "name": "Schaad 1980 (7.583yr)",
+        "species": "Human"
+      },
+      {
+        "name": "Schaad 1980 (3.917yr)",
+        "species": "Human"
+      }
+    ]
+  },
+  "data_overview": {
+    "n_observed_datasets": 6,
+    "routes": [
+      "IV"
+    ],
+    "studies": [
+      "Schaad 1980"
+    ]
+  },
+  "unknowns_guidance": "Some compound parameters cannot be read off the given data and must be estimated so the model reproduces the observations. Decide which to fix at literature values and which to estimate, choose a distribution/permeability approach, and justify each choice."
+}

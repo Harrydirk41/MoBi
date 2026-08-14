@@ -1,0 +1,41 @@
+{
+  "schema": "osp-answer-key/v1",
+  "warning": "REFERENCE ANSWERS - grading only, never shown to the agent.",
+  "compound": "Montelukast",
+  "structural_choices": {
+    "calculation_methods": [
+      "Cellular partition coefficient method - Rodgers and Rowland",
+      "Cellular permeability - PK-Sim Standard"
+    ],
+    "metabolizing_processes": [
+      {
+        "molecule": "CYP2C8",
+        "type": "rCYP450_FirstOrder"
+      },
+      {
+        "molecule": "CYP3A4",
+        "type": "rCYP450_FirstOrder"
+      },
+      {
+        "molecule": "CYP2C9",
+        "type": "rCYP450_FirstOrder"
+      },
+      {
+        "molecule": "CYP3A5",
+        "type": "rCYP450_FirstOrder"
+      }
+    ]
+  },
+  "estimated_parameters": [
+    {
+      "parameter": "Lipophilicity",
+      "value": 3.3153408097,
+      "unit": "Log Units"
+    },
+    {
+      "parameter": "Specific intestinal permeability (transcellular)",
+      "value": 0.0819181318,
+      "unit": "cm/min"
+    }
+  ]
+}

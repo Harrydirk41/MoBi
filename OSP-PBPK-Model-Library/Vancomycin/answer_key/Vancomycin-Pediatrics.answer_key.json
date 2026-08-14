@@ -1,0 +1,29 @@
+{
+  "schema": "osp-answer-key/v1",
+  "warning": "REFERENCE ANSWERS - grading only, never shown to the agent.",
+  "compound": "Vancomycin",
+  "structural_choices": {
+    "calculation_methods": [
+      "Cellular partition coefficient method - Schmitt",
+      "Cellular permeability - Charge dependent Schmitt"
+    ],
+    "metabolizing_processes": []
+  },
+  "estimated_parameters": [
+    {
+      "parameter": "Lipophilicity",
+      "value": 2.2307891407,
+      "unit": "Log Units"
+    },
+    {
+      "parameter": "Fraction unbound (plasma, reference value)",
+      "value": 0.67,
+      "unit": ""
+    },
+    {
+      "parameter": "Specific clearance",
+      "value": 0.0,
+      "unit": "1/min"
+    }
+  ]
+}

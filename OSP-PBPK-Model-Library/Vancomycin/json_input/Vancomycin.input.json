@@ -1,0 +1,337 @@
+{
+  "schema": "osp-agent-task/v2",
+  "task_id": "Vancomycin",
+  "source_snapshot": "Vancomycin.json",
+  "compound": "Vancomycin",
+  "objective": "Build a whole-body PBPK model for Vancomycin that reproduces the observed plasma concentration-time data. Decide the model structure and any parameters you cannot obtain from the given data, and justify them. No modeling strategy and no reference results are provided.",
+  "background": {
+    "description": "Vancomycin PBPK modeling task.",
+    "literature_facts": [
+      "Renal clearance via glomerular filtration is present.",
+      "Reference distribution/permeability methods exist but are withheld; choose your own."
+    ]
+  },
+  "given_data": {
+    "compound_identity": {
+      "name": "Vancomycin",
+      "is_small_molecule": true
+    },
+    "literature_physicochemical": [
+      {
+        "parameter": "Solubility at reference pH",
+        "value": 225.0,
+        "unit": "mg/l",
+        "source": "Drugbank"
+      },
+      {
+        "parameter": "Reference pH",
+        "value": 7.0,
+        "unit": "",
+        "source": "Drugbank"
+      },
+      {
+        "parameter": "GFR fraction",
+        "value": 1.0,
+        "unit": "",
+        "source": "Zhou 2016"
+      },
+      {
+        "parameter": "Molecular weight",
+        "value": 1449.3,
+        "unit": "g/mol",
+        "source": "Radke 2017"
+      }
+    ],
+    "clinical_observed_data": [
+      {
+        "dataset": "Boekh 1988 - mean 0.5g - Vancomycin - IV - 0.5 g - Plasma - agg. (n=10)",
+        "study": "Boekh 1988",
+        "molecule": "Vancomycin",
+        "route": "IV",
+        "dose": "0.5 g",
+        "n_points": 9,
+        "time_unit": "h",
+        "conc_unit": "mg/L",
+        "time_h": [
+          1.0,
+          1.5,
+          2.0,
+          2.5,
+          3.0,
+          5.0,
+          7.0,
+          9.0,
+          13.0
+        ],
+        "conc_mg_L": [
+          32.4589883,
+          19.03693,
+          13.5988193,
+          11.03624,
+          9.166775,
+          5.83099951,
+          3.624048,
+          2.74338721,
+          1.536024
+        ],
+        "sd_mg_L": [
+          15.45756,
+          7.15817,
+          5.61058,
+          6.07255,
+          3.18463,
+          1.51974,
+          1.365528,
+          1.43222,
+          1.560193
+        ]
+      },
+      {
+        "dataset": "Boekh 1988 - mean 1g - Vancomycin - IV - 1 g - Plasma - agg. (n=10)",
+        "study": "Boekh 1988",
+        "molecule": "Vancomycin",
+        "route": "IV",
+        "dose": "1 g",
+        "n_points": 9,
+        "time_unit": "h",
+        "conc_unit": "mg/L",
+        "time_h": [
+          1.0,
+          1.5,
+          2.0,
+          2.5,
+          3.0,
+          5.0,
+          7.0,
+          9.0,
+          13.0
+        ],
+        "conc_mg_L": [
+          48.1525938,
+          32.8377,
+          25.73827,
+          20.8881074,
+          16.75642,
+          10.17552,
+          7.18494,
+          5.192365,
+          3.010159
+        ],
+        "sd_mg_L": [
+          15.45756,
+          7.15817,
+          5.61058,
+          6.07255,
+          3.18463,
+          1.51974,
+          1.365528,
+          1.43222,
+          1.560193
+        ]
+      },
+      {
+        "dataset": "Healy 1987 - mean 0.5g - Vancomycin - IV - 0.5 g - Plasma - agg. (n=11)",
+        "study": "Healy 1987",
+        "molecule": "Vancomycin",
+        "route": "IV",
+        "dose": "0.5 g",
+        "n_points": 34,
+        "time_unit": "h",
+        "conc_unit": "mg/L",
+        "time_h": [
+          0.80268,
+          0.90301,
+          1.30435,
+          1.50502,
+          1.90636,
+          2.40803,
+          3.11037,
+          3.51171,
+          3.91304,
+          4.91639,
+          5.91973,
+          11.83947,
+          12.94314,
+          13.44482,
+          13.84615,
+          18.0602,
+          23.77926,
+          24.88294,
+          24.98328,
+          25.28428,
+          25.29,
+          26.08696,
+          26.48829,
+          26.98997,
+          27.59197,
+          27.79264,
+          28.79599,
+          30.90301,
+          33.01003,
+          36.92308,
+          40.73579,
+          48.76254,
+          54.88294,
+          61.00335
+        ],
+        "conc_mg_L": [
+          32.21053,
+          27.56842,
+          23.21053,
+          19.4210488,
+          13.92632,
+          11.93684,
+          10.04211,
+          8.71579,
+          7.673684,
+          6.15789551,
+          5.589474,
+          7.48421,
+          35.1473672,
+          24.2526289,
+          20.36842,
+          10.51579,
+          11.17895,
+          40.168418,
+          35.715793,
+          32.11579,
+          27.37895,
+          22.35789,
+          19.8,
+          17.24211,
+          15.72632,
+          14.49474,
+          11.74737,
+          9.094737,
+          6.82105273,
+          4.357895,
+          2.936842,
+          1.610526,
+          0.8526316,
+          0.4736842
+        ]
+      },
+      {
+        "dataset": "Healy 1987 - mean 1g - Vancomycin - IV - 1 g - Plasma - agg. (n=11)",
+        "study": "Healy 1987",
+        "molecule": "Vancomycin",
+        "route": "IV",
+        "dose": "1 g",
+        "n_points": 34,
+        "time_unit": "h",
+        "conc_unit": "mg/L",
+        "time_h": [
+          0.0,
+          0.89109,
+          0.896,
+          1.38614,
+          1.48515,
+          1.88119,
+          2.57426,
+          2.87129,
+          3.46535,
+          3.9604,
+          4.9505,
+          6.93069,
+          8.81188,
+          11.9802,
+          12.77228,
+          13.46535,
+          13.86139,
+          24.65347,
+          25.14852,
+          25.15,
+          25.24752,
+          26.0396,
+          26.33663,
+          26.63366,
+          27.32673,
+          27.82178,
+          28.91089,
+          30.89109,
+          33.16832,
+          37.12871,
+          41.18812,
+          49.0099,
+          55.0495,
+          61.28713
+        ],
+        "conc_mg_L": [
+          0.1458333,
+          63.4375039,
+          53.66667,
+          46.22917,
+          38.0625,
+          29.02083,
+          24.0625,
+          20.85417,
+          18.375,
+          15.75,
+          12.83333,
+          9.479167,
+          6.5625,
+          4.958333,
+          64.60416,
+          39.95833,
+          33.39583,
+          65.1875,
+          57.60417,
+          49.875,
+          40.83333,
+          33.6875,
+          28.4375,
+          25.375,
+          22.75,
+          20.85417,
+          16.91667,
+          12.97917,
+          9.625,
+          5.833333,
+          3.5,
+          1.75,
+          1.458333,
+          0.2916667
+        ]
+      }
+    ],
+    "study_designs": [
+      {
+        "name": "Boeckh_1988_0.5g",
+        "application_type": "Intravenous"
+      },
+      {
+        "name": "1g infusion 60min",
+        "application_type": "Intravenous"
+      },
+      {
+        "name": "1000 mg BID Healy1987",
+        "application_type": "Intravenous"
+      },
+      {
+        "name": "500 mg 6h Healy1987",
+        "application_type": "Intravenous"
+      }
+    ],
+    "demographics": [
+      {
+        "name": "Adult Male Boeckh 1988",
+        "species": "Human"
+      },
+      {
+        "name": "Adult Male Healy 1987",
+        "species": "Human"
+      }
+    ]
+  },
+  "data_overview": {
+    "n_observed_datasets": 4,
+    "routes": [
+      "IV"
+    ],
+    "studies": [
+      "Boekh 1988",
+      "Healy 1987"
+    ]
+  },
+  "unknowns_guidance": "Some compound parameters cannot be read off the given data and must be estimated so the model reproduces the observations. Decide which to fix at literature values and which to estimate, choose a distribution/permeability approach, and justify each choice."
+}

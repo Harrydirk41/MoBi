@@ -1,0 +1,24 @@
+{
+  "schema": "osp-answer-key/v1",
+  "warning": "REFERENCE ANSWERS - grading only, never shown to the agent.",
+  "compound": "Tizanidine",
+  "structural_choices": {
+    "calculation_methods": [
+      "Cellular partition coefficient method - Berezhkovskiy",
+      "Cellular permeability - PK-Sim Standard"
+    ],
+    "metabolizing_processes": [
+      {
+        "molecule": "CYP1A2",
+        "type": "MetabolizationIntrinsic_FirstOrder"
+      }
+    ]
+  },
+  "estimated_parameters": [
+    {
+      "parameter": "Intrinsic clearance",
+      "value": 7.2862,
+      "unit": "l/min"
+    }
+  ]
+}

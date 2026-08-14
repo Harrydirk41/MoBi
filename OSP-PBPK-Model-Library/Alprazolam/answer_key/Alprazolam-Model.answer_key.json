@@ -1,0 +1,43 @@
+{
+  "schema": "osp-answer-key/v1",
+  "warning": "REFERENCE ANSWERS - grading only, never shown to the agent.",
+  "compound": "Alprazolam",
+  "structural_choices": {
+    "calculation_methods": [
+      "Cellular partition coefficient method - Rodgers and Rowland",
+      "Cellular permeability - PK-Sim Standard"
+    ],
+    "metabolizing_processes": [
+      {
+        "molecule": "CYP3A4",
+        "type": "MetabolizationLiverMicrosomes_MM"
+      },
+      {
+        "molecule": "CYP3A4",
+        "type": "MetabolizationLiverMicrosomes_MM"
+      }
+    ]
+  },
+  "estimated_parameters": [
+    {
+      "parameter": "Lipophilicity",
+      "value": 2.0799268917,
+      "unit": "Log Units"
+    },
+    {
+      "parameter": "Specific intestinal permeability (transcellular)",
+      "value": 7.6146060669,
+      "unit": "cm/min"
+    },
+    {
+      "parameter": "kcat",
+      "value": 0.8066945978,
+      "unit": "1/min"
+    },
+    {
+      "parameter": "GFR fraction",
+      "value": 0.5461456402,
+      "unit": ""
+    }
+  ]
+}

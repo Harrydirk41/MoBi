@@ -1,0 +1,10 @@
+{
+  "parameters": {
+    "Lipophilicity": 2.6719093089,
+    "Solubility at reference pH": 0.2210041453,
+    "Specific intestinal permeability (transcellular)": 3.9684694792e-05,
+    "Permeability": 0.00037527645658,
+    "CLspec/[Enzyme]": 0.1432967727,
+    "GFR fraction": 0.7899801465
+  }
+}

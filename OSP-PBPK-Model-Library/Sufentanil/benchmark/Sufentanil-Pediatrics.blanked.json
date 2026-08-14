@@ -1,0 +1,6545 @@
+{
+  "Version": 80,
+  "ExpressionProfiles": [
+    {
+      "Type": "Enzyme",
+      "Species": "Human",
+      "Molecule": "CYP3A4",
+      "Category": "Davis 1987 15.5 months",
+      "Parameters": [
+        {
+          "Path": "CYP3A4|Reference concentration",
+          "Value": 4.32,
+          "Unit": "µmol/l"
+        },
+        {
+          "Path": "CYP3A4|t1/2 (intestine)",
+          "Value": 23.0,
+          "Unit": "h"
+        },
+        {
+          "Path": "CYP3A4|t1/2 (liver)",
+          "Value": 36.0,
+          "Unit": "h",
+          "ValueOrigin": {
+            "Source": "Unknown"
+          }
+        },
+        {
+          "Path": "Organism|Brain|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.0041682898325
+        },
+        {
+          "Path": "Organism|Gonads|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.00078691079081
+        },
+        {
+          "Path": "Organism|Kidney|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.0053603428126
+        },
+        {
+          "Path": "Organism|Liver|Pericentral|Intracellular|CYP3A4|Relative expression",
+          "Value": 1.0
+        },
+        {
+          "Path": "Organism|Liver|Periportal|Intracellular|CYP3A4|Relative expression",
+          "Value": 1.0
+        },
+        {
+          "Path": "Organism|Lung|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.00042695753798
+        },
+        {
+          "Path": "Organism|SmallIntestine|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.0727697702
+        },
+        {
+          "Path": "Organism|SmallIntestine|Mucosa|Duodenum|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.0727697702
+        },
+        {
+          "Path": "Organism|SmallIntestine|Mucosa|LowerIleum|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.0727697702
+        },
+        {
+          "Path": "Organism|SmallIntestine|Mucosa|LowerJejunum|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.0727697702
+        },
+        {
+          "Path": "Organism|SmallIntestine|Mucosa|UpperIleum|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.0727697702
+        },
+        {
+          "Path": "Organism|SmallIntestine|Mucosa|UpperJejunum|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.0727697702
+        }
+      ],
+      "Localization": "Intracellular, BloodCellsIntracellular, VascEndosome",
+      "Ontogeny": {
+        "Name": "CYP3A4"
+      }
+    },
+    {
+      "Type": "Enzyme",
+      "Species": "Human",
+      "Molecule": "CYP3A4",
+      "Category": "Davis 1987 5.2 months",
+      "Parameters": [
+        {
+          "Path": "CYP3A4|Reference concentration",
+          "Value": 4.32,
+          "Unit": "µmol/l"
+        },
+        {
+          "Path": "CYP3A4|t1/2 (intestine)",
+          "Value": 23.0,
+          "Unit": "h"
+        },
+        {
+          "Path": "CYP3A4|t1/2 (liver)",
+          "Value": 36.0,
+          "Unit": "h",
+          "ValueOrigin": {
+            "Source": "Unknown"
+          }
+        },
+        {
+          "Path": "Organism|Brain|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.0041682898325
+        },
+        {
+          "Path": "Organism|Gonads|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.00078691079081
+        },
+        {
+          "Path": "Organism|Kidney|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.0053603428126
+        },
+        {
+          "Path": "Organism|Liver|Pericentral|Intracellular|CYP3A4|Relative expression",
+          "Value": 1.0
+        },
+        {
+          "Path": "Organism|Liver|Periportal|Intracellular|CYP3A4|Relative expression",
+          "Value": 1.0
+        },
+        {
+          "Path": "Organism|Lung|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.00042695753798
+        },
+        {
+          "Path": "Organism|SmallIntestine|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.0727697702
+        },
+        {
+          "Path": "Organism|SmallIntestine|Mucosa|Duodenum|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.0727697702
+        },
+        {
+          "Path": "Organism|SmallIntestine|Mucosa|LowerIleum|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.0727697702
+        },
+        {
+          "Path": "Organism|SmallIntestine|Mucosa|LowerJejunum|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.0727697702
+        },
+        {
+          "Path": "Organism|SmallIntestine|Mucosa|UpperIleum|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.0727697702
+        },
+        {
+          "Path": "Organism|SmallIntestine|Mucosa|UpperJejunum|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.0727697702
+        }
+      ],
+      "Localization": "Intracellular, BloodCellsIntracellular, VascEndosome",
+      "Ontogeny": {
+        "Name": "CYP3A4"
+      }
+    },
+    {
+      "Type": "Enzyme",
+      "Species": "Human",
+      "Molecule": "CYP3A4",
+      "Category": "Guay 1991 patient 1",
+      "Parameters": [
+        {
+          "Path": "CYP3A4|Reference concentration",
+          "Value": 4.32,
+          "Unit": "µmol/l"
+        },
+        {
+          "Path": "CYP3A4|t1/2 (intestine)",
+          "Value": 23.0,
+          "Unit": "h"
+        },
+        {
+          "Path": "CYP3A4|t1/2 (liver)",
+          "Value": 36.0,
+          "Unit": "h",
+          "ValueOrigin": {
+            "Source": "Unknown"
+          }
+        },
+        {
+          "Path": "Organism|Brain|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.0041682898325
+        },
+        {
+          "Path": "Organism|Gonads|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.00078691079081
+        },
+        {
+          "Path": "Organism|Kidney|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.0053603428126
+        },
+        {
+          "Path": "Organism|Liver|Pericentral|Intracellular|CYP3A4|Relative expression",
+          "Value": 1.0
+        },
+        {
+          "Path": "Organism|Liver|Periportal|Intracellular|CYP3A4|Relative expression",
+          "Value": 1.0
+        },
+        {
+          "Path": "Organism|Lung|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.00042695753798
+        },
+        {
+          "Path": "Organism|SmallIntestine|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.0727697702
+        },
+        {
+          "Path": "Organism|SmallIntestine|Mucosa|Duodenum|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.0727697702
+        },
+        {
+          "Path": "Organism|SmallIntestine|Mucosa|LowerIleum|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.0727697702
+        },
+        {
+          "Path": "Organism|SmallIntestine|Mucosa|LowerJejunum|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.0727697702
+        },
+        {
+          "Path": "Organism|SmallIntestine|Mucosa|UpperIleum|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.0727697702
+        },
+        {
+          "Path": "Organism|SmallIntestine|Mucosa|UpperJejunum|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.0727697702
+        }
+      ],
+      "Localization": "Intracellular, BloodCellsIntracellular, VascEndosome",
+      "Ontogeny": {
+        "Name": "CYP3A4"
+      }
+    },
+    {
+      "Type": "Enzyme",
+      "Species": "Human",
+      "Molecule": "CYP3A4",
+      "Category": "Guay 1991 patient 10",
+      "Parameters": [
+        {
+          "Path": "CYP3A4|Reference concentration",
+          "Value": 4.32,
+          "Unit": "µmol/l"
+        },
+        {
+          "Path": "CYP3A4|t1/2 (intestine)",
+          "Value": 23.0,
+          "Unit": "h"
+        },
+        {
+          "Path": "CYP3A4|t1/2 (liver)",
+          "Value": 36.0,
+          "Unit": "h",
+          "ValueOrigin": {
+            "Source": "Unknown"
+          }
+        },
+        {
+          "Path": "Organism|Brain|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.0041682898325
+        },
+        {
+          "Path": "Organism|Gonads|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.00078691079081
+        },
+        {
+          "Path": "Organism|Kidney|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.0053603428126
+        },
+        {
+          "Path": "Organism|Liver|Pericentral|Intracellular|CYP3A4|Relative expression",
+          "Value": 1.0
+        },
+        {
+          "Path": "Organism|Liver|Periportal|Intracellular|CYP3A4|Relative expression",
+          "Value": 1.0
+        },
+        {
+          "Path": "Organism|Lung|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.00042695753798
+        },
+        {
+          "Path": "Organism|SmallIntestine|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.0727697702
+        },
+        {
+          "Path": "Organism|SmallIntestine|Mucosa|Duodenum|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.0727697702
+        },
+        {
+          "Path": "Organism|SmallIntestine|Mucosa|LowerIleum|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.0727697702
+        },
+        {
+          "Path": "Organism|SmallIntestine|Mucosa|LowerJejunum|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.0727697702
+        },
+        {
+          "Path": "Organism|SmallIntestine|Mucosa|UpperIleum|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.0727697702
+        },
+        {
+          "Path": "Organism|SmallIntestine|Mucosa|UpperJejunum|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.0727697702
+        }
+      ],
+      "Localization": "Intracellular, BloodCellsIntracellular, VascEndosome",
+      "Ontogeny": {
+        "Name": "CYP3A4"
+      }
+    },
+    {
+      "Type": "Enzyme",
+      "Species": "Human",
+      "Molecule": "CYP3A4",
+      "Category": "Guay 1991 patient 11",
+      "Parameters": [
+        {
+          "Path": "CYP3A4|Reference concentration",
+          "Value": 4.32,
+          "Unit": "µmol/l"
+        },
+        {
+          "Path": "CYP3A4|t1/2 (intestine)",
+          "Value": 23.0,
+          "Unit": "h"
+        },
+        {
+          "Path": "CYP3A4|t1/2 (liver)",
+          "Value": 36.0,
+          "Unit": "h",
+          "ValueOrigin": {
+            "Source": "Unknown"
+          }
+        },
+        {
+          "Path": "Organism|Brain|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.0041682898325
+        },
+        {
+          "Path": "Organism|Gonads|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.00078691079081
+        },
+        {
+          "Path": "Organism|Kidney|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.0053603428126
+        },
+        {
+          "Path": "Organism|Liver|Pericentral|Intracellular|CYP3A4|Relative expression",
+          "Value": 1.0
+        },
+        {
+          "Path": "Organism|Liver|Periportal|Intracellular|CYP3A4|Relative expression",
+          "Value": 1.0
+        },
+        {
+          "Path": "Organism|Lung|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.00042695753798
+        },
+        {
+          "Path": "Organism|SmallIntestine|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.0727697702
+        },
+        {
+          "Path": "Organism|SmallIntestine|Mucosa|Duodenum|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.0727697702
+        },
+        {
+          "Path": "Organism|SmallIntestine|Mucosa|LowerIleum|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.0727697702
+        },
+        {
+          "Path": "Organism|SmallIntestine|Mucosa|LowerJejunum|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.0727697702
+        },
+        {
+          "Path": "Organism|SmallIntestine|Mucosa|UpperIleum|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.0727697702
+        },
+        {
+          "Path": "Organism|SmallIntestine|Mucosa|UpperJejunum|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.0727697702
+        }
+      ],
+      "Localization": "Intracellular, BloodCellsIntracellular, VascEndosome",
+      "Ontogeny": {
+        "Name": "CYP3A4"
+      }
+    },
+    {
+      "Type": "Enzyme",
+      "Species": "Human",
+      "Molecule": "CYP3A4",
+      "Category": "Guay 1991 patient 12",
+      "Parameters": [
+        {
+          "Path": "CYP3A4|Reference concentration",
+          "Value": 4.32,
+          "Unit": "µmol/l"
+        },
+        {
+          "Path": "CYP3A4|t1/2 (intestine)",
+          "Value": 23.0,
+          "Unit": "h"
+        },
+        {
+          "Path": "CYP3A4|t1/2 (liver)",
+          "Value": 36.0,
+          "Unit": "h",
+          "ValueOrigin": {
+            "Source": "Unknown"
+          }
+        },
+        {
+          "Path": "Organism|Brain|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.0041682898325
+        },
+        {
+          "Path": "Organism|Gonads|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.00078691079081
+        },
+        {
+          "Path": "Organism|Kidney|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.0053603428126
+        },
+        {
+          "Path": "Organism|Liver|Pericentral|Intracellular|CYP3A4|Relative expression",
+          "Value": 1.0
+        },
+        {
+          "Path": "Organism|Liver|Periportal|Intracellular|CYP3A4|Relative expression",
+          "Value": 1.0
+        },
+        {
+          "Path": "Organism|Lung|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.00042695753798
+        },
+        {
+          "Path": "Organism|SmallIntestine|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.0727697702
+        },
+        {
+          "Path": "Organism|SmallIntestine|Mucosa|Duodenum|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.0727697702
+        },
+        {
+          "Path": "Organism|SmallIntestine|Mucosa|LowerIleum|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.0727697702
+        },
+        {
+          "Path": "Organism|SmallIntestine|Mucosa|LowerJejunum|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.0727697702
+        },
+        {
+          "Path": "Organism|SmallIntestine|Mucosa|UpperIleum|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.0727697702
+        },
+        {
+          "Path": "Organism|SmallIntestine|Mucosa|UpperJejunum|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.0727697702
+        }
+      ],
+      "Localization": "Intracellular, BloodCellsIntracellular, VascEndosome",
+      "Ontogeny": {
+        "Name": "CYP3A4"
+      }
+    },
+    {
+      "Type": "Enzyme",
+      "Species": "Human",
+      "Molecule": "CYP3A4",
+      "Category": "Guay 1991 patient 13",
+      "Parameters": [
+        {
+          "Path": "CYP3A4|Reference concentration",
+          "Value": 4.32,
+          "Unit": "µmol/l"
+        },
+        {
+          "Path": "CYP3A4|t1/2 (intestine)",
+          "Value": 23.0,
+          "Unit": "h"
+        },
+        {
+          "Path": "CYP3A4|t1/2 (liver)",
+          "Value": 36.0,
+          "Unit": "h",
+          "ValueOrigin": {
+            "Source": "Unknown"
+          }
+        },
+        {
+          "Path": "Organism|Brain|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.0041682898325
+        },
+        {
+          "Path": "Organism|Gonads|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.00078691079081
+        },
+        {
+          "Path": "Organism|Kidney|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.0053603428126
+        },
+        {
+          "Path": "Organism|Liver|Pericentral|Intracellular|CYP3A4|Relative expression",
+          "Value": 1.0
+        },
+        {
+          "Path": "Organism|Liver|Periportal|Intracellular|CYP3A4|Relative expression",
+          "Value": 1.0
+        },
+        {
+          "Path": "Organism|Lung|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.00042695753798
+        },
+        {
+          "Path": "Organism|SmallIntestine|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.0727697702
+        },
+        {
+          "Path": "Organism|SmallIntestine|Mucosa|Duodenum|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.0727697702
+        },
+        {
+          "Path": "Organism|SmallIntestine|Mucosa|LowerIleum|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.0727697702
+        },
+        {
+          "Path": "Organism|SmallIntestine|Mucosa|LowerJejunum|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.0727697702
+        },
+        {
+          "Path": "Organism|SmallIntestine|Mucosa|UpperIleum|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.0727697702
+        },
+        {
+          "Path": "Organism|SmallIntestine|Mucosa|UpperJejunum|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.0727697702
+        }
+      ],
+      "Localization": "Intracellular, BloodCellsIntracellular, VascEndosome",
+      "Ontogeny": {
+        "Name": "CYP3A4"
+      }
+    },
+    {
+      "Type": "Enzyme",
+      "Species": "Human",
+      "Molecule": "CYP3A4",
+      "Category": "Guay 1991 patient 14",
+      "Parameters": [
+        {
+          "Path": "CYP3A4|Reference concentration",
+          "Value": 4.32,
+          "Unit": "µmol/l"
+        },
+        {
+          "Path": "CYP3A4|t1/2 (intestine)",
+          "Value": 23.0,
+          "Unit": "h"
+        },
+        {
+          "Path": "CYP3A4|t1/2 (liver)",
+          "Value": 36.0,
+          "Unit": "h",
+          "ValueOrigin": {
+            "Source": "Unknown"
+          }
+        },
+        {
+          "Path": "Organism|Brain|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.0041682898325
+        },
+        {
+          "Path": "Organism|Gonads|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.00078691079081
+        },
+        {
+          "Path": "Organism|Kidney|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.0053603428126
+        },
+        {
+          "Path": "Organism|Liver|Pericentral|Intracellular|CYP3A4|Relative expression",
+          "Value": 1.0
+        },
+        {
+          "Path": "Organism|Liver|Periportal|Intracellular|CYP3A4|Relative expression",
+          "Value": 1.0
+        },
+        {
+          "Path": "Organism|Lung|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.00042695753798
+        },
+        {
+          "Path": "Organism|SmallIntestine|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.0727697702
+        },
+        {
+          "Path": "Organism|SmallIntestine|Mucosa|Duodenum|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.0727697702
+        },
+        {
+          "Path": "Organism|SmallIntestine|Mucosa|LowerIleum|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.0727697702
+        },
+        {
+          "Path": "Organism|SmallIntestine|Mucosa|LowerJejunum|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.0727697702
+        },
+        {
+          "Path": "Organism|SmallIntestine|Mucosa|UpperIleum|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.0727697702
+        },
+        {
+          "Path": "Organism|SmallIntestine|Mucosa|UpperJejunum|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.0727697702
+        }
+      ],
+      "Localization": "Intracellular, BloodCellsIntracellular, VascEndosome",
+      "Ontogeny": {
+        "Name": "CYP3A4"
+      }
+    },
+    {
+      "Type": "Enzyme",
+      "Species": "Human",
+      "Molecule": "CYP3A4",
+      "Category": "Guay 1991 patient 15",
+      "Parameters": [
+        {
+          "Path": "CYP3A4|Reference concentration",
+          "Value": 4.32,
+          "Unit": "µmol/l"
+        },
+        {
+          "Path": "CYP3A4|t1/2 (intestine)",
+          "Value": 23.0,
+          "Unit": "h"
+        },
+        {
+          "Path": "CYP3A4|t1/2 (liver)",
+          "Value": 36.0,
+          "Unit": "h",
+          "ValueOrigin": {
+            "Source": "Unknown"
+          }
+        },
+        {
+          "Path": "Organism|Brain|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.0041682898325
+        },
+        {
+          "Path": "Organism|Gonads|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.00078691079081
+        },
+        {
+          "Path": "Organism|Kidney|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.0053603428126
+        },
+        {
+          "Path": "Organism|Liver|Pericentral|Intracellular|CYP3A4|Relative expression",
+          "Value": 1.0
+        },
+        {
+          "Path": "Organism|Liver|Periportal|Intracellular|CYP3A4|Relative expression",
+          "Value": 1.0
+        },
+        {
+          "Path": "Organism|Lung|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.00042695753798
+        },
+        {
+          "Path": "Organism|SmallIntestine|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.0727697702
+        },
+        {
+          "Path": "Organism|SmallIntestine|Mucosa|Duodenum|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.0727697702
+        },
+        {
+          "Path": "Organism|SmallIntestine|Mucosa|LowerIleum|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.0727697702
+        },
+        {
+          "Path": "Organism|SmallIntestine|Mucosa|LowerJejunum|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.0727697702
+        },
+        {
+          "Path": "Organism|SmallIntestine|Mucosa|UpperIleum|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.0727697702
+        },
+        {
+          "Path": "Organism|SmallIntestine|Mucosa|UpperJejunum|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.0727697702
+        }
+      ],
+      "Localization": "Intracellular, BloodCellsIntracellular, VascEndosome",
+      "Ontogeny": {
+        "Name": "CYP3A4"
+      }
+    },
+    {
+      "Type": "Enzyme",
+      "Species": "Human",
+      "Molecule": "CYP3A4",
+      "Category": "Guay 1991 patient 16",
+      "Parameters": [
+        {
+          "Path": "CYP3A4|Reference concentration",
+          "Value": 4.32,
+          "Unit": "µmol/l"
+        },
+        {
+          "Path": "CYP3A4|t1/2 (intestine)",
+          "Value": 23.0,
+          "Unit": "h"
+        },
+        {
+          "Path": "CYP3A4|t1/2 (liver)",
+          "Value": 36.0,
+          "Unit": "h",
+          "ValueOrigin": {
+            "Source": "Unknown"
+          }
+        },
+        {
+          "Path": "Organism|Brain|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.0041682898325
+        },
+        {
+          "Path": "Organism|Gonads|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.00078691079081
+        },
+        {
+          "Path": "Organism|Kidney|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.0053603428126
+        },
+        {
+          "Path": "Organism|Liver|Pericentral|Intracellular|CYP3A4|Relative expression",
+          "Value": 1.0
+        },
+        {
+          "Path": "Organism|Liver|Periportal|Intracellular|CYP3A4|Relative expression",
+          "Value": 1.0
+        },
+        {
+          "Path": "Organism|Lung|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.00042695753798
+        },
+        {
+          "Path": "Organism|SmallIntestine|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.0727697702
+        },
+        {
+          "Path": "Organism|SmallIntestine|Mucosa|Duodenum|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.0727697702
+        },
+        {
+          "Path": "Organism|SmallIntestine|Mucosa|LowerIleum|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.0727697702
+        },
+        {
+          "Path": "Organism|SmallIntestine|Mucosa|LowerJejunum|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.0727697702
+        },
+        {
+          "Path": "Organism|SmallIntestine|Mucosa|UpperIleum|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.0727697702
+        },
+        {
+          "Path": "Organism|SmallIntestine|Mucosa|UpperJejunum|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.0727697702
+        }
+      ],
+      "Localization": "Intracellular, BloodCellsIntracellular, VascEndosome",
+      "Ontogeny": {
+        "Name": "CYP3A4"
+      }
+    },
+    {
+      "Type": "Enzyme",
+      "Species": "Human",
+      "Molecule": "CYP3A4",
+      "Category": "Guay 1991 patient 17",
+      "Parameters": [
+        {
+          "Path": "CYP3A4|Reference concentration",
+          "Value": 4.32,
+          "Unit": "µmol/l"
+        },
+        {
+          "Path": "CYP3A4|t1/2 (intestine)",
+          "Value": 23.0,
+          "Unit": "h"
+        },
+        {
+          "Path": "CYP3A4|t1/2 (liver)",
+          "Value": 36.0,
+          "Unit": "h",
+          "ValueOrigin": {
+            "Source": "Unknown"
+          }
+        },
+        {
+          "Path": "Organism|Brain|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.0041682898325
+        },
+        {
+          "Path": "Organism|Gonads|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.00078691079081
+        },
+        {
+          "Path": "Organism|Kidney|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.0053603428126
+        },
+        {
+          "Path": "Organism|Liver|Pericentral|Intracellular|CYP3A4|Relative expression",
+          "Value": 1.0
+        },
+        {
+          "Path": "Organism|Liver|Periportal|Intracellular|CYP3A4|Relative expression",
+          "Value": 1.0
+        },
+        {
+          "Path": "Organism|Lung|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.00042695753798
+        },
+        {
+          "Path": "Organism|SmallIntestine|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.0727697702
+        },
+        {
+          "Path": "Organism|SmallIntestine|Mucosa|Duodenum|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.0727697702
+        },
+        {
+          "Path": "Organism|SmallIntestine|Mucosa|LowerIleum|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.0727697702
+        },
+        {
+          "Path": "Organism|SmallIntestine|Mucosa|LowerJejunum|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.0727697702
+        },
+        {
+          "Path": "Organism|SmallIntestine|Mucosa|UpperIleum|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.0727697702
+        },
+        {
+          "Path": "Organism|SmallIntestine|Mucosa|UpperJejunum|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.0727697702
+        }
+      ],
+      "Localization": "Intracellular, BloodCellsIntracellular, VascEndosome",
+      "Ontogeny": {
+        "Name": "CYP3A4"
+      }
+    },
+    {
+      "Type": "Enzyme",
+      "Species": "Human",
+      "Molecule": "CYP3A4",
+      "Category": "Guay 1991 patient 18",
+      "Parameters": [
+        {
+          "Path": "CYP3A4|Reference concentration",
+          "Value": 4.32,
+          "Unit": "µmol/l"
+        },
+        {
+          "Path": "CYP3A4|t1/2 (intestine)",
+          "Value": 23.0,
+          "Unit": "h"
+        },
+        {
+          "Path": "CYP3A4|t1/2 (liver)",
+          "Value": 36.0,
+          "Unit": "h",
+          "ValueOrigin": {
+            "Source": "Unknown"
+          }
+        },
+        {
+          "Path": "Organism|Brain|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.0041682898325
+        },
+        {
+          "Path": "Organism|Gonads|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.00078691079081
+        },
+        {
+          "Path": "Organism|Kidney|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.0053603428126
+        },
+        {
+          "Path": "Organism|Liver|Pericentral|Intracellular|CYP3A4|Relative expression",
+          "Value": 1.0
+        },
+        {
+          "Path": "Organism|Liver|Periportal|Intracellular|CYP3A4|Relative expression",
+          "Value": 1.0
+        },
+        {
+          "Path": "Organism|Lung|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.00042695753798
+        },
+        {
+          "Path": "Organism|SmallIntestine|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.0727697702
+        },
+        {
+          "Path": "Organism|SmallIntestine|Mucosa|Duodenum|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.0727697702
+        },
+        {
+          "Path": "Organism|SmallIntestine|Mucosa|LowerIleum|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.0727697702
+        },
+        {
+          "Path": "Organism|SmallIntestine|Mucosa|LowerJejunum|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.0727697702
+        },
+        {
+          "Path": "Organism|SmallIntestine|Mucosa|UpperIleum|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.0727697702
+        },
+        {
+          "Path": "Organism|SmallIntestine|Mucosa|UpperJejunum|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.0727697702
+        }
+      ],
+      "Localization": "Intracellular, BloodCellsIntracellular, VascEndosome",
+      "Ontogeny": {
+        "Name": "CYP3A4"
+      }
+    },
+    {
+      "Type": "Enzyme",
+      "Species": "Human",
+      "Molecule": "CYP3A4",
+      "Category": "Guay 1991 patient 19",
+      "Parameters": [
+        {
+          "Path": "CYP3A4|Reference concentration",
+          "Value": 4.32,
+          "Unit": "µmol/l"
+        },
+        {
+          "Path": "CYP3A4|t1/2 (intestine)",
+          "Value": 23.0,
+          "Unit": "h"
+        },
+        {
+          "Path": "CYP3A4|t1/2 (liver)",
+          "Value": 36.0,
+          "Unit": "h",
+          "ValueOrigin": {
+            "Source": "Unknown"
+          }
+        },
+        {
+          "Path": "Organism|Brain|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.0041682898325
+        },
+        {
+          "Path": "Organism|Gonads|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.00078691079081
+        },
+        {
+          "Path": "Organism|Kidney|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.0053603428126
+        },
+        {
+          "Path": "Organism|Liver|Pericentral|Intracellular|CYP3A4|Relative expression",
+          "Value": 1.0
+        },
+        {
+          "Path": "Organism|Liver|Periportal|Intracellular|CYP3A4|Relative expression",
+          "Value": 1.0
+        },
+        {
+          "Path": "Organism|Lung|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.00042695753798
+        },
+        {
+          "Path": "Organism|SmallIntestine|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.0727697702
+        },
+        {
+          "Path": "Organism|SmallIntestine|Mucosa|Duodenum|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.0727697702
+        },
+        {
+          "Path": "Organism|SmallIntestine|Mucosa|LowerIleum|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.0727697702
+        },
+        {
+          "Path": "Organism|SmallIntestine|Mucosa|LowerJejunum|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.0727697702
+        },
+        {
+          "Path": "Organism|SmallIntestine|Mucosa|UpperIleum|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.0727697702
+        },
+        {
+          "Path": "Organism|SmallIntestine|Mucosa|UpperJejunum|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.0727697702
+        }
+      ],
+      "Localization": "Intracellular, BloodCellsIntracellular, VascEndosome",
+      "Ontogeny": {
+        "Name": "CYP3A4"
+      }
+    },
+    {
+      "Type": "Enzyme",
+      "Species": "Human",
+      "Molecule": "CYP3A4",
+      "Category": "Guay 1991 patient 2",
+      "Parameters": [
+        {
+          "Path": "CYP3A4|Reference concentration",
+          "Value": 4.32,
+          "Unit": "µmol/l"
+        },
+        {
+          "Path": "CYP3A4|t1/2 (intestine)",
+          "Value": 23.0,
+          "Unit": "h"
+        },
+        {
+          "Path": "CYP3A4|t1/2 (liver)",
+          "Value": 36.0,
+          "Unit": "h",
+          "ValueOrigin": {
+            "Source": "Unknown"
+          }
+        },
+        {
+          "Path": "Organism|Brain|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.0041682898325
+        },
+        {
+          "Path": "Organism|Gonads|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.00078691079081
+        },
+        {
+          "Path": "Organism|Kidney|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.0053603428126
+        },
+        {
+          "Path": "Organism|Liver|Pericentral|Intracellular|CYP3A4|Relative expression",
+          "Value": 1.0
+        },
+        {
+          "Path": "Organism|Liver|Periportal|Intracellular|CYP3A4|Relative expression",
+          "Value": 1.0
+        },
+        {
+          "Path": "Organism|Lung|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.00042695753798
+        },
+        {
+          "Path": "Organism|SmallIntestine|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.0727697702
+        },
+        {
+          "Path": "Organism|SmallIntestine|Mucosa|Duodenum|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.0727697702
+        },
+        {
+          "Path": "Organism|SmallIntestine|Mucosa|LowerIleum|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.0727697702
+        },
+        {
+          "Path": "Organism|SmallIntestine|Mucosa|LowerJejunum|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.0727697702
+        },
+        {
+          "Path": "Organism|SmallIntestine|Mucosa|UpperIleum|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.0727697702
+        },
+        {
+          "Path": "Organism|SmallIntestine|Mucosa|UpperJejunum|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.0727697702
+        }
+      ],
+      "Localization": "Intracellular, BloodCellsIntracellular, VascEndosome",
+      "Ontogeny": {
+        "Name": "CYP3A4"
+      }
+    },
+    {
+      "Type": "Enzyme",
+      "Species": "Human",
+      "Molecule": "CYP3A4",
+      "Category": "Guay 1991 patient 20",
+      "Parameters": [
+        {
+          "Path": "CYP3A4|Reference concentration",
+          "Value": 4.32,
+          "Unit": "µmol/l"
+        },
+        {
+          "Path": "CYP3A4|t1/2 (intestine)",
+          "Value": 23.0,
+          "Unit": "h"
+        },
+        {
+          "Path": "CYP3A4|t1/2 (liver)",
+          "Value": 36.0,
+          "Unit": "h",
+          "ValueOrigin": {
+            "Source": "Unknown"
+          }
+        },
+        {
+          "Path": "Organism|Brain|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.0041682898325
+        },
+        {
+          "Path": "Organism|Gonads|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.00078691079081
+        },
+        {
+          "Path": "Organism|Kidney|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.0053603428126
+        },
+        {
+          "Path": "Organism|Liver|Pericentral|Intracellular|CYP3A4|Relative expression",
+          "Value": 1.0
+        },
+        {
+          "Path": "Organism|Liver|Periportal|Intracellular|CYP3A4|Relative expression",
+          "Value": 1.0
+        },
+        {
+          "Path": "Organism|Lung|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.00042695753798
+        },
+        {
+          "Path": "Organism|SmallIntestine|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.0727697702
+        },
+        {
+          "Path": "Organism|SmallIntestine|Mucosa|Duodenum|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.0727697702
+        },
+        {
+          "Path": "Organism|SmallIntestine|Mucosa|LowerIleum|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.0727697702
+        },
+        {
+          "Path": "Organism|SmallIntestine|Mucosa|LowerJejunum|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.0727697702
+        },
+        {
+          "Path": "Organism|SmallIntestine|Mucosa|UpperIleum|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.0727697702
+        },
+        {
+          "Path": "Organism|SmallIntestine|Mucosa|UpperJejunum|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.0727697702
+        }
+      ],
+      "Localization": "Intracellular, BloodCellsIntracellular, VascEndosome",
+      "Ontogeny": {
+        "Name": "CYP3A4"
+      }
+    },
+    {
+      "Type": "Enzyme",
+      "Species": "Human",
+      "Molecule": "CYP3A4",
+      "Category": "Guay 1991 patient 3",
+      "Parameters": [
+        {
+          "Path": "CYP3A4|Reference concentration",
+          "Value": 4.32,
+          "Unit": "µmol/l"
+        },
+        {
+          "Path": "CYP3A4|t1/2 (intestine)",
+          "Value": 23.0,
+          "Unit": "h"
+        },
+        {
+          "Path": "CYP3A4|t1/2 (liver)",
+          "Value": 36.0,
+          "Unit": "h",
+          "ValueOrigin": {
+            "Source": "Unknown"
+          }
+        },
+        {
+          "Path": "Organism|Brain|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.0041682898325
+        },
+        {
+          "Path": "Organism|Gonads|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.00078691079081
+        },
+        {
+          "Path": "Organism|Kidney|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.0053603428126
+        },
+        {
+          "Path": "Organism|Liver|Pericentral|Intracellular|CYP3A4|Relative expression",
+          "Value": 1.0
+        },
+        {
+          "Path": "Organism|Liver|Periportal|Intracellular|CYP3A4|Relative expression",
+          "Value": 1.0
+        },
+        {
+          "Path": "Organism|Lung|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.00042695753798
+        },
+        {
+          "Path": "Organism|SmallIntestine|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.0727697702
+        },
+        {
+          "Path": "Organism|SmallIntestine|Mucosa|Duodenum|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.0727697702
+        },
+        {
+          "Path": "Organism|SmallIntestine|Mucosa|LowerIleum|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.0727697702
+        },
+        {
+          "Path": "Organism|SmallIntestine|Mucosa|LowerJejunum|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.0727697702
+        },
+        {
+          "Path": "Organism|SmallIntestine|Mucosa|UpperIleum|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.0727697702
+        },
+        {
+          "Path": "Organism|SmallIntestine|Mucosa|UpperJejunum|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.0727697702
+        }
+      ],
+      "Localization": "Intracellular, BloodCellsIntracellular, VascEndosome",
+      "Ontogeny": {
+        "Name": "CYP3A4"
+      }
+    },
+    {
+      "Type": "Enzyme",
+      "Species": "Human",
+      "Molecule": "CYP3A4",
+      "Category": "Guay 1991 patient 4",
+      "Parameters": [
+        {
+          "Path": "CYP3A4|Reference concentration",
+          "Value": 4.32,
+          "Unit": "µmol/l"
+        },
+        {
+          "Path": "CYP3A4|t1/2 (intestine)",
+          "Value": 23.0,
+          "Unit": "h"
+        },
+        {
+          "Path": "CYP3A4|t1/2 (liver)",
+          "Value": 36.0,
+          "Unit": "h",
+          "ValueOrigin": {
+            "Source": "Unknown"
+          }
+        },
+        {
+          "Path": "Organism|Brain|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.0041682898325
+        },
+        {
+          "Path": "Organism|Gonads|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.00078691079081
+        },
+        {
+          "Path": "Organism|Kidney|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.0053603428126
+        },
+        {
+          "Path": "Organism|Liver|Pericentral|Intracellular|CYP3A4|Relative expression",
+          "Value": 1.0
+        },
+        {
+          "Path": "Organism|Liver|Periportal|Intracellular|CYP3A4|Relative expression",
+          "Value": 1.0
+        },
+        {
+          "Path": "Organism|Lung|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.00042695753798
+        },
+        {
+          "Path": "Organism|SmallIntestine|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.0727697702
+        },
+        {
+          "Path": "Organism|SmallIntestine|Mucosa|Duodenum|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.0727697702
+        },
+        {
+          "Path": "Organism|SmallIntestine|Mucosa|LowerIleum|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.0727697702
+        },
+        {
+          "Path": "Organism|SmallIntestine|Mucosa|LowerJejunum|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.0727697702
+        },
+        {
+          "Path": "Organism|SmallIntestine|Mucosa|UpperIleum|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.0727697702
+        },
+        {
+          "Path": "Organism|SmallIntestine|Mucosa|UpperJejunum|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.0727697702
+        }
+      ],
+      "Localization": "Intracellular, BloodCellsIntracellular, VascEndosome",
+      "Ontogeny": {
+        "Name": "CYP3A4"
+      }
+    },
+    {
+      "Type": "Enzyme",
+      "Species": "Human",
+      "Molecule": "CYP3A4",
+      "Category": "Guay 1991 patient 5",
+      "Parameters": [
+        {
+          "Path": "CYP3A4|Reference concentration",
+          "Value": 4.32,
+          "Unit": "µmol/l"
+        },
+        {
+          "Path": "CYP3A4|t1/2 (intestine)",
+          "Value": 23.0,
+          "Unit": "h"
+        },
+        {
+          "Path": "CYP3A4|t1/2 (liver)",
+          "Value": 36.0,
+          "Unit": "h",
+          "ValueOrigin": {
+            "Source": "Unknown"
+          }
+        },
+        {
+          "Path": "Organism|Brain|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.0041682898325
+        },
+        {
+          "Path": "Organism|Gonads|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.00078691079081
+        },
+        {
+          "Path": "Organism|Kidney|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.0053603428126
+        },
+        {
+          "Path": "Organism|Liver|Pericentral|Intracellular|CYP3A4|Relative expression",
+          "Value": 1.0
+        },
+        {
+          "Path": "Organism|Liver|Periportal|Intracellular|CYP3A4|Relative expression",
+          "Value": 1.0
+        },
+        {
+          "Path": "Organism|Lung|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.00042695753798
+        },
+        {
+          "Path": "Organism|SmallIntestine|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.0727697702
+        },
+        {
+          "Path": "Organism|SmallIntestine|Mucosa|Duodenum|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.0727697702
+        },
+        {
+          "Path": "Organism|SmallIntestine|Mucosa|LowerIleum|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.0727697702
+        },
+        {
+          "Path": "Organism|SmallIntestine|Mucosa|LowerJejunum|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.0727697702
+        },
+        {
+          "Path": "Organism|SmallIntestine|Mucosa|UpperIleum|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.0727697702
+        },
+        {
+          "Path": "Organism|SmallIntestine|Mucosa|UpperJejunum|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.0727697702
+        }
+      ],
+      "Localization": "Intracellular, BloodCellsIntracellular, VascEndosome",
+      "Ontogeny": {
+        "Name": "CYP3A4"
+      }
+    },
+    {
+      "Type": "Enzyme",
+      "Species": "Human",
+      "Molecule": "CYP3A4",
+      "Category": "Guay 1991 patient 6",
+      "Parameters": [
+        {
+          "Path": "CYP3A4|Reference concentration",
+          "Value": 4.32,
+          "Unit": "µmol/l"
+        },
+        {
+          "Path": "CYP3A4|t1/2 (intestine)",
+          "Value": 23.0,
+          "Unit": "h"
+        },
+        {
+          "Path": "CYP3A4|t1/2 (liver)",
+          "Value": 36.0,
+          "Unit": "h",
+          "ValueOrigin": {
+            "Source": "Unknown"
+          }
+        },
+        {
+          "Path": "Organism|Brain|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.0041682898325
+        },
+        {
+          "Path": "Organism|Gonads|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.00078691079081
+        },
+        {
+          "Path": "Organism|Kidney|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.0053603428126
+        },
+        {
+          "Path": "Organism|Liver|Pericentral|Intracellular|CYP3A4|Relative expression",
+          "Value": 1.0
+        },
+        {
+          "Path": "Organism|Liver|Periportal|Intracellular|CYP3A4|Relative expression",
+          "Value": 1.0
+        },
+        {
+          "Path": "Organism|Lung|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.00042695753798
+        },
+        {
+          "Path": "Organism|SmallIntestine|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.0727697702
+        },
+        {
+          "Path": "Organism|SmallIntestine|Mucosa|Duodenum|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.0727697702
+        },
+        {
+          "Path": "Organism|SmallIntestine|Mucosa|LowerIleum|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.0727697702
+        },
+        {
+          "Path": "Organism|SmallIntestine|Mucosa|LowerJejunum|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.0727697702
+        },
+        {
+          "Path": "Organism|SmallIntestine|Mucosa|UpperIleum|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.0727697702
+        },
+        {
+          "Path": "Organism|SmallIntestine|Mucosa|UpperJejunum|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.0727697702
+        }
+      ],
+      "Localization": "Intracellular, BloodCellsIntracellular, VascEndosome",
+      "Ontogeny": {
+        "Name": "CYP3A4"
+      }
+    },
+    {
+      "Type": "Enzyme",
+      "Species": "Human",
+      "Molecule": "CYP3A4",
+      "Category": "Guay 1991 patient 7",
+      "Parameters": [
+        {
+          "Path": "CYP3A4|Reference concentration",
+          "Value": 4.32,
+          "Unit": "µmol/l"
+        },
+        {
+          "Path": "CYP3A4|t1/2 (intestine)",
+          "Value": 23.0,
+          "Unit": "h"
+        },
+        {
+          "Path": "CYP3A4|t1/2 (liver)",
+          "Value": 36.0,
+          "Unit": "h",
+          "ValueOrigin": {
+            "Source": "Unknown"
+          }
+        },
+        {
+          "Path": "Organism|Brain|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.0041682898325
+        },
+        {
+          "Path": "Organism|Gonads|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.00078691079081
+        },
+        {
+          "Path": "Organism|Kidney|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.0053603428126
+        },
+        {
+          "Path": "Organism|Liver|Pericentral|Intracellular|CYP3A4|Relative expression",
+          "Value": 1.0
+        },
+        {
+          "Path": "Organism|Liver|Periportal|Intracellular|CYP3A4|Relative expression",
+          "Value": 1.0
+        },
+        {
+          "Path": "Organism|Lung|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.00042695753798
+        },
+        {
+          "Path": "Organism|SmallIntestine|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.0727697702
+        },
+        {
+          "Path": "Organism|SmallIntestine|Mucosa|Duodenum|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.0727697702
+        },
+        {
+          "Path": "Organism|SmallIntestine|Mucosa|LowerIleum|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.0727697702
+        },
+        {
+          "Path": "Organism|SmallIntestine|Mucosa|LowerJejunum|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.0727697702
+        },
+        {
+          "Path": "Organism|SmallIntestine|Mucosa|UpperIleum|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.0727697702
+        },
+        {
+          "Path": "Organism|SmallIntestine|Mucosa|UpperJejunum|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.0727697702
+        }
+      ],
+      "Localization": "Intracellular, BloodCellsIntracellular, VascEndosome",
+      "Ontogeny": {
+        "Name": "CYP3A4"
+      }
+    },
+    {
+      "Type": "Enzyme",
+      "Species": "Human",
+      "Molecule": "CYP3A4",
+      "Category": "Guay 1991 patient 8",
+      "Parameters": [
+        {
+          "Path": "CYP3A4|Reference concentration",
+          "Value": 4.32,
+          "Unit": "µmol/l"
+        },
+        {
+          "Path": "CYP3A4|t1/2 (intestine)",
+          "Value": 23.0,
+          "Unit": "h"
+        },
+        {
+          "Path": "CYP3A4|t1/2 (liver)",
+          "Value": 36.0,
+          "Unit": "h",
+          "ValueOrigin": {
+            "Source": "Unknown"
+          }
+        },
+        {
+          "Path": "Organism|Brain|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.0041682898325
+        },
+        {
+          "Path": "Organism|Gonads|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.00078691079081
+        },
+        {
+          "Path": "Organism|Kidney|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.0053603428126
+        },
+        {
+          "Path": "Organism|Liver|Pericentral|Intracellular|CYP3A4|Relative expression",
+          "Value": 1.0
+        },
+        {
+          "Path": "Organism|Liver|Periportal|Intracellular|CYP3A4|Relative expression",
+          "Value": 1.0
+        },
+        {
+          "Path": "Organism|Lung|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.00042695753798
+        },
+        {
+          "Path": "Organism|SmallIntestine|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.0727697702
+        },
+        {
+          "Path": "Organism|SmallIntestine|Mucosa|Duodenum|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.0727697702
+        },
+        {
+          "Path": "Organism|SmallIntestine|Mucosa|LowerIleum|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.0727697702
+        },
+        {
+          "Path": "Organism|SmallIntestine|Mucosa|LowerJejunum|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.0727697702
+        },
+        {
+          "Path": "Organism|SmallIntestine|Mucosa|UpperIleum|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.0727697702
+        },
+        {
+          "Path": "Organism|SmallIntestine|Mucosa|UpperJejunum|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.0727697702
+        }
+      ],
+      "Localization": "Intracellular, BloodCellsIntracellular, VascEndosome",
+      "Ontogeny": {
+        "Name": "CYP3A4"
+      }
+    },
+    {
+      "Type": "Enzyme",
+      "Species": "Human",
+      "Molecule": "CYP3A4",
+      "Category": "Guay 1991 patient 9",
+      "Parameters": [
+        {
+          "Path": "CYP3A4|Reference concentration",
+          "Value": 4.32,
+          "Unit": "µmol/l"
+        },
+        {
+          "Path": "CYP3A4|t1/2 (intestine)",
+          "Value": 23.0,
+          "Unit": "h"
+        },
+        {
+          "Path": "CYP3A4|t1/2 (liver)",
+          "Value": 36.0,
+          "Unit": "h",
+          "ValueOrigin": {
+            "Source": "Unknown"
+          }
+        },
+        {
+          "Path": "Organism|Brain|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.0041682898325
+        },
+        {
+          "Path": "Organism|Gonads|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.00078691079081
+        },
+        {
+          "Path": "Organism|Kidney|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.0053603428126
+        },
+        {
+          "Path": "Organism|Liver|Pericentral|Intracellular|CYP3A4|Relative expression",
+          "Value": 1.0
+        },
+        {
+          "Path": "Organism|Liver|Periportal|Intracellular|CYP3A4|Relative expression",
+          "Value": 1.0
+        },
+        {
+          "Path": "Organism|Lung|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.00042695753798
+        },
+        {
+          "Path": "Organism|SmallIntestine|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.0727697702
+        },
+        {
+          "Path": "Organism|SmallIntestine|Mucosa|Duodenum|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.0727697702
+        },
+        {
+          "Path": "Organism|SmallIntestine|Mucosa|LowerIleum|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.0727697702
+        },
+        {
+          "Path": "Organism|SmallIntestine|Mucosa|LowerJejunum|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.0727697702
+        },
+        {
+          "Path": "Organism|SmallIntestine|Mucosa|UpperIleum|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.0727697702
+        },
+        {
+          "Path": "Organism|SmallIntestine|Mucosa|UpperJejunum|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.0727697702
+        }
+      ],
+      "Localization": "Intracellular, BloodCellsIntracellular, VascEndosome",
+      "Ontogeny": {
+        "Name": "CYP3A4"
+      }
+    }
+  ],
+  "Individuals": [
+    {
+      "Name": "Davis 1987 15.5 months",
+      "Seed": 290770123,
+      "OriginData": {
+        "CalculationMethods": [
+          "SurfaceAreaPlsInt_VAR1",
+          "Body surface area - Mosteller"
+        ],
+        "Species": "Human",
+        "Population": "European_ICRP_2002",
+        "Gender": "MALE",
+        "Age": {
+          "Value": 15.5,
+          "Unit": "month(s)"
+        },
+        "Weight": {
+          "Value": 8.9,
+          "Unit": "kg"
+        },
+        "ValueOrigin": {
+          "Source": "Publication",
+          "Method": "InVivo",
+          "Description": "Davis 1987"
+        }
+      },
+      "ExpressionProfiles": [
+        "CYP3A4|Human|Davis 1987 15.5 months"
+      ]
+    },
+    {
+      "Name": "Davis 1987 5.2 months",
+      "Seed": 290799622,
+      "OriginData": {
+        "CalculationMethods": [
+          "SurfaceAreaPlsInt_VAR1",
+          "Body surface area - Mosteller"
+        ],
+        "Species": "Human",
+        "Population": "European_ICRP_2002",
+        "Gender": "MALE",
+        "Age": {
+          "Value": 5.2,
+          "Unit": "month(s)"
+        },
+        "Weight": {
+          "Value": 5.3,
+          "Unit": "kg"
+        },
+        "ValueOrigin": {
+          "Source": "Publication",
+          "Method": "InVivo",
+          "Description": "Davis 1987"
+        }
+      },
+      "ExpressionProfiles": [
+        "CYP3A4|Human|Davis 1987 5.2 months"
+      ]
+    },
+    {
+      "Name": "Guay 1991 patient 1",
+      "Seed": 291113964,
+      "OriginData": {
+        "CalculationMethods": [
+          "SurfaceAreaPlsInt_VAR1",
+          "Body surface area - Mosteller"
+        ],
+        "Species": "Human",
+        "Population": "European_ICRP_2002",
+        "Gender": "MALE",
+        "Age": {
+          "Value": 25.0,
+          "Unit": "month(s)"
+        },
+        "Weight": {
+          "Value": 12.1,
+          "Unit": "kg"
+        },
+        "Height": {
+          "Value": 89.0,
+          "Unit": "cm"
+        },
+        "ValueOrigin": {
+          "Source": "Publication",
+          "Method": "InVivo",
+          "Description": "Guay 1991"
+        }
+      },
+      "ExpressionProfiles": [
+        "CYP3A4|Human|Guay 1991 patient 1"
+      ]
+    },
+    {
+      "Name": "Guay 1991 patient 10",
+      "Seed": 291189703,
+      "OriginData": {
+        "CalculationMethods": [
+          "SurfaceAreaPlsInt_VAR1",
+          "Body surface area - Mosteller"
+        ],
+        "Species": "Human",
+        "Population": "European_ICRP_2002",
+        "Gender": "FEMALE",
+        "Age": {
+          "Value": 63.0,
+          "Unit": "month(s)"
+        },
+        "ValueOrigin": {
+          "Source": "Publication",
+          "Method": "InVivo",
+          "Description": "Guay 1991"
+        }
+      },
+      "ExpressionProfiles": [
+        "CYP3A4|Human|Guay 1991 patient 10"
+      ]
+    },
+    {
+      "Name": "Guay 1991 patient 11",
+      "Seed": 291222229,
+      "OriginData": {
+        "CalculationMethods": [
+          "SurfaceAreaPlsInt_VAR1",
+          "Body surface area - Mosteller"
+        ],
+        "Species": "Human",
+        "Population": "European_ICRP_2002",
+        "Gender": "MALE",
+        "Age": {
+          "Value": 64.0,
+          "Unit": "month(s)"
+        },
+        "Weight": {
+          "Value": 24.0,
+          "Unit": "kg"
+        },
+        "Height": {
+          "Value": 117.0,
+          "Unit": "cm"
+        },
+        "ValueOrigin": {
+          "Source": "Publication",
+          "Method": "InVivo",
+          "Description": "Guay 1991"
+        }
+      },
+      "ExpressionProfiles": [
+        "CYP3A4|Human|Guay 1991 patient 11"
+      ]
+    },
+    {
+      "Name": "Guay 1991 patient 12",
+      "Seed": 291251932,
+      "OriginData": {
+        "CalculationMethods": [
+          "SurfaceAreaPlsInt_VAR1",
+          "Body surface area - Mosteller"
+        ],
+        "Species": "Human",
+        "Population": "European_ICRP_2002",
+        "Gender": "MALE",
+        "Age": {
+          "Value": 64.0,
+          "Unit": "month(s)"
+        },
+        "Weight": {
+          "Value": 24.0,
+          "Unit": "kg"
+        },
+        "Height": {
+          "Value": 123.0,
+          "Unit": "cm"
+        },
+        "ValueOrigin": {
+          "Source": "Publication",
+          "Method": "InVivo",
+          "Description": "Guay 1991"
+        }
+      },
+      "ExpressionProfiles": [
+        "CYP3A4|Human|Guay 1991 patient 12"
+      ]
+    },
+    {
+      "Name": "Guay 1991 patient 13",
+      "Seed": 291289310,
+      "OriginData": {
+        "CalculationMethods": [
+          "SurfaceAreaPlsInt_VAR1",
+          "Body surface area - Mosteller"
+        ],
+        "Species": "Human",
+        "Population": "European_ICRP_2002",
+        "Gender": "MALE",
+        "Age": {
+          "Value": 65.0,
+          "Unit": "month(s)"
+        },
+        "Weight": {
+          "Value": 17.0,
+          "Unit": "kg"
+        },
+        "Height": {
+          "Value": 104.0,
+          "Unit": "cm"
+        },
+        "ValueOrigin": {
+          "Source": "Publication",
+          "Method": "InVivo",
+          "Description": "Guay 1991"
+        }
+      },
+      "ExpressionProfiles": [
+        "CYP3A4|Human|Guay 1991 patient 13"
+      ]
+    },
+    {
+      "Name": "Guay 1991 patient 14",
+      "Seed": 291318154,
+      "OriginData": {
+        "CalculationMethods": [
+          "SurfaceAreaPlsInt_VAR1",
+          "Body surface area - Mosteller"
+        ],
+        "Species": "Human",
+        "Population": "European_ICRP_2002",
+        "Gender": "MALE",
+        "Age": {
+          "Value": 69.0,
+          "Unit": "month(s)"
+        },
+        "Weight": {
+          "Value": 14.5,
+          "Unit": "kg"
+        },
+        "Height": {
+          "Value": 104.0,
+          "Unit": "cm"
+        },
+        "ValueOrigin": {
+          "Source": "Publication",
+          "Method": "InVivo",
+          "Description": "Guay 1991"
+        }
+      },
+      "ExpressionProfiles": [
+        "CYP3A4|Human|Guay 1991 patient 14"
+      ]
+    },
+    {
+      "Name": "Guay 1991 patient 15",
+      "Seed": 291354144,
+      "OriginData": {
+        "CalculationMethods": [
+          "SurfaceAreaPlsInt_VAR1",
+          "Body surface area - Mosteller"
+        ],
+        "Species": "Human",
+        "Population": "European_ICRP_2002",
+        "Gender": "FEMALE",
+        "Age": {
+          "Value": 71.0,
+          "Unit": "month(s)"
+        },
+        "Weight": {
+          "Value": 28.2,
+          "Unit": "kg"
+        },
+        "Height": {
+          "Value": 121.0,
+          "Unit": "cm"
+        },
+        "ValueOrigin": {
+          "Source": "Publication",
+          "Method": "InVivo",
+          "Description": "Guay 1991"
+        }
+      },
+      "ExpressionProfiles": [
+        "CYP3A4|Human|Guay 1991 patient 15"
+      ]
+    },
+    {
+      "Name": "Guay 1991 patient 16",
+      "Seed": 291390039,
+      "OriginData": {
+        "CalculationMethods": [
+          "SurfaceAreaPlsInt_VAR1",
+          "Body surface area - Mosteller"
+        ],
+        "Species": "Human",
+        "Population": "European_ICRP_2002",
+        "Gender": "MALE",
+        "Age": {
+          "Value": 71.0,
+          "Unit": "month(s)"
+        },
+        "Weight": {
+          "Value": 25.0,
+          "Unit": "kg"
+        },
+        "Height": {
+          "Value": 113.0,
+          "Unit": "cm"
+        },
+        "ValueOrigin": {
+          "Source": "Publication",
+          "Method": "InVivo",
+          "Description": "Guay 1991"
+        }
+      },
+      "ExpressionProfiles": [
+        "CYP3A4|Human|Guay 1991 patient 16"
+      ]
+    },
+    {
+      "Name": "Guay 1991 patient 17",
+      "Seed": 291423065,
+      "OriginData": {
+        "CalculationMethods": [
+          "SurfaceAreaPlsInt_VAR1",
+          "Body surface area - Mosteller"
+        ],
+        "Species": "Human",
+        "Population": "European_ICRP_2002",
+        "Gender": "FEMALE",
+        "Age": {
+          "Value": 83.0,
+          "Unit": "month(s)"
+        },
+        "Weight": {
+          "Value": 29.6,
+          "Unit": "kg"
+        },
+        "Height": {
+          "Value": 136.0,
+          "Unit": "cm"
+        },
+        "ValueOrigin": {
+          "Source": "Publication",
+          "Method": "InVivo",
+          "Description": "Guay 1991"
+        }
+      },
+      "ExpressionProfiles": [
+        "CYP3A4|Human|Guay 1991 patient 17"
+      ]
+    },
+    {
+      "Name": "Guay 1991 patient 18",
+      "Seed": 291447042,
+      "OriginData": {
+        "CalculationMethods": [
+          "SurfaceAreaPlsInt_VAR1",
+          "Body surface area - Mosteller"
+        ],
+        "Species": "Human",
+        "Population": "European_ICRP_2002",
+        "Gender": "FEMALE",
+        "Age": {
+          "Value": 90.0,
+          "Unit": "month(s)"
+        },
+        "Weight": {
+          "Value": 23.5,
+          "Unit": "kg"
+        },
+        "Height": {
+          "Value": 128.0,
+          "Unit": "cm"
+        },
+        "ValueOrigin": {
+          "Source": "Publication",
+          "Method": "InVivo",
+          "Description": "Guay 1991"
+        }
+      },
+      "ExpressionProfiles": [
+        "CYP3A4|Human|Guay 1991 patient 18"
+      ]
+    },
+    {
+      "Name": "Guay 1991 patient 19",
+      "Seed": 291480926,
+      "OriginData": {
+        "CalculationMethods": [
+          "SurfaceAreaPlsInt_VAR1",
+          "Body surface area - Mosteller"
+        ],
+        "Species": "Human",
+        "Population": "European_ICRP_2002",
+        "Gender": "FEMALE",
+        "Age": {
+          "Value": 90.0,
+          "Unit": "month(s)"
+        },
+        "Weight": {
+          "Value": 15.2,
+          "Unit": "kg"
+        },
+        "Height": {
+          "Value": 105.0,
+          "Unit": "cm"
+        },
+        "ValueOrigin": {
+          "Source": "Publication",
+          "Method": "InVivo",
+          "Description": "Guay 1991"
+        }
+      },
+      "ExpressionProfiles": [
+        "CYP3A4|Human|Guay 1991 patient 19"
+      ]
+    },
+    {
+      "Name": "Guay 1991 patient 2",
+      "Seed": 291514325,
+      "OriginData": {
+        "CalculationMethods": [
+          "SurfaceAreaPlsInt_VAR1",
+          "Body surface area - Mosteller"
+        ],
+        "Species": "Human",
+        "Population": "European_ICRP_2002",
+        "Gender": "MALE",
+        "Age": {
+          "Value": 31.0,
+          "Unit": "month(s)"
+        },
+        "Weight": {
+          "Value": 16.0,
+          "Unit": "kg"
+        },
+        "Height": {
+          "Value": 89.0,
+          "Unit": "cm"
+        },
+        "ValueOrigin": {
+          "Source": "Publication",
+          "Method": "InVivo",
+          "Description": "Guay 1991"
+        }
+      },
+      "ExpressionProfiles": [
+        "CYP3A4|Human|Guay 1991 patient 2"
+      ]
+    },
+    {
+      "Name": "Guay 1991 patient 20",
+      "Seed": 291737703,
+      "OriginData": {
+        "CalculationMethods": [
+          "SurfaceAreaPlsInt_VAR1",
+          "Body surface area - Mosteller"
+        ],
+        "Species": "Human",
+        "Population": "European_ICRP_2002",
+        "Gender": "FEMALE",
+        "Age": {
+          "Value": 105.0,
+          "Unit": "month(s)"
+        },
+        "Weight": {
+          "Value": 22.6,
+          "Unit": "kg"
+        },
+        "Height": {
+          "Value": 126.0,
+          "Unit": "cm"
+        },
+        "ValueOrigin": {
+          "Source": "Publication",
+          "Method": "InVivo",
+          "Description": "Guay 1991"
+        }
+      },
+      "ExpressionProfiles": [
+        "CYP3A4|Human|Guay 1991 patient 20"
+      ]
+    },
+    {
+      "Name": "Guay 1991 patient 3",
+      "Seed": 291761930,
+      "OriginData": {
+        "CalculationMethods": [
+          "SurfaceAreaPlsInt_VAR1",
+          "Body surface area - Mosteller"
+        ],
+        "Species": "Human",
+        "Population": "European_ICRP_2002",
+        "Gender": "MALE",
+        "Age": {
+          "Value": 32.0,
+          "Unit": "month(s)"
+        },
+        "Weight": {
+          "Value": 11.3,
+          "Unit": "kg"
+        },
+        "Height": {
+          "Value": 80.0,
+          "Unit": "cm"
+        },
+        "ValueOrigin": {
+          "Source": "Publication",
+          "Method": "InVivo",
+          "Description": "Guay 1991"
+        }
+      },
+      "ExpressionProfiles": [
+        "CYP3A4|Human|Guay 1991 patient 3"
+      ]
+    },
+    {
+      "Name": "Guay 1991 patient 4",
+      "Seed": 291785564,
+      "OriginData": {
+        "CalculationMethods": [
+          "SurfaceAreaPlsInt_VAR1",
+          "Body surface area - Mosteller"
+        ],
+        "Species": "Human",
+        "Population": "European_ICRP_2002",
+        "Gender": "FEMALE",
+        "Age": {
+          "Value": 39.0,
+          "Unit": "month(s)"
+        },
+        "Weight": {
+          "Value": 16.0,
+          "Unit": "kg"
+        },
+        "Height": {
+          "Value": 99.0,
+          "Unit": "cm"
+        },
+        "ValueOrigin": {
+          "Source": "Publication",
+          "Method": "InVivo",
+          "Description": "Guay 1991"
+        }
+      },
+      "ExpressionProfiles": [
+        "CYP3A4|Human|Guay 1991 patient 4"
+      ]
+    },
+    {
+      "Name": "Guay 1991 patient 5",
+      "Seed": 291807576,
+      "OriginData": {
+        "CalculationMethods": [
+          "SurfaceAreaPlsInt_VAR1",
+          "Body surface area - Mosteller"
+        ],
+        "Species": "Human",
+        "Population": "European_ICRP_2002",
+        "Gender": "MALE",
+        "Age": {
+          "Value": 46.0,
+          "Unit": "month(s)"
+        },
+        "Weight": {
+          "Value": 14.2,
+          "Unit": "kg"
+        },
+        "Height": {
+          "Value": 104.0,
+          "Unit": "cm"
+        },
+        "ValueOrigin": {
+          "Source": "Publication",
+          "Method": "InVivo",
+          "Description": "Guay 1991"
+        }
+      },
+      "ExpressionProfiles": [
+        "CYP3A4|Human|Guay 1991 patient 5"
+      ]
+    },
+    {
+      "Name": "Guay 1991 patient 6",
+      "Seed": 291828324,
+      "OriginData": {
+        "CalculationMethods": [
+          "SurfaceAreaPlsInt_VAR1",
+          "Body surface area - Mosteller"
+        ],
+        "Species": "Human",
+        "Population": "European_ICRP_2002",
+        "Gender": "MALE",
+        "Age": {
+          "Value": 55.0,
+          "Unit": "month(s)"
+        },
+        "Weight": {
+          "Value": 15.0,
+          "Unit": "kg"
+        },
+        "Height": {
+          "Value": 101.0,
+          "Unit": "cm"
+        },
+        "ValueOrigin": {
+          "Source": "Publication",
+          "Method": "InVivo",
+          "Description": "Guay 1991"
+        }
+      },
+      "ExpressionProfiles": [
+        "CYP3A4|Human|Guay 1991 patient 6"
+      ]
+    },
+    {
+      "Name": "Guay 1991 patient 7",
+      "Seed": 291850352,
+      "OriginData": {
+        "CalculationMethods": [
+          "SurfaceAreaPlsInt_VAR1",
+          "Body surface area - Mosteller"
+        ],
+        "Species": "Human",
+        "Population": "European_ICRP_2002",
+        "Gender": "MALE",
+        "Age": {
+          "Value": 55.0,
+          "Unit": "month(s)"
+        },
+        "Weight": {
+          "Value": 19.0,
+          "Unit": "kg"
+        },
+        "Height": {
+          "Value": 111.0,
+          "Unit": "cm"
+        },
+        "ValueOrigin": {
+          "Source": "Publication",
+          "Method": "InVivo",
+          "Description": "Guay 1991"
+        }
+      },
+      "ExpressionProfiles": [
+        "CYP3A4|Human|Guay 1991 patient 7"
+      ]
+    },
+    {
+      "Name": "Guay 1991 patient 8",
+      "Seed": 291876482,
+      "OriginData": {
+        "CalculationMethods": [
+          "SurfaceAreaPlsInt_VAR1",
+          "Body surface area - Mosteller"
+        ],
+        "Species": "Human",
+        "Population": "European_ICRP_2002",
+        "Gender": "MALE",
+        "Age": {
+          "Value": 58.0,
+          "Unit": "month(s)"
+        },
+        "Weight": {
+          "Value": 17.5,
+          "Unit": "kg"
+        },
+        "Height": {
+          "Value": 107.0,
+          "Unit": "cm"
+        },
+        "ValueOrigin": {
+          "Source": "Publication",
+          "Method": "InVivo",
+          "Description": "Guay 1991"
+        }
+      },
+      "ExpressionProfiles": [
+        "CYP3A4|Human|Guay 1991 patient 8"
+      ]
+    },
+    {
+      "Name": "Guay 1991 patient 9",
+      "Seed": 291898306,
+      "OriginData": {
+        "CalculationMethods": [
+          "SurfaceAreaPlsInt_VAR1",
+          "Body surface area - Mosteller"
+        ],
+        "Species": "Human",
+        "Population": "European_ICRP_2002",
+        "Gender": "MALE",
+        "Age": {
+          "Value": 63.0,
+          "Unit": "month(s)"
+        },
+        "Weight": {
+          "Value": 18.5,
+          "Unit": "kg"
+        },
+        "Height": {
+          "Value": 110.0,
+          "Unit": "cm"
+        },
+        "ValueOrigin": {
+          "Source": "Publication",
+          "Method": "InVivo",
+          "Description": "Guay 1991"
+        }
+      },
+      "ExpressionProfiles": [
+        "CYP3A4|Human|Guay 1991 patient 9"
+      ]
+    }
+  ],
+  "Compounds": [
+    {
+      "Name": "Sufentanil",
+      "IsSmallMolecule": true,
+      "PlasmaProteinBindingPartner": "Glycoprotein",
+      "Lipophilicity": [
+        {
+          "Name": "Fitted LogP",
+          "Parameters": [
+            {
+              "Name": "Lipophilicity",
+              "Value": 2.0,
+              "Unit": "Log Units",
+              "ValueOrigin": {
+                "Source": "Unknown",
+                "Description": "benchmark naive prior (blanked)"
+              }
+            }
+          ]
+        }
+      ],
+      "FractionUnbound": [
+        {
+          "Name": "Zhou et al. 2017",
+          "Species": "Human",
+          "Parameters": [
+            {
+              "Name": "Fraction unbound (plasma, reference value)",
+              "Value": 0.075,
+              "ValueOrigin": {
+                "Source": "Publication",
+                "Description": "Zhou et al. 2017"
+              }
+            }
+          ]
+        }
+      ],
+      "Solubility": [
+        {
+          "Name": "ROY,SD & FLYNN,GL (1988)",
+          "Parameters": [
+            {
+              "Name": "Solubility at reference pH",
+              "Value": 0.076,
+              "Unit": "mg/l",
+              "ValueOrigin": {
+                "Source": "Internet",
+                "Method": "Other",
+                "Description": "ROY,SD & FLYNN,GL (1988)"
+              }
+            },
+            {
+              "Name": "Reference pH",
+              "Value": 7.0,
+              "ValueOrigin": {
+                "Source": "Internet",
+                "Method": "Other",
+                "Description": "ROY,SD & FLYNN,GL (1988)"
+              }
+            }
+          ]
+        }
+      ],
+      "PkaTypes": [
+        {
+          "Type": "Base",
+          "Pka": 8.0,
+          "ValueOrigin": {
+            "Source": "Publication",
+            "Description": "Zhou et al. 2017"
+          }
+        }
+      ],
+      "Processes": [
+        {
+          "InternalName": "GlomerularFiltration",
+          "DataSource": "GFR",
+          "Species": "Human",
+          "Parameters": [
+            {
+              "Name": "GFR fraction",
+              "Value": 1.0,
+              "ValueOrigin": {
+                "Source": "Publication",
+                "Description": "Zhou et al. 2017"
+              }
+            }
+          ]
+        },
+        {
+          "InternalName": "MetabolizationIntrinsic_FirstOrder",
+          "DataSource": "Zhou et al. 2017",
+          "Species": "Human",
+          "Molecule": "CYP3A4",
+          "Parameters": [
+            {
+              "Name": "Intrinsic clearance",
+              "Value": 0.1,
+              "Unit": "l/min",
+              "ValueOrigin": {
+                "Source": "Unknown",
+                "Description": "benchmark naive prior (blanked)"
+              }
+            }
+          ]
+        }
+      ],
+      "CalculationMethods": [
+        "Cellular partition coefficient method - Schmitt",
+        "Cellular permeability - PK-Sim Standard"
+      ],
+      "Parameters": [
+        {
+          "Name": "Molecular weight",
+          "Value": 386.6,
+          "Unit": "g/mol",
+          "ValueOrigin": {
+            "Source": "Publication",
+            "Description": "Zhou et al. 2017"
+          }
+        }
+      ]
+    }
+  ],
+  "Protocols": [
+    {
+      "Name": "Davis 1987 15µg/kg dose IV",
+      "ApplicationType": "Intravenous",
+      "DosingInterval": "Single",
+      "Parameters": [
+        {
+          "Name": "Start time",
+          "Value": 0.0,
+          "Unit": "h"
+        },
+        {
+          "Name": "InputDose",
+          "Value": 0.015,
+          "Unit": "mg/kg"
+        },
+        {
+          "Name": "Infusion time",
+          "Value": 1.0,
+          "Unit": "min"
+        }
+      ]
+    },
+    {
+      "Name": "Guay 1991 patient 10",
+      "ApplicationType": "IntravenousBolus",
+      "DosingInterval": "Single",
+      "Parameters": [
+        {
+          "Name": "Start time",
+          "Value": 0.0,
+          "Unit": "h"
+        },
+        {
+          "Name": "InputDose",
+          "Value": 0.00308,
+          "Unit": "mg/kg"
+        }
+      ]
+    },
+    {
+      "Name": "Guay 1991 patient 11",
+      "ApplicationType": "IntravenousBolus",
+      "DosingInterval": "Single",
+      "Parameters": [
+        {
+          "Name": "Start time",
+          "Value": 0.0,
+          "Unit": "h"
+        },
+        {
+          "Name": "InputDose",
+          "Value": 0.00313,
+          "Unit": "mg/kg"
+        }
+      ]
+    },
+    {
+      "Name": "Guay 1991 patient 12",
+      "ApplicationType": "IntravenousBolus",
+      "DosingInterval": "Single",
+      "Parameters": [
+        {
+          "Name": "Start time",
+          "Value": 0.0,
+          "Unit": "h"
+        },
+        {
+          "Name": "InputDose",
+          "Value": 0.002,
+          "Unit": "mg/kg"
+        }
+      ]
+    },
+    {
+      "Name": "Guay 1991 patient 13",
+      "ApplicationType": "IntravenousBolus",
+      "DosingInterval": "Single",
+      "Parameters": [
+        {
+          "Name": "Start time",
+          "Value": 0.0,
+          "Unit": "h"
+        },
+        {
+          "Name": "InputDose",
+          "Value": 0.00294,
+          "Unit": "mg/kg"
+        }
+      ]
+    },
+    {
+      "Name": "Guay 1991 patient 1",
+      "ApplicationType": "IntravenousBolus",
+      "DosingInterval": "Single",
+      "Parameters": [
+        {
+          "Name": "Start time",
+          "Value": 0.0,
+          "Unit": "h"
+        },
+        {
+          "Name": "InputDose",
+          "Value": 0.00194,
+          "Unit": "mg/kg"
+        }
+      ]
+    },
+    {
+      "Name": "Guay 1991 patient 14",
+      "ApplicationType": "IntravenousBolus",
+      "DosingInterval": "Single",
+      "Parameters": [
+        {
+          "Name": "Start time",
+          "Value": 0.0,
+          "Unit": "h"
+        },
+        {
+          "Name": "InputDose",
+          "Value": 0.0029,
+          "Unit": "mg/kg"
+        }
+      ]
+    },
+    {
+      "Name": "Guay 1991 patient 15",
+      "ApplicationType": "IntravenousBolus",
+      "DosingInterval": "Single",
+      "Parameters": [
+        {
+          "Name": "Start time",
+          "Value": 0.0,
+          "Unit": "h"
+        },
+        {
+          "Name": "InputDose",
+          "Value": 0.00301,
+          "Unit": "mg/kg"
+        }
+      ]
+    },
+    {
+      "Name": "Guay 1991 patient 16",
+      "ApplicationType": "IntravenousBolus",
+      "DosingInterval": "Single",
+      "Parameters": [
+        {
+          "Name": "Start time",
+          "Value": 0.0,
+          "Unit": "h"
+        },
+        {
+          "Name": "InputDose",
+          "Value": 0.00148,
+          "Unit": "mg/kg"
+        }
+      ]
+    },
+    {
+      "Name": "Guay 1991 patient 17",
+      "ApplicationType": "IntravenousBolus",
+      "DosingInterval": "Single",
+      "Parameters": [
+        {
+          "Name": "Start time",
+          "Value": 0.0,
+          "Unit": "h"
+        },
+        {
+          "Name": "InputDose",
+          "Value": 0.00203,
+          "Unit": "mg/kg"
+        }
+      ]
+    },
+    {
+      "Name": "Guay 1991 patient 18",
+      "ApplicationType": "IntravenousBolus",
+      "DosingInterval": "Single",
+      "Parameters": [
+        {
+          "Name": "Start time",
+          "Value": 0.0,
+          "Unit": "h"
+        },
+        {
+          "Name": "InputDose",
+          "Value": 0.00098,
+          "Unit": "mg/kg"
+        }
+      ]
+    },
+    {
+      "Name": "Guay 1991 patient 19",
+      "ApplicationType": "IntravenousBolus",
+      "DosingInterval": "Single",
+      "Parameters": [
+        {
+          "Name": "Start time",
+          "Value": 0.0,
+          "Unit": "h"
+        },
+        {
+          "Name": "InputDose",
+          "Value": 0.00295,
+          "Unit": "mg/kg"
+        }
+      ]
+    },
+    {
+      "Name": "Guay 1991 patient 20",
+      "ApplicationType": "IntravenousBolus",
+      "DosingInterval": "Single",
+      "Parameters": [
+        {
+          "Name": "Start time",
+          "Value": 0.0,
+          "Unit": "h"
+        },
+        {
+          "Name": "InputDose",
+          "Value": 0.00199,
+          "Unit": "mg/kg"
+        }
+      ]
+    },
+    {
+      "Name": "Guay 1991 patient 2",
+      "ApplicationType": "IntravenousBolus",
+      "DosingInterval": "Single",
+      "Parameters": [
+        {
+          "Name": "Start time",
+          "Value": 0.0,
+          "Unit": "h"
+        },
+        {
+          "Name": "InputDose",
+          "Value": 0.00188,
+          "Unit": "mg/kg"
+        }
+      ]
+    },
+    {
+      "Name": "Guay 1991 patient 3",
+      "ApplicationType": "IntravenousBolus",
+      "DosingInterval": "Single",
+      "Parameters": [
+        {
+          "Name": "Start time",
+          "Value": 0.0,
+          "Unit": "h"
+        },
+        {
+          "Name": "InputDose",
+          "Value": 0.00354,
+          "Unit": "mg/kg"
+        }
+      ]
+    },
+    {
+      "Name": "Guay 1991 patient 4",
+      "ApplicationType": "IntravenousBolus",
+      "DosingInterval": "Single",
+      "Parameters": [
+        {
+          "Name": "Start time",
+          "Value": 0.0,
+          "Unit": "h"
+        },
+        {
+          "Name": "InputDose",
+          "Value": 0.00281,
+          "Unit": "mg/kg"
+        }
+      ]
+    },
+    {
+      "Name": "Guay 1991 patient 5",
+      "ApplicationType": "IntravenousBolus",
+      "DosingInterval": "Single",
+      "Parameters": [
+        {
+          "Name": "Start time",
+          "Value": 0.0,
+          "Unit": "h"
+        },
+        {
+          "Name": "InputDose",
+          "Value": 0.00197,
+          "Unit": "mg/kg"
+        }
+      ]
+    },
+    {
+      "Name": "Guay 1991 patient 6",
+      "ApplicationType": "IntravenousBolus",
+      "DosingInterval": "Single",
+      "Parameters": [
+        {
+          "Name": "Start time",
+          "Value": 0.0,
+          "Unit": "h"
+        },
+        {
+          "Name": "InputDose",
+          "Value": 0.002,
+          "Unit": "mg/kg"
+        }
+      ]
+    },
+    {
+      "Name": "Guay 1991 patient 7",
+      "ApplicationType": "IntravenousBolus",
+      "DosingInterval": "Single",
+      "Parameters": [
+        {
+          "Name": "Start time",
+          "Value": 0.0,
+          "Unit": "h"
+        },
+        {
+          "Name": "InputDose",
+          "Value": 0.00263,
+          "Unit": "mg/kg"
+        }
+      ]
+    },
+    {
+      "Name": "Guay 1991 patient 8",
+      "ApplicationType": "IntravenousBolus",
+      "DosingInterval": "Single",
+      "Parameters": [
+        {
+          "Name": "Start time",
+          "Value": 0.0,
+          "Unit": "h"
+        },
+        {
+          "Name": "InputDose",
+          "Value": 0.00314,
+          "Unit": "mg/kg"
+        }
+      ]
+    },
+    {
+      "Name": "Guay 1991 patient 9",
+      "ApplicationType": "IntravenousBolus",
+      "DosingInterval": "Single",
+      "Parameters": [
+        {
+          "Name": "Start time",
+          "Value": 0.0,
+          "Unit": "h"
+        },
+        {
+          "Name": "InputDose",
+          "Value": 0.00195,
+          "Unit": "mg/kg"
+        }
+      ]
+    }
+  ],
+  "Simulations": [
+    {
+      "Name": "Guay 1991 patient 1",
+      "Model": "4Comp",
+      "Solver": {},
+      "OutputSchema": [
+        {
+          "Parameters": [
+            {
+              "Name": "Start time",
+              "Value": 0.0,
+              "Unit": "h"
+            },
+            {
+              "Name": "End time",
+              "Value": 2.0,
+              "Unit": "h"
+            },
+            {
+              "Name": "Resolution",
+              "Value": 20.0,
+              "Unit": "pts/h"
+            }
+          ]
+        },
+        {
+          "Parameters": [
+            {
+              "Name": "Start time",
+              "Value": 2.0,
+              "Unit": "h"
+            },
+            {
+              "Name": "End time",
+              "Value": 360.0,
+              "Unit": "min",
+              "ValueOrigin": {
+                "Source": "Unknown"
+              }
+            },
+            {
+              "Name": "Resolution",
+              "Value": 4.0,
+              "Unit": "pts/h"
+            }
+          ]
+        }
+      ],
+      "OutputSelections": [
+        "Organism|PeripheralVenousBlood|Sufentanil|Plasma (Peripheral Venous Blood)"
+      ],
+      "Individual": "Guay 1991 patient 1",
+      "Compounds": [
+        {
+          "Name": "Sufentanil",
+          "CalculationMethods": [
+            "Cellular partition coefficient method - Schmitt",
+            "Cellular permeability - PK-Sim Standard"
+          ],
+          "Processes": [
+            {
+              "Name": "CYP3A4-Zhou et al. 2017",
+              "MoleculeName": "CYP3A4"
+            },
+            {
+              "Name": "Glomerular Filtration-GFR",
+              "SystemicProcessType": "GFR"
+            }
+          ],
+          "Protocol": {
+            "Name": "Guay 1991 patient 1"
+          }
+        }
+      ],
+      "HasResults": true,
+      "IndividualAnalyses": [
+        {
+          "Axes": [
+            {
+              "Unit": "h",
+              "Dimension": "Time",
+              "Type": "X",
+              "GridLines": false,
+              "Visible": true,
+              "DefaultColor": "#FFFFFF",
+              "DefaultLineStyle": "None",
+              "Scaling": "Linear",
+              "NumberMode": "Normal"
+            },
+            {
+              "Unit": "µmol/l",
+              "Dimension": "Concentration (molar)",
+              "Type": "Y",
+              "GridLines": false,
+              "Visible": true,
+              "DefaultColor": "#FFFFFF",
+              "DefaultLineStyle": "Solid",
+              "Scaling": "Log",
+              "NumberMode": "Normal"
+            }
+          ],
+          "Curves": [
+            {
+              "Name": "Guay 1991 patient 1-Sufentanil-Peripheral Venous Blood-Plasma-Concentration",
+              "X": "Time",
+              "Y": "Guay 1991 patient 1|Organism|PeripheralVenousBlood|Sufentanil|Plasma (Peripheral Venous Blood)",
+              "CurveOptions": {
+                "Color": "#FF0000",
+                "LegendIndex": 1
+              }
+            }
+          ],
+          "Name": "Time Profile Analysis",
+          "FontAndSize": {
+            "Fonts": {
+              "AxisSize": 10,
+              "LegendSize": 8,
+              "TitleSize": 16,
+              "DescriptionSize": 12,
+              "OriginSize": 8,
+              "FontFamilyName": "Microsoft Sans Serif",
+              "WatermarkSize": 32
+            }
+          },
+          "Settings": {
+            "SideMarginsEnabled": true,
+            "LegendPosition": "RightInside",
+            "BackColor": "#00FFFFFF",
+            "DiagramBackColor": "#FFFFFF"
+          },
+          "OriginText": "Sufentanil\nGuay 1991 patient 1\n2019-06-27 10:38"
+        }
+      ]
+    },
+    {
+      "Name": "Guay 1991 patient 10",
+      "Model": "4Comp",
+      "Solver": {},
+      "OutputSchema": [
+        {
+          "Parameters": [
+            {
+              "Name": "Start time",
+              "Value": 0.0,
+              "Unit": "h"
+            },
+            {
+              "Name": "End time",
+              "Value": 2.0,
+              "Unit": "h"
+            },
+            {
+              "Name": "Resolution",
+              "Value": 20.0,
+              "Unit": "pts/h"
+            }
+          ]
+        },
+        {
+          "Parameters": [
+            {
+              "Name": "Start time",
+              "Value": 2.0,
+              "Unit": "h"
+            },
+            {
+              "Name": "End time",
+              "Value": 4.0,
+              "Unit": "h",
+              "ValueOrigin": {
+                "Source": "Unknown"
+              }
+            },
+            {
+              "Name": "Resolution",
+              "Value": 4.0,
+              "Unit": "pts/h"
+            }
+          ]
+        }
+      ],
+      "OutputSelections": [
+        "Organism|PeripheralVenousBlood|Sufentanil|Plasma (Peripheral Venous Blood)"
+      ],
+      "Individual": "Guay 1991 patient 10",
+      "Compounds": [
+        {
+          "Name": "Sufentanil",
+          "CalculationMethods": [
+            "Cellular partition coefficient method - Schmitt",
+            "Cellular permeability - PK-Sim Standard"
+          ],
+          "Processes": [
+            {
+              "Name": "CYP3A4-Zhou et al. 2017",
+              "MoleculeName": "CYP3A4"
+            },
+            {
+              "Name": "Glomerular Filtration-GFR",
+              "SystemicProcessType": "GFR"
+            }
+          ],
+          "Protocol": {
+            "Name": "Guay 1991 patient 10"
+          }
+        }
+      ],
+      "HasResults": true,
+      "IndividualAnalyses": [
+        {
+          "Axes": [
+            {
+              "Unit": "h",
+              "Dimension": "Time",
+              "Type": "X",
+              "GridLines": false,
+              "Visible": true,
+              "DefaultColor": "#FFFFFF",
+              "DefaultLineStyle": "None",
+              "Scaling": "Linear",
+              "NumberMode": "Normal"
+            },
+            {
+              "Unit": "µg/l",
+              "Dimension": "Concentration (molar)",
+              "Type": "Y",
+              "GridLines": false,
+              "Visible": true,
+              "DefaultColor": "#FFFFFF",
+              "DefaultLineStyle": "Solid",
+              "Scaling": "Log",
+              "NumberMode": "Normal"
+            }
+          ],
+          "Curves": [
+            {
+              "Name": "Guay 1991 patient 10-Sufentanil-Peripheral Venous Blood-Plasma-Concentration",
+              "X": "Time",
+              "Y": "Guay 1991 patient 10|Organism|PeripheralVenousBlood|Sufentanil|Plasma (Peripheral Venous Blood)",
+              "CurveOptions": {
+                "Color": "#FF0000",
+                "LegendIndex": 1
+              }
+            }
+          ],
+          "Name": "Time Profile Analysis",
+          "FontAndSize": {
+            "ChartWidth": 400,
+            "ChartHeight": 400,
+            "Fonts": {
+              "AxisSize": 10,
+              "LegendSize": 8,
+              "TitleSize": 16,
+              "DescriptionSize": 12,
+              "OriginSize": 8,
+              "FontFamilyName": "Microsoft Sans Serif",
+              "WatermarkSize": 32
+            }
+          },
+          "Settings": {
+            "SideMarginsEnabled": true,
+            "LegendPosition": "RightInside",
+            "BackColor": "#00FFFFFF",
+            "DiagramBackColor": "#FFFFFF"
+          },
+          "OriginText": "Sufentanil\nGuay 1991 patient 10\n2019-06-27 10:52"
+        }
+      ]
+    },
+    {
+      "Name": "Guay 1991 patient 11",
+      "Model": "4Comp",
+      "ObservedData": [
+        "Guay 1991 - ID11 - Sufentanil - IV - 3.13 µg/kg - Plasma - indiv."
+      ],
+      "Solver": {},
+      "OutputSchema": [
+        {
+          "Parameters": [
+            {
+              "Name": "Start time",
+              "Value": 0.0,
+              "Unit": "h"
+            },
+            {
+              "Name": "End time",
+              "Value": 2.0,
+              "Unit": "h"
+            },
+            {
+              "Name": "Resolution",
+              "Value": 20.0,
+              "Unit": "pts/h"
+            }
+          ]
+        },
+        {
+          "Parameters": [
+            {
+              "Name": "Start time",
+              "Value": 2.0,
+              "Unit": "h"
+            },
+            {
+              "Name": "End time",
+              "Value": 420.0,
+              "Unit": "min",
+              "ValueOrigin": {
+                "Source": "Unknown"
+              }
+            },
+            {
+              "Name": "Resolution",
+              "Value": 4.0,
+              "Unit": "pts/h"
+            }
+          ]
+        }
+      ],
+      "OutputSelections": [
+        "Organism|PeripheralVenousBlood|Sufentanil|Plasma (Peripheral Venous Blood)"
+      ],
+      "Individual": "Guay 1991 patient 11",
+      "Compounds": [
+        {
+          "Name": "Sufentanil",
+          "CalculationMethods": [
+            "Cellular partition coefficient method - Schmitt",
+            "Cellular permeability - PK-Sim Standard"
+          ],
+          "Processes": [
+            {
+              "Name": "CYP3A4-Zhou et al. 2017",
+              "MoleculeName": "CYP3A4"
+            },
+            {
+              "Name": "Glomerular Filtration-GFR",
+              "SystemicProcessType": "GFR"
+            }
+          ],
+          "Protocol": {
+            "Name": "Guay 1991 patient 11"
+          }
+        }
+      ],
+      "HasResults": true,
+      "IndividualAnalyses": [
+        {
+          "Axes": [
+            {
+              "Unit": "h",
+              "Dimension": "Time",
+              "Type": "X",
+              "GridLines": false,
+              "Visible": true,
+              "DefaultColor": "#FFFFFF",
+              "DefaultLineStyle": "None",
+              "Scaling": "Linear",
+              "NumberMode": "Normal"
+            },
+            {
+              "Unit": "µg/l",
+              "Dimension": "Concentration (molar)",
+              "Type": "Y",
+              "GridLines": false,
+              "Visible": true,
+              "DefaultColor": "#FFFFFF",
+              "DefaultLineStyle": "Solid",
+              "Scaling": "Log",
+              "NumberMode": "Normal"
+            }
+          ],
+          "Curves": [
+            {
+              "Name": "Guay 1991 patient 11-Sufentanil-Peripheral Venous Blood-Plasma-Concentration",
+              "X": "Time",
+              "Y": "Guay 1991 patient 11|Organism|PeripheralVenousBlood|Sufentanil|Plasma (Peripheral Venous Blood)",
+              "CurveOptions": {
+                "Color": "#FF0000",
+                "LegendIndex": 1
+              }
+            },
+            {
+              "Name": "Guay 1991 - ID11 - Sufentanil - IV - 3.13 µg/kg - Plasma - indiv.-Sufentanil-Peripheral Venous Blood-Plasma-ArithmeticMean",
+              "X": "Guay 1991 - ID11 - Sufentanil - IV - 3.13 µg/kg - Plasma - indiv.|Time",
+              "Y": "Guay 1991 - ID11 - Sufentanil - IV - 3.13 µg/kg - Plasma - indiv.|ObservedData|Peripheral Venous Blood|Plasma|Sufentanil|ArithmeticMean",
+              "CurveOptions": {
+                "Color": "#0000FF",
+                "LegendIndex": 3,
+                "LineStyle": "None",
+                "Symbol": "Circle"
+              }
+            }
+          ],
+          "Name": "Time Profile Analysis",
+          "FontAndSize": {
+            "Fonts": {
+              "AxisSize": 10,
+              "LegendSize": 8,
+              "TitleSize": 16,
+              "DescriptionSize": 12,
+              "OriginSize": 8,
+              "FontFamilyName": "Microsoft Sans Serif",
+              "WatermarkSize": 32
+            }
+          },
+          "Settings": {
+            "SideMarginsEnabled": true,
+            "LegendPosition": "RightInside",
+            "BackColor": "#00FFFFFF",
+            "DiagramBackColor": "#FFFFFF"
+          },
+          "OriginText": "Sufentanil\nGuay 1991 patient 11\n2019-06-27 10:37"
+        },
+        {
+          "Axes": [
+            {
+              "Unit": "h",
+              "Dimension": "Time",
+              "Type": "X",
+              "GridLines": false,
+              "Visible": true,
+              "DefaultColor": "#FFFFFF",
+              "DefaultLineStyle": "None",
+              "Scaling": "Linear",
+              "NumberMode": "Normal"
+            },
+            {
+              "Unit": "µg/l",
+              "Dimension": "Concentration (molar)",
+              "Type": "Y",
+              "GridLines": false,
+              "Visible": true,
+              "DefaultColor": "#FFFFFF",
+              "DefaultLineStyle": "Solid",
+              "Scaling": "Linear",
+              "NumberMode": "Normal"
+            }
+          ],
+          "Curves": [
+            {
+              "Name": "Guay 1991 patient 11-Sufentanil-Peripheral Venous Blood-Plasma-Concentration",
+              "X": "Time",
+              "Y": "Guay 1991 patient 11|Organism|PeripheralVenousBlood|Sufentanil|Plasma (Peripheral Venous Blood)",
+              "CurveOptions": {
+                "Color": "#FF0000",
+                "LegendIndex": 1
+              }
+            },
+            {
+              "Name": "Guay 1991 - ID11 - Sufentanil - IV - 3.13 µg/kg - Plasma - indiv.-Sufentanil-Peripheral Venous Blood-Plasma-ArithmeticMean",
+              "X": "Guay 1991 - ID11 - Sufentanil - IV - 3.13 µg/kg - Plasma - indiv.|Time",
+              "Y": "Guay 1991 - ID11 - Sufentanil - IV - 3.13 µg/kg - Plasma - indiv.|ObservedData|Peripheral Venous Blood|Plasma|Sufentanil|ArithmeticMean",
+              "CurveOptions": {
+                "Color": "#0000FF",
+                "LegendIndex": 3,
+                "LineStyle": "None",
+                "Symbol": "Circle"
+              }
+            }
+          ],
+          "Name": "Time Profile Analysis 1",
+          "FontAndSize": {
+            "Fonts": {
+              "AxisSize": 10,
+              "LegendSize": 8,
+              "TitleSize": 16,
+              "DescriptionSize": 12,
+              "OriginSize": 8,
+              "FontFamilyName": "Microsoft Sans Serif",
+              "WatermarkSize": 32
+            }
+          },
+          "Settings": {
+            "SideMarginsEnabled": true,
+            "LegendPosition": "RightInside",
+            "BackColor": "#00FFFFFF",
+            "DiagramBackColor": "#FFFFFF"
+          },
+          "OriginText": "Sufentanil\nGuay 1991 patient 11\n2019-06-27 10:37"
+        }
+      ]
+    },
+    {
+      "Name": "Guay 1991 patient 12",
+      "Model": "4Comp",
+      "Solver": {},
+      "OutputSchema": [
+        {
+          "Parameters": [
+            {
+              "Name": "Start time",
+              "Value": 0.0,
+              "Unit": "h"
+            },
+            {
+              "Name": "End time",
+              "Value": 2.0,
+              "Unit": "h"
+            },
+            {
+              "Name": "Resolution",
+              "Value": 20.0,
+              "Unit": "pts/h"
+            }
+          ]
+        },
+        {
+          "Parameters": [
+            {
+              "Name": "Start time",
+              "Value": 2.0,
+              "Unit": "h"
+            },
+            {
+              "Name": "End time",
+              "Value": 4.0,
+              "Unit": "h",
+              "ValueOrigin": {
+                "Source": "Unknown"
+              }
+            },
+            {
+              "Name": "Resolution",
+              "Value": 4.0,
+              "Unit": "pts/h"
+            }
+          ]
+        }
+      ],
+      "OutputSelections": [
+        "Organism|PeripheralVenousBlood|Sufentanil|Plasma (Peripheral Venous Blood)"
+      ],
+      "Individual": "Guay 1991 patient 12",
+      "Compounds": [
+        {
+          "Name": "Sufentanil",
+          "CalculationMethods": [
+            "Cellular partition coefficient method - Schmitt",
+            "Cellular permeability - PK-Sim Standard"
+          ],
+          "Processes": [
+            {
+              "Name": "CYP3A4-Zhou et al. 2017",
+              "MoleculeName": "CYP3A4"
+            },
+            {
+              "Name": "Glomerular Filtration-GFR",
+              "SystemicProcessType": "GFR"
+            }
+          ],
+          "Protocol": {
+            "Name": "Guay 1991 patient 12"
+          }
+        }
+      ],
+      "HasResults": true,
+      "IndividualAnalyses": [
+        {
+          "Axes": [
+            {
+              "Unit": "h",
+              "Dimension": "Time",
+              "Type": "X",
+              "GridLines": false,
+              "Visible": true,
+              "DefaultColor": "#FFFFFF",
+              "DefaultLineStyle": "None",
+              "Scaling": "Linear",
+              "NumberMode": "Normal"
+            },
+            {
+              "Unit": "µmol/l",
+              "Dimension": "Concentration (molar)",
+              "Type": "Y",
+              "GridLines": false,
+              "Visible": true,
+              "DefaultColor": "#FFFFFF",
+              "DefaultLineStyle": "Solid",
+              "Scaling": "Log",
+              "NumberMode": "Normal"
+            }
+          ],
+          "Curves": [
+            {
+              "Name": "Guay 1991 patient 12-Sufentanil-Peripheral Venous Blood-Plasma-Concentration",
+              "X": "Time",
+              "Y": "Guay 1991 patient 12|Organism|PeripheralVenousBlood|Sufentanil|Plasma (Peripheral Venous Blood)",
+              "CurveOptions": {
+                "Color": "#FF0000",
+                "LegendIndex": 1
+              }
+            }
+          ],
+          "Name": "Time Profile Analysis",
+          "FontAndSize": {
+            "Fonts": {
+              "AxisSize": 10,
+              "LegendSize": 8,
+              "TitleSize": 16,
+              "DescriptionSize": 12,
+              "OriginSize": 8,
+              "FontFamilyName": "Microsoft Sans Serif",
+              "WatermarkSize": 32
+            }
+          },
+          "Settings": {
+            "SideMarginsEnabled": true,
+            "LegendPosition": "RightInside",
+            "BackColor": "#00FFFFFF",
+            "DiagramBackColor": "#FFFFFF"
+          },
+          "OriginText": "Sufentanil\nGuay 1991 patient 12\n2019-06-27 10:55"
+        }
+      ]
+    },
+    {
+      "Name": "Guay 1991 patient 13",
+      "Model": "4Comp",
+      "Solver": {},
+      "OutputSchema": [
+        {
+          "Parameters": [
+            {
+              "Name": "Start time",
+              "Value": 0.0,
+              "Unit": "h"
+            },
+            {
+              "Name": "End time",
+              "Value": 2.0,
+              "Unit": "h"
+            },
+            {
+              "Name": "Resolution",
+              "Value": 20.0,
+              "Unit": "pts/h"
+            }
+          ]
+        },
+        {
+          "Parameters": [
+            {
+              "Name": "Start time",
+              "Value": 2.0,
+              "Unit": "h"
+            },
+            {
+              "Name": "End time",
+              "Value": 7.0,
+              "Unit": "h",
+              "ValueOrigin": {
+                "Source": "Unknown"
+              }
+            },
+            {
+              "Name": "Resolution",
+              "Value": 4.0,
+              "Unit": "pts/h"
+            }
+          ]
+        }
+      ],
+      "OutputSelections": [
+        "Organism|PeripheralVenousBlood|Sufentanil|Plasma (Peripheral Venous Blood)"
+      ],
+      "Individual": "Guay 1991 patient 13",
+      "Compounds": [
+        {
+          "Name": "Sufentanil",
+          "CalculationMethods": [
+            "Cellular partition coefficient method - Schmitt",
+            "Cellular permeability - PK-Sim Standard"
+          ],
+          "Processes": [
+            {
+              "Name": "CYP3A4-Zhou et al. 2017",
+              "MoleculeName": "CYP3A4"
+            },
+            {
+              "Name": "Glomerular Filtration-GFR",
+              "SystemicProcessType": "GFR"
+            }
+          ],
+          "Protocol": {
+            "Name": "Guay 1991 patient 13"
+          }
+        }
+      ],
+      "HasResults": true,
+      "IndividualAnalyses": [
+        {
+          "Axes": [
+            {
+              "Unit": "h",
+              "Dimension": "Time",
+              "Type": "X",
+              "GridLines": false,
+              "Visible": true,
+              "DefaultColor": "#FFFFFF",
+              "DefaultLineStyle": "None",
+              "Scaling": "Linear",
+              "NumberMode": "Normal"
+            },
+            {
+              "Unit": "µmol/l",
+              "Dimension": "Concentration (molar)",
+              "Type": "Y",
+              "GridLines": false,
+              "Visible": true,
+              "DefaultColor": "#FFFFFF",
+              "DefaultLineStyle": "Solid",
+              "Scaling": "Log",
+              "NumberMode": "Normal"
+            }
+          ],
+          "Curves": [
+            {
+              "Name": "Guay 1991 patient 13-Sufentanil-Peripheral Venous Blood-Plasma-Concentration",
+              "X": "Time",
+              "Y": "Guay 1991 patient 13|Organism|PeripheralVenousBlood|Sufentanil|Plasma (Peripheral Venous Blood)",
+              "CurveOptions": {
+                "Color": "#FF0000",
+                "LegendIndex": 1
+              }
+            }
+          ],
+          "Name": "Time Profile Analysis",
+          "FontAndSize": {
+            "Fonts": {
+              "AxisSize": 10,
+              "LegendSize": 8,
+              "TitleSize": 16,
+              "DescriptionSize": 12,
+              "OriginSize": 8,
+              "FontFamilyName": "Microsoft Sans Serif",
+              "WatermarkSize": 32
+            }
+          },
+          "Settings": {
+            "SideMarginsEnabled": true,
+            "LegendPosition": "RightInside",
+            "BackColor": "#00FFFFFF",
+            "DiagramBackColor": "#FFFFFF"
+          },
+          "OriginText": "Sufentanil\nGuay 1991 patient 13\n2019-06-27 10:56"
+        }
+      ]
+    },
+    {
+      "Name": "Guay 1991 patient 14",
+      "Model": "4Comp",
+      "Solver": {},
+      "OutputSchema": [
+        {
+          "Parameters": [
+            {
+              "Name": "Start time",
+              "Value": 0.0,
+              "Unit": "h"
+            },
+            {
+              "Name": "End time",
+              "Value": 2.0,
+              "Unit": "h"
+            },
+            {
+              "Name": "Resolution",
+              "Value": 20.0,
+              "Unit": "pts/h"
+            }
+          ]
+        },
+        {
+          "Parameters": [
+            {
+              "Name": "Start time",
+              "Value": 2.0,
+              "Unit": "h"
+            },
+            {
+              "Name": "End time",
+              "Value": 7.0,
+              "Unit": "h",
+              "ValueOrigin": {
+                "Source": "Unknown"
+              }
+            },
+            {
+              "Name": "Resolution",
+              "Value": 4.0,
+              "Unit": "pts/h"
+            }
+          ]
+        }
+      ],
+      "OutputSelections": [
+        "Organism|PeripheralVenousBlood|Sufentanil|Plasma (Peripheral Venous Blood)"
+      ],
+      "Individual": "Guay 1991 patient 14",
+      "Compounds": [
+        {
+          "Name": "Sufentanil",
+          "CalculationMethods": [
+            "Cellular partition coefficient method - Schmitt",
+            "Cellular permeability - PK-Sim Standard"
+          ],
+          "Processes": [
+            {
+              "Name": "CYP3A4-Zhou et al. 2017",
+              "MoleculeName": "CYP3A4"
+            },
+            {
+              "Name": "Glomerular Filtration-GFR",
+              "SystemicProcessType": "GFR"
+            }
+          ],
+          "Protocol": {
+            "Name": "Guay 1991 patient 14"
+          }
+        }
+      ],
+      "HasResults": true,
+      "IndividualAnalyses": [
+        {
+          "Axes": [
+            {
+              "Unit": "h",
+              "Dimension": "Time",
+              "Type": "X",
+              "GridLines": false,
+              "Visible": true,
+              "DefaultColor": "#FFFFFF",
+              "DefaultLineStyle": "None",
+              "Scaling": "Linear",
+              "NumberMode": "Normal"
+            },
+            {
+              "Unit": "µmol/l",
+              "Dimension": "Concentration (molar)",
+              "Type": "Y",
+              "GridLines": false,
+              "Visible": true,
+              "DefaultColor": "#FFFFFF",
+              "DefaultLineStyle": "Solid",
+              "Scaling": "Log",
+              "NumberMode": "Normal"
+            }
+          ],
+          "Curves": [
+            {
+              "Name": "Guay 1991 patient 14-Sufentanil-Peripheral Venous Blood-Plasma-Concentration",
+              "X": "Time",
+              "Y": "Guay 1991 patient 14|Organism|PeripheralVenousBlood|Sufentanil|Plasma (Peripheral Venous Blood)",
+              "CurveOptions": {
+                "Color": "#FF0000",
+                "LegendIndex": 1
+              }
+            }
+          ],
+          "Name": "Time Profile Analysis",
+          "FontAndSize": {
+            "Fonts": {
+              "AxisSize": 10,
+              "LegendSize": 8,
+              "TitleSize": 16,
+              "DescriptionSize": 12,
+              "OriginSize": 8,
+              "FontFamilyName": "Microsoft Sans Serif",
+              "WatermarkSize": 32
+            }
+          },
+          "Settings": {
+            "SideMarginsEnabled": true,
+            "LegendPosition": "RightInside",
+            "BackColor": "#00FFFFFF",
+            "DiagramBackColor": "#FFFFFF"
+          },
+          "OriginText": "Sufentanil\nGuay 1991 patient 14\n2019-06-27 10:56"
+        }
+      ]
+    },
+    {
+      "Name": "Guay 1991 patient 15",
+      "Model": "4Comp",
+      "Solver": {},
+      "OutputSchema": [
+        {
+          "Parameters": [
+            {
+              "Name": "Start time",
+              "Value": 0.0,
+              "Unit": "h"
+            },
+            {
+              "Name": "End time",
+              "Value": 2.0,
+              "Unit": "h"
+            },
+            {
+              "Name": "Resolution",
+              "Value": 20.0,
+              "Unit": "pts/h"
+            }
+          ]
+        },
+        {
+          "Parameters": [
+            {
+              "Name": "Start time",
+              "Value": 2.0,
+              "Unit": "h"
+            },
+            {
+              "Name": "End time",
+              "Value": 180.0,
+              "Unit": "min",
+              "ValueOrigin": {
+                "Source": "Unknown"
+              }
+            },
+            {
+              "Name": "Resolution",
+              "Value": 4.0,
+              "Unit": "pts/h"
+            }
+          ]
+        }
+      ],
+      "OutputSelections": [
+        "Organism|PeripheralVenousBlood|Sufentanil|Plasma (Peripheral Venous Blood)"
+      ],
+      "Individual": "Guay 1991 patient 15",
+      "Compounds": [
+        {
+          "Name": "Sufentanil",
+          "CalculationMethods": [
+            "Cellular partition coefficient method - Schmitt",
+            "Cellular permeability - PK-Sim Standard"
+          ],
+          "Processes": [
+            {
+              "Name": "CYP3A4-Zhou et al. 2017",
+              "MoleculeName": "CYP3A4"
+            },
+            {
+              "Name": "Glomerular Filtration-GFR",
+              "SystemicProcessType": "GFR"
+            }
+          ],
+          "Protocol": {
+            "Name": "Guay 1991 patient 15"
+          }
+        }
+      ],
+      "HasResults": true,
+      "IndividualAnalyses": [
+        {
+          "Axes": [
+            {
+              "Unit": "h",
+              "Dimension": "Time",
+              "Type": "X",
+              "GridLines": false,
+              "Visible": true,
+              "DefaultColor": "#FFFFFF",
+              "DefaultLineStyle": "None",
+              "Scaling": "Linear",
+              "NumberMode": "Normal"
+            },
+            {
+              "Unit": "µmol/l",
+              "Dimension": "Concentration (molar)",
+              "Type": "Y",
+              "GridLines": false,
+              "Visible": true,
+              "DefaultColor": "#FFFFFF",
+              "DefaultLineStyle": "Solid",
+              "Scaling": "Log",
+              "NumberMode": "Normal"
+            }
+          ],
+          "Curves": [
+            {
+              "Name": "Guay 1991 patient 15-Sufentanil-Peripheral Venous Blood-Plasma-Concentration",
+              "X": "Time",
+              "Y": "Guay 1991 patient 15|Organism|PeripheralVenousBlood|Sufentanil|Plasma (Peripheral Venous Blood)",
+              "CurveOptions": {
+                "Color": "#FF0000",
+                "LegendIndex": 1
+              }
+            }
+          ],
+          "Name": "Time Profile Analysis",
+          "FontAndSize": {
+            "Fonts": {
+              "AxisSize": 10,
+              "LegendSize": 8,
+              "TitleSize": 16,
+              "DescriptionSize": 12,
+              "OriginSize": 8,
+              "FontFamilyName": "Microsoft Sans Serif",
+              "WatermarkSize": 32
+            }
+          },
+          "Settings": {
+            "SideMarginsEnabled": true,
+            "LegendPosition": "RightInside",
+            "BackColor": "#00FFFFFF",
+            "DiagramBackColor": "#FFFFFF"
+          },
+          "OriginText": "Sufentanil\nGuay 1991 patient 15\n2019-06-27 10:56"
+        }
+      ]
+    },
+    {
+      "Name": "Guay 1991 patient 16",
+      "Model": "4Comp",
+      "Solver": {},
+      "OutputSchema": [
+        {
+          "Parameters": [
+            {
+              "Name": "Start time",
+              "Value": 0.0,
+              "Unit": "h"
+            },
+            {
+              "Name": "End time",
+              "Value": 2.0,
+              "Unit": "h"
+            },
+            {
+              "Name": "Resolution",
+              "Value": 20.0,
+              "Unit": "pts/h"
+            }
+          ]
+        },
+        {
+          "Parameters": [
+            {
+              "Name": "Start time",
+              "Value": 2.0,
+              "Unit": "h"
+            },
+            {
+              "Name": "End time",
+              "Value": 240.0,
+              "Unit": "min",
+              "ValueOrigin": {
+                "Source": "Unknown"
+              }
+            },
+            {
+              "Name": "Resolution",
+              "Value": 4.0,
+              "Unit": "pts/h"
+            }
+          ]
+        }
+      ],
+      "OutputSelections": [
+        "Organism|PeripheralVenousBlood|Sufentanil|Plasma (Peripheral Venous Blood)"
+      ],
+      "Individual": "Guay 1991 patient 16",
+      "Compounds": [
+        {
+          "Name": "Sufentanil",
+          "CalculationMethods": [
+            "Cellular partition coefficient method - Schmitt",
+            "Cellular permeability - PK-Sim Standard"
+          ],
+          "Processes": [
+            {
+              "Name": "CYP3A4-Zhou et al. 2017",
+              "MoleculeName": "CYP3A4"
+            },
+            {
+              "Name": "Glomerular Filtration-GFR",
+              "SystemicProcessType": "GFR"
+            }
+          ],
+          "Protocol": {
+            "Name": "Guay 1991 patient 16"
+          }
+        }
+      ],
+      "HasResults": true,
+      "IndividualAnalyses": [
+        {
+          "Axes": [
+            {
+              "Unit": "h",
+              "Dimension": "Time",
+              "Type": "X",
+              "GridLines": false,
+              "Visible": true,
+              "DefaultColor": "#FFFFFF",
+              "DefaultLineStyle": "None",
+              "Scaling": "Linear",
+              "NumberMode": "Normal"
+            },
+            {
+              "Unit": "µmol/l",
+              "Dimension": "Concentration (molar)",
+              "Type": "Y",
+              "GridLines": false,
+              "Visible": true,
+              "DefaultColor": "#FFFFFF",
+              "DefaultLineStyle": "Solid",
+              "Scaling": "Log",
+              "NumberMode": "Normal"
+            }
+          ],
+          "Curves": [
+            {
+              "Name": "Guay 1991 patient 16-Sufentanil-Peripheral Venous Blood-Plasma-Concentration",
+              "X": "Time",
+              "Y": "Guay 1991 patient 16|Organism|PeripheralVenousBlood|Sufentanil|Plasma (Peripheral Venous Blood)",
+              "CurveOptions": {
+                "Color": "#FF0000",
+                "LegendIndex": 1
+              }
+            }
+          ],
+          "Name": "Time Profile Analysis",
+          "FontAndSize": {
+            "Fonts": {
+              "AxisSize": 10,
+              "LegendSize": 8,
+              "TitleSize": 16,
+              "DescriptionSize": 12,
+              "OriginSize": 8,
+              "FontFamilyName": "Microsoft Sans Serif",
+              "WatermarkSize": 32
+            }
+          },
+          "Settings": {
+            "SideMarginsEnabled": true,
+            "LegendPosition": "RightInside",
+            "BackColor": "#00FFFFFF",
+            "DiagramBackColor": "#FFFFFF"
+          },
+          "OriginText": "Sufentanil\nGuay 1991 patient 16\n2019-06-27 10:57"
+        }
+      ]
+    },
+    {
+      "Name": "Guay 1991 patient 17",
+      "Model": "4Comp",
+      "Solver": {},
+      "OutputSchema": [
+        {
+          "Parameters": [
+            {
+              "Name": "Start time",
+              "Value": 0.0,
+              "Unit": "h"
+            },
+            {
+              "Name": "End time",
+              "Value": 2.0,
+              "Unit": "h"
+            },
+            {
+              "Name": "Resolution",
+              "Value": 20.0,
+              "Unit": "pts/h"
+            }
+          ]
+        },
+        {
+          "Parameters": [
+            {
+              "Name": "Start time",
+              "Value": 2.0,
+              "Unit": "h"
+            },
+            {
+              "Name": "End time",
+              "Value": 3.0,
+              "Unit": "h",
+              "ValueOrigin": {
+                "Source": "Unknown"
+              }
+            },
+            {
+              "Name": "Resolution",
+              "Value": 4.0,
+              "Unit": "pts/h"
+            }
+          ]
+        }
+      ],
+      "OutputSelections": [
+        "Organism|PeripheralVenousBlood|Sufentanil|Plasma (Peripheral Venous Blood)"
+      ],
+      "Individual": "Guay 1991 patient 17",
+      "Compounds": [
+        {
+          "Name": "Sufentanil",
+          "CalculationMethods": [
+            "Cellular partition coefficient method - Schmitt",
+            "Cellular permeability - PK-Sim Standard"
+          ],
+          "Processes": [
+            {
+              "Name": "CYP3A4-Zhou et al. 2017",
+              "MoleculeName": "CYP3A4"
+            },
+            {
+              "Name": "Glomerular Filtration-GFR",
+              "SystemicProcessType": "GFR"
+            }
+          ],
+          "Protocol": {
+            "Name": "Guay 1991 patient 17"
+          }
+        }
+      ],
+      "HasResults": true,
+      "IndividualAnalyses": [
+        {
+          "Axes": [
+            {
+              "Unit": "h",
+              "Dimension": "Time",
+              "Type": "X",
+              "GridLines": false,
+              "Visible": true,
+              "DefaultColor": "#FFFFFF",
+              "DefaultLineStyle": "None",
+              "Scaling": "Linear",
+              "NumberMode": "Normal"
+            },
+            {
+              "Unit": "µmol/l",
+              "Dimension": "Concentration (molar)",
+              "Type": "Y",
+              "GridLines": false,
+              "Visible": true,
+              "DefaultColor": "#FFFFFF",
+              "DefaultLineStyle": "Solid",
+              "Scaling": "Log",
+              "NumberMode": "Normal"
+            }
+          ],
+          "Curves": [
+            {
+              "Name": "Guay 1991 patient 17-Sufentanil-Peripheral Venous Blood-Plasma-Concentration",
+              "X": "Time",
+              "Y": "Guay 1991 patient 17|Organism|PeripheralVenousBlood|Sufentanil|Plasma (Peripheral Venous Blood)",
+              "CurveOptions": {
+                "Color": "#FF0000",
+                "LegendIndex": 1
+              }
+            }
+          ],
+          "Name": "Time Profile Analysis",
+          "FontAndSize": {
+            "Fonts": {
+              "AxisSize": 10,
+              "LegendSize": 8,
+              "TitleSize": 16,
+              "DescriptionSize": 12,
+              "OriginSize": 8,
+              "FontFamilyName": "Microsoft Sans Serif",
+              "WatermarkSize": 32
+            }
+          },
+          "Settings": {
+            "SideMarginsEnabled": true,
+            "LegendPosition": "RightInside",
+            "BackColor": "#00FFFFFF",
+            "DiagramBackColor": "#FFFFFF"
+          },
+          "OriginText": "Sufentanil\nGuay 1991 patient 17\n2019-06-27 10:57"
+        }
+      ]
+    },
+    {
+      "Name": "Guay 1991 patient 18",
+      "Model": "4Comp",
+      "Solver": {},
+      "OutputSchema": [
+        {
+          "Parameters": [
+            {
+              "Name": "Start time",
+              "Value": 0.0,
+              "Unit": "h"
+            },
+            {
+              "Name": "End time",
+              "Value": 2.0,
+              "Unit": "h"
+            },
+            {
+              "Name": "Resolution",
+              "Value": 20.0,
+              "Unit": "pts/h"
+            }
+          ]
+        },
+        {
+          "Parameters": [
+            {
+              "Name": "Start time",
+              "Value": 2.0,
+              "Unit": "h"
+            },
+            {
+              "Name": "End time",
+              "Value": 3.0,
+              "Unit": "h",
+              "ValueOrigin": {
+                "Source": "Unknown"
+              }
+            },
+            {
+              "Name": "Resolution",
+              "Value": 4.0,
+              "Unit": "pts/h"
+            }
+          ]
+        }
+      ],
+      "OutputSelections": [
+        "Organism|PeripheralVenousBlood|Sufentanil|Plasma (Peripheral Venous Blood)"
+      ],
+      "Individual": "Guay 1991 patient 18",
+      "Compounds": [
+        {
+          "Name": "Sufentanil",
+          "CalculationMethods": [
+            "Cellular partition coefficient method - Schmitt",
+            "Cellular permeability - PK-Sim Standard"
+          ],
+          "Processes": [
+            {
+              "Name": "CYP3A4-Zhou et al. 2017",
+              "MoleculeName": "CYP3A4"
+            },
+            {
+              "Name": "Glomerular Filtration-GFR",
+              "SystemicProcessType": "GFR"
+            }
+          ],
+          "Protocol": {
+            "Name": "Guay 1991 patient 18"
+          }
+        }
+      ],
+      "HasResults": true,
+      "IndividualAnalyses": [
+        {
+          "Axes": [
+            {
+              "Unit": "h",
+              "Dimension": "Time",
+              "Type": "X",
+              "GridLines": false,
+              "Visible": true,
+              "DefaultColor": "#FFFFFF",
+              "DefaultLineStyle": "None",
+              "Scaling": "Linear",
+              "NumberMode": "Normal"
+            },
+            {
+              "Unit": "µmol/l",
+              "Dimension": "Concentration (molar)",
+              "Type": "Y",
+              "GridLines": false,
+              "Visible": true,
+              "DefaultColor": "#FFFFFF",
+              "DefaultLineStyle": "Solid",
+              "Scaling": "Log",
+              "NumberMode": "Normal"
+            }
+          ],
+          "Curves": [
+            {
+              "Name": "Guay 1991 patient 18-Sufentanil-Peripheral Venous Blood-Plasma-Concentration",
+              "X": "Time",
+              "Y": "Guay 1991 patient 18|Organism|PeripheralVenousBlood|Sufentanil|Plasma (Peripheral Venous Blood)",
+              "CurveOptions": {
+                "Color": "#FF0000",
+                "LegendIndex": 1
+              }
+            }
+          ],
+          "Name": "Time Profile Analysis",
+          "FontAndSize": {
+            "Fonts": {
+              "AxisSize": 10,
+              "LegendSize": 8,
+              "TitleSize": 16,
+              "DescriptionSize": 12,
+              "OriginSize": 8,
+              "FontFamilyName": "Microsoft Sans Serif",
+              "WatermarkSize": 32
+            }
+          },
+          "Settings": {
+            "SideMarginsEnabled": true,
+            "LegendPosition": "RightInside",
+            "BackColor": "#00FFFFFF",
+            "DiagramBackColor": "#FFFFFF"
+          },
+          "OriginText": "Sufentanil\nGuay 1991 patient 18\n2019-06-27 10:57"
+        }
+      ]
+    },
+    {
+      "Name": "Guay 1991 patient 19",
+      "Model": "4Comp",
+      "Solver": {},
+      "OutputSchema": [
+        {
+          "Parameters": [
+            {
+              "Name": "Start time",
+              "Value": 0.0,
+              "Unit": "h"
+            },
+            {
+              "Name": "End time",
+              "Value": 2.0,
+              "Unit": "h"
+            },
+            {
+              "Name": "Resolution",
+              "Value": 20.0,
+              "Unit": "pts/h"
+            }
+          ]
+        },
+        {
+          "Parameters": [
+            {
+              "Name": "Start time",
+              "Value": 2.0,
+              "Unit": "h"
+            },
+            {
+              "Name": "End time",
+              "Value": 240.0,
+              "Unit": "min",
+              "ValueOrigin": {
+                "Source": "Unknown"
+              }
+            },
+            {
+              "Name": "Resolution",
+              "Value": 4.0,
+              "Unit": "pts/h"
+            }
+          ]
+        }
+      ],
+      "OutputSelections": [
+        "Organism|PeripheralVenousBlood|Sufentanil|Plasma (Peripheral Venous Blood)"
+      ],
+      "Individual": "Guay 1991 patient 19",
+      "Compounds": [
+        {
+          "Name": "Sufentanil",
+          "CalculationMethods": [
+            "Cellular partition coefficient method - Schmitt",
+            "Cellular permeability - PK-Sim Standard"
+          ],
+          "Processes": [
+            {
+              "Name": "CYP3A4-Zhou et al. 2017",
+              "MoleculeName": "CYP3A4"
+            },
+            {
+              "Name": "Glomerular Filtration-GFR",
+              "SystemicProcessType": "GFR"
+            }
+          ],
+          "Protocol": {
+            "Name": "Guay 1991 patient 19"
+          }
+        }
+      ],
+      "HasResults": true,
+      "IndividualAnalyses": [
+        {
+          "Axes": [
+            {
+              "Unit": "h",
+              "Dimension": "Time",
+              "Type": "X",
+              "GridLines": false,
+              "Visible": true,
+              "DefaultColor": "#FFFFFF",
+              "DefaultLineStyle": "None",
+              "Scaling": "Linear",
+              "NumberMode": "Normal"
+            },
+            {
+              "Unit": "µmol/l",
+              "Dimension": "Concentration (molar)",
+              "Type": "Y",
+              "GridLines": false,
+              "Visible": true,
+              "DefaultColor": "#FFFFFF",
+              "DefaultLineStyle": "Solid",
+              "Scaling": "Log",
+              "NumberMode": "Normal"
+            }
+          ],
+          "Curves": [
+            {
+              "Name": "Guay 1991 patient 19-Sufentanil-Peripheral Venous Blood-Plasma-Concentration",
+              "X": "Time",
+              "Y": "Guay 1991 patient 19|Organism|PeripheralVenousBlood|Sufentanil|Plasma (Peripheral Venous Blood)",
+              "CurveOptions": {
+                "Color": "#FF0000",
+                "LegendIndex": 1
+              }
+            }
+          ],
+          "Name": "Time Profile Analysis",
+          "FontAndSize": {
+            "Fonts": {
+              "AxisSize": 10,
+              "LegendSize": 8,
+              "TitleSize": 16,
+              "DescriptionSize": 12,
+              "OriginSize": 8,
+              "FontFamilyName": "Microsoft Sans Serif",
+              "WatermarkSize": 32
+            }
+          },
+          "Settings": {
+            "SideMarginsEnabled": true,
+            "LegendPosition": "RightInside",
+            "BackColor": "#00FFFFFF",
+            "DiagramBackColor": "#FFFFFF"
+          },
+          "OriginText": "Sufentanil\nGuay 1991 patient 19\n2019-06-27 10:58"
+        }
+      ]
+    },
+    {
+      "Name": "Guay 1991 patient 2",
+      "Model": "4Comp",
+      "Solver": {},
+      "OutputSchema": [
+        {
+          "Parameters": [
+            {
+              "Name": "Start time",
+              "Value": 0.0,
+              "Unit": "h"
+            },
+            {
+              "Name": "End time",
+              "Value": 1.0,
+              "Unit": "h"
+            },
+            {
+              "Name": "Resolution",
+              "Value": 20.0,
+              "Unit": "pts/h"
+            }
+          ]
+        }
+      ],
+      "OutputSelections": [
+        "Organism|PeripheralVenousBlood|Sufentanil|Plasma (Peripheral Venous Blood)"
+      ],
+      "Individual": "Guay 1991 patient 2",
+      "Compounds": [
+        {
+          "Name": "Sufentanil",
+          "CalculationMethods": [
+            "Cellular partition coefficient method - Schmitt",
+            "Cellular permeability - PK-Sim Standard"
+          ],
+          "Processes": [
+            {
+              "Name": "CYP3A4-Zhou et al. 2017",
+              "MoleculeName": "CYP3A4"
+            },
+            {
+              "Name": "Glomerular Filtration-GFR",
+              "SystemicProcessType": "GFR"
+            }
+          ],
+          "Protocol": {
+            "Name": "Guay 1991 patient 2"
+          }
+        }
+      ],
+      "HasResults": true,
+      "IndividualAnalyses": [
+        {
+          "Axes": [
+            {
+              "Unit": "h",
+              "Dimension": "Time",
+              "Type": "X",
+              "GridLines": false,
+              "Visible": true,
+              "DefaultColor": "#FFFFFF",
+              "DefaultLineStyle": "None",
+              "Scaling": "Linear",
+              "NumberMode": "Normal"
+            },
+            {
+              "Unit": "µmol/l",
+              "Dimension": "Concentration (molar)",
+              "Type": "Y",
+              "GridLines": false,
+              "Visible": true,
+              "DefaultColor": "#FFFFFF",
+              "DefaultLineStyle": "Solid",
+              "Scaling": "Log",
+              "NumberMode": "Normal"
+            }
+          ],
+          "Curves": [
+            {
+              "Name": "Guay 1991 patient 2-Sufentanil-Peripheral Venous Blood-Plasma-Concentration",
+              "X": "Time",
+              "Y": "Guay 1991 patient 2|Organism|PeripheralVenousBlood|Sufentanil|Plasma (Peripheral Venous Blood)",
+              "CurveOptions": {
+                "Color": "#FF0000",
+                "LegendIndex": 1
+              }
+            }
+          ],
+          "Name": "Time Profile Analysis",
+          "FontAndSize": {
+            "Fonts": {
+              "AxisSize": 10,
+              "LegendSize": 8,
+              "TitleSize": 16,
+              "DescriptionSize": 12,
+              "OriginSize": 8,
+              "FontFamilyName": "Microsoft Sans Serif",
+              "WatermarkSize": 32
+            }
+          },
+          "Settings": {
+            "SideMarginsEnabled": true,
+            "LegendPosition": "RightInside",
+            "BackColor": "#00FFFFFF",
+            "DiagramBackColor": "#FFFFFF"
+          },
+          "OriginText": "Sufentanil\nGuay 1991 patient 2\n2019-06-27 10:41"
+        }
+      ]
+    },
+    {
+      "Name": "Guay 1991 patient 20",
+      "Model": "4Comp",
+      "Solver": {},
+      "OutputSchema": [
+        {
+          "Parameters": [
+            {
+              "Name": "Start time",
+              "Value": 0.0,
+              "Unit": "h"
+            },
+            {
+              "Name": "End time",
+              "Value": 2.0,
+              "Unit": "h"
+            },
+            {
+              "Name": "Resolution",
+              "Value": 20.0,
+              "Unit": "pts/h"
+            }
+          ]
+        },
+        {
+          "Parameters": [
+            {
+              "Name": "Start time",
+              "Value": 2.0,
+              "Unit": "h"
+            },
+            {
+              "Name": "End time",
+              "Value": 3.0,
+              "Unit": "h",
+              "ValueOrigin": {
+                "Source": "Unknown"
+              }
+            },
+            {
+              "Name": "Resolution",
+              "Value": 4.0,
+              "Unit": "pts/h"
+            }
+          ]
+        }
+      ],
+      "OutputSelections": [
+        "Organism|PeripheralVenousBlood|Sufentanil|Plasma (Peripheral Venous Blood)"
+      ],
+      "Individual": "Guay 1991 patient 20",
+      "Compounds": [
+        {
+          "Name": "Sufentanil",
+          "CalculationMethods": [
+            "Cellular partition coefficient method - Schmitt",
+            "Cellular permeability - PK-Sim Standard"
+          ],
+          "Processes": [
+            {
+              "Name": "CYP3A4-Zhou et al. 2017",
+              "MoleculeName": "CYP3A4"
+            },
+            {
+              "Name": "Glomerular Filtration-GFR",
+              "SystemicProcessType": "GFR"
+            }
+          ],
+          "Protocol": {
+            "Name": "Guay 1991 patient 20"
+          }
+        }
+      ],
+      "HasResults": true,
+      "IndividualAnalyses": [
+        {
+          "Axes": [
+            {
+              "Unit": "h",
+              "Dimension": "Time",
+              "Type": "X",
+              "GridLines": false,
+              "Visible": true,
+              "DefaultColor": "#FFFFFF",
+              "DefaultLineStyle": "None",
+              "Scaling": "Linear",
+              "NumberMode": "Normal"
+            },
+            {
+              "Unit": "µmol/l",
+              "Dimension": "Concentration (molar)",
+              "Type": "Y",
+              "GridLines": false,
+              "Visible": true,
+              "DefaultColor": "#FFFFFF",
+              "DefaultLineStyle": "Solid",
+              "Scaling": "Log",
+              "NumberMode": "Normal"
+            }
+          ],
+          "Curves": [
+            {
+              "Name": "Guay 1991 patient 20-Sufentanil-Peripheral Venous Blood-Plasma-Concentration",
+              "X": "Time",
+              "Y": "Guay 1991 patient 20|Organism|PeripheralVenousBlood|Sufentanil|Plasma (Peripheral Venous Blood)",
+              "CurveOptions": {
+                "Color": "#FF0000",
+                "LegendIndex": 1
+              }
+            }
+          ],
+          "Name": "Time Profile Analysis",
+          "FontAndSize": {
+            "Fonts": {
+              "AxisSize": 10,
+              "LegendSize": 8,
+              "TitleSize": 16,
+              "DescriptionSize": 12,
+              "OriginSize": 8,
+              "FontFamilyName": "Microsoft Sans Serif",
+              "WatermarkSize": 32
+            }
+          },
+          "Settings": {
+            "SideMarginsEnabled": true,
+            "LegendPosition": "RightInside",
+            "BackColor": "#00FFFFFF",
+            "DiagramBackColor": "#FFFFFF"
+          },
+          "OriginText": "Sufentanil\nGuay 1991 patient 20\n2019-06-27 10:59"
+        }
+      ]
+    },
+    {
+      "Name": "Guay 1991 patient 3",
+      "Model": "4Comp",
+      "ObservedData": [
+        "Guay 1991 - ID3 - Sufentanil - IV - 3.54 µg/kg - Plasma - indiv."
+      ],
+      "Solver": {},
+      "OutputSchema": [
+        {
+          "Parameters": [
+            {
+              "Name": "Start time",
+              "Value": 0.0,
+              "Unit": "h"
+            },
+            {
+              "Name": "End time",
+              "Value": 2.0,
+              "Unit": "h"
+            },
+            {
+              "Name": "Resolution",
+              "Value": 20.0,
+              "Unit": "pts/h"
+            }
+          ]
+        },
+        {
+          "Parameters": [
+            {
+              "Name": "Start time",
+              "Value": 2.0,
+              "Unit": "h"
+            },
+            {
+              "Name": "End time",
+              "Value": 4.0,
+              "Unit": "h",
+              "ValueOrigin": {
+                "Source": "Unknown"
+              }
+            },
+            {
+              "Name": "Resolution",
+              "Value": 4.0,
+              "Unit": "pts/h"
+            }
+          ]
+        }
+      ],
+      "OutputSelections": [
+        "Organism|PeripheralVenousBlood|Sufentanil|Plasma (Peripheral Venous Blood)"
+      ],
+      "Individual": "Guay 1991 patient 3",
+      "Compounds": [
+        {
+          "Name": "Sufentanil",
+          "CalculationMethods": [
+            "Cellular partition coefficient method - Schmitt",
+            "Cellular permeability - PK-Sim Standard"
+          ],
+          "Processes": [
+            {
+              "Name": "CYP3A4-Zhou et al. 2017",
+              "MoleculeName": "CYP3A4"
+            },
+            {
+              "Name": "Glomerular Filtration-GFR",
+              "SystemicProcessType": "GFR"
+            }
+          ],
+          "Protocol": {
+            "Name": "Guay 1991 patient 3"
+          }
+        }
+      ],
+      "HasResults": true,
+      "IndividualAnalyses": [
+        {
+          "Axes": [
+            {
+              "Unit": "h",
+              "Dimension": "Time",
+              "Type": "X",
+              "GridLines": false,
+              "Visible": true,
+              "DefaultColor": "#FFFFFF",
+              "DefaultLineStyle": "None",
+              "Scaling": "Linear",
+              "NumberMode": "Normal"
+            },
+            {
+              "Unit": "µg/l",
+              "Dimension": "Concentration (molar)",
+              "Type": "Y",
+              "GridLines": false,
+              "Visible": true,
+              "DefaultColor": "#FFFFFF",
+              "DefaultLineStyle": "Solid",
+              "Scaling": "Log",
+              "NumberMode": "Normal"
+            }
+          ],
+          "Curves": [
+            {
+              "Name": "Guay 1991 patient 3-Sufentanil-Peripheral Venous Blood-Plasma-Concentration",
+              "X": "Time",
+              "Y": "Guay 1991 patient 3|Organism|PeripheralVenousBlood|Sufentanil|Plasma (Peripheral Venous Blood)",
+              "CurveOptions": {
+                "Color": "#FF0000",
+                "LegendIndex": 1
+              }
+            },
+            {
+              "Name": "Guay 1991 - ID3 - Sufentanil - IV - 3.54 µg/kg - Plasma - indiv.-Sufentanil-Peripheral Venous Blood-Plasma-ArithmeticMean",
+              "X": "Guay 1991 - ID3 - Sufentanil - IV - 3.54 µg/kg - Plasma - indiv.|Time",
+              "Y": "Guay 1991 - ID3 - Sufentanil - IV - 3.54 µg/kg - Plasma - indiv.|ObservedData|Peripheral Venous Blood|Plasma|Sufentanil|ArithmeticMean",
+              "CurveOptions": {
+                "Color": "#008000",
+                "LegendIndex": 4,
+                "LineStyle": "None",
+                "Symbol": "Circle"
+              }
+            }
+          ],
+          "Name": "Time Profile Analysis",
+          "FontAndSize": {
+            "ChartWidth": 400,
+            "ChartHeight": 400,
+            "Fonts": {
+              "AxisSize": 10,
+              "LegendSize": 8,
+              "TitleSize": 16,
+              "DescriptionSize": 12,
+              "OriginSize": 8,
+              "FontFamilyName": "Microsoft Sans Serif",
+              "WatermarkSize": 32
+            }
+          },
+          "Settings": {
+            "SideMarginsEnabled": true,
+            "LegendPosition": "RightInside",
+            "BackColor": "#00FFFFFF",
+            "DiagramBackColor": "#FFFFFF"
+          },
+          "OriginText": "Sufentanil\nGuay 1991 patient 3\n2019-06-14 13:36"
+        },
+        {
+          "Axes": [
+            {
+              "Unit": "h",
+              "Dimension": "Time",
+              "Type": "X",
+              "GridLines": false,
+              "Visible": true,
+              "DefaultColor": "#FFFFFF",
+              "DefaultLineStyle": "None",
+              "Scaling": "Linear",
+              "NumberMode": "Normal"
+            },
+            {
+              "Unit": "µg/l",
+              "Dimension": "Concentration (molar)",
+              "Type": "Y",
+              "GridLines": false,
+              "Visible": true,
+              "DefaultColor": "#FFFFFF",
+              "DefaultLineStyle": "Solid",
+              "Scaling": "Linear",
+              "NumberMode": "Normal"
+            }
+          ],
+          "Curves": [
+            {
+              "Name": "Guay 1991 patient 3-Sufentanil-Peripheral Venous Blood-Plasma-Concentration",
+              "X": "Time",
+              "Y": "Guay 1991 patient 3|Organism|PeripheralVenousBlood|Sufentanil|Plasma (Peripheral Venous Blood)",
+              "CurveOptions": {
+                "Color": "#FF0000",
+                "LegendIndex": 1
+              }
+            },
+            {
+              "Name": "Guay 1991 - ID3 - Sufentanil - IV - 3.54 µg/kg - Plasma - indiv.-Sufentanil-Peripheral Venous Blood-Plasma-ArithmeticMean",
+              "X": "Guay 1991 - ID3 - Sufentanil - IV - 3.54 µg/kg - Plasma - indiv.|Time",
+              "Y": "Guay 1991 - ID3 - Sufentanil - IV - 3.54 µg/kg - Plasma - indiv.|ObservedData|Peripheral Venous Blood|Plasma|Sufentanil|ArithmeticMean",
+              "CurveOptions": {
+                "Color": "#008000",
+                "LegendIndex": 4,
+                "LineStyle": "None",
+                "Symbol": "Circle"
+              }
+            }
+          ],
+          "Name": "Time Profile Analysis 1",
+          "FontAndSize": {
+            "ChartWidth": 400,
+            "ChartHeight": 400,
+            "Fonts": {
+              "AxisSize": 10,
+              "LegendSize": 8,
+              "TitleSize": 16,
+              "DescriptionSize": 12,
+              "OriginSize": 8,
+              "FontFamilyName": "Microsoft Sans Serif",
+              "WatermarkSize": 32
+            }
+          },
+          "Settings": {
+            "SideMarginsEnabled": true,
+            "LegendPosition": "RightInside",
+            "BackColor": "#00FFFFFF",
+            "DiagramBackColor": "#FFFFFF"
+          },
+          "OriginText": "Sufentanil\nGuay 1991 patient 3\n2019-06-14 13:36"
+        }
+      ]
+    },
+    {
+      "Name": "Guay 1991 patient 4",
+      "Model": "4Comp",
+      "Solver": {},
+      "OutputSchema": [
+        {
+          "Parameters": [
+            {
+              "Name": "Start time",
+              "Value": 0.0,
+              "Unit": "h"
+            },
+            {
+              "Name": "End time",
+              "Value": 2.0,
+              "Unit": "h"
+            },
+            {
+              "Name": "Resolution",
+              "Value": 20.0,
+              "Unit": "pts/h"
+            }
+          ]
+        },
+        {
+          "Parameters": [
+            {
+              "Name": "Start time",
+              "Value": 2.0,
+              "Unit": "h"
+            },
+            {
+              "Name": "End time",
+              "Value": 4.0,
+              "Unit": "h",
+              "ValueOrigin": {
+                "Source": "Unknown"
+              }
+            },
+            {
+              "Name": "Resolution",
+              "Value": 4.0,
+              "Unit": "pts/h"
+            }
+          ]
+        }
+      ],
+      "OutputSelections": [
+        "Organism|PeripheralVenousBlood|Sufentanil|Plasma (Peripheral Venous Blood)"
+      ],
+      "Individual": "Guay 1991 patient 4",
+      "Compounds": [
+        {
+          "Name": "Sufentanil",
+          "CalculationMethods": [
+            "Cellular partition coefficient method - Schmitt",
+            "Cellular permeability - PK-Sim Standard"
+          ],
+          "Processes": [
+            {
+              "Name": "CYP3A4-Zhou et al. 2017",
+              "MoleculeName": "CYP3A4"
+            },
+            {
+              "Name": "Glomerular Filtration-GFR",
+              "SystemicProcessType": "GFR"
+            }
+          ],
+          "Protocol": {
+            "Name": "Guay 1991 patient 4"
+          }
+        }
+      ],
+      "HasResults": true,
+      "IndividualAnalyses": [
+        {
+          "Axes": [
+            {
+              "Unit": "h",
+              "Dimension": "Time",
+              "Type": "X",
+              "GridLines": false,
+              "Visible": true,
+              "DefaultColor": "#FFFFFF",
+              "DefaultLineStyle": "None",
+              "Scaling": "Linear",
+              "NumberMode": "Normal"
+            },
+            {
+              "Unit": "µmol/l",
+              "Dimension": "Concentration (molar)",
+              "Type": "Y",
+              "GridLines": false,
+              "Visible": true,
+              "DefaultColor": "#FFFFFF",
+              "DefaultLineStyle": "Solid",
+              "Scaling": "Log",
+              "NumberMode": "Normal"
+            }
+          ],
+          "Curves": [
+            {
+              "Name": "Guay 1991 patient 4-Sufentanil-Peripheral Venous Blood-Plasma-Concentration",
+              "X": "Time",
+              "Y": "Guay 1991 patient 4|Organism|PeripheralVenousBlood|Sufentanil|Plasma (Peripheral Venous Blood)",
+              "CurveOptions": {
+                "Color": "#FF0000",
+                "LegendIndex": 1
+              }
+            }
+          ],
+          "Name": "Time Profile Analysis",
+          "FontAndSize": {
+            "Fonts": {
+              "AxisSize": 10,
+              "LegendSize": 8,
+              "TitleSize": 16,
+              "DescriptionSize": 12,
+              "OriginSize": 8,
+              "FontFamilyName": "Microsoft Sans Serif",
+              "WatermarkSize": 32
+            }
+          },
+          "Settings": {
+            "SideMarginsEnabled": true,
+            "LegendPosition": "RightInside",
+            "BackColor": "#00FFFFFF",
+            "DiagramBackColor": "#FFFFFF"
+          },
+          "OriginText": "Sufentanil\nGuay 1991 patient 4\n2019-06-27 10:42"
+        }
+      ]
+    },
+    {
+      "Name": "Guay 1991 patient 5",
+      "Model": "4Comp",
+      "Solver": {},
+      "OutputSchema": [
+        {
+          "Parameters": [
+            {
+              "Name": "Start time",
+              "Value": 0.0,
+              "Unit": "h"
+            },
+            {
+              "Name": "End time",
+              "Value": 2.0,
+              "Unit": "h"
+            },
+            {
+              "Name": "Resolution",
+              "Value": 20.0,
+              "Unit": "pts/h"
+            }
+          ]
+        },
+        {
+          "Parameters": [
+            {
+              "Name": "Start time",
+              "Value": 2.0,
+              "Unit": "h"
+            },
+            {
+              "Name": "End time",
+              "Value": 300.0,
+              "Unit": "min",
+              "ValueOrigin": {
+                "Source": "Unknown"
+              }
+            },
+            {
+              "Name": "Resolution",
+              "Value": 4.0,
+              "Unit": "pts/h"
+            }
+          ]
+        }
+      ],
+      "OutputSelections": [
+        "Organism|PeripheralVenousBlood|Sufentanil|Plasma (Peripheral Venous Blood)"
+      ],
+      "Individual": "Guay 1991 patient 5",
+      "Compounds": [
+        {
+          "Name": "Sufentanil",
+          "CalculationMethods": [
+            "Cellular partition coefficient method - Schmitt",
+            "Cellular permeability - PK-Sim Standard"
+          ],
+          "Processes": [
+            {
+              "Name": "CYP3A4-Zhou et al. 2017",
+              "MoleculeName": "CYP3A4"
+            },
+            {
+              "Name": "Glomerular Filtration-GFR",
+              "SystemicProcessType": "GFR"
+            }
+          ],
+          "Protocol": {
+            "Name": "Guay 1991 patient 5"
+          }
+        }
+      ],
+      "HasResults": true,
+      "IndividualAnalyses": [
+        {
+          "Axes": [
+            {
+              "Unit": "h",
+              "Dimension": "Time",
+              "Type": "X",
+              "GridLines": false,
+              "Visible": true,
+              "DefaultColor": "#FFFFFF",
+              "DefaultLineStyle": "None",
+              "Scaling": "Linear",
+              "NumberMode": "Normal"
+            },
+            {
+              "Unit": "µmol/l",
+              "Dimension": "Concentration (molar)",
+              "Type": "Y",
+              "GridLines": false,
+              "Visible": true,
+              "DefaultColor": "#FFFFFF",
+              "DefaultLineStyle": "Solid",
+              "Scaling": "Log",
+              "NumberMode": "Normal"
+            }
+          ],
+          "Curves": [
+            {
+              "Name": "Guay 1991 patient 5-Sufentanil-Peripheral Venous Blood-Plasma-Concentration",
+              "X": "Time",
+              "Y": "Guay 1991 patient 5|Organism|PeripheralVenousBlood|Sufentanil|Plasma (Peripheral Venous Blood)",
+              "CurveOptions": {
+                "Color": "#FF0000",
+                "LegendIndex": 1
+              }
+            }
+          ],
+          "Name": "Time Profile Analysis",
+          "FontAndSize": {
+            "Fonts": {
+              "AxisSize": 10,
+              "LegendSize": 8,
+              "TitleSize": 16,
+              "DescriptionSize": 12,
+              "OriginSize": 8,
+              "FontFamilyName": "Microsoft Sans Serif",
+              "WatermarkSize": 32
+            }
+          },
+          "Settings": {
+            "SideMarginsEnabled": true,
+            "LegendPosition": "RightInside",
+            "BackColor": "#00FFFFFF",
+            "DiagramBackColor": "#FFFFFF"
+          },
+          "OriginText": "Sufentanil\nGuay 1991 patient 5\n2019-06-27 10:42"
+        }
+      ]
+    },
+    {
+      "Name": "Guay 1991 patient 6",
+      "Model": "4Comp",
+      "Solver": {},
+      "OutputSchema": [
+        {
+          "Parameters": [
+            {
+              "Name": "Start time",
+              "Value": 0.0,
+              "Unit": "h"
+            },
+            {
+              "Name": "End time",
+              "Value": 2.0,
+              "Unit": "h"
+            },
+            {
+              "Name": "Resolution",
+              "Value": 20.0,
+              "Unit": "pts/h"
+            }
+          ]
+        }
+      ],
+      "OutputSelections": [
+        "Organism|PeripheralVenousBlood|Sufentanil|Plasma (Peripheral Venous Blood)"
+      ],
+      "Individual": "Guay 1991 patient 6",
+      "Compounds": [
+        {
+          "Name": "Sufentanil",
+          "CalculationMethods": [
+            "Cellular partition coefficient method - Schmitt",
+            "Cellular permeability - PK-Sim Standard"
+          ],
+          "Processes": [
+            {
+              "Name": "CYP3A4-Zhou et al. 2017",
+              "MoleculeName": "CYP3A4"
+            },
+            {
+              "Name": "Glomerular Filtration-GFR",
+              "SystemicProcessType": "GFR"
+            }
+          ],
+          "Protocol": {
+            "Name": "Guay 1991 patient 6"
+          }
+        }
+      ],
+      "HasResults": true,
+      "IndividualAnalyses": [
+        {
+          "Axes": [
+            {
+              "Unit": "h",
+              "Dimension": "Time",
+              "Type": "X",
+              "GridLines": false,
+              "Visible": true,
+              "DefaultColor": "#FFFFFF",
+              "DefaultLineStyle": "None",
+              "Scaling": "Linear",
+              "NumberMode": "Normal"
+            },
+            {
+              "Unit": "µmol/l",
+              "Dimension": "Concentration (molar)",
+              "Type": "Y",
+              "GridLines": false,
+              "Visible": true,
+              "DefaultColor": "#FFFFFF",
+              "DefaultLineStyle": "Solid",
+              "Scaling": "Log",
+              "NumberMode": "Normal"
+            }
+          ],
+          "Curves": [
+            {
+              "Name": "Guay 1991 patient 6-Sufentanil-Peripheral Venous Blood-Plasma-Concentration",
+              "X": "Time",
+              "Y": "Guay 1991 patient 6|Organism|PeripheralVenousBlood|Sufentanil|Plasma (Peripheral Venous Blood)",
+              "CurveOptions": {
+                "Color": "#FF0000",
+                "LegendIndex": 1
+              }
+            }
+          ],
+          "Name": "Time Profile Analysis",
+          "FontAndSize": {
+            "Fonts": {
+              "AxisSize": 10,
+              "LegendSize": 8,
+              "TitleSize": 16,
+              "DescriptionSize": 12,
+              "OriginSize": 8,
+              "FontFamilyName": "Microsoft Sans Serif",
+              "WatermarkSize": 32
+            }
+          },
+          "Settings": {
+            "SideMarginsEnabled": true,
+            "LegendPosition": "RightInside",
+            "BackColor": "#00FFFFFF",
+            "DiagramBackColor": "#FFFFFF"
+          },
+          "OriginText": "Sufentanil\nGuay 1991 patient 6\n2019-06-27 10:43"
+        }
+      ]
+    },
+    {
+      "Name": "Guay 1991 patient 7",
+      "Model": "4Comp",
+      "Solver": {},
+      "OutputSchema": [
+        {
+          "Parameters": [
+            {
+              "Name": "Start time",
+              "Value": 0.0,
+              "Unit": "h"
+            },
+            {
+              "Name": "End time",
+              "Value": 2.0,
+              "Unit": "h"
+            },
+            {
+              "Name": "Resolution",
+              "Value": 20.0,
+              "Unit": "pts/h"
+            }
+          ]
+        },
+        {
+          "Parameters": [
+            {
+              "Name": "Start time",
+              "Value": 2.0,
+              "Unit": "h"
+            },
+            {
+              "Name": "End time",
+              "Value": 7.0,
+              "Unit": "h",
+              "ValueOrigin": {
+                "Source": "Unknown"
+              }
+            },
+            {
+              "Name": "Resolution",
+              "Value": 4.0,
+              "Unit": "pts/h"
+            }
+          ]
+        }
+      ],
+      "OutputSelections": [
+        "Organism|PeripheralVenousBlood|Sufentanil|Plasma (Peripheral Venous Blood)"
+      ],
+      "Individual": "Guay 1991 patient 7",
+      "Compounds": [
+        {
+          "Name": "Sufentanil",
+          "CalculationMethods": [
+            "Cellular partition coefficient method - Schmitt",
+            "Cellular permeability - PK-Sim Standard"
+          ],
+          "Processes": [
+            {
+              "Name": "CYP3A4-Zhou et al. 2017",
+              "MoleculeName": "CYP3A4"
+            },
+            {
+              "Name": "Glomerular Filtration-GFR",
+              "SystemicProcessType": "GFR"
+            }
+          ],
+          "Protocol": {
+            "Name": "Guay 1991 patient 7"
+          }
+        }
+      ],
+      "HasResults": true,
+      "IndividualAnalyses": [
+        {
+          "Axes": [
+            {
+              "Unit": "h",
+              "Dimension": "Time",
+              "Type": "X",
+              "GridLines": false,
+              "Visible": true,
+              "DefaultColor": "#FFFFFF",
+              "DefaultLineStyle": "None",
+              "Scaling": "Linear",
+              "NumberMode": "Normal"
+            },
+            {
+              "Unit": "µmol/l",
+              "Dimension": "Concentration (molar)",
+              "Type": "Y",
+              "GridLines": false,
+              "Visible": true,
+              "DefaultColor": "#FFFFFF",
+              "DefaultLineStyle": "Solid",
+              "Scaling": "Log",
+              "NumberMode": "Normal"
+            }
+          ],
+          "Curves": [
+            {
+              "Name": "Guay 1991 patient 7-Sufentanil-Peripheral Venous Blood-Plasma-Concentration",
+              "X": "Time",
+              "Y": "Guay 1991 patient 7|Organism|PeripheralVenousBlood|Sufentanil|Plasma (Peripheral Venous Blood)",
+              "CurveOptions": {
+                "Color": "#FF0000",
+                "LegendIndex": 1
+              }
+            }
+          ],
+          "Name": "Time Profile Analysis",
+          "FontAndSize": {
+            "Fonts": {
+              "AxisSize": 10,
+              "LegendSize": 8,
+              "TitleSize": 16,
+              "DescriptionSize": 12,
+              "OriginSize": 8,
+              "FontFamilyName": "Microsoft Sans Serif",
+              "WatermarkSize": 32
+            }
+          },
+          "Settings": {
+            "SideMarginsEnabled": true,
+            "LegendPosition": "RightInside",
+            "BackColor": "#00FFFFFF",
+            "DiagramBackColor": "#FFFFFF"
+          },
+          "OriginText": "Sufentanil\nGuay 1991 patient 7\n2019-06-27 10:44"
+        }
+      ]
+    },
+    {
+      "Name": "Guay 1991 patient 9",
+      "Model": "4Comp",
+      "Solver": {},
+      "OutputSchema": [
+        {
+          "Parameters": [
+            {
+              "Name": "Start time",
+              "Value": 0.0,
+              "Unit": "h"
+            },
+            {
+              "Name": "End time",
+              "Value": 2.0,
+              "Unit": "h"
+            },
+            {
+              "Name": "Resolution",
+              "Value": 20.0,
+              "Unit": "pts/h"
+            }
+          ]
+        }
+      ],
+      "OutputSelections": [
+        "Organism|PeripheralVenousBlood|Sufentanil|Plasma (Peripheral Venous Blood)"
+      ],
+      "Individual": "Guay 1991 patient 9",
+      "Compounds": [
+        {
+          "Name": "Sufentanil",
+          "CalculationMethods": [
+            "Cellular partition coefficient method - Schmitt",
+            "Cellular permeability - PK-Sim Standard"
+          ],
+          "Processes": [
+            {
+              "Name": "CYP3A4-Zhou et al. 2017",
+              "MoleculeName": "CYP3A4"
+            },
+            {
+              "Name": "Glomerular Filtration-GFR",
+              "SystemicProcessType": "GFR"
+            }
+          ],
+          "Protocol": {
+            "Name": "Guay 1991 patient 9"
+          }
+        }
+      ],
+      "HasResults": true,
+      "IndividualAnalyses": [
+        {
+          "Axes": [
+            {
+              "Unit": "h",
+              "Dimension": "Time",
+              "Type": "X",
+              "GridLines": false,
+              "Visible": true,
+              "DefaultColor": "#FFFFFF",
+              "DefaultLineStyle": "None",
+              "Scaling": "Linear",
+              "NumberMode": "Normal"
+            },
+            {
+              "Unit": "µmol/l",
+              "Dimension": "Concentration (molar)",
+              "Type": "Y",
+              "GridLines": false,
+              "Visible": true,
+              "DefaultColor": "#FFFFFF",
+              "DefaultLineStyle": "Solid",
+              "Scaling": "Log",
+              "NumberMode": "Normal"
+            }
+          ],
+          "Curves": [
+            {
+              "Name": "Guay 1991 patient 9-Sufentanil-Peripheral Venous Blood-Plasma-Concentration",
+              "X": "Time",
+              "Y": "Guay 1991 patient 9|Organism|PeripheralVenousBlood|Sufentanil|Plasma (Peripheral Venous Blood)",
+              "CurveOptions": {
+                "Color": "#FF0000",
+                "LegendIndex": 1
+              }
+            }
+          ],
+          "Name": "Time Profile Analysis",
+          "FontAndSize": {
+            "Fonts": {
+              "AxisSize": 10,
+              "LegendSize": 8,
+              "TitleSize": 16,
+              "DescriptionSize": 12,
+              "OriginSize": 8,
+              "FontFamilyName": "Microsoft Sans Serif",
+              "WatermarkSize": 32
+            }
+          },
+          "Settings": {
+            "SideMarginsEnabled": true,
+            "LegendPosition": "RightInside",
+            "BackColor": "#00FFFFFF",
+            "DiagramBackColor": "#FFFFFF"
+          },
+          "OriginText": "Sufentanil\nGuay 1991 patient 9\n2019-06-27 10:46"
+        }
+      ]
+    },
+    {
+      "Name": "Guay 1991 patient 8",
+      "Model": "4Comp",
+      "ObservedData": [
+        "Guay 1991 - ID8 - Sufentanil - IV - 3.14 µg/kg - Plasma - indiv."
+      ],
+      "Solver": {},
+      "OutputSchema": [
+        {
+          "Parameters": [
+            {
+              "Name": "Start time",
+              "Value": 0.0,
+              "Unit": "h"
+            },
+            {
+              "Name": "End time",
+              "Value": 2.0,
+              "Unit": "h"
+            },
+            {
+              "Name": "Resolution",
+              "Value": 20.0,
+              "Unit": "pts/h"
+            }
+          ]
+        },
+        {
+          "Parameters": [
+            {
+              "Name": "Start time",
+              "Value": 2.0,
+              "Unit": "h"
+            },
+            {
+              "Name": "End time",
+              "Value": 4.0,
+              "Unit": "h",
+              "ValueOrigin": {
+                "Source": "Unknown"
+              }
+            },
+            {
+              "Name": "Resolution",
+              "Value": 4.0,
+              "Unit": "pts/h"
+            }
+          ]
+        }
+      ],
+      "OutputSelections": [
+        "Organism|PeripheralVenousBlood|Sufentanil|Plasma (Peripheral Venous Blood)"
+      ],
+      "Individual": "Guay 1991 patient 8",
+      "Compounds": [
+        {
+          "Name": "Sufentanil",
+          "CalculationMethods": [
+            "Cellular partition coefficient method - Schmitt",
+            "Cellular permeability - PK-Sim Standard"
+          ],
+          "Processes": [
+            {
+              "Name": "CYP3A4-Zhou et al. 2017",
+              "MoleculeName": "CYP3A4"
+            },
+            {
+              "Name": "Glomerular Filtration-GFR",
+              "SystemicProcessType": "GFR"
+            }
+          ],
+          "Protocol": {
+            "Name": "Guay 1991 patient 8"
+          }
+        }
+      ],
+      "HasResults": true,
+      "IndividualAnalyses": [
+        {
+          "Axes": [
+            {
+              "Unit": "h",
+              "Dimension": "Time",
+              "Type": "X",
+              "GridLines": false,
+              "Visible": true,
+              "DefaultColor": "#FFFFFF",
+              "DefaultLineStyle": "None",
+              "Scaling": "Linear",
+              "NumberMode": "Normal"
+            },
+            {
+              "Unit": "µg/l",
+              "Dimension": "Concentration (molar)",
+              "Type": "Y",
+              "GridLines": false,
+              "Visible": true,
+              "DefaultColor": "#FFFFFF",
+              "DefaultLineStyle": "Solid",
+              "Scaling": "Log",
+              "NumberMode": "Normal"
+            }
+          ],
+          "Curves": [
+            {
+              "Name": "Guay 1991 patient 8-Sufentanil-Peripheral Venous Blood-Plasma-Concentration",
+              "X": "Time",
+              "Y": "Guay 1991 patient 8|Organism|PeripheralVenousBlood|Sufentanil|Plasma (Peripheral Venous Blood)",
+              "CurveOptions": {
+                "Color": "#FF0000",
+                "LegendIndex": 1
+              }
+            },
+            {
+              "Name": "Guay 1991 - ID8 - Sufentanil - IV - 3.14 µg/kg - Plasma - indiv.-Sufentanil-Peripheral Venous Blood-Plasma-ArithmeticMean",
+              "X": "Guay 1991 - ID8 - Sufentanil - IV - 3.14 µg/kg - Plasma - indiv.|Time",
+              "Y": "Guay 1991 - ID8 - Sufentanil - IV - 3.14 µg/kg - Plasma - indiv.|ObservedData|Peripheral Venous Blood|Plasma|Sufentanil|ArithmeticMean",
+              "CurveOptions": {
+                "Color": "#008000",
+                "LegendIndex": 4,
+                "LineStyle": "None",
+                "Symbol": "Circle"
+              }
+            }
+          ],
+          "Name": "Time Profile Analysis",
+          "FontAndSize": {
+            "ChartWidth": 400,
+            "ChartHeight": 400,
+            "Fonts": {
+              "AxisSize": 10,
+              "LegendSize": 8,
+              "TitleSize": 16,
+              "DescriptionSize": 12,
+              "OriginSize": 8,
+              "FontFamilyName": "Microsoft Sans Serif",
+              "WatermarkSize": 32
+            }
+          },
+          "Settings": {
+            "SideMarginsEnabled": true,
+            "LegendPosition": "RightInside",
+            "BackColor": "#00FFFFFF",
+            "DiagramBackColor": "#FFFFFF"
+          },
+          "OriginText": "Sufentanil\nGuay 1991 patient 8\n2019-06-14 13:37"
+        },
+        {
+          "Axes": [
+            {
+              "Unit": "h",
+              "Dimension": "Time",
+              "Type": "X",
+              "GridLines": false,
+              "Visible": true,
+              "DefaultColor": "#FFFFFF",
+              "DefaultLineStyle": "None",
+              "Scaling": "Linear",
+              "NumberMode": "Normal"
+            },
+            {
+              "Unit": "µg/l",
+              "Dimension": "Concentration (molar)",
+              "Type": "Y",
+              "GridLines": false,
+              "Visible": true,
+              "DefaultColor": "#FFFFFF",
+              "DefaultLineStyle": "Solid",
+              "Scaling": "Linear",
+              "NumberMode": "Normal"
+            }
+          ],
+          "Curves": [
+            {
+              "Name": "Guay 1991 patient 8-Sufentanil-Peripheral Venous Blood-Plasma-Concentration",
+              "X": "Time",
+              "Y": "Guay 1991 patient 8|Organism|PeripheralVenousBlood|Sufentanil|Plasma (Peripheral Venous Blood)",
+              "CurveOptions": {
+                "Color": "#FF0000",
+                "LegendIndex": 1
+              }
+            },
+            {
+              "Name": "Guay 1991 - ID8 - Sufentanil - IV - 3.14 µg/kg - Plasma - indiv.-Sufentanil-Peripheral Venous Blood-Plasma-ArithmeticMean",
+              "X": "Guay 1991 - ID8 - Sufentanil - IV - 3.14 µg/kg - Plasma - indiv.|Time",
+              "Y": "Guay 1991 - ID8 - Sufentanil - IV - 3.14 µg/kg - Plasma - indiv.|ObservedData|Peripheral Venous Blood|Plasma|Sufentanil|ArithmeticMean",
+              "CurveOptions": {
+                "Color": "#008000",
+                "LegendIndex": 4,
+                "LineStyle": "None",
+                "Symbol": "Circle"
+              }
+            }
+          ],
+          "Name": "Time Profile Analysis 1",
+          "FontAndSize": {
+            "ChartWidth": 400,
+            "ChartHeight": 400,
+            "Fonts": {
+              "AxisSize": 10,
+              "LegendSize": 8,
+              "TitleSize": 16,
+              "DescriptionSize": 12,
+              "OriginSize": 8,
+              "FontFamilyName": "Microsoft Sans Serif",
+              "WatermarkSize": 32
+            }
+          },
+          "Settings": {
+            "SideMarginsEnabled": true,
+            "LegendPosition": "RightInside",
+            "BackColor": "#00FFFFFF",
+            "DiagramBackColor": "#FFFFFF"
+          },
+          "OriginText": "Sufentanil\nGuay 1991 patient 8\n2019-06-14 13:37"
+        }
+      ]
+    },
+    {
+      "Name": "Davis 1987 15.5months",
+      "Model": "4Comp",
+      "Solver": {},
+      "OutputSchema": [
+        {
+          "Parameters": [
+            {
+              "Name": "Start time",
+              "Value": 0.0,
+              "Unit": "h"
+            },
+            {
+              "Name": "End time",
+              "Value": 2.0,
+              "Unit": "h"
+            },
+            {
+              "Name": "Resolution",
+              "Value": 20.0,
+              "Unit": "pts/h"
+            }
+          ]
+        },
+        {
+          "Parameters": [
+            {
+              "Name": "Start time",
+              "Value": 2.0,
+              "Unit": "h"
+            },
+            {
+              "Name": "End time",
+              "Value": 8.0,
+              "Unit": "h",
+              "ValueOrigin": {
+                "Source": "Unknown"
+              }
+            },
+            {
+              "Name": "Resolution",
+              "Value": 4.0,
+              "Unit": "pts/h"
+            }
+          ]
+        }
+      ],
+      "Parameters": [
+        {
+          "Path": "Events|Davis 1987 15µg/kg dose IV|Application_1|ProtocolSchemaItem|Infusion time",
+          "Value": 1.0,
+          "Unit": "min"
+        }
+      ],
+      "OutputSelections": [
+        "Organism|ArterialBlood|Plasma|Sufentanil|Concentration in container"
+      ],
+      "Individual": "Davis 1987 15.5 months",
+      "Compounds": [
+        {
+          "Name": "Sufentanil",
+          "CalculationMethods": [
+            "Cellular partition coefficient method - Schmitt",
+            "Cellular permeability - PK-Sim Standard"
+          ],
+          "Processes": [
+            {
+              "Name": "CYP3A4-Zhou et al. 2017",
+              "MoleculeName": "CYP3A4"
+            },
+            {
+              "Name": "Glomerular Filtration-GFR",
+              "SystemicProcessType": "GFR"
+            }
+          ],
+          "Protocol": {
+            "Name": "Davis 1987 15µg/kg dose IV"
+          }
+        }
+      ],
+      "HasResults": true,
+      "IndividualAnalyses": [
+        {
+          "Axes": [
+            {
+              "Unit": "h",
+              "Dimension": "Time",
+              "Type": "X",
+              "GridLines": false,
+              "Visible": true,
+              "DefaultColor": "#FFFFFF",
+              "DefaultLineStyle": "None",
+              "Scaling": "Linear",
+              "NumberMode": "Normal"
+            },
+            {
+              "Unit": "µmol/l",
+              "Dimension": "Concentration (molar)",
+              "Type": "Y",
+              "GridLines": false,
+              "Visible": true,
+              "DefaultColor": "#FFFFFF",
+              "DefaultLineStyle": "Solid",
+              "Scaling": "Log",
+              "NumberMode": "Normal"
+            }
+          ],
+          "Curves": [
+            {
+              "Name": "Davis 1987 15.5months-Sufentanil-Arterial Blood-Plasma-Concentration",
+              "X": "Time",
+              "Y": "Davis 1987 15.5months|Organism|ArterialBlood|Plasma|Sufentanil|Concentration in container",
+              "CurveOptions": {
+                "Color": "#FF0000",
+                "LegendIndex": 1
+              }
+            }
+          ],
+          "Name": "Time Profile Analysis",
+          "FontAndSize": {
+            "Fonts": {
+              "AxisSize": 10,
+              "LegendSize": 8,
+              "TitleSize": 16,
+              "DescriptionSize": 12,
+              "OriginSize": 8,
+              "FontFamilyName": "Microsoft Sans Serif",
+              "WatermarkSize": 32
+            }
+          },
+          "Settings": {
+            "SideMarginsEnabled": true,
+            "LegendPosition": "RightInside",
+            "BackColor": "#00FFFFFF",
+            "DiagramBackColor": "#FFFFFF"
+          },
+          "OriginText": "Sufentanil\nDavis 1987 15.5months\n2019-06-14 13:33"
+        }
+      ]
+    },
+    {
+      "Name": "Davis 1987 5.2months",
+      "Model": "4Comp",
+      "Solver": {},
+      "OutputSchema": [
+        {
+          "Parameters": [
+            {
+              "Name": "Start time",
+              "Value": 0.0,
+              "Unit": "h"
+            },
+            {
+              "Name": "End time",
+              "Value": 2.0,
+              "Unit": "h"
+            },
+            {
+              "Name": "Resolution",
+              "Value": 20.0,
+              "Unit": "pts/h"
+            }
+          ]
+        },
+        {
+          "Parameters": [
+            {
+              "Name": "Start time",
+              "Value": 2.0,
+              "Unit": "h"
+            },
+            {
+              "Name": "End time",
+              "Value": 8.0,
+              "Unit": "h",
+              "ValueOrigin": {
+                "Source": "Unknown"
+              }
+            },
+            {
+              "Name": "Resolution",
+              "Value": 4.0,
+              "Unit": "pts/h"
+            }
+          ]
+        }
+      ],
+      "Parameters": [
+        {
+          "Path": "Events|Davis 1987 15µg/kg dose IV|Application_1|ProtocolSchemaItem|Infusion time",
+          "Value": 1.0,
+          "Unit": "min"
+        }
+      ],
+      "OutputSelections": [
+        "Organism|ArterialBlood|Plasma|Sufentanil|Concentration in container"
+      ],
+      "Individual": "Davis 1987 5.2 months",
+      "Compounds": [
+        {
+          "Name": "Sufentanil",
+          "CalculationMethods": [
+            "Cellular partition coefficient method - Schmitt",
+            "Cellular permeability - PK-Sim Standard"
+          ],
+          "Processes": [
+            {
+              "Name": "CYP3A4-Zhou et al. 2017",
+              "MoleculeName": "CYP3A4"
+            },
+            {
+              "Name": "Glomerular Filtration-GFR",
+              "SystemicProcessType": "GFR"
+            }
+          ],
+          "Protocol": {
+            "Name": "Davis 1987 15µg/kg dose IV"
+          }
+        }
+      ],
+      "HasResults": true,
+      "IndividualAnalyses": [
+        {
+          "Axes": [
+            {
+              "Unit": "h",
+              "Dimension": "Time",
+              "Type": "X",
+              "GridLines": false,
+              "Visible": true,
+              "DefaultColor": "#FFFFFF",
+              "DefaultLineStyle": "None",
+              "Scaling": "Linear",
+              "NumberMode": "Normal"
+            },
+            {
+              "Unit": "µmol/l",
+              "Dimension": "Concentration (molar)",
+              "Type": "Y",
+              "GridLines": false,
+              "Visible": true,
+              "DefaultColor": "#FFFFFF",
+              "DefaultLineStyle": "Solid",
+              "Scaling": "Log",
+              "NumberMode": "Normal"
+            }
+          ],
+          "Curves": [
+            {
+              "Name": "Davis 1987 5.2months-Sufentanil-Arterial Blood-Plasma-Concentration",
+              "X": "Time",
+              "Y": "Davis 1987 5.2months|Organism|ArterialBlood|Plasma|Sufentanil|Concentration in container",
+              "CurveOptions": {
+                "Color": "#FF0000",
+                "LegendIndex": 1
+              }
+            }
+          ],
+          "Name": "Time Profile Analysis",
+          "FontAndSize": {
+            "Fonts": {
+              "AxisSize": 10,
+              "LegendSize": 8,
+              "TitleSize": 16,
+              "DescriptionSize": 12,
+              "OriginSize": 8,
+              "FontFamilyName": "Microsoft Sans Serif",
+              "WatermarkSize": 32
+            }
+          },
+          "Settings": {
+            "SideMarginsEnabled": true,
+            "LegendPosition": "RightInside",
+            "BackColor": "#00FFFFFF",
+            "DiagramBackColor": "#FFFFFF"
+          },
+          "OriginText": "Sufentanil\nDavis 1987 5.2months\n2019-06-14 13:33"
+        }
+      ]
+    }
+  ],
+  "ObservedData": [
+    {
+      "Name": "Guay 1991 - ID3 - Sufentanil - IV - 3.54 µg/kg - Plasma - indiv.",
+      "ExtendedProperties": [
+        {
+          "Name": "DB Version",
+          "Value": "OSP DATABASE",
+          "Type": "String"
+        },
+        {
+          "Name": "ID",
+          "Value": 5133.0,
+          "Type": "Double"
+        },
+        {
+          "Name": "Study Id",
+          "Value": "Guay 1991",
+          "Type": "String"
+        },
+        {
+          "Name": "Reference",
+          "Value": "https://www.ncbi.nlm.nih.gov/pubmed/1531117",
+          "Type": "String"
+        },
+        {
+          "Name": "Source",
+          "Value": "Tab.1",
+          "Type": "String"
+        },
+        {
+          "Name": "Grouping",
+          "Value": "ID3",
+          "Type": "String"
+        },
+        {
+          "Name": "Data type",
+          "Value": "individual",
+          "Type": "String"
+        },
+        {
+          "Name": "N",
+          "Value": 1.0,
+          "Type": "Double"
+        },
+        {
+          "Name": "Molecule",
+          "Value": "Sufentanil",
+          "Type": "String"
+        },
+        {
+          "Name": "Species",
+          "Value": "Human",
+          "Type": "String"
+        },
+        {
+          "Name": "Organ",
+          "Value": "Peripheral Venous Blood",
+          "Type": "String"
+        },
+        {
+          "Name": "Compartment",
+          "Value": "Plasma",
+          "Type": "String"
+        },
+        {
+          "Name": "Route",
+          "Value": "IV",
+          "Type": "String"
+        },
+        {
+          "Name": "Dose",
+          "Value": "3.54 µg/kg",
+          "Type": "String"
+        },
+        {
+          "Name": "Times of Administration [h]",
+          "Value": 0.0,
+          "Type": "Double"
+        },
+        {
+          "Name": "Formulation",
+          "Value": "Sufentanil citrate solution",
+          "Type": "String"
+        },
+        {
+          "Name": "Food state",
+          "Value": ".",
+          "Type": "String"
+        },
+        {
+          "Name": "Comment",
+          "Value": ".",
+          "Type": "String"
+        }
+      ],
+      "Columns": [
+        {
+          "Name": "Avg",
+          "QuantityInfo": {
+            "Path": "Guay 1991 - ID3 - Sufentanil - IV - 3.54 µg/kg - Plasma - indiv.|ObservedData|Peripheral Venous Blood|Plasma|Sufentanil|ArithmeticMean"
+          },
+          "DataInfo": {
+            "Origin": "Observation",
+            "AuxiliaryType": "Undefined",
+            "MolWeight": 386.6
+          },
+          "Values": [
+            5.24807549,
+            2.08929586,
+            1.318257,
+            0.831763744,
+            0.6118806,
+            0.3630781,
+            0.1737801,
+            0.0806615651,
+            0.09120108
+          ],
+          "Dimension": "Concentration (mass)",
+          "Unit": "µg/l"
+        }
+      ],
+      "BaseGrid": {
+        "Name": "Time",
+        "QuantityInfo": {
+          "Path": "Guay 1991 - ID3 - Sufentanil - IV - 3.54 µg/kg - Plasma - indiv.|Time",
+          "Type": "Time"
+        },
+        "DataInfo": {
+          "Origin": "BaseGrid",
+          "AuxiliaryType": "Undefined"
+        },
+        "Values": [
+          0.041298,
+          0.185840666,
+          0.268436641,
+          0.5575221,
+          0.7640118,
+          0.9911503,
+          1.9823,
+          2.97345185,
+          4.0471983
+        ],
+        "Dimension": "Time",
+        "Unit": "h"
+      }
+    },
+    {
+      "Name": "Guay 1991 - ID8 - Sufentanil - IV - 3.14 µg/kg - Plasma - indiv.",
+      "ExtendedProperties": [
+        {
+          "Name": "DB Version",
+          "Value": "OSP DATABASE",
+          "Type": "String"
+        },
+        {
+          "Name": "ID",
+          "Value": 5138.0,
+          "Type": "Double"
+        },
+        {
+          "Name": "Study Id",
+          "Value": "Guay 1991",
+          "Type": "String"
+        },
+        {
+          "Name": "Reference",
+          "Value": "https://www.ncbi.nlm.nih.gov/pubmed/1531117",
+          "Type": "String"
+        },
+        {
+          "Name": "Source",
+          "Value": "Tab.1",
+          "Type": "String"
+        },
+        {
+          "Name": "Grouping",
+          "Value": "ID8",
+          "Type": "String"
+        },
+        {
+          "Name": "Data type",
+          "Value": "individual",
+          "Type": "String"
+        },
+        {
+          "Name": "N",
+          "Value": 1.0,
+          "Type": "Double"
+        },
+        {
+          "Name": "Molecule",
+          "Value": "Sufentanil",
+          "Type": "String"
+        },
+        {
+          "Name": "Species",
+          "Value": "Human",
+          "Type": "String"
+        },
+        {
+          "Name": "Organ",
+          "Value": "Peripheral Venous Blood",
+          "Type": "String"
+        },
+        {
+          "Name": "Compartment",
+          "Value": "Plasma",
+          "Type": "String"
+        },
+        {
+          "Name": "Route",
+          "Value": "IV",
+          "Type": "String"
+        },
+        {
+          "Name": "Dose",
+          "Value": "3.14 µg/kg",
+          "Type": "String"
+        },
+        {
+          "Name": "Times of Administration [h]",
+          "Value": 0.0,
+          "Type": "Double"
+        },
+        {
+          "Name": "Formulation",
+          "Value": "Sufentanil citrate solution",
+          "Type": "String"
+        },
+        {
+          "Name": "Food state",
+          "Value": ".",
+          "Type": "String"
+        },
+        {
+          "Name": "Comment",
+          "Value": ".",
+          "Type": "String"
+        }
+      ],
+      "Columns": [
+        {
+          "Name": "Avg",
+          "QuantityInfo": {
+            "Path": "Guay 1991 - ID8 - Sufentanil - IV - 3.14 µg/kg - Plasma - indiv.|ObservedData|Peripheral Venous Blood|Plasma|Sufentanil|ArithmeticMean"
+          },
+          "DataInfo": {
+            "Origin": "Observation",
+            "AuxiliaryType": "Undefined",
+            "MolWeight": 386.6
+          },
+          "Values": [
+            1.90546107,
+            0.7585776,
+            0.5248074,
+            0.374397784,
+            0.251188576,
+            0.1318257,
+            0.103117704,
+            0.05580417
+          ],
+          "Dimension": "Concentration (mass)",
+          "Unit": "µg/l"
+        }
+      ],
+      "BaseGrid": {
+        "Name": "Time",
+        "QuantityInfo": {
+          "Path": "Guay 1991 - ID8 - Sufentanil - IV - 3.14 µg/kg - Plasma - indiv.|Time",
+          "Type": "Time"
+        },
+        "DataInfo": {
+          "Origin": "BaseGrid",
+          "AuxiliaryType": "Undefined"
+        },
+        "Values": [
+          0.020649,
+          0.268436641,
+          0.536873162,
+          0.7433628,
+          1.03244829,
+          1.9823,
+          2.99409986,
+          4.02654839
+        ],
+        "Dimension": "Time",
+        "Unit": "h"
+      }
+    },
+    {
+      "Name": "Guay 1991 - ID11 - Sufentanil - IV - 3.13 µg/kg - Plasma - indiv.",
+      "ExtendedProperties": [
+        {
+          "Name": "DB Version",
+          "Value": "OSP DATABASE",
+          "Type": "String"
+        },
+        {
+          "Name": "ID",
+          "Value": 5141.0,
+          "Type": "Double"
+        },
+        {
+          "Name": "Study Id",
+          "Value": "Guay 1991",
+          "Type": "String"
+        },
+        {
+          "Name": "Reference",
+          "Value": "https://www.ncbi.nlm.nih.gov/pubmed/1531117",
+          "Type": "String"
+        },
+        {
+          "Name": "Source",
+          "Value": "Tab.1",
+          "Type": "String"
+        },
+        {
+          "Name": "Grouping",
+          "Value": "ID11",
+          "Type": "String"
+        },
+        {
+          "Name": "Data type",
+          "Value": "individual",
+          "Type": "String"
+        },
+        {
+          "Name": "N",
+          "Value": 1.0,
+          "Type": "Double"
+        },
+        {
+          "Name": "Molecule",
+          "Value": "Sufentanil",
+          "Type": "String"
+        },
+        {
+          "Name": "Species",
+          "Value": "Human",
+          "Type": "String"
+        },
+        {
+          "Name": "Organ",
+          "Value": "Peripheral Venous Blood",
+          "Type": "String"
+        },
+        {
+          "Name": "Compartment",
+          "Value": "Plasma",
+          "Type": "String"
+        },
+        {
+          "Name": "Route",
+          "Value": "IV",
+          "Type": "String"
+        },
+        {
+          "Name": "Dose",
+          "Value": "3.13 µg/kg",
+          "Type": "String"
+        },
+        {
+          "Name": "Times of Administration [h]",
+          "Value": 0.0,
+          "Type": "Double"
+        },
+        {
+          "Name": "Formulation",
+          "Value": "Sufentanil citrate solution",
+          "Type": "String"
+        },
+        {
+          "Name": "Food state",
+          "Value": ".",
+          "Type": "String"
+        },
+        {
+          "Name": "Comment",
+          "Value": ".",
+          "Type": "String"
+        }
+      ],
+      "Columns": [
+        {
+          "Name": "Avg",
+          "QuantityInfo": {
+            "Path": "Guay 1991 - ID11 - Sufentanil - IV - 3.13 µg/kg - Plasma - indiv.|ObservedData|Peripheral Venous Blood|Plasma|Sufentanil|ArithmeticMean"
+          },
+          "DataInfo": {
+            "Origin": "Observation",
+            "AuxiliaryType": "Undefined",
+            "MolWeight": 386.6
+          },
+          "Values": [
+            5.089401,
+            1.90546107,
+            1.35935593,
+            0.8066157,
+            0.6118806,
+            0.5754399,
+            0.284009784,
+            0.1905461,
+            0.1905461,
+            0.1401737,
+            0.08576959,
+            0.06709137
+          ],
+          "Dimension": "Concentration (mass)",
+          "Unit": "µg/l"
+        }
+      ],
+      "BaseGrid": {
+        "Name": "Time",
+        "QuantityInfo": {
+          "Path": "Guay 1991 - ID11 - Sufentanil - IV - 3.13 µg/kg - Plasma - indiv.|Time",
+          "Type": "Time"
+        },
+        "DataInfo": {
+          "Origin": "BaseGrid",
+          "AuxiliaryType": "Undefined"
+        },
+        "Values": [
+          0.020649,
+          0.185840666,
+          0.2890855,
+          0.49557516,
+          0.7846609,
+          0.9911503,
+          2.00295,
+          3.01474833,
+          4.0059,
+          5.0177,
+          6.00885,
+          7.0
+        ],
+        "Dimension": "Time",
+        "Unit": "h"
+      }
+    }
+  ],
+  "ObservedDataClassifications": [
+    {
+      "Name": "Children",
+      "Classifiables": [
+        "Guay 1991 - ID3 - Sufentanil - IV - 3.54 µg/kg - Plasma - indiv.",
+        "Guay 1991 - ID8 - Sufentanil - IV - 3.14 µg/kg - Plasma - indiv.",
+        "Guay 1991 - ID11 - Sufentanil - IV - 3.13 µg/kg - Plasma - indiv."
+      ]
+    }
+  ],
+  "SimulationClassifications": [
+    {
+      "Name": "Individual",
+      "Classifications": [
+        {
+          "Name": "Children",
+          "Classifications": [
+            {
+              "Name": "Davis 1987",
+              "Classifiables": [
+                "Davis 1987 15.5months",
+                "Davis 1987 5.2months"
+              ]
+            },
+            {
+              "Name": "Guay 1991",
+              "Classifiables": [
+                "Guay 1991 patient 1",
+                "Guay 1991 patient 10",
+                "Guay 1991 patient 11",
+                "Guay 1991 patient 12",
+                "Guay 1991 patient 13",
+                "Guay 1991 patient 14",
+                "Guay 1991 patient 15",
+                "Guay 1991 patient 16",
+                "Guay 1991 patient 17",
+                "Guay 1991 patient 18",
+                "Guay 1991 patient 19",
+                "Guay 1991 patient 2",
+                "Guay 1991 patient 20",
+                "Guay 1991 patient 3",
+                "Guay 1991 patient 4",
+                "Guay 1991 patient 5",
+                "Guay 1991 patient 6",
+                "Guay 1991 patient 7",
+                "Guay 1991 patient 9",
+                "Guay 1991 patient 8"
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

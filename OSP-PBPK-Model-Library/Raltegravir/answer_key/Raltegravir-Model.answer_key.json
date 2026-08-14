@@ -1,0 +1,33 @@
+{
+  "schema": "osp-answer-key/v1",
+  "warning": "REFERENCE ANSWERS - grading only, never shown to the agent.",
+  "compound": "Raltegravir",
+  "structural_choices": {
+    "calculation_methods": [
+      "Cellular partition coefficient method - Rodgers and Rowland",
+      "Cellular permeability - PK-Sim Standard"
+    ],
+    "metabolizing_processes": [
+      {
+        "molecule": "UGT1A1",
+        "type": "MetabolizationLiverMicrosomes_MM"
+      },
+      {
+        "molecule": "UGT1A9",
+        "type": "MetabolizationLiverMicrosomes_MM"
+      }
+    ]
+  },
+  "estimated_parameters": [
+    {
+      "parameter": "Specific intestinal permeability (transcellular)",
+      "value": 2.8481843854e-07,
+      "unit": "cm/s"
+    },
+    {
+      "parameter": "In vitro Vmax for liver microsomes",
+      "value": 2.7351231632,
+      "unit": "nmol/min/mg mic. protein"
+    }
+  ]
+}

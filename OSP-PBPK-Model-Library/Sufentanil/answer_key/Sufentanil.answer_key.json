@@ -1,0 +1,29 @@
+{
+  "schema": "osp-answer-key/v1",
+  "warning": "REFERENCE ANSWERS - grading only, never shown to the agent.",
+  "compound": "Sufentanil",
+  "structural_choices": {
+    "calculation_methods": [
+      "Cellular partition coefficient method - Schmitt",
+      "Cellular permeability - PK-Sim Standard"
+    ],
+    "metabolizing_processes": [
+      {
+        "molecule": "CYP3A4",
+        "type": "MetabolizationIntrinsic_FirstOrder"
+      }
+    ]
+  },
+  "estimated_parameters": [
+    {
+      "parameter": "Lipophilicity",
+      "value": 2.896,
+      "unit": "Log Units"
+    },
+    {
+      "parameter": "Intrinsic clearance",
+      "value": 9.6138746106,
+      "unit": "l/min"
+    }
+  ]
+}

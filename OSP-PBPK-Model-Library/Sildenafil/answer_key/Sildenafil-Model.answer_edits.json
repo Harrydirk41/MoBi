@@ -1,0 +1,9 @@
+{
+  "parameters": {
+    "Lipophilicity": 2.8413676507,
+    "Fraction unbound (plasma, reference value)": 0.04,
+    "Specific intestinal permeability (transcellular)": 0.0012071993309,
+    "Permeability": 0.0758702742,
+    "kcat": 27.2146958692
+  }
+}

@@ -1,0 +1,52 @@
+{
+  "schema": "osp-answer-key/v1",
+  "warning": "REFERENCE ANSWERS - grading only, never shown to the agent.",
+  "compound": "Sildenafil",
+  "structural_choices": {
+    "calculation_methods": [
+      "Cellular partition coefficient method - Rodgers and Rowland",
+      "Cellular permeability - PK-Sim Standard"
+    ],
+    "metabolizing_processes": [
+      {
+        "molecule": "CYP2C19",
+        "type": "rCYP450_MM"
+      },
+      {
+        "molecule": "CYP2C9",
+        "type": "rCYP450_MM"
+      },
+      {
+        "molecule": "CYP3A4",
+        "type": "rCYP450_MM"
+      }
+    ]
+  },
+  "estimated_parameters": [
+    {
+      "parameter": "Lipophilicity",
+      "value": 2.8413676507,
+      "unit": "Log Units"
+    },
+    {
+      "parameter": "Fraction unbound (plasma, reference value)",
+      "value": 0.04,
+      "unit": ""
+    },
+    {
+      "parameter": "Specific intestinal permeability (transcellular)",
+      "value": 0.0012071993309,
+      "unit": "cm/min"
+    },
+    {
+      "parameter": "Permeability",
+      "value": 0.0758702742,
+      "unit": "cm/min"
+    },
+    {
+      "parameter": "kcat",
+      "value": 1.6232116026,
+      "unit": "1/min"
+    }
+  ]
+}

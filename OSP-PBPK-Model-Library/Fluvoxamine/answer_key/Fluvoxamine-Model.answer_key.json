@@ -1,0 +1,46 @@
+{
+  "schema": "osp-answer-key/v1",
+  "warning": "REFERENCE ANSWERS - grading only, never shown to the agent.",
+  "compound": "Fluvoxamine",
+  "structural_choices": {
+    "calculation_methods": [
+      "Cellular partition coefficient method - Schmitt",
+      "Cellular permeability - PK-Sim Standard"
+    ],
+    "metabolizing_processes": [
+      {
+        "molecule": "CYP1A2",
+        "type": "MetabolizationLiverMicrosomes_MM"
+      },
+      {
+        "molecule": "CYP2D6",
+        "type": "rCYP450_MM"
+      },
+      {
+        "molecule": "CYP1A2",
+        "type": "MixedInhibition"
+      },
+      {
+        "molecule": "CYP3A4",
+        "type": "CompetitiveInhibition"
+      }
+    ]
+  },
+  "estimated_parameters": [
+    {
+      "parameter": "Lipophilicity",
+      "value": 3.5726507829,
+      "unit": "Log Units"
+    },
+    {
+      "parameter": "Specific intestinal permeability (transcellular)",
+      "value": 2.7380788903e-06,
+      "unit": "dm/min"
+    },
+    {
+      "parameter": "kcat",
+      "value": 110.5561921693,
+      "unit": "1/min"
+    }
+  ]
+}

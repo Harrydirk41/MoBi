@@ -1,0 +1,43 @@
+{
+  "schema": "osp-answer-key/v1",
+  "warning": "REFERENCE ANSWERS - grading only, never shown to the agent.",
+  "compound": "Digoxin",
+  "structural_choices": {
+    "calculation_methods": [
+      "Cellular partition coefficient method - Rodgers and Rowland",
+      "Cellular permeability - PK-Sim Standard"
+    ],
+    "metabolizing_processes": [
+      {
+        "molecule": "ATP1A2",
+        "type": "SpecificBinding"
+      },
+      {
+        "molecule": "P-gp",
+        "type": "ActiveTransportSpecific_MM"
+      }
+    ]
+  },
+  "estimated_parameters": [
+    {
+      "parameter": "Lipophilicity",
+      "value": 1.40017663,
+      "unit": "Log Units"
+    },
+    {
+      "parameter": "Kd",
+      "value": 25.6,
+      "unit": "nmol/l"
+    },
+    {
+      "parameter": "Specific clearance",
+      "value": 0.03758077,
+      "unit": "1/min"
+    },
+    {
+      "parameter": "kcat",
+      "value": 71.163,
+      "unit": "1/min"
+    }
+  ]
+}
