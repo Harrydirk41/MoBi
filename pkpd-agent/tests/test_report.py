@@ -174,3 +174,61 @@ class TestNarrativeScaffoldSanitizer(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class TestGroundTruthComparison(unittest.TestCase):
+    """The comparison section reports structure + per-parameter diff vs the
+    ground truth and grades each on distance AND identifiability."""
+
+    A = {"calculation_methods": ["Cellular partition coefficient method - Rodgers and Rowland",
+                                  "Cellular permeability - PK-Sim Standard"],
+         "processes": ["CYP3A4"]}
+
+    def _cmp(self, params, ref=None):
+        from pkpd_agent.report import _comparison_analysis
+        return _comparison_analysis(self.A, ref or self.A, params,
+                                    {"gmfe": 1.47}, {"gmfe": 1.45})
+
+    def test_structure_match_detected(self):
+        c = self._cmp([{"name": "Lipophilicity", "value": 1.9, "reference": 1.85,
+                        "sensitivity": 1.0, "role": "estimated"}])
+        self.assertTrue(all(s["match"] for s in c["structure"]))
+        self.assertIn("MATCHES", c["summary"])
+
+    def test_structure_difference_detected(self):
+        from pkpd_agent.report import _comparison_analysis
+        ref = {"calculation_methods": ["Cellular partition coefficient method - Schmitt"],
+               "processes": ["CYP3A4", "GlomerularFiltration"]}
+        c = _comparison_analysis(self.A, ref, [], {"gmfe": 1.5}, {"gmfe": 1.4})
+        self.assertFalse(all(s["match"] for s in c["structure"]))
+        self.assertIn("DIFFERS", c["summary"])
+
+    def test_estimated_recovered_well_is_good(self):
+        c = self._cmp([{"name": "CLint", "value": 0.5, "reference": 0.53,
+                        "sensitivity": 0.6, "role": "estimated"}])
+        self.assertEqual(c["parameters"][0]["grade"], "good")
+
+    def test_estimated_far_and_influential_is_a_miss(self):
+        c = self._cmp([{"name": "CLint", "value": 5.0, "reference": 0.5,
+                        "sensitivity": 0.9, "role": "estimated"}])
+        self.assertEqual(c["parameters"][0]["grade"], "bad")
+        self.assertIn("miss", c["parameters"][0]["verdict"].lower())
+
+    def test_estimated_far_but_weak_is_not_a_miss(self):
+        c = self._cmp([{"name": "Permeability", "value": 0.001, "reference": 0.05,
+                        "sensitivity": 0.03, "role": "estimated"}])
+        self.assertEqual(c["parameters"][0]["grade"], "soft")
+
+    def test_fixed_far_off_is_not_a_miss(self):
+        # a FIXED parameter differing from the reference is a prior choice, not a fit error
+        c = self._cmp([{"name": "Permeability", "value": 0.0015, "reference": 0.0069,
+                        "sensitivity": None, "role": "fixed"}])
+        self.assertEqual(c["parameters"][0]["grade"], "soft")
+        self.assertIn("not critical", c["parameters"][0]["verdict"])
+
+    def test_no_reference_yields_empty(self):
+        from pkpd_agent.report import _comparison_analysis
+        c = _comparison_analysis(self.A, None,
+                                 [{"name": "x", "value": 1.0, "reference": None}],
+                                 {"gmfe": 1.5}, {})
+        self.assertEqual(c, {})

@@ -21,6 +21,7 @@ from __future__ import annotations
 
 import html
 import math
+import os
 from dataclasses import dataclass, field
 from typing import Any
 
@@ -227,6 +228,108 @@ def _ode_section(structure: dict, parameters: list, fixed: dict | None) -> dict:
             "param_map": param_map, "caveat": caveat}
 
 
+def _method_of(methods: list, kind: str) -> str | None:
+    for m in methods or []:
+        if kind in str(m).lower():
+            return str(m).split(" - ")[-1]
+    return None
+
+
+def _comparison_analysis(agent_structure, ref_structure, parameters,
+                         fit, reference) -> dict:
+    """POST-HOC evaluation vs the ground-truth model (NOT part of the blind
+    modeling narrative). Reports what MATCHES and what DIFFERS - structure and
+    each parameter - and judges each as good / acceptable / concerning, using
+    both the fold-difference and the parameter's identifiability (sensitivity):
+    a parameter far from truth but weakly identified is acceptable (the data
+    cannot pin it); far from truth AND influential is a real miss."""
+    if not ref_structure and not any(p.get("reference") is not None
+                                     for p in parameters):
+        return {}
+
+    # --- structure ---
+    struct = []
+    if ref_structure:
+        for kind in ("partition", "permeability"):
+            a, r = (_method_of(agent_structure.get("calculation_methods"), kind),
+                    _method_of(ref_structure.get("calculation_methods"), kind))
+            struct.append({"aspect": f"{kind} method", "agent": a, "reference": r,
+                           "match": (a == r)})
+        ap, rp = set(agent_structure.get("processes") or []), \
+            set(ref_structure.get("processes") or [])
+        struct.append({"aspect": "processes", "agent": sorted(ap),
+                       "reference": sorted(rp), "match": (ap == rp),
+                       "only_agent": sorted(ap - rp), "only_reference": sorted(rp - ap)})
+
+    # --- parameters ---
+    prows, n_good, n_soft, n_bad = [], 0, 0, 0
+    for p in parameters:
+        a, r = p.get("value"), p.get("reference")
+        sens = p.get("sensitivity")
+        if not isinstance(a, (int, float)) or not isinstance(r, (int, float)) or r == 0:
+            prows.append({"name": p["name"], "agent": a, "reference": r,
+                          "fold": None, "sensitivity": sens,
+                          "verdict": "no reference value", "grade": "-"})
+            continue
+        fold = a / r
+        mag = fold if fold >= 1 else 1.0 / fold
+        weak = isinstance(sens, (int, float)) and sens < 0.2
+        if p.get("role") == "fixed":
+            # a FIXED parameter was not estimated, so a difference from the
+            # reference is a prior/choice, not a fitting error - never a "miss".
+            if mag <= 1.5:
+                verdict, grade = (f"fixed, matches the reference value ({fold:.2g}x)",
+                                  "good"); n_good += 1
+            else:
+                verdict, grade = (f"fixed at a different value ({fold:.2g}x vs "
+                                  "reference); it was held, not estimated - a prior "
+                                  "choice, and the good fit shows it is not critical",
+                                  "soft"); n_soft += 1
+        elif mag <= 1.5:
+            verdict, grade = f"recovered well ({fold:.2g}x)", "good"; n_good += 1
+        elif mag <= 3.0:
+            if weak:
+                verdict, grade = (f"off {fold:.2g}x but weakly identified "
+                                  "(data can't pin it) - acceptable", "soft"); n_soft += 1
+            else:
+                verdict, grade = f"moderately off ({fold:.2g}x)", "soft"; n_soft += 1
+        else:
+            if weak:
+                verdict, grade = (f"far {fold:.2g}x but weakly identified - the data "
+                                  "do not constrain it, so not a real error", "soft"); n_soft += 1
+            else:
+                verdict, grade = (f"FAR off ({fold:.2g}x) AND influential "
+                                  "(sensitivity {:.2g}) - a real miss".format(sens or 0),
+                                  "bad"); n_bad += 1
+        prows.append({"name": p["name"], "agent": a, "reference": r,
+                      "fold": round(fold, 3), "sensitivity": sens,
+                      "verdict": verdict, "grade": grade})
+
+    # --- summary ---
+    ag, rg = fit.get("gmfe"), (reference or {}).get("gmfe")
+    struct_ok = all(s["match"] for s in struct) if struct else None
+    bits = []
+    if struct_ok is True:
+        bits.append("The structure MATCHES the ground-truth model (same "
+                    "distribution/permeability methods and processes).")
+    elif struct_ok is False:
+        diffs = [s["aspect"] for s in struct if not s["match"]]
+        bits.append(f"The structure DIFFERS from the ground-truth model in: "
+                    f"{', '.join(diffs)}.")
+    if ag is not None and rg is not None:
+        bits.append(f"Overall fit is comparable (this model GMFE {ag} vs "
+                    f"reference {rg}).")
+    n_par = n_good + n_soft + n_bad
+    if n_par:
+        bits.append(f"Of {n_par} compared parameters, {n_good} recovered well, "
+                    f"{n_soft} differ but are weakly identified / minor, and "
+                    f"{n_bad} are off despite being influential"
+                    + (" (a genuine miss)" if n_bad else "") + ".")
+    return {"structure": struct, "parameters": prows,
+            "fit": {"agent_gmfe": ag, "reference_gmfe": rg},
+            "summary": " ".join(bits)}
+
+
 def assemble(session, config, cli, input_dict, snapshot_path, best_edits,
              ref_snapshot_path=None, answer_edits=None, run_models=True):
     """Build ReportData from a finished run (re-runs the best + reference models
@@ -272,6 +375,16 @@ def assemble(session, config, cli, input_dict, snapshot_path, best_edits,
         "processes": [p.get("Molecule") or p.get("InternalName")
                       for p in comp.get("Processes") or []]}
 
+    # reference (ground-truth) structure, for the post-hoc comparison section
+    ref_structure = None
+    if ref_snapshot_path and os.path.exists(ref_snapshot_path):
+        with open(ref_snapshot_path, encoding="utf-8") as _rf:
+            _rcomp = (_json.load(_rf).get("Compounds") or [{}])[0]
+        ref_structure = {
+            "calculation_methods": _rcomp.get("CalculationMethods") or [],
+            "processes": [p.get("Molecule") or p.get("InternalName")
+                          for p in _rcomp.get("Processes") or []]}
+
     ref_params = (answer_edits or {}).get("parameters", {})
     estimated = best_edits.get("parameters") or {}
     # data-driven identifiability evidence from the optimizer (may be absent)
@@ -314,6 +427,8 @@ def assemble(session, config, cli, input_dict, snapshot_path, best_edits,
         profiles=profiles, narrative={}, trajectory=_trajectory(session),
         diagnostics=diag, status=_status_banner(diag),
         odes=_ode_section(structure, params, fixed),
+        comparison=_comparison_analysis(structure, ref_structure,
+                                        params + fixed_rows, fit, ref),
         literature=(input_dict.get("given_data", {}) or {}).get(
             "literature_physicochemical", []) or [])
     d.narrative = (llm_narrative(d, config) if config and config.anthropic_key_present()
@@ -343,6 +458,7 @@ class ReportData:
     diagnostics: dict[str, Any] = field(default_factory=dict)  # honest run self-assessment
     status: str = ""                       # one-line banner shown at the top
     odes: dict[str, Any] = field(default_factory=dict)  # governing equations + param map
+    comparison: dict[str, Any] = field(default_factory=dict)  # post-hoc vs ground truth
     literature: list = field(default_factory=list)  # literature physchem anchors
 
 
@@ -682,6 +798,40 @@ def write_html(d: ReportData, path: str) -> None:
             f'<p class="eqnote"><i>{esc(ode.get("caveat",""))}</i></p>')
     else:
         ode_html = "<p>(not available)</p>"
+
+    # ground-truth comparison analysis (post-hoc)
+    cmp = d.comparison or {}
+    _grade_badge = {"good": '<span class="g-good">GOOD</span>',
+                    "soft": '<span class="g-soft">MINOR</span>',
+                    "bad": '<span class="g-bad">MISS</span>', "-": "-"}
+    if cmp:
+        srows = "".join(
+            "<tr><td>" + esc(s["aspect"]) + "</td><td>" + esc(s["agent"]) +
+            "</td><td>" + esc(s["reference"]) + "</td><td>" +
+            ("match ✓" if s["match"] else "differs") + "</td></tr>"
+            for s in cmp.get("structure", []))
+        struct_html = (f"<table><thead><tr><th>Structure</th><th>This model</th>"
+                       f"<th>Ground truth</th><th></th></tr></thead>"
+                       f"<tbody>{srows}</tbody></table>" if srows else "")
+        def _num(x):
+            return f"{x:.4g}" if isinstance(x, (int, float)) else esc(x)
+        prows = "".join(
+            "<tr><td>" + esc(p["name"]) + "</td><td>" + _num(p["agent"]) +
+            "</td><td>" + _num(p["reference"]) + "</td><td>" +
+            (f"{p['fold']:.2g}x" if isinstance(p.get("fold"), (int, float)) else "-") +
+            "</td><td>" + (f"{p['sensitivity']:.2g}" if isinstance(p.get("sensitivity"), (int, float)) else "-") +
+            "</td><td>" + _grade_badge.get(p["grade"], "-") + " " + esc(p["verdict"]) +
+            "</td></tr>" for p in cmp.get("parameters", []))
+        cmp_html = (
+            f'<p><b>Summary.</b> {esc(cmp.get("summary",""))}</p>'
+            f'{struct_html}'
+            f'<table><thead><tr><th>Parameter</th><th>This model</th>'
+            f'<th>Ground truth</th><th>Fold</th><th>Sensitivity</th>'
+            f'<th>Assessment</th></tr></thead><tbody>{prows}</tbody></table>')
+    else:
+        cmp_html = ("<p>No ground-truth model was supplied for comparison "
+                    "(pass --reference and --answer-edits).</p>")
+
     fit = d.fit
     ref = d.reference
     by_route = "".join(f"<li>{esc(r)}: GMFE {esc(m.get('gmfe'))}, bias {esc(m.get('bias'))}, "
@@ -709,6 +859,8 @@ def write_html(d: ReportData, path: str) -> None:
  pre.eqf{{background:#f4f7fb;border:1px solid #e1e8f0;padding:8px 10px;margin:4px 0;
    overflow-x:auto;font-size:13px;font-family:"Cambria Math",Consolas,monospace}}
  .eqnote{{color:#555;font-size:12.5px}}
+ .g-good{{color:#1a6b3c;font-weight:700}} .g-soft{{color:#a06a00;font-weight:700}}
+ .g-bad{{color:#b03030;font-weight:700}}
  @media print{{.step{{break-inside:avoid}} .plot{{break-inside:avoid}}}}
 </style></head><body>
 <h1>{esc(d.title)}</h1>
@@ -746,12 +898,9 @@ routes {esc(', '.join(str(r) for r in (d.data_overview.get('routes') or [])))}.<
 <div class="plots">{plots}</div>
 
 <h2>8. Comparison with the ground-truth model</h2>
+<p class="eqnote"><i>Post-hoc evaluation against the reference model (not seen during modeling). Each parameter is judged on both its distance from truth AND its identifiability: a value far from truth but weakly identified is not a real error, because the data cannot pin it.</i></p>
 <p>Reference (published) overall GMFE: <b>{esc(ref.get('gmfe'))}</b> vs this model {esc(fit.get('gmfe'))}.</p>
-{table(['Parameter','This model','Reference','Fold vs reference'],
-       [[p['name'], f"{p.get('value'):.4g}" if isinstance(p.get('value'),(int,float)) else p.get('value'),
-         f"{p.get('reference'):.4g}" if isinstance(p.get('reference'),(int,float)) else '-',
-         f"{(p['value']/p['reference']):.2g}" if isinstance(p.get('reference'),(int,float)) and p.get('reference') and isinstance(p.get('value'),(int,float)) else '-']
-        for p in d.parameters])}
+{cmp_html}
 
 <h2>9. Conclusion</h2><p>{esc(d.narrative.get('conclusion',''))}</p>
 
@@ -859,11 +1008,35 @@ def write_pdf(d: ReportData, path: str) -> bool:
             fig.suptitle("Observed (●) vs agent (—) vs reference (--)", fontsize=10)
             fig.tight_layout(); pdf.savefig(fig); plt.close(fig)
 
-        # comparison + conclusion
-        text_page(pdf, "Ground-truth comparison & conclusion",
-                  [f"Reference GMFE {d.reference.get('gmfe')} vs this model "
-                   f"{d.fit.get('gmfe')}", "",
-                   "CONCLUSION", d.narrative.get("conclusion", "")])
+        # ground-truth comparison analysis (post-hoc)
+        cb = ["Post-hoc evaluation vs the reference model (not seen during "
+              "modeling). Each parameter is judged on distance from truth AND "
+              "identifiability - a value far from truth but weakly identified is "
+              "not a real error.", "",
+              f"Reference GMFE {d.reference.get('gmfe')} vs this model "
+              f"{d.fit.get('gmfe')}", ""]
+        cmp = d.comparison or {}
+        if cmp:
+            cb += ["SUMMARY", cmp.get("summary", ""), ""]
+            if cmp.get("structure"):
+                cb += ["STRUCTURE (this model | ground truth | match)"]
+                for s in cmp["structure"]:
+                    cb.append(f"  {s['aspect']}: {s['agent']} | {s['reference']} | "
+                              + ("match" if s["match"] else "DIFFERS"))
+                cb.append("")
+            cb += ["PARAMETERS (this | truth | fold | sensitivity | assessment)"]
+            grade = {"good": "[GOOD]", "soft": "[MINOR]", "bad": "[MISS]", "-": ""}
+            for p in cmp.get("parameters", []):
+                a = f"{p['agent']:.4g}" if isinstance(p["agent"], (int, float)) else p["agent"]
+                r = f"{p['reference']:.4g}" if isinstance(p["reference"], (int, float)) else p["reference"]
+                fold = f"{p['fold']:.2g}x" if isinstance(p.get("fold"), (int, float)) else "-"
+                sn = f"{p['sensitivity']:.2g}" if isinstance(p.get("sensitivity"), (int, float)) else "-"
+                cb.append(f"  {p['name']}: {a} | {r} | {fold} | {sn} | "
+                          f"{grade.get(p['grade'],'')} {p['verdict']}")
+        else:
+            cb += ["(no ground-truth model supplied for comparison)"]
+        cb += ["", "CONCLUSION", d.narrative.get("conclusion", "")]
+        text_page(pdf, "Ground-truth comparison & conclusion", cb)
 
         # trajectory
         tb = []
