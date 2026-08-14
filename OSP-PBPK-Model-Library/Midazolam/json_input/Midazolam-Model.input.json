@@ -2293,44 +2293,6 @@
         ]
       },
       {
-        "dataset": "Hyland 2009 - 3-mg oral dose (as fraction of dose) - Midazolam-N-Glucuronide - PO - 3 mg - Urine - agg. (n=6)",
-        "study": "Hyland 2009",
-        "molecule": "Midazolam-N-Glucuronide",
-        "route": "PO",
-        "dose": "3 mg",
-        "n_points": 1,
-        "time_unit": "h",
-        "conc_unit": "mg/L",
-        "time_h": [
-          24.0
-        ],
-        "conc_mg_L": [
-          1.28513181
-        ],
-        "sd_mg_L": [
-          0.00987038
-        ]
-      },
-      {
-        "dataset": "Hyland 2009 - 1-mg i.v. dose (as fraction of dose) - Midazolam-N-Glucuronide - IV - 1 mg - Urine - agg. (n=6)",
-        "study": "Hyland 2009",
-        "molecule": "Midazolam-N-Glucuronide",
-        "route": "IV",
-        "dose": "1 mg",
-        "n_points": 1,
-        "time_unit": "h",
-        "conc_unit": "mg/L",
-        "time_h": [
-          24.0
-        ],
-        "conc_mg_L": [
-          2.16467881
-        ],
-        "sd_mg_L": [
-          0.01007361
-        ]
-      },
-      {
         "dataset": "Kharasch 1997 - Control (Perpetrator Placebo) - Midazolam - IV - 1 mg - Plasma - typical (n=9)",
         "study": "Kharasch 1997",
         "molecule": "Midazolam",
@@ -3424,82 +3386,6 @@
           0.03626208,
           0.03310884,
           0.03626207
-        ]
-      },
-      {
-        "dataset": "Thummel 1996 - iv - female - Midazolam - IV - 1 mg - Urine - agg. (n=10)",
-        "study": "Thummel 1996",
-        "molecule": "Midazolam",
-        "route": "IV",
-        "dose": "1 mg",
-        "n_points": 1,
-        "time_unit": "h",
-        "conc_unit": "mg/L",
-        "time_h": [
-          24.0
-        ],
-        "conc_mg_L": [
-          0.27
-        ],
-        "sd_mg_L": [
-          0.0006
-        ]
-      },
-      {
-        "dataset": "Thummel 1996 - iv - male - Midazolam - IV - 1 mg - Urine - agg. (n=10)",
-        "study": "Thummel 1996",
-        "molecule": "Midazolam",
-        "route": "IV",
-        "dose": "1 mg",
-        "n_points": 1,
-        "time_unit": "h",
-        "conc_unit": "mg/L",
-        "time_h": [
-          24.0
-        ],
-        "conc_mg_L": [
-          0.28
-        ],
-        "sd_mg_L": [
-          0.0009
-        ]
-      },
-      {
-        "dataset": "Thummel 1996 - po - female - Midazolam - PO - 2 mg - Urine - agg. (n=10)",
-        "study": "Thummel 1996",
-        "molecule": "Midazolam",
-        "route": "PO",
-        "dose": "2 mg",
-        "n_points": 1,
-        "time_unit": "h",
-        "conc_unit": "mg/L",
-        "time_h": [
-          24.0
-        ],
-        "conc_mg_L": [
-          0.31
-        ],
-        "sd_mg_L": [
-          0.0008
-        ]
-      },
-      {
-        "dataset": "Thummel 1996 - po - male - Midazolam - PO - 2 mg - Urine - agg. (n=10)",
-        "study": "Thummel 1996",
-        "molecule": "Midazolam",
-        "route": "PO",
-        "dose": "2 mg",
-        "n_points": 1,
-        "time_unit": "h",
-        "conc_unit": "mg/L",
-        "time_h": [
-          24.0
-        ],
-        "conc_mg_L": [
-          0.47
-        ],
-        "sd_mg_L": [
-          0.0017
         ]
       },
       {
@@ -5165,7 +5051,7 @@
     ]
   },
   "data_overview": {
-    "n_observed_datasets": 115,
+    "n_observed_datasets": 109,
     "routes": [
       "IV",
       "PO"
@@ -5189,7 +5075,6 @@
       "Gurley 2008a",
       "Heizmann 1983",
       "Hohmann 2015",
-      "Hyland 2009",
       "Katzenmaier 2010",
       "Kharasch 1997",
       "Kharasch 2004",
@@ -5217,7 +5102,6 @@
       "Szalat 2007",
       "Templeton 2010",
       "Tham 2006",
-      "Thummel 1996",
       "Wiesinger 2020",
       "Yeates 1996",
       "Yu 2004",

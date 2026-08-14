@@ -136,9 +136,45 @@ def _ext_props(od: dict) -> dict:
 # extractors (agent-facing, from the snapshot)
 # --------------------------------------------------------------------------- #
 
-def clinical_observed(data: dict) -> list[dict]:
+_METABOLITE_MARKERS = ("glucuronide", "metabolite", "oxidative", "hydroxy",
+                       "keto", "sulfate", "-o-", "n-des", "desalkyl", "-glu")
+
+
+def _is_parent(mol: str | None, compound: str | None) -> bool:
+    """Is this observed molecule the parent drug (vs a named metabolite)? A
+    numbered/whitespace variant like 'Propofol 2' counts as the parent; a named
+    metabolite like 'Dapagliflozin-2-O-glucuronide' does not."""
+    if not mol or not compound:
+        return True
+    ml = mol.lower()
+    if any(m in ml for m in _METABOLITE_MARKERS):
+        return False
+    if mol == compound:
+        return True
+    return ml.replace(compound.lower(), "").strip(" 0123456789_-v") == ""
+
+
+def clinical_observed(data: dict, compound: str | None = None) -> list[dict]:
+    """Plasma concentration-time data for the PARENT compound only. Excretion
+    (feces/urine) and metabolite datasets are dropped - they are a different kind
+    of observation and must not be fit as plasma concentration."""
     out = []
     for od in data.get("ObservedData") or []:
+        ep = _ext_props(od)
+        comp_meas = (ep.get("Compartment") or "")
+        organ = (ep.get("Organ") or "")
+        mol = ep.get("Molecule")
+        # keep only parent-compound plasma (peripheral venous blood / plasma);
+        # drop feces, urine, and metabolite molecules.
+        if not _is_parent(mol, compound):
+            continue
+        is_plasma = ("plasma" in comp_meas.lower()
+                     or "venous blood" in organ.lower()
+                     or "plasma" in organ.lower())
+        is_excretion = any(k in (comp_meas + organ).lower()
+                           for k in ("feces", "urine", "bile", "lumen", "kidney"))
+        if is_excretion or (comp_meas and not is_plasma):
+            continue
         base = od.get("BaseGrid") or {}
         time_h = _time_to_h(list(base.get("Values") or []), base.get("Unit", ""))
         cols = od.get("Columns") or []
@@ -152,7 +188,6 @@ def clinical_observed(data: dict) -> list[dict]:
             if (rc.get("DataInfo") or {}).get("AuxiliaryType") == "ArithmeticStdDev":
                 sd_mg_L = _to_mg_L(list(rc.get("Values") or []), rc.get("Unit", ""), mw)
                 break
-        ep = _ext_props(od)
         n = min(len(time_h), len(conc_mg_L))
         rec = {"dataset": od.get("Name"), "study": ep.get("Study Id"),
                "molecule": ep.get("Molecule"), "route": ep.get("Route"),
@@ -292,7 +327,7 @@ def classify(data: dict) -> dict:
     return {"kind": kind, "n_compounds": len(comps), "compounds": names,
             "perpetrators": perps, "n_fitted": len(fitted),
             "fitted": [f["parameter"] for f in fitted],
-            "n_observed": len(clinical_observed(data)),
+            "n_observed": len(clinical_observed(data, (comps[0].get("Name") if comps else None))),
             "missing_defaults": [f["parameter"] for f in fitted
                                  if f["parameter"] not in BLANK_DEFAULTS]}
 
@@ -351,7 +386,7 @@ def build_files(path: str) -> dict:
                 "reason": "no observed data to fit against", "info": info}
 
     comp = (data.get("Compounds") or [{}])[0]
-    obs = clinical_observed(data)
+    obs = clinical_observed(data, comp.get("Name"))
     lit = literature_physicochemical(comp)
     fitted = fitted_parameters(comp)
 

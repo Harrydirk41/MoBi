@@ -17,13 +17,11 @@
   "estimated_parameters": [
     {
       "parameter": "Lipophilicity",
-      "value": 2.896,
-      "unit": "Log Units"
+      "value": 2.896
     },
     {
       "parameter": "Intrinsic clearance",
-      "value": 9.6138746106,
-      "unit": "l/min"
+      "value": 9.6138746106
     }
   ]
 }

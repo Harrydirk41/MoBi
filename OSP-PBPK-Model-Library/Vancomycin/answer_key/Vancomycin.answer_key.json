@@ -12,13 +12,11 @@
   "estimated_parameters": [
     {
       "parameter": "Lipophilicity",
-      "value": 2.2307891407,
-      "unit": "Log Units"
+      "value": 2.2307891407
     },
     {
       "parameter": "Fraction unbound (plasma, reference value)",
-      "value": 0.67,
-      "unit": ""
+      "value": 0.67
     }
   ]
 }

@@ -25,28 +25,31 @@
   "estimated_parameters": [
     {
       "parameter": "Lipophilicity",
-      "value": 2.8413676507,
-      "unit": "Log Units"
+      "value": 2.8413676507
     },
     {
       "parameter": "Fraction unbound (plasma, reference value)",
-      "value": 0.04,
-      "unit": ""
+      "value": 0.04
     },
     {
       "parameter": "Specific intestinal permeability (transcellular)",
-      "value": 0.0012071993309,
-      "unit": "cm/min"
+      "value": 0.0012071993309
     },
     {
       "parameter": "Permeability",
-      "value": 0.0758702742,
-      "unit": "cm/min"
+      "value": 0.0758702742
     },
     {
-      "parameter": "kcat",
-      "value": 1.6232116026,
-      "unit": "1/min"
+      "parameter": "kcat@CYP2C19",
+      "value": 1.6232116026
+    },
+    {
+      "parameter": "kcat@CYP2C9",
+      "value": 3.2171312254
+    },
+    {
+      "parameter": "kcat@CYP3A4",
+      "value": 27.2146958692
     }
   ]
 }

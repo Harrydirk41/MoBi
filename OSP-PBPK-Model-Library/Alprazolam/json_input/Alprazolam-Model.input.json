@@ -1190,22 +1190,6 @@
         ]
       },
       {
-        "dataset": "Eberts 1980 - 14C-Alprazolam - Alprazolam - PO - 2 mg - Urine - agg. (n=6)",
-        "study": "Eberts 1980",
-        "molecule": "Alprazolam",
-        "route": "PO",
-        "dose": "2 mg",
-        "n_points": 1,
-        "time_unit": "h",
-        "conc_unit": "mg/L",
-        "time_h": [
-          72.0
-        ],
-        "conc_mg_L": [
-          0.2
-        ]
-      },
-      {
         "dataset": "Yasui 1996 - Treatment with placebo - Alprazolam - PO - 0.8 mg - Plasma - agg. (n=12)",
         "study": "Yasui 1996",
         "molecule": "Alprazolam",
@@ -1486,7 +1470,7 @@
     ]
   },
   "data_overview": {
-    "n_observed_datasets": 33,
+    "n_observed_datasets": 32,
     "routes": [
       "IV",
       "PO"
@@ -1494,7 +1478,6 @@
     "studies": [
       "Adams 1984",
       "Bertz 1997",
-      "Eberts 1980",
       "Eller 1990",
       "Fleishaker 1989",
       "Fleishaker 1994",

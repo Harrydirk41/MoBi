@@ -21,13 +21,15 @@
   "estimated_parameters": [
     {
       "parameter": "Specific intestinal permeability (transcellular)",
-      "value": 2.8481843854e-07,
-      "unit": "cm/s"
+      "value": 2.8481843854e-07
     },
     {
-      "parameter": "In vitro Vmax for liver microsomes",
-      "value": 2.7351231632,
-      "unit": "nmol/min/mg mic. protein"
+      "parameter": "In vitro Vmax for liver microsomes@UGT1A1",
+      "value": 2.7351231632
+    },
+    {
+      "parameter": "In vitro Vmax for liver microsomes@UGT1A9",
+      "value": 1.6287812095
     }
   ]
 }

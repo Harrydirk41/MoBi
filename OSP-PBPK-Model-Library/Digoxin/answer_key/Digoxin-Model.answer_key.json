@@ -21,23 +21,19 @@
   "estimated_parameters": [
     {
       "parameter": "Lipophilicity",
-      "value": 1.40017663,
-      "unit": "Log Units"
+      "value": 1.40017663
     },
     {
       "parameter": "Kd",
-      "value": 25.6,
-      "unit": "nmol/l"
+      "value": 25.6
     },
     {
       "parameter": "Specific clearance",
-      "value": 0.03758077,
-      "unit": "1/min"
+      "value": 0.03758077
     },
     {
       "parameter": "kcat",
-      "value": 71.163,
-      "unit": "1/min"
+      "value": 71.163
     }
   ]
 }

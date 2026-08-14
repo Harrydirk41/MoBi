@@ -1,6 +1,7 @@
 {
   "parameters": {
     "Lipophilicity": 3.5486243812,
-    "kcat": 141.007756417
+    "kcat@UGT1A9": 471.8406263631,
+    "kcat@CYP2B6": 141.007756417
   }
 }

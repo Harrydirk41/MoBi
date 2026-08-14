@@ -21,18 +21,15 @@
   "estimated_parameters": [
     {
       "parameter": "Lipophilicity",
-      "value": 1.897007419,
-      "unit": "Log Units"
+      "value": 1.897007419
     },
     {
       "parameter": "Specific intestinal permeability (transcellular)",
-      "value": 7.0220146601e-05,
-      "unit": "cm/min"
+      "value": 7.0220146601e-05
     },
     {
-      "parameter": "kcat",
-      "value": 4.0317206142,
-      "unit": "1/min"
+      "parameter": "kcat@CYP3A4",
+      "value": 17.5448180963
     }
   ]
 }

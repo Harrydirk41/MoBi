@@ -66,8 +66,18 @@ def _current_model(snapshot_path: str) -> dict[str, Any]:
     occ = defaultdict(list)
     for p in comp.get("Processes") or []:
         mol = p.get("Molecule") or p.get("InternalName")
+        pnames = {par.get("Name") for par in p.get("Parameters") or []}
+        # for a specific-clearance metabolization process, 'CLspec/[Enzyme]' is
+        # THE fittable clearance; hide its structural/derived siblings so the
+        # agent doesn't estimate 'Specific clearance' (a derived, usually-0 value)
+        # or 'Enzyme concentration' by mistake.
+        skip = set()
+        if "CLspec/[Enzyme]" in pnames:
+            skip = {"Specific clearance", "Enzyme concentration"}
         for par in p.get("Parameters") or []:
             nm = par.get("Name")
+            if nm in skip:
+                continue
             if isinstance(nm, str) and isinstance(par.get("Value"), (int, float)):
                 occ[nm].append((mol, par["Value"], par.get("Unit", "")))
     for nm, os_ in occ.items():

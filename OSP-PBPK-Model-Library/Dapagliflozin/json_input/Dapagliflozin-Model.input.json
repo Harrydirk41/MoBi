@@ -33,86 +33,6 @@
     ],
     "clinical_observed_data": [
       {
-        "dataset": "Kasichayanula 2008 - Mass Balance of 14C-dapagliflozin Feces - Dapagliflozin - PO - 50 mg - Feces - agg. (n=6)",
-        "study": "Kasichayanula 2008",
-        "molecule": "Dapagliflozin",
-        "route": "PO",
-        "dose": "50 mg",
-        "n_points": 1,
-        "time_unit": "h",
-        "conc_unit": "mg/L",
-        "time_h": [
-          312.0
-        ],
-        "conc_mg_L": [
-          0.189
-        ]
-      },
-      {
-        "dataset": "Kasichayanula 2008 - Mass Balance of 14C-dapagliflozin Urine - Dapagliflozin - PO - 50 mg - Urine - agg. (n=6)",
-        "study": "Kasichayanula 2008",
-        "molecule": "Dapagliflozin",
-        "route": "PO",
-        "dose": "50 mg",
-        "n_points": 1,
-        "time_unit": "h",
-        "conc_unit": "mg/L",
-        "time_h": [
-          312.0
-        ],
-        "conc_mg_L": [
-          1.23
-        ]
-      },
-      {
-        "dataset": "Kasichayanula 2008 - Mass Balance of 14C-dapagliflozin oxid Metab - Dapagliflozin oxidative metabolites - PO - 50 mg - Fraction - agg. (n=6)",
-        "study": "Kasichayanula 2008",
-        "molecule": "Dapagliflozin oxidative metabolites",
-        "route": "PO",
-        "dose": "50 mg",
-        "n_points": 1,
-        "time_unit": "h",
-        "conc_unit": "mg/L",
-        "time_h": [
-          312.0
-        ],
-        "conc_mg_L": [
-          9.1
-        ]
-      },
-      {
-        "dataset": "Kasichayanula 2008 - Mass Balance of 14C-dapagliflozin 2OG Gluc - Dapagliflozin-2-O-glucuronide - PO - 50 mg - Fraction - agg. (n=6)",
-        "study": "Kasichayanula 2008",
-        "molecule": "Dapagliflozin-2-O-glucuronide",
-        "route": "PO",
-        "dose": "50 mg",
-        "n_points": 1,
-        "time_unit": "h",
-        "conc_unit": "mg/L",
-        "time_h": [
-          312.0
-        ],
-        "conc_mg_L": [
-          0.055
-        ]
-      },
-      {
-        "dataset": "Kasichayanula 2008 - Mass Balance of 14C-dapagliflozin 3OG Gluc - Dapagliflozin-3-O-glucuronide - PO - 50 mg - Fraction - agg. (n=6)",
-        "study": "Kasichayanula 2008",
-        "molecule": "Dapagliflozin-3-O-glucuronide",
-        "route": "PO",
-        "dose": "50 mg",
-        "n_points": 1,
-        "time_unit": "h",
-        "conc_unit": "mg/L",
-        "time_h": [
-          312.0
-        ],
-        "conc_mg_L": [
-          0.614
-        ]
-      },
-      {
         "dataset": "Kasichayanula 2011c - Healthy Volunteers - Dapagliflozin - PO - 10 mg - Plasma - agg. (n=6)",
         "study": "Kasichayanula 2011c",
         "molecule": "Dapagliflozin",
@@ -1008,38 +928,6 @@
         ]
       },
       {
-        "dataset": "Kasichayanula 2008 - Mass Balance of 14C-dapagliflozin 3OG Gluc (incl. unchanged feces exret.) - Dapagliflozin-3-O-glucuronide - PO - 50 mg - Fraction - agg. (n=6)",
-        "study": "Kasichayanula 2008",
-        "molecule": "Dapagliflozin-3-O-glucuronide",
-        "route": "PO",
-        "dose": "50 mg",
-        "n_points": 1,
-        "time_unit": "h",
-        "conc_unit": "mg/L",
-        "time_h": [
-          312.0
-        ],
-        "conc_mg_L": [
-          78.8
-        ]
-      },
-      {
-        "dataset": "Kasichayanula 2008 - Mass Balance of 14C-dapagliflozin 2OG Gluc (incl. unchanged feces exret.) - Dapagliflozin-2-O-glucuronide - PO - 50 mg - Fraction - agg. (n=6)",
-        "study": "Kasichayanula 2008",
-        "molecule": "Dapagliflozin-2-O-glucuronide",
-        "route": "PO",
-        "dose": "50 mg",
-        "n_points": 1,
-        "time_unit": "h",
-        "conc_unit": "mg/L",
-        "time_h": [
-          312.0
-        ],
-        "conc_mg_L": [
-          7.0
-        ]
-      },
-      {
         "dataset": "Komoroski 2009 - SAD 2.5 mg - Dapagliflozin - PO - 2.5 mg - Plasma - agg. (n=6)",
         "study": "Komoroski 2009",
         "molecule": "Dapagliflozin",
@@ -1319,158 +1207,6 @@
           0.259238,
           0.1915101,
           0.1951691
-        ]
-      },
-      {
-        "dataset": "Komoroski 2009 - SAD 2.5 mg (Urine) - Dapagliflozin - PO - 2.5 mg - Urine - agg. (n=6)",
-        "study": "Komoroski 2009",
-        "molecule": "Dapagliflozin",
-        "route": "PO",
-        "dose": "2.5 mg",
-        "n_points": 1,
-        "time_unit": "h",
-        "conc_unit": "mg/L",
-        "time_h": [
-          120.0
-        ],
-        "conc_mg_L": [
-          1.54
-        ],
-        "sd_mg_L": [
-          0.0089
-        ]
-      },
-      {
-        "dataset": "Komoroski 2009 - SAD 5 mg (Urine) - Dapagliflozin - PO - 5 mg - Urine - agg. (n=6)",
-        "study": "Komoroski 2009",
-        "molecule": "Dapagliflozin",
-        "route": "PO",
-        "dose": "5 mg",
-        "n_points": 1,
-        "time_unit": "h",
-        "conc_unit": "mg/L",
-        "time_h": [
-          120.0
-        ],
-        "conc_mg_L": [
-          0.46
-        ],
-        "sd_mg_L": [
-          0.0019
-        ]
-      },
-      {
-        "dataset": "Komoroski 2009 - SAD 10 mg (Urine) - Dapagliflozin - PO - 10 mg - Urine - agg. (n=6)",
-        "study": "Komoroski 2009",
-        "molecule": "Dapagliflozin",
-        "route": "PO",
-        "dose": "10 mg",
-        "n_points": 1,
-        "time_unit": "h",
-        "conc_unit": "mg/L",
-        "time_h": [
-          120.0
-        ],
-        "conc_mg_L": [
-          3.2
-        ],
-        "sd_mg_L": [
-          0.0139
-        ]
-      },
-      {
-        "dataset": "Komoroski 2009 - SAD 20 mg (Urine) - Dapagliflozin - PO - 20 mg - Urine - agg. (n=6)",
-        "study": "Komoroski 2009",
-        "molecule": "Dapagliflozin",
-        "route": "PO",
-        "dose": "20 mg",
-        "n_points": 1,
-        "time_unit": "h",
-        "conc_unit": "mg/L",
-        "time_h": [
-          120.0
-        ],
-        "conc_mg_L": [
-          0.0061
-        ],
-        "sd_mg_L": [
-          0.0016
-        ]
-      },
-      {
-        "dataset": "Komoroski 2009 - SAD 50 mg (Urine) - Dapagliflozin - PO - 50 mg - Urine - agg. (n=6)",
-        "study": "Komoroski 2009",
-        "molecule": "Dapagliflozin",
-        "route": "PO",
-        "dose": "50 mg",
-        "n_points": 1,
-        "time_unit": "h",
-        "conc_unit": "mg/L",
-        "time_h": [
-          120.0
-        ],
-        "conc_mg_L": [
-          0.0072
-        ],
-        "sd_mg_L": [
-          0.0017
-        ]
-      },
-      {
-        "dataset": "Komoroski 2009 - SAD 100 mg (Urine) - Dapagliflozin - PO - 100 mg - Urine - agg. (n=6)",
-        "study": "Komoroski 2009",
-        "molecule": "Dapagliflozin",
-        "route": "PO",
-        "dose": "100 mg",
-        "n_points": 1,
-        "time_unit": "h",
-        "conc_unit": "mg/L",
-        "time_h": [
-          120.0
-        ],
-        "conc_mg_L": [
-          1.04
-        ],
-        "sd_mg_L": [
-          0.0021
-        ]
-      },
-      {
-        "dataset": "Komoroski 2009 - SAD 250 mg fasted (Urine) - Dapagliflozin - PO - 250 mg - Urine - agg. (n=6)",
-        "study": "Komoroski 2009",
-        "molecule": "Dapagliflozin",
-        "route": "PO",
-        "dose": "250 mg",
-        "n_points": 1,
-        "time_unit": "h",
-        "conc_unit": "mg/L",
-        "time_h": [
-          120.0
-        ],
-        "conc_mg_L": [
-          1.54
-        ],
-        "sd_mg_L": [
-          0.004
-        ]
-      },
-      {
-        "dataset": "Komoroski 2009 - SAD 500 mg (Urine) - Dapagliflozin - PO - 500 mg - Urine - agg. (n=6)",
-        "study": "Komoroski 2009",
-        "molecule": "Dapagliflozin",
-        "route": "PO",
-        "dose": "500 mg",
-        "n_points": 1,
-        "time_unit": "h",
-        "conc_unit": "mg/L",
-        "time_h": [
-          120.0
-        ],
-        "conc_mg_L": [
-          1.17
-        ],
-        "sd_mg_L": [
-          0.0054
         ]
       },
       {
@@ -2173,7 +1909,7 @@
     ]
   },
   "data_overview": {
-    "n_observed_datasets": 55,
+    "n_observed_datasets": 40,
     "routes": [
       "IV",
       "PO"
@@ -2183,7 +1919,6 @@
       "Chang 2015",
       "DeFronzo 2013",
       "Imamura 2013",
-      "Kasichayanula 2008",
       "Kasichayanula 2011a",
       "Kasichayanula 2011b",
       "Kasichayanula 2011c",

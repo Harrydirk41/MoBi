@@ -21,13 +21,15 @@
   "estimated_parameters": [
     {
       "parameter": "Lipophilicity",
-      "value": 3.5486243812,
-      "unit": "Log Units"
+      "value": 3.5486243812
     },
     {
-      "parameter": "kcat",
-      "value": 471.8406263631,
-      "unit": "1/min"
+      "parameter": "kcat@UGT1A9",
+      "value": 471.8406263631
+    },
+    {
+      "parameter": "kcat@CYP2B6",
+      "value": 141.007756417
     }
   ]
 }

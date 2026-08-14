@@ -17,8 +17,7 @@
   "estimated_parameters": [
     {
       "parameter": "Intrinsic clearance",
-      "value": 7.2862,
-      "unit": "l/min"
+      "value": 7.2862
     }
   ]
 }

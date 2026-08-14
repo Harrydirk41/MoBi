@@ -25,33 +25,31 @@
   "estimated_parameters": [
     {
       "parameter": "Lipophilicity",
-      "value": 2.8972038771,
-      "unit": "Log Units"
+      "value": 2.8972038771
     },
     {
       "parameter": "Fraction unbound (plasma, reference value)",
-      "value": 0.031,
-      "unit": ""
+      "value": 0.031
     },
     {
       "parameter": "Specific intestinal permeability (transcellular)",
-      "value": 0.00015549970673,
-      "unit": "cm/min"
+      "value": 0.00015549970673
     },
     {
       "parameter": "koff",
-      "value": 1.0,
-      "unit": "1/min"
+      "value": 1.0
     },
     {
       "parameter": "GFR fraction",
-      "value": 0.6401025724,
-      "unit": ""
+      "value": 0.6401025724
     },
     {
-      "parameter": "kcat",
-      "value": 8.7607941215,
-      "unit": "1/min"
+      "parameter": "kcat@CYP3A4",
+      "value": 8.7607941215
+    },
+    {
+      "parameter": "kcat@UGT1A4",
+      "value": 3.5911771641
     }
   ]
 }

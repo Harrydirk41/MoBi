@@ -2,7 +2,7 @@
   "parameters": {
     "Lipophilicity": 2.0799268917,
     "Specific intestinal permeability (transcellular)": 7.6146060669,
-    "kcat": 13.7322820855,
+    "kcat@CYP3A4": 13.7322820855,
     "GFR fraction": 0.5461456402
   }
 }

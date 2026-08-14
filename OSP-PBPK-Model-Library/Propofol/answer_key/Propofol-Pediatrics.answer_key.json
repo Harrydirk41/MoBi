@@ -21,13 +21,15 @@
   "estimated_parameters": [
     {
       "parameter": "Lipophilicity",
-      "value": 3.5917351902,
-      "unit": "Log Units"
+      "value": 3.5917351902
     },
     {
-      "parameter": "In vitro Vmax for liver microsomes",
-      "value": 105.0736032242,
-      "unit": "nmol/min/mg mic. protein"
+      "parameter": "In vitro Vmax for liver microsomes@UGT1A9",
+      "value": 105.0736032242
+    },
+    {
+      "parameter": "In vitro Vmax for liver microsomes@CYP2B6",
+      "value": 47.2831214509
     }
   ]
 }

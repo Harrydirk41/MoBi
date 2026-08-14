@@ -1,6 +1,7 @@
 {
   "parameters": {
     "Lipophilicity": 3.5917351902,
-    "In vitro Vmax for liver microsomes": 47.2831214509
+    "In vitro Vmax for liver microsomes@UGT1A9": 105.0736032242,
+    "In vitro Vmax for liver microsomes@CYP2B6": 47.2831214509
   }
 }

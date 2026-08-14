@@ -58,21 +58,31 @@ def _obs_key(o: dict):
 
 
 def _match_score(obs: dict, pred) -> int | None:
+    """Score a candidate (observed, predicted) pairing; None = incompatible.
+
+    Route and dose are HARD constraints (a mismatch rules the pairing out).
+    Study is a soft PREFERENCE: an exact-study match scores higher so it wins the
+    best-match search, but a simulation named only by route+dose (e.g.
+    'PO SD 50 mg', no author) still matches the right observed arm by route+dose.
+    Requiring at least route or dose to positively match prevents a study-less
+    or route-less simulation from matching everything."""
     o_study, o_route, o_dose = _obs_key(obs)
-    if _norm_study(o_study) != _norm_study(pred.study):
-        return None
-    score = 1
+    score, hard = 0, False
+    if _norm_study(o_study) and _norm_study(pred.study) \
+            and _norm_study(o_study) == _norm_study(pred.study):
+        score += 1                                   # study bonus (soft)
     o_r, p_r = _norm_route(o_route), _norm_route(pred.route)
     if o_r and p_r:
         if o_r != p_r:
-            return None
-        score += 2
+            return None                              # route mismatch -> out
+        score += 2; hard = True
     o_d, p_d = _dose_canon(o_dose), _dose_canon(pred.dose)
     if o_d and p_d:
         if o_d[1] != p_d[1] or abs(o_d[0] - p_d[0]) > 1e-6 + 0.01 * o_d[0]:
-            return None
-        score += 2
-    return score
+            return None                              # dose mismatch -> out
+        score += 2; hard = True
+    # need a positive route/dose match; study alone is too weak to map on.
+    return score if hard else None
 
 
 def map_predictions(profiles: list, observed: list[dict]):
