@@ -19,8 +19,21 @@ from typing import Any
 
 from ..engines.osp_cli import OSPCli
 from ..engines import osp_score
+from ..engines import osp_catalog
 from ..engines.snapshot_edit import PARTITION_METHODS, PERMEABILITY_METHODS
 from .registry import Tool, ToolRegistry, ToolResult
+
+
+def _expressed_molecules(snapshot_path: str) -> list[dict]:
+    with open(snapshot_path, encoding="utf-8") as fh:
+        data = json.load(fh)
+    seen, out = set(), []
+    for ep in data.get("ExpressionProfiles") or []:
+        mol = ep.get("Molecule")
+        if mol and mol not in seen:
+            seen.add(mol)
+            out.append({"molecule": mol, "type": ep.get("Type")})
+    return out
 
 
 def _current_model(snapshot_path: str) -> dict[str, Any]:
@@ -143,6 +156,53 @@ def register_osp_loop_tools(registry: ToolRegistry, config, ctx: dict) -> None:
             iteration=len(hist),
         )
 
+    # -- observe (authoritative action space) --------------------------- #
+    def options(args: dict, session) -> ToolResult:
+        model = _current_model(snapshot_path)
+        expressed = _expressed_molecules(snapshot_path)
+        editable = []
+        for p in model["parameters"]:
+            cat = osp_catalog.describe_parameter(p["name"])
+            editable.append({**p, "description": cat.get("description"),
+                             "plausible_range": cat.get("range"),
+                             "role": cat.get("role", "unknown")})
+        return ToolResult.success(
+            "authoritative action space: what you may edit and legal choices",
+            editable_parameters=editable,
+            calculation_methods={
+                "partition": {"current": next(
+                    (m for m in model["calculation_methods"]
+                     if "partition" in m.lower()), None),
+                    "options": osp_catalog.PARTITION_METHOD_INFO},
+                "permeability": {"current": next(
+                    (m for m in model["calculation_methods"]
+                     if "permeability" in m.lower()), None),
+                    "options": osp_catalog.PERMEABILITY_METHOD_INFO}},
+            processes_present=model["processes"],
+            expressed_molecules=expressed,
+            addable_process_types=osp_catalog.addable_process_types(expressed),
+            edit_spec_help={
+                "parameters": "{name: value} - names above",
+                "calculation_methods": "{partition: <opt>, permeability: <opt>}",
+                "processes": "{molecule: false} to disable an existing process",
+                "add_processes": "[{type, molecule, parameters}] - attach a NEW "
+                "mechanism (enzyme process needs an expressed enzyme)"},
+        )
+
+    registry.register(Tool(
+        name="osp_options",
+        description=(
+            "OBSERVE the authoritative ACTION SPACE for this model: every editable "
+            "compound parameter (with a description, plausible range, and whether "
+            "it is normally measured or estimated), the legal distribution/"
+            "permeability calculation methods (with descriptions), the processes "
+            "currently present, the molecules the model EXPRESSES (enzymes/"
+            "transporters you can attach a mechanism to), and the process types "
+            "you may ADD. Read straight from the model - you do not need prior OSP "
+            "knowledge. Call this before deciding structure/parameters."),
+        input_schema={"type": "object", "properties": {}},
+        handler=options, phase="observe"))
+
     registry.register(Tool(
         name="osp_inspect",
         description=(
@@ -202,8 +262,10 @@ def register_osp_loop_tools(registry: ToolRegistry, config, ctx: dict) -> None:
             "estimate={parameter:[lo,hi]} (choose 2-4 identifiable, uncertain "
             "parameters - clearance, permeabilities, effective lipophilicity - "
             "not everything). fix={parameter:value} pins parameters at literature "
-            "values. structure={calculation_methods:..,processes:..} sets the "
-            "model structure (not optimized). Returns the optimized values, the "
+            "values. structure={calculation_methods:.., processes:.., "
+            "add_processes:[{type,molecule,parameters}]} sets the model structure "
+            "(not optimized; see osp_options for legal choices). Returns the "
+            "optimized values, the "
             "full-set GMFE + per-route bias, and params_at_bound (a parameter "
             "pinned to a bound = unidentifiable or wrong structure - reason about "
             "it). Fits against a representative subset of studies for speed."),

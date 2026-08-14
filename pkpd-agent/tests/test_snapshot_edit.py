@@ -69,5 +69,36 @@ class TestApplyEdits(unittest.TestCase):
         self.assertEqual(rep["not_found"], [])
 
 
+class TestAddProcess(unittest.TestCase):
+    def setUp(self):
+        self.snap = {
+            "ExpressionProfiles": [
+                {"Type": "Enzyme", "Molecule": "CYP3A4"},
+                {"Type": "Enzyme", "Molecule": "AADAC"}],
+            "Compounds": [{"Name": "Drug", "Processes": [
+                {"InternalName": "MetabolizationIntrinsic_FirstOrder",
+                 "Molecule": "CYP3A4", "Parameters": [
+                     {"Name": "Intrinsic clearance", "Value": 0.5}]}]}],
+        }
+
+    def test_add_process_on_expressed_enzyme(self):
+        out, rep = apply_edits(self.snap, {"add_processes": [
+            {"type": "metabolization_first_order", "molecule": "AADAC",
+             "parameters": {"Intrinsic clearance": 0.05}}]})
+        mols = [p.get("Molecule") for p in out["Compounds"][0]["Processes"]]
+        self.assertIn("AADAC", mols)
+        self.assertEqual(rep["processes"]["add:AADAC"], "added")
+
+    def test_reject_unexpressed_molecule(self):
+        _, rep = apply_edits(self.snap, {"add_processes": [
+            {"type": "metabolization_first_order", "molecule": "CYP2D6"}]})
+        self.assertTrue(any("CYP2D6" in n for n in rep["not_found"]))
+
+    def test_add_duplicate_is_noop(self):
+        _, rep = apply_edits(self.snap, {"add_processes": [
+            {"type": "metabolization_first_order", "molecule": "CYP3A4"}]})
+        self.assertEqual(rep["processes"]["add:CYP3A4"], "already_present")
+
+
 if __name__ == "__main__":
     unittest.main()

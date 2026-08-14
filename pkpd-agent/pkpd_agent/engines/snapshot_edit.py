@@ -29,6 +29,8 @@ from __future__ import annotations
 import copy
 from typing import Any
 
+from .osp_catalog import PROCESS_TYPES
+
 # valid PK-Sim distribution / permeability methods (snapshot short names)
 PARTITION_METHODS = [
     "PK-Sim Standard", "Rodgers and Rowland", "Schmitt",
@@ -48,10 +50,13 @@ def apply_edits(snapshot: dict, edits: dict | None) -> tuple[dict, dict]:
     if not edits:
         return snap, report
     comp = (snap.get("Compounds") or [{}])[0]
+    expressed = {ep.get("Molecule") for ep in (snap.get("ExpressionProfiles") or [])
+                 if ep.get("Molecule")}
 
     _apply_parameters(comp, edits.get("parameters") or {}, report)
     _apply_calc_methods(comp, edits.get("calculation_methods") or {}, report)
     _apply_processes(comp, edits.get("processes") or {}, report)
+    _apply_add_processes(comp, edits.get("add_processes") or [], expressed, report)
     return snap, report
 
 
@@ -154,10 +159,52 @@ def _apply_processes(comp: dict, processes: dict, report: dict) -> None:
         present = any(matches(p, key) for p in procs)
         if enable and not present:
             report["not_found"].append(
-                f"process:{key} (enable not supported - add it in the snapshot)")
+                f"process:{key} (use add_processes to add a new mechanism)")
         elif not enable:
             report["processes"][key] = "disabled" if any(
                 key.lower() in d.lower() or d.lower() in key.lower()
                 for d in disabled) else "not_found"
     for d in disabled:
         report["processes"].setdefault(d, "disabled")
+
+
+def _apply_add_processes(comp: dict, additions: list, expressed: set,
+                         report: dict) -> None:
+    """Attach a NEW process (mechanism) to the compound. An enzyme process needs
+    an already-expressed enzyme; the process structure follows the catalog."""
+    procs = comp.setdefault("Processes", [])
+    for a in additions:
+        if not isinstance(a, dict):
+            continue
+        typ = a.get("type")
+        mol = a.get("molecule")
+        spec = PROCESS_TYPES.get(typ)
+        if not spec:
+            report["not_found"].append(f"process_type:{typ}")
+            continue
+        if spec["applies_to"] == "enzyme":
+            if not mol:
+                report["not_found"].append(f"add_process:{typ} needs a molecule")
+                continue
+            if mol not in expressed:
+                report["not_found"].append(
+                    f"add_process:{mol} is not expressed in the model "
+                    "(cannot attach an enzyme process)")
+                continue
+        # already there? skip
+        if any(p.get("InternalName") == spec["internal_name"]
+               and p.get("Molecule") == mol for p in procs):
+            report["processes"][f"add:{mol or typ}"] = "already_present"
+            continue
+        block: dict[str, Any] = {"InternalName": spec["internal_name"],
+                                 "DataSource": spec["data_source"],
+                                 "Species": "Human"}
+        if mol:
+            block["Molecule"] = mol
+        given = a.get("parameters") or {}
+        block["Parameters"] = [
+            {"Name": p["name"], "Value": float(given.get(p["name"], p["default"])),
+             "Unit": p["unit"]}
+            for p in spec["parameters"]]
+        procs.append(block)
+        report["processes"][f"add:{mol or typ}"] = "added"
