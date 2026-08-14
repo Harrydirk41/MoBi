@@ -262,13 +262,22 @@ def register_osp_loop_tools(registry: ToolRegistry, config, ctx: dict) -> None:
             session.put("osp_best_edits",
                         {"parameters": r["optimized"], "fix": args.get("fix") or {},
                          **(args.get("structure") or {})})
+            session.put("osp_best_sensitivity", r.get("sensitivity") or {})
         return ToolResult.success(
             f"optimized {list(r['optimized'])} on {len(r['fit_simulations'])} "
             f"study(ies) -> GMFE {gmfe} "
             f"(best so far {session.get('osp_best_gmfe')})",
             optimized=r["optimized"], fit=r["fit"], by_route=r["by_route"],
             worst_datasets=r["worst_datasets"],
-            params_at_bound=r["params_at_bound"], parameter_flags=flags,
+            params_at_bound=r["params_at_bound"],
+            sensitivity=r.get("sensitivity"),
+            sensitivity_hint=("'relative' is each parameter's local influence on "
+                              "the fit, normalised to the most influential (1.0). "
+                              "A parameter with a small 'relative' is weakly "
+                              "constrained by the data - its fitted value is "
+                              "uncertain; consider fixing it or not over-"
+                              "interpreting it."),
+            parameter_flags=flags,
             n_evals=r["n_evals"], fit_simulations=r["fit_simulations"],
             iteration=len(hist))
 

@@ -126,12 +126,22 @@ class TestLiteratureAnchoredRationale(unittest.TestCase):
         pr = deterministic_narrative(d)["parameter_rationale"]
         self.assertIn("consistent with the literature", pr)
 
-    def test_flags_permeability_weak_identifiability(self):
+    def test_weak_identifiability_from_sensitivity_not_name(self):
+        # driven by the optimizer's sensitivity number, not by the parameter name
         from pkpd_agent.report import deterministic_narrative
         d = self._data([{"name": "Permeability", "value": 1.4e-4, "unit": "cm/min",
-                         "role": "estimated", "plausible_range": [1e-6, 1.0]}])
+                         "role": "estimated", "plausible_range": [1e-6, 1.0],
+                         "sensitivity": 0.03}])
         pr = deterministic_narrative(d)["parameter_rationale"]
-        self.assertIn("WEAKLY IDENTIFIABLE", pr)
+        self.assertIn("weakly identifiable", pr.lower())
+
+    def test_high_sensitivity_reads_as_well_constrained(self):
+        from pkpd_agent.report import deterministic_narrative
+        d = self._data([{"name": "Intrinsic clearance", "value": 0.5, "unit": "l/min",
+                         "role": "estimated", "plausible_range": [1e-3, 5.0],
+                         "sensitivity": 0.9}])
+        pr = deterministic_narrative(d)["parameter_rationale"]
+        self.assertIn("well constrained", pr.lower())
 
 
 if __name__ == "__main__":

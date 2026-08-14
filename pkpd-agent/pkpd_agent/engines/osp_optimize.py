@@ -156,6 +156,14 @@ def run_optimization(cli: OSPCli, snapshot_path: str, observed: list[dict],
         elif span > 0 and (hx[i] - best[i] < 0.03 * span):
             at_bound.append({"parameter": n, "value": optimized[n], "bound": "upper"})
 
+    # LOCAL SENSITIVITY (identifiability EVIDENCE, not a hard-coded opinion):
+    # perturb each fitted parameter around the optimum and measure how much the
+    # objective actually moves. A parameter the data barely responds to is weakly
+    # identified - but we report the NUMBER and let the agent/report reason about
+    # it, rather than asserting which parameters are unidentifiable.
+    sensitivity = _local_sensitivity(eval_at, _log_sse, observed_sub, subset,
+                                     optimized, names, best, lx, hx)
+
     # final fit on the FULL observed set
     predicted_full, res_full = eval_at(optimized, None)
     if predicted_full is None:
@@ -171,6 +179,41 @@ def run_optimization(cli: OSPCli, snapshot_path: str, observed: list[dict],
                             "gmfe": d["gmfe"], "bias": d["bias"]}
                            for d in score["per_dataset"][:3]],
         "params_at_bound": at_bound,
+        "sensitivity": sensitivity,
         "n_evals": len(history),
         "fit_simulations": subset,
     }
+
+
+def _local_sensitivity(eval_at, log_sse, observed_sub, subset, optimized, names,
+                       best, lx, hx, step: float = 0.15) -> dict:
+    """One-at-a-time local sensitivity around the fitted optimum.
+
+    For each estimated parameter, multiply/divide it by 10**step (others held at
+    the optimum) and measure |Δ log-objective|. Normalised to the most sensitive
+    parameter so the result is a data-driven relative ranking; a ``relative``
+    near 0 means the data hardly constrain that parameter (weakly identifiable).
+    Returns {param: {obj_change, relative}} - the CONSUMER decides what it means."""
+    import numpy as np
+    base_pred, _ = eval_at(optimized, subset)
+    if base_pred is None:
+        return {}
+    base = log_sse(observed_sub, base_pred)[0]
+    raw: dict[str, float] = {}
+    for i, n in enumerate(names):
+        deltas = []
+        for sign in (+1.0, -1.0):
+            xp = float(np.clip(best[i] + sign * step, lx[i], hx[i]))
+            if abs(xp - best[i]) < 1e-9:
+                continue
+            pert = dict(optimized)
+            pert[n] = float(10 ** xp)
+            pred, _ = eval_at(pert, subset)
+            if pred is None:
+                continue
+            deltas.append(abs(log_sse(observed_sub, pred)[0] - base))
+        raw[n] = (sum(deltas) / len(deltas)) if deltas else 0.0
+    top = max(raw.values()) if raw else 0.0
+    return {n: {"obj_change": round(v, 5),
+                "relative": round(v / top, 3) if top > 0 else 0.0}
+            for n, v in raw.items()}

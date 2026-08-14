@@ -274,6 +274,8 @@ def assemble(session, config, cli, input_dict, snapshot_path, best_edits,
 
     ref_params = (answer_edits or {}).get("parameters", {})
     estimated = best_edits.get("parameters") or {}
+    # data-driven identifiability evidence from the optimizer (may be absent)
+    sensitivity = session.get("osp_best_sensitivity") or {}
     params = []
     for name, val in estimated.items():
         cat = osp_catalog.describe_parameter(name)
@@ -284,6 +286,7 @@ def assemble(session, config, cli, input_dict, snapshot_path, best_edits,
         params.append({"name": name, "value": val, "unit": cat.get("unit", ""),
                        "role": "estimated",
                        "plausible_range": cat.get("range"),
+                       "sensitivity": (sensitivity.get(name) or {}).get("relative"),
                        "reference": ref_params.get(name)})
     # fixed parameters (held at literature values, e.g. GFR fraction = 0) shown
     # as their own rows so the table is complete and unambiguous.
@@ -401,14 +404,22 @@ def deterministic_narrative(d: "ReportData") -> dict[str, str]:
                         f"value{f' (~{fold:.2g}× the midpoint)' if fold else ''}; "
                         "likely effective-vs-measured difference or optimizer "
                         "compensation — interpret with caution.")
-        elif "permeab" in p["name"].lower():
-            msg += (" — no independent measurement; identified only from plasma "
-                    "data and typically WEAKLY IDENTIFIABLE, so its absolute value "
-                    "is uncertain.")
         elif rng and v is not None and rng[0] <= v <= rng[1]:
             msg += f" — within the physiological range {rng}."
         elif rng:
             msg += f" — OUTSIDE the expected range {rng}; review."
+        # identifiability from the optimizer's OWN sensitivity (not a name guess):
+        # a low relative sensitivity = the data barely constrain this parameter.
+        sens = p.get("sensitivity")
+        if sens is not None:
+            if sens < 0.1:
+                msg += (f" Sensitivity {sens:.2g} (of 1.0): the fit barely responds "
+                        "to this parameter — weakly identifiable, so its absolute "
+                        "value is uncertain.")
+            elif sens < 0.4:
+                msg += f" Sensitivity {sens:.2g}: moderately constrained by the data."
+            else:
+                msg += f" Sensitivity {sens:.2g}: well constrained by the data."
         lines.append(msg)
     pr = ("Each estimated parameter, checked against independent literature where "
           "available:\n" + "\n".join(lines))
@@ -494,11 +505,14 @@ def llm_narrative(d: "ReportData", config) -> dict[str, str]:
                 "(effective vs measured lipophilicity, or the optimizer "
                 "compensating across correlated parameters) - do NOT rationalize a "
                 "departure as fine just because it is inside a wide plausible "
-                "range. Parameters identified only from plasma data and lacking a "
-                "literature anchor (tissue/intestinal permeabilities) are typically "
-                "WEAKLY IDENTIFIABLE - state that their absolute values are "
-                "uncertain and should not be over-interpreted. A good fit with a "
-                "parameter far from its expected value is a caution, not a success.\n"
+                "range. Each parameter carries a 'sensitivity' in [0,1] = how much "
+                "the fit actually responds to it (1 = most influential this run). "
+                "REASON FROM THIS NUMBER: a low sensitivity means the data barely "
+                "constrain the parameter, so its fitted value is uncertain and must "
+                "not be over-interpreted, regardless of how plausible it looks; a "
+                "high sensitivity means the value is well determined. A good fit "
+                "with a low-sensitivity parameter far from its expected value is a "
+                "caution, not a success.\n"
                 "Describe ONLY what happened: honor run_facts - if "
                 "optimization_completed or parameters_were_fitted is false, do NOT "
                 "claim parameters were fitted; call them un-fitted/preliminary. "
@@ -588,9 +602,15 @@ def write_html(d: ReportData, path: str) -> None:
                       for r in rows)
         return f"<table><thead><tr>{th}</tr></thead><tbody>{trs}</tbody></table>"
 
+    def _sens_cell(p):
+        s = p.get("sensitivity")
+        if not isinstance(s, (int, float)):
+            return "-"
+        tag = "weak" if s < 0.1 else ("moderate" if s < 0.4 else "strong")
+        return f"{s:.2g} ({tag})"
     param_rows = [[p["name"], f"{p.get('value'):.4g}" if isinstance(p.get("value"), (int, float)) else p.get("value"),
                    p.get("unit", ""), p.get("role", ""),
-                   p.get("plausible_range", ""),
+                   p.get("plausible_range", ""), _sens_cell(p),
                    f"{p.get('reference'):.4g}" if isinstance(p.get("reference"), (int, float)) else "-"]
                   for p in d.parameters]
     plots = "".join(f'<div class="plot">{_svg_profile(pf["study"], pf["obs"], pf["pred"], pf.get("ref"))}</div>'
@@ -669,7 +689,8 @@ routes {esc(', '.join(str(r) for r in (d.data_overview.get('routes') or [])))}.<
 {ode_html}
 
 <h2>5. Parameters</h2>
-{table(['Parameter','Value','Unit','Role','Plausible range','Reference (truth)'], param_rows)}
+{table(['Parameter','Value','Unit','Role','Plausible range','Sensitivity (0–1)','Reference (truth)'], param_rows)}
+<p class="eqnote">Sensitivity = how much the fit responds to each estimated parameter, normalised to the most influential (1.0). A low value means the data weakly constrain that parameter, so its fitted value is uncertain.</p>
 
 <h2>6. Pharmacological rationale</h2>
 <p style="white-space:pre-wrap">{esc(d.narrative.get('parameter_rationale',''))}</p>
@@ -751,8 +772,10 @@ def write_pdf(d: ReportData, path: str) -> bool:
         pr = ["MODEL CHOICE", d.narrative.get("model_choice", ""), "",
               "PARAMETERS"]
         for p in d.parameters:
+            s = p.get("sensitivity")
+            stag = (f" sens={s:.2g}" if isinstance(s, (int, float)) else "")
             pr.append(f"  {p['name']} = {p.get('value')} {p.get('unit','')}  "
-                      f"[{p.get('role','')}] ref={p.get('reference','-')}")
+                      f"[{p.get('role','')}]{stag} ref={p.get('reference','-')}")
         pr += ["", "PHARMACOLOGICAL RATIONALE", d.narrative.get("parameter_rationale", "")]
         text_page(pdf, "Model, parameters & rationale", pr)
 
