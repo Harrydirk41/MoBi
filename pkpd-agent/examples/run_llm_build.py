@@ -90,6 +90,14 @@ def main() -> None:
     ap.add_argument("--max-steps", type=int, default=6)
     ap.add_argument("--model", default=None)
     ap.add_argument("--effort", default=None)
+    ap.add_argument("--report", default=None,
+                    help="write an evaluation report here (.html; a .pdf is also "
+                         "written if matplotlib is installed)")
+    ap.add_argument("--reference", default=None,
+                    help="reference snapshot for the ground-truth comparison in "
+                         "the report (e.g. the original json/<Compound>-Model.json)")
+    ap.add_argument("--answer-edits", default=None,
+                    help="answer_key edit spec for the parameter comparison")
     args = ap.parse_args()
 
     cfg = AgentConfig(mock=False, max_steps=args.max_steps)
@@ -153,6 +161,25 @@ def main() -> None:
     session = loop.run(goal, ModelingSession(goal=goal), on_event=show)
     print(f"\nbest GMFE reached: {session.get('osp_best_gmfe')}")
     print(f"best model: {json.dumps(session.get('osp_best_edits'), ensure_ascii=False)}")
+
+    if args.report:
+        from pkpd_agent import report
+        answer = None
+        if args.answer_edits and os.path.exists(args.answer_edits):
+            with open(args.answer_edits, encoding="utf-8") as fh:
+                answer = json.load(fh)
+        print("\nassembling report (re-running best + reference models)...", flush=True)
+        d = report.assemble(session, cfg, cli, inp, args.snapshot,
+                            session.get("osp_best_edits") or {},
+                            ref_snapshot_path=args.reference, answer_edits=answer)
+        html_path = args.report if args.report.endswith(".html") else args.report + ".html"
+        report.write_html(d, html_path)
+        print(f"wrote {html_path}")
+        pdf_path = html_path[:-5] + ".pdf"
+        if report.write_pdf(d, pdf_path):
+            print(f"wrote {pdf_path}")
+        else:
+            print("(matplotlib not installed - open the .html and Print -> Save as PDF)")
 
 
 if __name__ == "__main__":
