@@ -113,7 +113,7 @@ def main() -> None:
     def show(ev):
         if isinstance(ev, Decision):
             if ev.text:
-                print(f"\n[reason] {ev.text[:800]}")
+                print(f"\n[reason] {ev.text[:2500]}")
             for c in ev.calls:
                 ed = c.arguments.get("edits")
                 print(f"  -> {c.name}" + (f" {json.dumps(ed, ensure_ascii=False)}"

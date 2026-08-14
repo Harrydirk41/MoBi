@@ -157,17 +157,27 @@ class LLMPolicy:
         if getattr(resp, "stop_reason", None) == "refusal":
             return FinishStep("The model declined this request (safety refusal).")
 
-        text_parts, calls = [], []
+        text_parts, thinking_parts, calls = [], [], []
         for block in resp.content:
-            if block.type == "text":
+            bt = getattr(block, "type", None)
+            if bt == "text":
                 text_parts.append(block.text)
-            elif block.type == "tool_use":
+            elif bt == "thinking":
+                th = getattr(block, "thinking", None)
+                if th:
+                    thinking_parts.append(th)
+            elif bt == "tool_use":
                 calls.append(ToolCall(id=block.id, name=block.name,
                                       arguments=dict(block.input)))
         text = "\n".join(text_parts).strip()
+        reasoning = "\n".join(thinking_parts).strip()
+        # In thinking mode the model usually reasons in thinking blocks and emits
+        # the tool call with empty text - surface the reasoning so the trace shows
+        # *why*, not just the tool call.
+        shown = text or reasoning
         if calls:
-            return ActStep(text=text, calls=calls)
-        return FinishStep(text or "(no further action)")
+            return ActStep(text=shown, calls=calls)
+        return FinishStep(shown or "(no further action)")
 
 
 def _json(obj: Any) -> str:
