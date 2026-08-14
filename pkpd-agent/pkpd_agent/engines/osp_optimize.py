@@ -78,8 +78,11 @@ def run_optimization(cli: OSPCli, snapshot_path: str, observed: list[dict],
                      estimate: dict[str, list], fix: dict | None = None,
                      structure: dict | None = None,
                      fit_simulations: list[str] | None = None,
-                     max_evals: int = 30) -> dict[str, Any]:
+                     max_evals: int = 30, on_eval=None) -> dict[str, Any]:
     """Fit ``estimate`` (name -> [lo, hi]) to the observed data.
+
+    ``on_eval(i, values, log_sse)`` (optional) is called after each objective
+    evaluation for live progress.
 
     Returns optimized values, the full-set fit, evals used, and any parameters
     that hit their bounds (identifiability / structure warning).
@@ -111,7 +114,10 @@ def run_optimization(cli: OSPCli, snapshot_path: str, observed: list[dict],
     def eval_at(values: dict[str, float], sims):
         edits = {**base_edits,
                  "parameters": {**base_edits["parameters"], **values}}
-        res = cli.build_and_run(snapshot_path, edits=edits, simulations=sims)
+        # during the fit, prune the snapshot to the subset so snap builds ONLY
+        # those simulations (snap otherwise rebuilds all of them every eval).
+        res = cli.build_and_run(snapshot_path, edits=edits, simulations=sims,
+                                prune_simulations=sims is subset)
         if not res["ok"]:
             return None, res
         predicted, _ = osp_score.map_predictions(
@@ -126,9 +132,13 @@ def run_optimization(cli: OSPCli, snapshot_path: str, observed: list[dict],
         predicted, res = eval_at(values, subset)
         if predicted is None:
             history.append({"values": values, "obj": None, "error": res.get("message")})
+            if on_eval:
+                on_eval(len(history), values, None)
             return 1e6 + penalty
         sse, npts = _log_sse(observed_sub, predicted)
         history.append({"values": values, "log_sse": round(sse, 5), "n": npts})
+        if on_eval:
+            on_eval(len(history), values, round(sse, 5))
         return sse + penalty
 
     x0 = (lx + hx) / 2.0

@@ -80,5 +80,31 @@ class TestSimNameParsing(unittest.TestCase):
         self.assertEqual(route, "IV")
 
 
+class TestSimulationPruning(unittest.TestCase):
+    """During optimization the snapshot is pruned to only the fitted simulations
+    so snap builds those alone (big per-eval speedup)."""
+
+    SNAP = {
+        "Compounds": [{"Name": "Drug"}],
+        "Individuals": [{"Name": "Ind"}], "Protocols": [{"Name": "P"}],
+        "ParameterIdentifications": [{"Name": "PI", "Simulations": ["a", "b", "c"]}],
+        "Simulations": [{"Name": "a"}, {"Name": "b"}, {"Name": "c"}, {"Name": "d"}],
+    }
+
+    def test_prune_keeps_only_requested(self):
+        out = OSPCli._prune_simulations(self.SNAP, ["a", "c"])
+        self.assertEqual([s["Name"] for s in out["Simulations"]], ["a", "c"])
+        # other blocks retained
+        self.assertTrue(out["Individuals"] and out["Protocols"] and out["Compounds"])
+        # parameter identifications dropped (they reference pruned sims by name)
+        self.assertEqual(out["ParameterIdentifications"], [])
+        # input not mutated
+        self.assertEqual(len(self.SNAP["Simulations"]), 4)
+
+    def test_prune_falls_back_when_no_match(self):
+        out = OSPCli._prune_simulations(self.SNAP, ["zzz"])
+        self.assertEqual(len(out["Simulations"]), 4)   # unchanged
+
+
 if __name__ == "__main__":
     unittest.main()

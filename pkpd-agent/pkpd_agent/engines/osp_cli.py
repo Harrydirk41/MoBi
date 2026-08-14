@@ -101,12 +101,19 @@ class OSPCli:
                       edits: dict | None = None,
                       param_overrides: dict[str, float] | None = None,
                       simulations: list[str] | None = None,
-                      workdir: str | None = None) -> dict[str, Any]:
+                      workdir: str | None = None,
+                      prune_simulations: bool = False) -> dict[str, Any]:
         """snapshot (optionally edited) -> .pksim5 -> run -> predicted profiles.
 
         ``edits`` is the structured spec from ``snapshot_edit`` (parameters,
         calculation_methods, processes). ``param_overrides`` is a shorthand for
         ``edits={"parameters": ...}`` kept for backwards compatibility.
+
+        ``simulations`` restricts which simulations are *run* (export -s).
+        ``prune_simulations`` additionally drops the other simulations from the
+        snapshot BEFORE snap, so PK-Sim only *builds* the ones requested - a big
+        speedup during optimization, where snap otherwise rebuilds every
+        simulation on every objective evaluation.
 
         Returns {ok, message, profiles:[PredictedProfile...], project, logs}.
         """
@@ -125,6 +132,8 @@ class OSPCli:
             edit_spec.setdefault("parameters", {})
             edit_spec["parameters"] = {**param_overrides, **edit_spec["parameters"]}
         snap, applied = apply_edits(snap, edit_spec)
+        if prune_simulations and simulations:
+            snap = self._prune_simulations(snap, simulations)
 
         wd = workdir or tempfile.mkdtemp(prefix="ospcli_")
         in_dir = os.path.join(wd, "in")
@@ -176,6 +185,25 @@ class OSPCli:
                 "edits_applied": applied, "logs": logs, "mol_weight": mol_weight}
 
     # -- snapshot helpers ------------------------------------------------ #
+    @staticmethod
+    def _prune_simulations(snap: dict, keep: list[str]) -> dict:
+        """Return a shallow copy of the snapshot whose Simulations are limited to
+        ``keep`` (so snap builds only those). Other top-level blocks (Individuals,
+        Protocols, ObservedData, ...) are referenced by name and harmless to keep.
+        Falls back to the full set if the filter would empty it."""
+        keepset = set(keep)
+        sims = [s for s in (snap.get("Simulations") or [])
+                if s.get("Name") in keepset]
+        if not sims:
+            return snap
+        pruned = dict(snap)
+        pruned["Simulations"] = sims
+        # ParameterIdentifications reference simulations by name; drop them so a
+        # dangling reference cannot trip the mapper (we identify parameters here).
+        if pruned.get("ParameterIdentifications"):
+            pruned["ParameterIdentifications"] = []
+        return pruned
+
     @staticmethod
     def _mol_weight(snap: dict) -> float | None:
         comp = (snap.get("Compounds") or [{}])[0]

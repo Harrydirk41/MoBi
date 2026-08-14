@@ -230,11 +230,18 @@ def register_osp_loop_tools(registry: ToolRegistry, config, ctx: dict) -> None:
             return ToolResult.error(
                 "provide 'estimate': {parameter: [lo, hi]} - the parameters to "
                 "fit numerically (choose 2-4 identifiable, uncertain ones)")
+        def _progress(i, values, sse):
+            vs = ", ".join(f"{k}={v:.3g}" for k, v in values.items())
+            msg = (f"       eval {i}: log_sse={sse} [{vs}]" if sse is not None
+                   else f"       eval {i}: run FAILED [{vs}]")
+            print(msg, flush=True)
+
         r = OO.run_optimization(
             cli, snapshot_path, observed, estimate=estimate,
             fix=args.get("fix"), structure=args.get("structure"),
             fit_simulations=args.get("fit_simulations"),
-            max_evals=int(args.get("max_evals") or 30))
+            max_evals=int(args.get("max_evals") or 30),
+            on_eval=_progress if getattr(config, "stream_optimizer", True) else None)
         if not r.get("ok"):
             return ToolResult.error(f"optimization failed: {r.get('message')}")
 
@@ -289,7 +296,11 @@ def register_osp_loop_tools(registry: ToolRegistry, config, ctx: dict) -> None:
                 "fit_simulations": {"type": "array", "items": {"type": "string"},
                                     "description": "optional exact simulation names"},
                 "max_evals": {"type": "integer",
-                              "description": "optimizer budget (default 30)"},
+                              "description": "optimizer budget (default 30). Each "
+                              "eval is a full PK-Sim build+run (tens of seconds), "
+                              "so keep it modest: 20-30 is plenty for 2-4 "
+                              "parameters. Prefer a good structure + tight bounds "
+                              "over a large budget."},
             },
             "required": ["estimate"],
         },

@@ -37,6 +37,7 @@ class AgentConfig:
         default_factory=lambda: os.environ.get("PKPD_PKSIM_CLI"))
     # ^ PKSim.CLI.exe: builds a .pksim5 from a snapshot and runs it (headless PBPK)
     pksim_timeout_s: int = 900      # PK-Sim snap+export can take minutes
+    stream_optimizer: bool = True   # print each optimizer evaluation (live progress)
     nonmem_available: bool = False  # whether pharmpy can reach a NONMEM install
 
     # --- provenance ---
