@@ -256,8 +256,12 @@ def register_osp_loop_tools(registry: ToolRegistry, config, ctx: dict) -> None:
         best = session.get("osp_best_gmfe")
         if gmfe is not None and (best is None or gmfe < best):
             session.put("osp_best_gmfe", gmfe)
+            # store the FIXED parameters alongside the optimized ones - they are
+            # part of the model (e.g. GFR fraction=0), so the report's re-run must
+            # apply them too or it reproduces a different model than was fitted.
             session.put("osp_best_edits",
-                        {"parameters": r["optimized"], **(args.get("structure") or {})})
+                        {"parameters": r["optimized"], "fix": args.get("fix") or {},
+                         **(args.get("structure") or {})})
         return ToolResult.success(
             f"optimized {list(r['optimized'])} on {len(r['fit_simulations'])} "
             f"study(ies) -> GMFE {gmfe} "

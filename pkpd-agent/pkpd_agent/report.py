@@ -114,6 +114,119 @@ def _status_banner(diag: dict) -> str:
             "fitted by the numerical optimizer.")
 
 
+def _ode_section(structure: dict, parameters: list, fixed: dict | None) -> dict:
+    """The governing PBPK equations, annotated for THIS model.
+
+    PK-Sim instantiates the full system (~15 perfused organs, each split into
+    plasma / blood-cell / interstitial / intracellular sub-compartments) at build
+    time - hundreds of formula nodes. What belongs in an evaluation report is the
+    governing mass balance plus the elimination/absorption terms that are
+    actually active here, and where each fitted parameter enters."""
+    procs = [str(p) for p in (structure.get("processes") or [])]
+    fixed = fixed or {}
+    has_metab = any("CYP" in p or "Metaboli" in p or "AADAC" in p for p in procs)
+    # renal active only if a GFR/renal process is present AND GFR fraction != 0
+    gfr_val = fixed.get("GFR fraction")
+    renal_present = any("Glomerul" in p or "GFR" in p or "Kidney" in p for p in procs)
+    renal_active = renal_present and (gfr_val is None or float(gfr_val or 0) > 0)
+
+    fitted = {p["name"] for p in parameters}
+    perm_limited = any("permeab" in n.lower() and "intestinal" not in n.lower()
+                       for n in fitted) or "Permeability" in fitted
+
+    eqs = [
+        ("Perfused tissue (distribution)",
+         "V_t · dC_t/dt = Q_t · ( C_art − C_t / (K_p,t / R_bp) )",
+         "Each non-eliminating organ t (brain, heart, muscle, skin, adipose, "
+         "bone, ...): rate in from arterial blood at flow Q_t, rate out with the "
+         "venous effluent in equilibrium with tissue via the tissue:plasma "
+         "partition coefficient K_p,t (R_bp = blood:plasma ratio)."),
+        ("Venous blood pool",
+         "V_ven · dC_ven/dt = Σ_t Q_t · C_t / (K_p,t / R_bp) − Q_co · C_ven + R_iv(t)",
+         "Collects the effluent of every organ; Q_co = cardiac output. IV doses "
+         "enter here as an input rate R_iv(t) (bolus or infusion)."),
+        ("Arterial blood pool",
+         "V_art · dC_art/dt = Q_co · ( C_lung − C_art )",
+         "Blood is oxygenated/mixed through the lung and distributed to the organs."),
+    ]
+    if perm_limited:
+        eqs.append((
+            "Permeability-limited exchange (cellular)",
+            "V_cell · dC_cell/dt = P · SA · ( f_u·C_int − f_u,cell·C_cell / K_p,t )",
+            "Where cellular permeability limits uptake, the intracellular space is "
+            "a separate state exchanging with interstitium across the membrane "
+            "(permeability P × surface area SA), driven by the unbound gradient."))
+    if has_metab:
+        eqs.append((
+            "Liver (hepatic metabolism)",
+            "V_liv · dC_liv/dt = Q_liv·C_art + Q_po·C_po − Q_hv·C_liv/(K_p,liv/R_bp) "
+            "− CL_int · f_u · C_liv",
+            "The liver receives arterial + portal (Q_po, first-pass) inflow; "
+            "CYP3A4 metabolism removes drug as a first-order intrinsic-clearance "
+            "sink CL_int·f_u·C_liv on the unbound concentration."))
+    eqs.append((
+        "Kidney (renal filtration)",
+        "V_kid · dC_kid/dt = Q_kid·(C_art − C_kid/(K_p,kid/R_bp)) − GFR · f_u · C_kid",
+        "Glomerular filtration removes unbound drug at rate GFR·f_u·C_kid."
+        + ("" if renal_active else "  In THIS model this term is ZERO (GFR "
+           "fraction = 0): renal excretion of unchanged drug is negligible, so "
+           "the renal sink is switched off.")))
+    eqs.append((
+        "Oral absorption (PO doses)",
+        "dA_lum/dt = −P_int · SA_int · C_lum,u ;   J_abs = P_int · SA_int · C_lum,u  →  gut wall → portal vein → liver",
+        "Dissolved drug in the intestinal lumen permeates the mucosa "
+        "(specific intestinal permeability P_int × surface area), enters the gut "
+        "wall, and drains via the portal vein to the liver (first-pass)."))
+
+    # tissue:plasma partition coefficient definition (the chosen method)
+    methods = structure.get("calculation_methods") or []
+    part = next((m.split(" - ")[-1] for m in methods if "partition" in m.lower()),
+                "the selected method")
+    kp = ("K_p,t is not a fitted number but is computed per organ from tissue "
+          f"composition by the {part} method — a function of effective "
+          "lipophilicity, the unbound fraction f_u, drug ionization (pKa) and each "
+          "tissue's lipid / water / phospholipid / protein content.")
+
+    # where each fitted parameter enters the ODEs
+    where = {
+        "Lipophilicity": "sets every tissue partition coefficient K_p,t (the "
+                         "distribution terms in all organ ODEs).",
+        "Intrinsic clearance": "the hepatic elimination sink CL_int in the liver ODE.",
+        "Permeability": "the cellular permeability P in the permeability-limited "
+                        "exchange term.",
+        "Specific intestinal permeability (transcellular)":
+            "P_int in the oral-absorption flux J_abs.",
+        "Fraction unbound (plasma, reference value)":
+            "f_u — scales every unbound-driven term (K_p,t, CL_int, GFR).",
+        "GFR fraction": "the renal filtration sink GFR in the kidney ODE.",
+    }
+    param_map = []
+    for p in parameters:
+        w = where.get(p["name"])
+        if w:
+            param_map.append((p["name"], w))
+    for name in (fixed or {}):
+        if name in where and name not in {p["name"] for p in parameters}:
+            param_map.append((f"{name} (fixed)", where[name]))
+
+    compartments = (
+        "PK-Sim's standard human whole-body structure: ~15 perfused organs "
+        "(lung, brain, heart, kidney, gut, spleen, pancreas, liver, stomach, "
+        "muscle, skin, bone, adipose, gonads) plus arterial and venous blood "
+        "pools. Each organ is further divided into plasma, blood-cell, "
+        "interstitial and intracellular sub-compartments, so the solved system is "
+        "one mass-balance ODE per sub-compartment (order ~10^2 states). The "
+        "physiological volumes V and flows Q are fixed by the individual; only the "
+        "drug terms below are model choices.")
+    caveat = (
+        "These are the governing equations; PK-Sim generates the fully "
+        "instantiated system (every organ and sub-compartment, and the exact "
+        f"{part} K_p formula) at build time and integrates it numerically. The "
+        "concentrations plotted are the peripheral-venous-plasma state.")
+    return {"compartments": compartments, "equations": eqs, "kp": kp,
+            "param_map": param_map, "caveat": caveat}
+
+
 def assemble(session, config, cli, input_dict, snapshot_path, best_edits,
              ref_snapshot_path=None, answer_edits=None, run_models=True):
     """Build ReportData from a finished run (re-runs the best + reference models
@@ -121,10 +234,15 @@ def assemble(session, config, cli, input_dict, snapshot_path, best_edits,
     from .engines.snapshot_edit import apply_edits
     observed = input_dict["given_data"]["clinical_observed_data"]
     best_edits = best_edits or {}
+    # the model actually fitted = optimized params + the FIXED params (e.g. GFR=0)
+    # + structure. Merge fix into parameters so the re-run reproduces the fit.
+    fixed = dict(best_edits.get("fix") or {})
+    run_edits = {k: v for k, v in best_edits.items() if k != "fix"}
+    run_edits["parameters"] = {**fixed, **(best_edits.get("parameters") or {})}
 
     fit, ref, profiles = {}, {}, []
     if run_models and cli is not None:
-        res = cli.build_and_run(snapshot_path, edits=best_edits)
+        res = cli.build_and_run(snapshot_path, edits=run_edits)
         pred, _ = osp_score.map_predictions(res.get("profiles", []), observed)
         score = osp_score.score_fit(observed, pred)
         fit = dict(score["overall"]); fit["by_route"] = score["by_route"]
@@ -145,7 +263,7 @@ def assemble(session, config, cli, input_dict, snapshot_path, best_edits,
 
     # final structure = snapshot + best edits
     final, _ = apply_edits(__import__("json").load(open(snapshot_path, encoding="utf-8")),
-                           best_edits)
+                           run_edits)
     comp = (final.get("Compounds") or [{}])[0]
     structure = {
         "calculation_methods": comp.get("CalculationMethods") or [],
@@ -173,7 +291,8 @@ def assemble(session, config, cli, input_dict, snapshot_path, best_edits,
         nca_rows=[_nca(o) for o in observed],
         structure=structure, parameters=params, fit=fit, reference=ref,
         profiles=profiles, narrative={}, trajectory=_trajectory(session),
-        diagnostics=diag, status=_status_banner(diag))
+        diagnostics=diag, status=_status_banner(diag),
+        odes=_ode_section(structure, params, fixed))
     d.narrative = (llm_narrative(d, config) if config and config.anthropic_key_present()
                    else deterministic_narrative(d))
     return d
@@ -200,6 +319,7 @@ class ReportData:
     trajectory: list[dict[str, Any]]       # steps: reason, action, result
     diagnostics: dict[str, Any] = field(default_factory=dict)  # honest run self-assessment
     status: str = ""                       # one-line banner shown at the top
+    odes: dict[str, Any] = field(default_factory=dict)  # governing equations + param map
 
 
 # --------------------------------------------------------------------------- #
@@ -393,6 +513,23 @@ def write_html(d: ReportData, path: str) -> None:
                  + (f'<div class="reason">{esc(s.get("reason",""))}</div>' if s.get("reason") else "")
                  + (f'<pre class="res">{esc(s.get("result",""))}</pre>' if s.get("result") else "")
                  + "</div>")
+    ode = d.odes or {}
+    if ode:
+        eqs_html = "".join(
+            f'<div class="eq"><div class="eqn">{esc(name)}</div>'
+            f'<pre class="eqf">{esc(formula)}</pre>'
+            f'<div class="eqnote">{esc(note)}</div></div>'
+            for name, formula, note in ode.get("equations", []))
+        pmap = "".join(f"<li><b>{esc(n)}</b> — {esc(w)}</li>"
+                       for n, w in ode.get("param_map", []))
+        ode_html = (
+            f'<p class="ode-comp">{esc(ode.get("compartments",""))}</p>'
+            f'{eqs_html}'
+            f'<p><b>Tissue partitioning.</b> {esc(ode.get("kp",""))}</p>'
+            f'<p><b>Where the fitted / fixed parameters enter:</b></p><ul>{pmap}</ul>'
+            f'<p class="eqnote"><i>{esc(ode.get("caveat",""))}</i></p>')
+    else:
+        ode_html = "<p>(not available)</p>"
     fit = d.fit
     ref = d.reference
     by_route = "".join(f"<li>{esc(r)}: GMFE {esc(m.get('gmfe'))}, bias {esc(m.get('bias'))}, "
@@ -414,6 +551,12 @@ def write_html(d: ReportData, path: str) -> None:
  .banner{{padding:10px 14px;margin:12px 0;border-radius:5px;font-weight:600}}
  .banner.warn{{background:#fdecea;border:1px solid #e74c3c;color:#922}}
  .banner.ok{{background:#eafaf1;border:1px solid #27ae60;color:#1a6b3c}}
+ .ode-comp{{color:#333}}
+ .eq{{margin:10px 0;border-left:3px solid #2980b9;padding:2px 12px}}
+ .eqn{{font-weight:600;font-size:13px}}
+ pre.eqf{{background:#f4f7fb;border:1px solid #e1e8f0;padding:8px 10px;margin:4px 0;
+   overflow-x:auto;font-size:13px;font-family:"Cambria Math",Consolas,monospace}}
+ .eqnote{{color:#555;font-size:12.5px}}
  @media print{{.step{{break-inside:avoid}} .plot{{break-inside:avoid}}}}
 </style></head><body>
 <h1>{esc(d.title)}</h1>
@@ -434,19 +577,22 @@ routes {esc(', '.join(str(r) for r in (d.data_overview.get('routes') or [])))}.<
 <b>Processes:</b> {esc(', '.join(d.structure.get('processes') or []))}</p>
 <p>{esc(d.narrative.get('model_choice',''))}</p>
 
-<h2>4. Parameters</h2>
+<h2>4. Model equations (ODE system)</h2>
+{ode_html}
+
+<h2>5. Parameters</h2>
 {table(['Parameter','Value','Unit','Role','Plausible range','Reference (truth)'], param_rows)}
 
-<h2>5. Pharmacological rationale</h2>
+<h2>6. Pharmacological rationale</h2>
 <p style="white-space:pre-wrap">{esc(d.narrative.get('parameter_rationale',''))}</p>
 
-<h2>6. Concentration-time analysis</h2>
+<h2>7. Concentration-time analysis</h2>
 <p>Overall <b>GMFE {esc(fit.get('gmfe'))}</b>, within-2-fold {esc(fit.get('within_2fold_pct'))}%.</p>
 <ul>{by_route}</ul>
 <p class="legend"><b class="o">●</b> observed &nbsp; <b class="p">— agent model</b> &nbsp; <b class="r">--- reference model</b></p>
 <div class="plots">{plots}</div>
 
-<h2>7. Comparison with the ground-truth model</h2>
+<h2>8. Comparison with the ground-truth model</h2>
 <p>Reference (published) overall GMFE: <b>{esc(ref.get('gmfe'))}</b> vs this model {esc(fit.get('gmfe'))}.</p>
 {table(['Parameter','This model','Reference','Fold vs reference'],
        [[p['name'], f"{p.get('value'):.4g}" if isinstance(p.get('value'),(int,float)) else p.get('value'),
@@ -454,9 +600,9 @@ routes {esc(', '.join(str(r) for r in (d.data_overview.get('routes') or [])))}.<
          f"{(p['value']/p['reference']):.2g}" if isinstance(p.get('reference'),(int,float)) and p.get('reference') and isinstance(p.get('value'),(int,float)) else '-']
         for p in d.parameters])}
 
-<h2>8. Conclusion</h2><p>{esc(d.narrative.get('conclusion',''))}</p>
+<h2>9. Conclusion</h2><p>{esc(d.narrative.get('conclusion',''))}</p>
 
-<h2>9. Full modeling trajectory (LLM)</h2>{traj}
+<h2>10. Full modeling trajectory (LLM)</h2>{traj}
 </body></html>"""
     with open(path, "w", encoding="utf-8") as fh:
         fh.write(doc)
@@ -521,6 +667,19 @@ def write_pdf(d: ReportData, path: str) -> bool:
                       f"[{p.get('role','')}] ref={p.get('reference','-')}")
         pr += ["", "PHARMACOLOGICAL RATIONALE", d.narrative.get("parameter_rationale", "")]
         text_page(pdf, "Model, parameters & rationale", pr)
+
+        # model equations (ODE system)
+        ode = d.odes or {}
+        if ode:
+            ob = ["COMPARTMENTS / STATE VARIABLES", ode.get("compartments", ""), "",
+                  "GOVERNING EQUATIONS"]
+            for name, formula, note in ode.get("equations", []):
+                ob += [f"  {name}:", f"      {formula}", f"      ({note})", ""]
+            ob += ["TISSUE PARTITIONING", ode.get("kp", ""), "",
+                   "WHERE THE FITTED / FIXED PARAMETERS ENTER"]
+            ob += [f"  - {n}: {w}" for n, w in ode.get("param_map", [])]
+            ob += ["", ode.get("caveat", "")]
+            text_page(pdf, "Model equations (ODE system)", ob)
 
         # concentration-time plots (grid)
         profs = d.profiles
