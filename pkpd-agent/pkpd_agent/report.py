@@ -262,8 +262,10 @@ def assemble(session, config, cli, input_dict, snapshot_path, best_edits,
                 "ref": list(zip(rm["time_h"], rm["pred_conc_mg_L"])) if rm else None})
 
     # final structure = snapshot + best edits
-    final, _ = apply_edits(__import__("json").load(open(snapshot_path, encoding="utf-8")),
-                           run_edits)
+    import json as _json
+    with open(snapshot_path, encoding="utf-8") as _fh:
+        _snap0 = _json.load(_fh)
+    final, _ = apply_edits(_snap0, run_edits)
     comp = (final.get("Compounds") or [{}])[0]
     structure = {
         "calculation_methods": comp.get("CalculationMethods") or [],
@@ -271,13 +273,29 @@ def assemble(session, config, cli, input_dict, snapshot_path, best_edits,
                       for p in comp.get("Processes") or []]}
 
     ref_params = (answer_edits or {}).get("parameters", {})
+    estimated = best_edits.get("parameters") or {}
     params = []
-    for name, val in (best_edits.get("parameters") or {}).items():
+    for name, val in estimated.items():
         cat = osp_catalog.describe_parameter(name)
+        # role reflects what ACTUALLY happened this run: everything in the
+        # optimized set was estimated, even if the catalog's default role is
+        # "measured" (e.g. fraction unbound moved into the fit). Do not let the
+        # static catalog label contradict the trajectory.
         params.append({"name": name, "value": val, "unit": cat.get("unit", ""),
-                       "role": cat.get("role", ""),
+                       "role": "estimated",
                        "plausible_range": cat.get("range"),
                        "reference": ref_params.get(name)})
+    # fixed parameters (held at literature values, e.g. GFR fraction = 0) shown
+    # as their own rows so the table is complete and unambiguous.
+    fixed_rows = []
+    for name, val in fixed.items():
+        if name in estimated:
+            continue
+        cat = osp_catalog.describe_parameter(name)
+        fixed_rows.append({"name": name, "value": val, "unit": cat.get("unit", ""),
+                           "role": "fixed",
+                           "plausible_range": cat.get("range"),
+                           "reference": ref_params.get(name)})
 
     diag = _diagnostics(session, best_edits, fit)
     bg = input_dict.get("background") or {}
@@ -289,7 +307,7 @@ def assemble(session, config, cli, input_dict, snapshot_path, best_edits,
         data_overview={"n_datasets": len(observed),
                        "routes": sorted({o.get("route") for o in observed if o.get("route")})},
         nca_rows=[_nca(o) for o in observed],
-        structure=structure, parameters=params, fit=fit, reference=ref,
+        structure=structure, parameters=params + fixed_rows, fit=fit, reference=ref,
         profiles=profiles, narrative={}, trajectory=_trajectory(session),
         diagnostics=diag, status=_status_banner(diag),
         odes=_ode_section(structure, params, fixed))
@@ -414,7 +432,7 @@ def llm_narrative(d: "ReportData", config) -> dict[str, str]:
         client = anthropic.Anthropic()
         import json as _json
         msg = client.messages.create(
-            model=config.model, max_tokens=2000,
+            model=config.model, max_tokens=3500,
             system=("You are a pharmacometrician writing the narrative of a PBPK "
                     "evaluation report. Be precise and mechanistic: justify the "
                     "model choice and why each estimated parameter is "
@@ -425,13 +443,24 @@ def llm_narrative(d: "ReportData", config) -> dict[str, str]:
                     "parameters_were_fitted is false, do NOT claim parameters were "
                     "calibrated/fitted; say they were un-fitted/hand-set and the "
                     "result is preliminary. Match the tone to fit_verdict - never "
-                    "call a 'poor' fit adequate or fit-for-purpose. Call "
-                    "write_sections."),
+                    "call a 'poor' fit adequate or fit-for-purpose. Each parameter "
+                    "is labelled role=estimated or role=fixed - describe it as such "
+                    "(never call an estimated parameter 'measured'). Keep each "
+                    "section focused: 1-2 tight paragraphs; ALWAYS fill the "
+                    "conclusion. Call write_sections."),
             tools=[tool],
             messages=[{"role": "user", "content": _json.dumps(payload, default=str)}])
         for b in msg.content:
             if getattr(b, "type", None) == "tool_use":
-                return dict(b.input)
+                out = dict(b.input)
+                # never ship an empty section (e.g. a long rationale starving the
+                # conclusion): fill any blank from the deterministic write-up.
+                det = None
+                for key in ("model_choice", "parameter_rationale", "conclusion"):
+                    if not str(out.get(key) or "").strip():
+                        det = det or deterministic_narrative(d)
+                        out[key] = det[key]
+                return out
     except Exception:
         pass
     return deterministic_narrative(d)
