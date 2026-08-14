@@ -196,14 +196,41 @@ def _add_sim_process(sims: list, comp_name: str | None,
 # --------------------------------------------------------------------------- #
 
 def _apply_parameters(comp: dict, params: dict, report: dict) -> None:
-    want = {k.lower(): (k, v) for k, v in params.items()}
-    hit: set[str] = set()
+    """Set compound parameters by name. A key may be QUALIFIED as
+    ``"<Name>@<Molecule>"`` to target the parameter on ONE specific process -
+    needed when the same parameter name lives on several processes (e.g. a
+    per-enzyme ``CLspec/[Enzyme]`` on UGT1A9, UGT2B7 and a CYP, each with its own
+    value). An unqualified name keeps the old behaviour (sets every match)."""
+    qualified: dict[tuple, tuple] = {}   # (name_l, qual_l) -> (orig_key, value)
+    plain: dict[str, tuple] = {}         # name_l -> (orig_key, value)
+    for k, v in params.items():
+        if "@" in k:
+            nm, qual = k.rsplit("@", 1)
+            qualified[(nm.strip().lower(), qual.strip().lower())] = (k, v)
+        else:
+            plain[k.lower()] = (k, v)
+    hit: set = set()
+
+    # qualified: set the parameter only on the process whose molecule (or
+    # internal name) matches the qualifier.
+    if qualified:
+        for proc in comp.get("Processes") or []:
+            pmol = (proc.get("Molecule") or "").lower()
+            pin = (proc.get("InternalName") or "").lower()
+            for par in proc.get("Parameters") or []:
+                pn = (par.get("Name") or "").lower()
+                for (qnm, qual), (orig, val) in qualified.items():
+                    if pn == qnm and qual in (pmol, pin):
+                        par["Value"] = val
+                        par.pop("ValueOrigin", None)
+                        report["parameters"][orig] = val
+                        hit.add((qnm, qual))
 
     def walk(obj: Any) -> None:
         if isinstance(obj, dict):
             nm = obj.get("Name")
-            if isinstance(nm, str) and nm.lower() in want and "Value" in obj:
-                orig, val = want[nm.lower()]
+            if isinstance(nm, str) and nm.lower() in plain and "Value" in obj:
+                orig, val = plain[nm.lower()]
                 obj["Value"] = val
                 # a user-set value is no longer a fit result / default
                 obj.pop("ValueOrigin", None)
@@ -215,9 +242,13 @@ def _apply_parameters(comp: dict, params: dict, report: dict) -> None:
             for v in obj:
                 walk(v)
 
-    walk(comp)
-    for low, (orig, _) in want.items():
+    if plain:
+        walk(comp)
+    for low, (orig, _) in plain.items():
         if low not in hit:
+            report["not_found"].append(f"parameter:{orig}")
+    for (qnm, qual), (orig, _) in qualified.items():
+        if (qnm, qual) not in hit:
             report["not_found"].append(f"parameter:{orig}")
 
 

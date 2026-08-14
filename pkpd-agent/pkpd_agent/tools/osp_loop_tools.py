@@ -42,6 +42,7 @@ def _current_model(snapshot_path: str) -> dict[str, Any]:
     params = []
     seen = set()
 
+    # compound-level params (everything except the Processes block)
     def walk(o):
         if isinstance(o, dict):
             nm = o.get("Name")
@@ -56,7 +57,29 @@ def _current_model(snapshot_path: str) -> dict[str, Any]:
             for v in o:
                 walk(v)
 
-    walk(comp)
+    walk({k: v for k, v in comp.items() if k != "Processes"})
+
+    # process params: if the SAME parameter name appears on more than one process
+    # (e.g. a per-enzyme CLspec on UGT1A9/UGT2B7/CYP), expose each with a QUALIFIED
+    # name '<Name>@<Molecule>' so the agent can set/estimate them independently.
+    from collections import defaultdict
+    occ = defaultdict(list)
+    for p in comp.get("Processes") or []:
+        mol = p.get("Molecule") or p.get("InternalName")
+        for par in p.get("Parameters") or []:
+            nm = par.get("Name")
+            if isinstance(nm, str) and isinstance(par.get("Value"), (int, float)):
+                occ[nm].append((mol, par["Value"], par.get("Unit", "")))
+    for nm, os_ in occ.items():
+        if len(os_) == 1:
+            if nm not in seen:
+                seen.add(nm)
+                params.append({"name": nm, "value": os_[0][1], "unit": os_[0][2]})
+        else:                                   # collision -> qualify by molecule
+            for mol, val, unit in os_:
+                params.append({"name": f"{nm}@{mol}", "value": val, "unit": unit,
+                               "on_process": mol})
+
     return {
         "parameters": params,
         "calculation_methods": comp.get("CalculationMethods") or [],
@@ -170,11 +193,17 @@ def register_osp_loop_tools(registry: ToolRegistry, config, ctx: dict) -> None:
         lit = (inp.get("given_data", {}) or {}).get("literature_physicochemical", [])
         editable = []
         for p in model["parameters"]:
-            cat = osp_catalog.describe_parameter(p["name"])
-            tier = osp_catalog.param_tier(p["name"])
+            # a qualified per-process name ('CLspec/[Enzyme]@UGT1A9') is described
+            # by its BASE parameter for tier/range/role.
+            base = p["name"].split("@", 1)[0]
+            cat = osp_catalog.describe_parameter(base)
+            tier = osp_catalog.param_tier(base)
             entry = {**p, "description": cat.get("description"),
                      "plausible_range": cat.get("range"),
                      "role": cat.get("role", "unknown"), "tier": tier}
+            if "@" in p["name"]:
+                entry["note"] = ("per-process parameter - estimate/set it with this "
+                                 "exact qualified name to target only this process")
             if tier == "constant":
                 entry["rule"] = "measured constant - cannot be estimated; fix it"
             elif tier == "measured_soft":
@@ -268,14 +297,15 @@ def register_osp_loop_tools(registry: ToolRegistry, config, ctx: dict) -> None:
         lit = (inp.get("given_data", {}) or {}).get("literature_physicochemical", [])
         constraint_notes = []
         for name in list(estimate.keys()):
-            tier = osp_catalog.param_tier(name)
+            base = name.split("@", 1)[0]   # qualified per-process name -> base
+            tier = osp_catalog.param_tier(base)
             if tier == "constant":
                 return ToolResult.error(
                     f"'{name}' is a measured physical constant and cannot be "
                     "estimated (fitting it would model a different molecule). Fix "
                     "it at its literature value and remove it from 'estimate'.")
             if tier == "measured_soft":
-                mr = osp_catalog.measured_range(name, lit)
+                mr = osp_catalog.measured_range(base, lit)
                 if mr and isinstance(estimate.get(name), (list, tuple)) \
                         and len(estimate[name]) == 2:
                     lo, hi = float(estimate[name][0]), float(estimate[name][1])

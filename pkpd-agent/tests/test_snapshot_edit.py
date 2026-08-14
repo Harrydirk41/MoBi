@@ -189,3 +189,37 @@ class TestSimulationProcessMirroring(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class TestQualifiedParameters(unittest.TestCase):
+    """A parameter name that lives on several processes (per-enzyme clearance)
+    can be targeted with '<Name>@<Molecule>' to set only that process."""
+
+    SNAP = {"Compounds": [{"Name": "Drug", "Lipophilicity": [
+        {"Parameters": [{"Name": "Lipophilicity", "Value": 2.0}]}], "Processes": [
+        {"InternalName": "MetabolizationSpecific_FirstOrder", "Molecule": "UGT1A9",
+         "Parameters": [{"Name": "CLspec/[Enzyme]", "Value": 0.1}]},
+        {"InternalName": "MetabolizationSpecific_FirstOrder", "Molecule": "UGT2B7",
+         "Parameters": [{"Name": "CLspec/[Enzyme]", "Value": 0.1}]}]}]}
+
+    def _cl(self, snap, mol):
+        p = next(x for x in snap["Compounds"][0]["Processes"] if x["Molecule"] == mol)
+        return next(q["Value"] for q in p["Parameters"] if q["Name"] == "CLspec/[Enzyme]")
+
+    def test_qualified_targets_one_process(self):
+        out, rep = apply_edits(self.SNAP, {"parameters": {
+            "CLspec/[Enzyme]@UGT1A9": 0.4, "CLspec/[Enzyme]@UGT2B7": 0.007}})
+        self.assertEqual(self._cl(out, "UGT1A9"), 0.4)
+        self.assertEqual(self._cl(out, "UGT2B7"), 0.007)
+        self.assertEqual(rep["not_found"], [])
+
+    def test_unqualified_still_sets_all(self):
+        # backward compatible: a plain name sets every matching parameter
+        out, _ = apply_edits(self.SNAP, {"parameters": {"CLspec/[Enzyme]": 0.5}})
+        self.assertEqual(self._cl(out, "UGT1A9"), 0.5)
+        self.assertEqual(self._cl(out, "UGT2B7"), 0.5)
+
+    def test_qualified_not_found_reported(self):
+        _, rep = apply_edits(self.SNAP,
+                             {"parameters": {"CLspec/[Enzyme]@NOPE": 1.0}})
+        self.assertTrue(any("NOPE" in m for m in rep["not_found"]))

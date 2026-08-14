@@ -25,33 +25,35 @@
   "estimated_parameters": [
     {
       "parameter": "Lipophilicity",
-      "value": 2.6719093089,
-      "unit": "Log Units"
+      "value": 2.6719093089
     },
     {
       "parameter": "Solubility at reference pH",
-      "value": 0.2210041453,
-      "unit": "mg/ml"
+      "value": 0.2210041453
     },
     {
       "parameter": "Specific intestinal permeability (transcellular)",
-      "value": 3.9684694792e-05,
-      "unit": "cm/min"
+      "value": 3.9684694792e-05
     },
     {
       "parameter": "Permeability",
-      "value": 0.00037527645658,
-      "unit": "cm/min"
+      "value": 0.00037527645658
     },
     {
-      "parameter": "CLspec/[Enzyme]",
-      "value": 0.399443557,
-      "unit": "l/µmol/min"
+      "parameter": "CLspec/[Enzyme]@UGT1A9",
+      "value": 0.399443557
+    },
+    {
+      "parameter": "CLspec/[Enzyme]@UGT2B7",
+      "value": 0.0066043366201
+    },
+    {
+      "parameter": "CLspec/[Enzyme]@Hepatic-CYP",
+      "value": 0.1432967727
     },
     {
       "parameter": "GFR fraction",
-      "value": 0.7899801465,
-      "unit": ""
+      "value": 0.7899801465
     }
   ]
 }

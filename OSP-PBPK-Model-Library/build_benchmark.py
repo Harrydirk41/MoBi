@@ -192,28 +192,52 @@ def literature_physicochemical(comp: dict) -> list[dict]:
     return out
 
 
-def fitted_parameters(comp: dict) -> list[dict]:
-    out, seen = [], set()
+def _walk_fitted(node):
+    """(name, value, unit) for every ParameterIdentification value under node."""
+    out = []
 
-    def walk(o):
+    def w(o):
         if isinstance(o, dict):
             nm = o.get("Name")
-            vo = o.get("ValueOrigin") or {}
             if isinstance(nm, str) and isinstance(o.get("Value"), (int, float)) \
-                    and vo.get("Source") == "ParameterIdentification":
-                key = (nm, o.get("Unit"))
-                if key not in seen:
-                    seen.add(key)
-                    out.append({"parameter": nm, "value": o["Value"],
-                                "unit": o.get("Unit", "")})
+                    and (o.get("ValueOrigin") or {}).get("Source") == "ParameterIdentification":
+                out.append((nm, o["Value"], o.get("Unit", "")))
             for v in o.values():
-                walk(v)
+                w(v)
         elif isinstance(o, list):
             for v in o:
-                walk(v)
+                w(v)
 
-    walk(comp)
+    w(node)
     return out
+
+
+def fitted_answer(comp: dict) -> dict:
+    """{key: value} of the parameters to recover. A key is QUALIFIED as
+    ``<Name>@<Molecule>`` when the same parameter name is fitted on more than one
+    process (e.g. a per-enzyme CLspec on UGT1A9, UGT2B7, a CYP) - so the distinct
+    per-enzyme values are kept, not collapsed. Compound-level params and
+    single-occurrence process params keep their plain name."""
+    from collections import defaultdict
+    comp_no_proc = {k: v for k, v in comp.items() if k != "Processes"}
+    answer = {n: v for (n, v, _u) in _walk_fitted(comp_no_proc)}   # compound-level
+    proc_occ = defaultdict(list)
+    for p in comp.get("Processes") or []:
+        mol = p.get("Molecule") or p.get("InternalName")
+        for (n, v, _u) in _walk_fitted({"Parameters": p.get("Parameters") or []}):
+            proc_occ[n].append((mol, v))
+    for n, occs in proc_occ.items():
+        if len(occs) == 1:
+            answer[n] = occs[0][1]
+        else:                                   # collision -> qualify by molecule
+            for mol, v in occs:
+                answer[f"{n}@{mol}"] = v
+    return answer
+
+
+def fitted_parameters(comp: dict) -> list[dict]:
+    """Flat list of fitted parameters (qualified where names collide)."""
+    return [{"parameter": k, "value": v} for k, v in fitted_answer(comp).items()]
 
 
 def known_biology(comp: dict) -> list[str]:
@@ -379,8 +403,10 @@ def build_files(path: str) -> dict:
         "estimated_parameters": fitted,
     }
     return {"skip": False, "stem": stem, "input": agent_input,
-            "blanked": blanked, "answer_edits": {"parameters":
-                {a["parameter"]: a["value"] for a in answer_edits}},
+            "blanked": blanked,
+            # qualified answer (<Name>@<Molecule> where a param name is fitted on
+            # more than one process) so per-enzyme values are not collapsed.
+            "answer_edits": {"parameters": fitted_answer(comp)},
             "answer_key": answer_key, "warnings": warns, "info": info}
 
 

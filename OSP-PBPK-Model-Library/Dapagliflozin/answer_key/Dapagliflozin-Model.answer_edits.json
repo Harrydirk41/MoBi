@@ -4,7 +4,9 @@
     "Solubility at reference pH": 0.2210041453,
     "Specific intestinal permeability (transcellular)": 3.9684694792e-05,
     "Permeability": 0.00037527645658,
-    "CLspec/[Enzyme]": 0.1432967727,
+    "CLspec/[Enzyme]@UGT1A9": 0.399443557,
+    "CLspec/[Enzyme]@UGT2B7": 0.0066043366201,
+    "CLspec/[Enzyme]@Hepatic-CYP": 0.1432967727,
     "GFR fraction": 0.7899801465
   }
 }
