@@ -1,0 +1,25 @@
+{
+  "schema": "osp-ddi-answer-key/v1",
+  "warning": "REFERENCE ANSWERS - grading only, never shown to the agent.",
+  "perpetrator": "Itraconazole",
+  "victim": "Felodipine",
+  "fitted_interaction_parameters": [
+    {
+      "perpetrator": "Itraconazole",
+      "internal_name": "CompetitiveInhibition",
+      "target": "CYP3A4",
+      "parameters": {
+        "Ki": 1.3
+      }
+    }
+  ],
+  "observed_interaction_ratios": [
+    {
+      "study": "Jalava 1997",
+      "route": "PO",
+      "treatment_dataset": "Jalava 1997 - Itraconazole DDI, treatment group - Felodipine - PO - 5 mg - Plasma - agg. (n=9)",
+      "control_dataset": "Jalava 1997 - 5mg-PO ER tablet - Felodipine - PO - 5 mg - Plasma - agg. (n=9)",
+      "observed_aucr": 5.306
+    }
+  ]
+}

@@ -1,0 +1,26 @@
+{
+  "schema": "osp-ddi-answer-key/v1",
+  "warning": "REFERENCE ANSWERS - grading only, never shown to the agent.",
+  "perpetrator": "Erythromycin",
+  "victim": "Midazolam",
+  "fitted_interaction_parameters": [
+    {
+      "perpetrator": "Erythromycin",
+      "internal_name": "IrreversibleInhibition",
+      "target": "CYP3A4",
+      "parameters": {
+        "kinact": 0.0296261146,
+        "K_kinact_half": 7.6007360452
+      }
+    }
+  ],
+  "observed_interaction_ratios": [
+    {
+      "study": "Olkkola 1993",
+      "route": "IV",
+      "treatment_dataset": "Olkkola 1993 - iv with Perpetrator (Erythromycin) - Midazolam - IV - 0.05 mg/kg - Plasma - agg. (n=6)",
+      "control_dataset": "Olkkola 1993 - iv Control (Perpetrator Placebo) - Midazolam - IV - 0.05 mg/kg - Plasma - agg. (n=6)",
+      "observed_aucr": 2.066
+    }
+  ]
+}

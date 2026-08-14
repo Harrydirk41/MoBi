@@ -1,0 +1,117 @@
+{
+  "schema": "osp-ddi-task/v1",
+  "task_id": "Erythromycin-Model",
+  "source_snapshot": "Erythromycin-Model.json",
+  "objective": "Predict the drug-drug interaction: how Erythromycin (perpetrator) changes the exposure of Midazolam (victim). The victim and perpetrator PBPK models are given; the interaction MECHANISM is present but its parameters are not set. Choose/estimate the interaction parameters so the model reproduces the observed victim exposure with and without the perpetrator, and report the predicted interaction ratio (AUC_treatment / AUC_control).",
+  "ddi_structure": {
+    "perpetrators": [
+      {
+        "name": "Erythromycin",
+        "mechanisms": [
+          {
+            "internal_name": "IrreversibleInhibition",
+            "target": "CYP3A4"
+          },
+          {
+            "internal_name": "CompetitiveInhibition",
+            "target": "P-gp"
+          }
+        ]
+      }
+    ],
+    "victim": "Midazolam",
+    "control_treatment_pairs": [
+      {
+        "control": "Control_Olkkola1993_IV",
+        "treatment": "Treatment_Olkkola1993_IV",
+        "route": "IV"
+      },
+      {
+        "control": "Control_Olkkola1993_PO",
+        "treatment": "Treatment_Olkkola1993_Oral",
+        "route": "PO"
+      }
+    ]
+  },
+  "given_data": {
+    "victim_observed_profiles": [
+      {
+        "dataset": "Olkkola 1993 - iv with Perpetrator (Erythromycin) - Midazolam - IV - 0.05 mg/kg - Plasma - agg. (n=6)",
+        "study": "Olkkola 1993",
+        "route": "IV",
+        "arm": "treatment",
+        "time_h": [
+          128.25,
+          128.5,
+          128.75,
+          129.0,
+          129.5,
+          130.0,
+          131.0,
+          132.0,
+          134.0,
+          135.0,
+          136.0,
+          146.0
+        ],
+        "conc_mg_L": [
+          0.07711464,
+          0.05902853,
+          0.05016754,
+          0.04315108,
+          0.03613023,
+          0.03021591,
+          0.0213393,
+          0.01725975,
+          0.00983866,
+          0.00871163,
+          0.00758363,
+          0.00110604
+        ]
+      },
+      {
+        "dataset": "Olkkola 1993 - iv Control (Perpetrator Placebo) - Midazolam - IV - 0.05 mg/kg - Plasma - agg. (n=6)",
+        "study": "Olkkola 1993",
+        "route": "IV",
+        "arm": "control",
+        "time_h": [
+          0.25,
+          0.5,
+          0.75,
+          1.0,
+          1.5,
+          2.0,
+          3.0,
+          4.0,
+          6.0,
+          7.0,
+          8.0
+        ],
+        "conc_mg_L": [
+          0.06383096,
+          0.05201744,
+          0.03762138,
+          0.03244995,
+          0.02432209,
+          0.01730124,
+          0.01174518,
+          0.00729711,
+          0.0050416,
+          0.00317607,
+          0.00278657
+        ]
+      }
+    ],
+    "observed_interaction_ratios": [
+      {
+        "study": "Olkkola 1993",
+        "route": "IV",
+        "treatment_dataset": "Olkkola 1993 - iv with Perpetrator (Erythromycin) - Midazolam - IV - 0.05 mg/kg - Plasma - agg. (n=6)",
+        "control_dataset": "Olkkola 1993 - iv Control (Perpetrator Placebo) - Midazolam - IV - 0.05 mg/kg - Plasma - agg. (n=6)",
+        "observed_aucr": 2.066
+      }
+    ]
+  },
+  "unknowns_guidance": "The interaction parameters (e.g. kinact & K_kinact_half for mechanism-based inhibition, or Ki for competitive inhibition, or EC50 & Emax for induction) are NOT given. Estimate them from the observed control vs treatment victim data. Do not change the victim's own disposition parameters; the interaction is the unknown.",
+  "how_scored": "Predicted vs observed interaction ratio (AUCR = AUC_treatment/AUC_control): GMFE on the ratio, and fraction within 2-fold."
+}

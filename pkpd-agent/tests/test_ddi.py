@@ -144,6 +144,38 @@ class TestDDIEditingAndOrchestration(unittest.TestCase):
         self.assertGreater(out["predicted_ratios"][0]["auc_ratio"], 1.0)
         self.assertIn("gmfe_aucr", out["score"])
 
+class TestDDIBenchmarkGenerator(unittest.TestCase):
+    @unittest.skipUnless(os.path.exists(ERY), "Erythromycin snapshot not present")
+    def test_generates_leak_free_ddi_benchmark(self):
+        import examples.build_ddi_benchmark as G
+        res = G.build(ERY)
+        self.assertFalse(res.get("skip"))
+        # answer = the fitted interaction params (kinact + K_kinact_half)
+        specs = res["answer_edits"]["interaction_parameters"]
+        mbi = next(s for s in specs if s["internal_name"] == "IrreversibleInhibition")
+        self.assertEqual(set(mbi["parameters"]), {"kinact", "K_kinact_half"})
+        # blanked snapshot must NOT contain the fitted values (no leak)
+        ery = next(c for c in res["blanked"]["Compounds"] if c["Name"] == "Erythromycin")
+        p = next(x for x in ery["Processes"]
+                 if x.get("InternalName") == "IrreversibleInhibition")
+        blanked = {q["Name"]: q["Value"] for q in p["Parameters"]}
+        self.assertNotAlmostEqual(blanked["kinact"], mbi["parameters"]["kinact"])
+        # agent input must not contain any fitted interaction value
+        import json as _j
+        inp = _j.dumps(res["input"])
+        for s in specs:
+            for v in s["parameters"].values():
+                self.assertNotIn(str(v), inp)
+
+    @unittest.skipUnless(os.path.exists(ERY), "Erythromycin snapshot not present")
+    def test_observed_ratio_direction_sensible(self):
+        import examples.build_ddi_benchmark as G
+        res = G.build(ERY)
+        ratios = res["answer_key"]["observed_interaction_ratios"]
+        self.assertTrue(ratios)
+        # erythromycin inhibits CYP3A4 -> midazolam exposure INCREASES (AUCR > 1)
+        self.assertGreater(ratios[0]["observed_aucr"], 1.0)
+
 
 if __name__ == "__main__":
     unittest.main()

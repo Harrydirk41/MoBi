@@ -1,0 +1,20 @@
+{
+  "interaction_parameters": [
+    {
+      "perpetrator": "Cimetidine",
+      "internal_name": "CompetitiveInhibition",
+      "target": "MATE1",
+      "parameters": {
+        "Ki": 0.65
+      }
+    },
+    {
+      "perpetrator": "Cimetidine",
+      "internal_name": "CompetitiveInhibition",
+      "target": "CYP3A4",
+      "parameters": {
+        "Ki": 30.51266
+      }
+    }
+  ]
+}

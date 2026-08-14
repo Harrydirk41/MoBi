@@ -1,0 +1,12 @@
+{
+  "interaction_parameters": [
+    {
+      "perpetrator": "Itraconazole",
+      "internal_name": "CompetitiveInhibition",
+      "target": "CYP3A4",
+      "parameters": {
+        "Ki": 1.3
+      }
+    }
+  ]
+}

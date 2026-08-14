@@ -1,0 +1,54 @@
+{
+  "schema": "osp-ddi-answer-key/v1",
+  "warning": "REFERENCE ANSWERS - grading only, never shown to the agent.",
+  "perpetrator": "Cimetidine",
+  "victim": "Midazolam",
+  "fitted_interaction_parameters": [
+    {
+      "perpetrator": "Cimetidine",
+      "internal_name": "CompetitiveInhibition",
+      "target": "MATE1",
+      "parameters": {
+        "Ki": 0.65
+      }
+    },
+    {
+      "perpetrator": "Cimetidine",
+      "internal_name": "CompetitiveInhibition",
+      "target": "CYP3A4",
+      "parameters": {
+        "Ki": 30.51266
+      }
+    }
+  ],
+  "observed_interaction_ratios": [
+    {
+      "study": "Greenblatt 1986",
+      "route": "IV",
+      "treatment_dataset": "Greenblatt 1986 - 300 mg QD Cimetidine, 5 mg Midazolam IV - Midazolam - IV - 5 mg - Plasma - indiv.",
+      "control_dataset": "Greenblatt 1986 - 5 mg Midazolam IV control - Midazolam - IV - 5 mg - Plasma - indiv.",
+      "observed_aucr": 0.78
+    },
+    {
+      "study": "Greenblatt 1986",
+      "route": "PO",
+      "treatment_dataset": "Greenblatt 1986 - 300 mg QD Cimetidine, 15 mg Midazolam PO - Midazolam - PO - 15 mg - Plasma - indiv.",
+      "control_dataset": "Greenblatt 1986 - 15 mg Midazolam PO control - Midazolam - PO - 15 mg - Plasma - indiv.",
+      "observed_aucr": 0.839
+    },
+    {
+      "study": "Fee 1987",
+      "route": "PO",
+      "treatment_dataset": "Fee 1987 - 400 mg BID Cimetidine, 15 mg Midazolam - Midazolam - PO - 15 mg - Plasma - agg. (n=8)",
+      "control_dataset": "Fee 1987 - 15 mg Midazolam control - Midazolam - PO - 15 mg - Plasma - agg. (n=8)",
+      "observed_aucr": 1.321
+    },
+    {
+      "study": "Elliott 1984",
+      "route": "PO",
+      "treatment_dataset": "Elliott 1984 - Midazolam/cimetidine - Midazolam - PO - 15 mg - Plasma - agg. (n=5)",
+      "control_dataset": "Elliott 1984 - Midazolam/H2O - Midazolam - PO - 15 mg - Plasma - agg. (n=5)",
+      "observed_aucr": 1.866
+    }
+  ]
+}

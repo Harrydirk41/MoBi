@@ -1,0 +1,49 @@
+{
+  "schema": "osp-ddi-answer-key/v1",
+  "warning": "REFERENCE ANSWERS - grading only, never shown to the agent.",
+  "perpetrator": "Efavirenz",
+  "victim": "Midazolam",
+  "fitted_interaction_parameters": [
+    {
+      "perpetrator": "Efavirenz",
+      "internal_name": "Induction",
+      "target": "CYP3A4",
+      "parameters": {
+        "EC50": 0.071279975,
+        "Emax": 5.21
+      }
+    },
+    {
+      "perpetrator": "Efavirenz",
+      "internal_name": "Induction",
+      "target": "CYP2B6",
+      "parameters": {
+        "EC50": 0.0116534019,
+        "Emax": 5.2
+      }
+    }
+  ],
+  "observed_interaction_ratios": [
+    {
+      "study": "Katzenmaier 2010",
+      "route": "PO",
+      "treatment_dataset": "Katzenmaier 2010 - Midazolam + Efavirenz - Midazolam - PO - 3 mg - Plasma - agg. (n=12)",
+      "control_dataset": "Katzenmaier 2010 - Midazolam control - Midazolam - PO - 3 mg - Plasma - agg. (n=12)",
+      "observed_aucr": 0.103
+    },
+    {
+      "study": "Mikus 2017",
+      "route": "PO",
+      "treatment_dataset": "Mikus 2017 - Efavirenz + Midazolam PO day 1 - Midazolam - PO - 4 mg - Plasma - agg. (n=12)",
+      "control_dataset": "Mikus 2017 - Midazolam control PO - Midazolam - PO - 4 mg - Plasma - agg. (n=12)",
+      "observed_aucr": 0.691
+    },
+    {
+      "study": "Mikus 2017",
+      "route": "IV",
+      "treatment_dataset": "Mikus 2017 - Efavirenz + Midazolam IV day 1 - Midazolam - IV - 2 mg - Plasma - agg. (n=12)",
+      "control_dataset": "Mikus 2017 - Midazolam control IV - Midazolam - IV - 2 mg - Plasma - agg. (n=12)",
+      "observed_aucr": 0.723
+    }
+  ]
+}

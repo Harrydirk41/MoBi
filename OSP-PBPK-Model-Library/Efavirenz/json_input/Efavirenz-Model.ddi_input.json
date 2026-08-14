@@ -1,0 +1,259 @@
+{
+  "schema": "osp-ddi-task/v1",
+  "task_id": "Efavirenz-Model",
+  "source_snapshot": "Efavirenz-Model.json",
+  "objective": "Predict the drug-drug interaction: how Efavirenz (perpetrator) changes the exposure of Midazolam (victim). The victim and perpetrator PBPK models are given; the interaction MECHANISM is present but its parameters are not set. Choose/estimate the interaction parameters so the model reproduces the observed victim exposure with and without the perpetrator, and report the predicted interaction ratio (AUC_treatment / AUC_control).",
+  "ddi_structure": {
+    "perpetrators": [
+      {
+        "name": "Efavirenz",
+        "mechanisms": [
+          {
+            "internal_name": "Induction",
+            "target": "CYP3A4"
+          },
+          {
+            "internal_name": "Induction",
+            "target": "CYP2B6"
+          }
+        ]
+      }
+    ],
+    "victim": "Midazolam",
+    "control_treatment_pairs": [
+      {
+        "control": "Katzenmaier 2010, Midazolam alone",
+        "treatment": "Katzenmaier 2010, Midazolam +  Efavirenz 400mg MD",
+        "route": null
+      },
+      {
+        "control": "Mikus 2017, Midazolam alone",
+        "treatment": "Mikus 2017, Midazolam + Efavirenz 400mg SD",
+        "route": null
+      }
+    ]
+  },
+  "given_data": {
+    "victim_observed_profiles": [
+      {
+        "dataset": "Katzenmaier 2010 - Midazolam + Efavirenz - Midazolam - PO - 3 mg - Plasma - agg. (n=12)",
+        "study": "Katzenmaier 2010",
+        "route": "PO",
+        "arm": "treatment",
+        "time_h": [
+          336.25,
+          336.5,
+          336.75,
+          337.0,
+          337.5,
+          338.0,
+          338.5,
+          339.0,
+          340.0
+        ],
+        "conc_mg_L": [
+          0.00268009,
+          0.00300355,
+          0.00189455,
+          0.00143246,
+          0.00087796,
+          0.0005545,
+          0.00046209,
+          0.00032346,
+          0.00027725
+        ]
+      },
+      {
+        "dataset": "Katzenmaier 2010 - Midazolam control - Midazolam - PO - 3 mg - Plasma - agg. (n=12)",
+        "study": "Katzenmaier 2010",
+        "route": "PO",
+        "arm": "control",
+        "time_h": [
+          0.25,
+          0.5,
+          0.75,
+          1.0,
+          1.5,
+          2.0,
+          2.5,
+          3.0,
+          4.0,
+          6.0,
+          8.0,
+          10.0
+        ],
+        "conc_mg_L": [
+          0.01206042,
+          0.01663506,
+          0.01381635,
+          0.0114135,
+          0.00827132,
+          0.00605331,
+          0.00494431,
+          0.0032346,
+          0.0021718,
+          0.00120142,
+          0.00078554,
+          0.00064692
+        ]
+      },
+      {
+        "dataset": "Mikus 2017 - Efavirenz + Midazolam PO day 1 - Midazolam - PO - 4 mg - Plasma - agg. (n=12)",
+        "study": "Mikus 2017",
+        "route": "PO",
+        "arm": "treatment",
+        "time_h": [
+          12.16667,
+          12.33333,
+          12.5,
+          12.75,
+          13.0,
+          13.5,
+          14.0,
+          15.0,
+          16.0,
+          17.0,
+          18.0
+        ],
+        "conc_mg_L": [
+          0.00511955,
+          0.01801688,
+          0.01752461,
+          0.0137834,
+          0.01073136,
+          0.00718706,
+          0.00492264,
+          0.00324895,
+          0.00246132,
+          0.00157525,
+          0.00127989
+        ]
+      },
+      {
+        "dataset": "Mikus 2017 - Efavirenz + Midazolam IV day 1 - Midazolam - IV - 2 mg - Plasma - agg. (n=12)",
+        "study": "Mikus 2017",
+        "route": "IV",
+        "arm": "treatment",
+        "time_h": [
+          18.25,
+          18.5,
+          18.66667,
+          18.83333,
+          19.0,
+          19.25,
+          19.5,
+          20.0,
+          21.0,
+          22.0,
+          24.0,
+          26.0
+        ],
+        "conc_mg_L": [
+          0.03268636,
+          0.04243319,
+          0.02372714,
+          0.02037975,
+          0.01722925,
+          0.01437412,
+          0.01260197,
+          0.01043601,
+          0.00679325,
+          0.00433193,
+          0.00265823,
+          0.00187061
+        ]
+      },
+      {
+        "dataset": "Mikus 2017 - Midazolam control PO - Midazolam - PO - 4 mg - Plasma - agg. (n=12)",
+        "study": "Mikus 2017",
+        "route": "PO",
+        "arm": "control",
+        "time_h": [
+          0.16667,
+          0.33333,
+          0.5,
+          0.75,
+          1.0,
+          1.5,
+          2.0,
+          3.0,
+          4.0,
+          5.0
+        ],
+        "conc_mg_L": [
+          0.00866385,
+          0.02579465,
+          0.02471167,
+          0.01998594,
+          0.01624473,
+          0.01151899,
+          0.00807314,
+          0.00511955,
+          0.00364276,
+          0.00246132
+        ]
+      },
+      {
+        "dataset": "Mikus 2017 - Midazolam control IV - Midazolam - IV - 2 mg - Plasma - agg. (n=12)",
+        "study": "Mikus 2017",
+        "route": "IV",
+        "arm": "control",
+        "time_h": [
+          6.0,
+          6.25,
+          6.5,
+          6.66667,
+          6.83333,
+          7.0,
+          7.25,
+          7.5,
+          8.0,
+          9.0,
+          10.0,
+          12.0,
+          14.0
+        ],
+        "conc_mg_L": [
+          0.00206751,
+          0.03642757,
+          0.05296765,
+          0.03189874,
+          0.02648383,
+          0.0221519,
+          0.01841069,
+          0.01663854,
+          0.01270042,
+          0.00895921,
+          0.00580872,
+          0.00423347,
+          0.00246132
+        ]
+      }
+    ],
+    "observed_interaction_ratios": [
+      {
+        "study": "Katzenmaier 2010",
+        "route": "PO",
+        "treatment_dataset": "Katzenmaier 2010 - Midazolam + Efavirenz - Midazolam - PO - 3 mg - Plasma - agg. (n=12)",
+        "control_dataset": "Katzenmaier 2010 - Midazolam control - Midazolam - PO - 3 mg - Plasma - agg. (n=12)",
+        "observed_aucr": 0.103
+      },
+      {
+        "study": "Mikus 2017",
+        "route": "PO",
+        "treatment_dataset": "Mikus 2017 - Efavirenz + Midazolam PO day 1 - Midazolam - PO - 4 mg - Plasma - agg. (n=12)",
+        "control_dataset": "Mikus 2017 - Midazolam control PO - Midazolam - PO - 4 mg - Plasma - agg. (n=12)",
+        "observed_aucr": 0.691
+      },
+      {
+        "study": "Mikus 2017",
+        "route": "IV",
+        "treatment_dataset": "Mikus 2017 - Efavirenz + Midazolam IV day 1 - Midazolam - IV - 2 mg - Plasma - agg. (n=12)",
+        "control_dataset": "Mikus 2017 - Midazolam control IV - Midazolam - IV - 2 mg - Plasma - agg. (n=12)",
+        "observed_aucr": 0.723
+      }
+    ]
+  },
+  "unknowns_guidance": "The interaction parameters (e.g. kinact & K_kinact_half for mechanism-based inhibition, or Ki for competitive inhibition, or EC50 & Emax for induction) are NOT given. Estimate them from the observed control vs treatment victim data. Do not change the victim's own disposition parameters; the interaction is the unknown.",
+  "how_scored": "Predicted vs observed interaction ratio (AUCR = AUC_treatment/AUC_control): GMFE on the ratio, and fraction within 2-fold."
+}

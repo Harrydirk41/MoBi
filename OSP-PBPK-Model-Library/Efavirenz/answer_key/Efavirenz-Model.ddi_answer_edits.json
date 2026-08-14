@@ -1,0 +1,22 @@
+{
+  "interaction_parameters": [
+    {
+      "perpetrator": "Efavirenz",
+      "internal_name": "Induction",
+      "target": "CYP3A4",
+      "parameters": {
+        "EC50": 0.071279975,
+        "Emax": 5.21
+      }
+    },
+    {
+      "perpetrator": "Efavirenz",
+      "internal_name": "Induction",
+      "target": "CYP2B6",
+      "parameters": {
+        "EC50": 0.0116534019,
+        "Emax": 5.2
+      }
+    }
+  ]
+}

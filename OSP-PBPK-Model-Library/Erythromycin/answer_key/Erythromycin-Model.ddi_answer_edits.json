@@ -1,0 +1,13 @@
+{
+  "interaction_parameters": [
+    {
+      "perpetrator": "Erythromycin",
+      "internal_name": "IrreversibleInhibition",
+      "target": "CYP3A4",
+      "parameters": {
+        "kinact": 0.0296261146,
+        "K_kinact_half": 7.6007360452
+      }
+    }
+  ]
+}
