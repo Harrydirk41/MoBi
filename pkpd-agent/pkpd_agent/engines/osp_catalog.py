@@ -89,20 +89,55 @@ PERMEABILITY_METHOD_INFO = {
 # --------------------------------------------------------------------------- #
 # addable process types (verified snapshot structure)
 # --------------------------------------------------------------------------- #
+# Structures are the exact OSP snapshot forms taken from published library models
+# (Alfentanil, Digoxin, Midazolam, Verapamil). ``validated`` = confirmed to run
+# through PKSim.CLI here (first-order metabolism, GFR); the rest are structurally
+# correct from published snapshots but should be validated once on your machine.
+# ``applies_to``: enzyme | transporter | target | system.
 PROCESS_TYPES: dict[str, dict[str, Any]] = {
     "metabolization_first_order": {
         "internal_name": "MetabolizationIntrinsic_FirstOrder",
-        "data_source": "1st order CL",
-        "applies_to": "enzyme",
+        "data_source": "1st order CL", "applies_to": "enzyme", "validated": True,
         "parameters": [{"name": "Intrinsic clearance", "unit": "l/min",
                         "default": 0.1}],
-        "description": "first-order metabolic clearance by an enzyme; adds a "
-                       "-CLint*C_unbound term wherever that enzyme is expressed.",
+        "description": "first-order (linear) metabolic clearance by an enzyme; "
+                       "adds -CLint*C_unbound where the enzyme is expressed.",
+    },
+    "metabolization_mm": {
+        "internal_name": "MetabolizationLiverMicrosomes_MM",
+        "data_source": "liver microsomes", "applies_to": "enzyme",
+        "validated": False,
+        "parameters": [
+            {"name": "In vitro Vmax for liver microsomes",
+             "unit": "pmol/min/mg mic. protein", "default": 100.0},
+            {"name": "Km", "unit": "µmol/l", "default": 1.0},
+            {"name": "kcat", "unit": "1/min", "default": 1.0}],
+        "description": "saturable (Michaelis-Menten) metabolism by an enzyme - "
+                       "use for nonlinear/dose-dependent clearance.",
+    },
+    "active_transport_mm": {
+        "internal_name": "ActiveTransportSpecific_MM",
+        "data_source": "active transport", "applies_to": "transporter",
+        "validated": False,
+        "parameters": [
+            {"name": "Transporter concentration", "unit": "µmol/l", "default": 1.0},
+            {"name": "Vmax", "unit": "µmol/l/min", "default": 1.0},
+            {"name": "Km", "unit": "µmol/l", "default": 1.0},
+            {"name": "kcat", "unit": "1/min", "default": 1.0}],
+        "description": "saturable active transport (efflux/uptake) by a "
+                       "transporter, e.g. P-gp/ABCB1 efflux or OATP uptake.",
+    },
+    "specific_binding": {
+        "internal_name": "SpecificBinding", "data_source": "binding",
+        "applies_to": "target", "validated": False,
+        "parameters": [{"name": "koff", "unit": "1/min", "default": 1.0},
+                       {"name": "Kd", "unit": "nmol/l", "default": 1.0}],
+        "description": "specific (target) binding - target-mediated disposition "
+                       "(saturable binding to a tissue target).",
     },
     "glomerular_filtration": {
-        "internal_name": "GlomerularFiltration",
-        "data_source": "GFR",
-        "applies_to": "system",
+        "internal_name": "GlomerularFiltration", "data_source": "GFR",
+        "applies_to": "system", "validated": True,
         "parameters": [{"name": "GFR fraction", "unit": "", "default": 1.0}],
         "description": "renal clearance by glomerular filtration of unbound drug.",
     },
@@ -110,17 +145,26 @@ PROCESS_TYPES: dict[str, dict[str, Any]] = {
 
 
 def addable_process_types(expressed_molecules: list[dict]) -> list[dict[str, Any]]:
-    """The process types that can be legally added, with which molecules each
-    can attach to (an enzyme process needs an expressed enzyme)."""
-    enzymes = [m["molecule"] for m in expressed_molecules
-               if (m.get("type") or "").lower() == "enzyme"]
+    """The process types that can be legally added, each with the molecules it
+    can attach to (typed: metabolism->enzymes, transport->transporters,
+    binding->any expressed molecule, GFR->system)."""
+    by_type: dict[str, list[str]] = {"enzyme": [], "transporter": [], "any": []}
+    for m in expressed_molecules:
+        t = (m.get("type") or "").lower()
+        by_type.setdefault(t, []).append(m["molecule"])
+        by_type["any"].append(m["molecule"])
     out = []
     for key, spec in PROCESS_TYPES.items():
-        entry = {"type": key, "description": spec["description"],
-                 "parameters": spec["parameters"]}
-        if spec["applies_to"] == "enzyme":
-            entry["can_attach_to"] = enzymes
+        at = spec["applies_to"]
+        if at == "enzyme":
+            attach = by_type.get("enzyme", [])
+        elif at == "transporter":
+            attach = by_type.get("transporter", [])
+        elif at == "target":
+            attach = by_type.get("any", [])
         else:
-            entry["can_attach_to"] = ["(system - no molecule needed)"]
-        out.append(entry)
+            attach = ["(system - no molecule needed)"]
+        out.append({"type": key, "description": spec["description"],
+                    "validated": spec.get("validated", False),
+                    "parameters": spec["parameters"], "can_attach_to": attach})
     return out

@@ -50,7 +50,8 @@ def apply_edits(snapshot: dict, edits: dict | None) -> tuple[dict, dict]:
     if not edits:
         return snap, report
     comp = (snap.get("Compounds") or [{}])[0]
-    expressed = {ep.get("Molecule") for ep in (snap.get("ExpressionProfiles") or [])
+    expressed = {ep.get("Molecule"): (ep.get("Type") or "").lower()
+                 for ep in (snap.get("ExpressionProfiles") or [])
                  if ep.get("Molecule")}
 
     _apply_parameters(comp, edits.get("parameters") or {}, report)
@@ -182,14 +183,23 @@ def _apply_add_processes(comp: dict, additions: list, expressed: set,
         if not spec:
             report["not_found"].append(f"process_type:{typ}")
             continue
-        if spec["applies_to"] == "enzyme":
+        at = spec["applies_to"]
+        if at in ("enzyme", "transporter", "target"):
             if not mol:
                 report["not_found"].append(f"add_process:{typ} needs a molecule")
                 continue
-            if mol not in expressed:
+            moltype = expressed.get(mol)
+            if moltype is None:
                 report["not_found"].append(
-                    f"add_process:{mol} is not expressed in the model "
-                    "(cannot attach an enzyme process)")
+                    f"add_process:{mol} is not expressed in the model")
+                continue
+            if at == "enzyme" and moltype != "enzyme":
+                report["not_found"].append(
+                    f"add_process:{mol} is a {moltype}, not an enzyme")
+                continue
+            if at == "transporter" and moltype != "transporter":
+                report["not_found"].append(
+                    f"add_process:{mol} is a {moltype}, not a transporter")
                 continue
         # already there? skip
         if any(p.get("InternalName") == spec["internal_name"]
