@@ -56,6 +56,18 @@ PARAM_CATALOG: dict[str, dict[str, Any]] = {
              "range": [1e-3, 1e3], "role": "estimate"},
     "Km": {"description": "Michaelis constant (half-saturation concentration)",
            "range": [1e-4, 1e3], "role": "estimate"},
+    "Plasma clearance": {"description": "lumped plasma clearance for a whole-organ "
+                         "(hepatic/renal) clearance process - use when clearance is "
+                         "not attributed to a specific enzyme",
+                         "range": [1e-3, 100.0], "unit": "ml/min/kg", "role": "estimate"},
+    # --- large molecules (proteins / monoclonal antibodies) --------------
+    "Radius (solute)": {"description": "hydrodynamic radius of a large molecule "
+                        "(protein/mAb); governs size-limited tissue permeation",
+                        "range": [1e-3, 2e-2], "unit": "µm", "role": "measured"},
+    "Kd (FcRn) in endosomal space": {"description": "FcRn binding affinity in the "
+                        "endosome; drives antibody recycling and hence half-life "
+                        "(large molecules only)",
+                        "range": [1e-2, 1e2], "unit": "µmol/l", "role": "estimate"},
 }
 
 
@@ -140,6 +152,30 @@ PROCESS_TYPES: dict[str, dict[str, Any]] = {
         "applies_to": "system", "validated": True,
         "parameters": [{"name": "GFR fraction", "unit": "", "default": 1.0}],
         "description": "renal clearance by glomerular filtration of unbound drug.",
+    },
+    "liver_clearance": {
+        "internal_name": "LiverClearance", "data_source": "plasma clearance",
+        "applies_to": "system", "validated": False,
+        "parameters": [{"name": "Plasma clearance", "unit": "ml/min/kg",
+                        "default": 1.0}],
+        "description": "lumped whole-liver (hepatic) plasma clearance - a simpler "
+                       "alternative to enzyme-specific metabolism when you only "
+                       "have total clearance.",
+    },
+    "kidney_clearance": {
+        "internal_name": "KidneyClearance", "data_source": "plasma clearance",
+        "applies_to": "system", "validated": False,
+        "parameters": [{"name": "Plasma clearance", "unit": "ml/min/kg",
+                        "default": 1.0}],
+        "description": "lumped renal plasma clearance (beyond passive GFR).",
+    },
+    "metabolization_specific_first_order": {
+        "internal_name": "MetabolizationSpecific_FirstOrder",
+        "data_source": "specific CL", "applies_to": "enzyme", "validated": False,
+        "parameters": [{"name": "Specific clearance", "unit": "1/min",
+                        "default": 0.1}],
+        "description": "first-order metabolism scaled by the enzyme's tissue "
+                       "concentration (specific clearance).",
     },
 }
 

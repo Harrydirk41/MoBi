@@ -160,6 +160,13 @@ def register_osp_loop_tools(registry: ToolRegistry, config, ctx: dict) -> None:
     def options(args: dict, session) -> ToolResult:
         model = _current_model(snapshot_path)
         expressed = _expressed_molecules(snapshot_path)
+        with open(snapshot_path, encoding="utf-8") as fh:
+            comp0 = (json.load(fh).get("Compounds") or [{}])[0]
+        is_small = comp0.get("IsSmallMolecule", True)
+        molecule_type = "small molecule" if is_small else (
+            "large molecule / protein (biologic): disposition is via size-limited "
+            "distribution + FcRn recycling + target binding, NOT enzyme processes; "
+            "tune the compound parameters (radius, FcRn Kd, target binding)")
         editable = []
         for p in model["parameters"]:
             cat = osp_catalog.describe_parameter(p["name"])
@@ -168,6 +175,7 @@ def register_osp_loop_tools(registry: ToolRegistry, config, ctx: dict) -> None:
                              "role": cat.get("role", "unknown")})
         return ToolResult.success(
             "authoritative action space: what you may edit and legal choices",
+            molecule_type=molecule_type,
             editable_parameters=editable,
             calculation_methods={
                 "partition": {"current": next(
