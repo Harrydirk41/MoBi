@@ -19,55 +19,69 @@ from typing import Any
 # --------------------------------------------------------------------------- #
 # role: "measured"  -> normally fixed at the literature value
 #       "estimate"  -> commonly identified (IVIVE unreliable)
+# tier: how the identification strategy MUST treat the parameter -
+#   "constant"      -> a measured physical constant (MW, pKa, reference pH). It has
+#                      one true value; fitting it means modeling a different
+#                      molecule. NEVER estimated (hard rule).
+#   "measured_soft" -> measured but genuinely refinable (fraction unbound,
+#                      solubility). May be estimated ONLY when justified, and ONLY
+#                      within its measured uncertainty range.
+#   "estimate"      -> not reliably knowable a priori (effective lipophilicity,
+#                      intrinsic clearance, permeabilities). Freely estimated.
 PARAM_CATALOG: dict[str, dict[str, Any]] = {
     "Molecular weight": {
-        "description": "molecular weight", "role": "measured"},
+        "description": "molecular weight", "role": "measured", "tier": "constant"},
     "Solubility at reference pH": {
-        "description": "aqueous solubility at the reference pH", "role": "measured"},
+        "description": "aqueous solubility at the reference pH", "role": "measured",
+        "tier": "measured_soft"},
     "Reference pH": {
-        "description": "pH at which the solubility is defined", "role": "measured"},
+        "description": "pH at which the solubility is defined", "role": "measured",
+        "tier": "constant"},
     "Lipophilicity": {
         "description": "effective lipophilicity / membrane affinity (logP-like) "
         "driving tissue partitioning; the model value often differs from measured "
         "logD, so it is commonly refined",
-        "range": [-2.0, 7.0], "role": "estimate"},
+        "range": [-2.0, 7.0], "role": "estimate", "tier": "estimate"},
     "Fraction unbound (plasma, reference value)": {
         "description": "unbound fraction in plasma; scales distribution and "
         "clearance. Measured, but small errors have large effect - sometimes refined",
-        "range": [0.001, 1.0], "role": "measured"},
+        "range": [0.001, 1.0], "role": "measured", "tier": "measured_soft"},
     "Specific intestinal permeability (transcellular)": {
         "description": "transcellular intestinal permeability governing the rate "
         "and extent of oral absorption; in-vitro->in-vivo transfer is weak, so "
         "usually estimated",
-        "range": [1e-8, 1e-2], "unit": "cm/min", "role": "estimate"},
+        "range": [1e-8, 1e-2], "unit": "cm/min", "role": "estimate", "tier": "estimate"},
     "Permeability": {
         "description": "specific organ (cellular) permeability governing the "
         "kinetics of tissue distribution; usually estimated",
-        "range": [1e-6, 1.0], "unit": "cm/min", "role": "estimate"},
+        "range": [1e-6, 1.0], "unit": "cm/min", "role": "estimate", "tier": "estimate"},
     "Intrinsic clearance": {
         "description": "first-order metabolic intrinsic clearance by the enzyme "
         "(per the process it belongs to); IVIVE unreliable, so usually estimated",
-        "range": [1e-3, 5.0], "unit": "l/min", "role": "estimate"},
+        "range": [1e-3, 5.0], "unit": "l/min", "role": "estimate", "tier": "estimate"},
     "GFR fraction": {
         "description": "fraction of glomerular filtration contributing to renal "
         "clearance of unbound drug (0 disables renal clearance)",
-        "range": [0.0, 1.0], "role": "measured"},
+        "range": [0.0, 1.0], "role": "measured", "tier": "measured_soft"},
     "Vmax": {"description": "maximum rate of a Michaelis-Menten process",
-             "range": [1e-3, 1e3], "role": "estimate"},
+             "range": [1e-3, 1e3], "role": "estimate", "tier": "estimate"},
     "Km": {"description": "Michaelis constant (half-saturation concentration)",
-           "range": [1e-4, 1e3], "role": "estimate"},
+           "range": [1e-4, 1e3], "role": "estimate", "tier": "estimate"},
     "Plasma clearance": {"description": "lumped plasma clearance for a whole-organ "
                          "(hepatic/renal) clearance process - use when clearance is "
                          "not attributed to a specific enzyme",
-                         "range": [1e-3, 100.0], "unit": "ml/min/kg", "role": "estimate"},
+                         "range": [1e-3, 100.0], "unit": "ml/min/kg", "role": "estimate",
+                         "tier": "estimate"},
     # --- large molecules (proteins / monoclonal antibodies) --------------
     "Radius (solute)": {"description": "hydrodynamic radius of a large molecule "
                         "(protein/mAb); governs size-limited tissue permeation",
-                        "range": [1e-3, 2e-2], "unit": "µm", "role": "measured"},
+                        "range": [1e-3, 2e-2], "unit": "µm", "role": "measured",
+                        "tier": "measured_soft"},
     "Kd (FcRn) in endosomal space": {"description": "FcRn binding affinity in the "
                         "endosome; drives antibody recycling and hence half-life "
                         "(large molecules only)",
-                        "range": [1e-2, 1e2], "unit": "µmol/l", "role": "estimate"},
+                        "range": [1e-2, 1e2], "unit": "µmol/l", "role": "estimate",
+                        "tier": "estimate"},
 }
 
 
@@ -77,6 +91,42 @@ def describe_parameter(name: str) -> dict[str, Any]:
 
 def param_role(name: str) -> str:
     return PARAM_CATALOG.get(name, {}).get("role", "unknown")
+
+
+def param_tier(name: str) -> str:
+    """Identification tier: 'constant' | 'measured_soft' | 'estimate'.
+
+    Unknown parameters default to 'estimate'; anything that looks like a measured
+    physical constant by name (molecular weight, pKa, reference pH) is a constant
+    even if not catalogued, so it can never be fitted by accident."""
+    entry = PARAM_CATALOG.get(name)
+    if entry and entry.get("tier"):
+        return entry["tier"]
+    n = name.lower()
+    if "molecular weight" in n or "pka" in n or "reference ph" in n:
+        return "constant"
+    return "estimate"
+
+
+def measured_range(name: str, literature: list) -> tuple | None:
+    """The measured-uncertainty range [lo, hi] for a 'measured_soft' parameter,
+    taken from the study's literature values, so a refinement can be constrained
+    to what the measurement actually supports. Returns None if no range is known."""
+    key = name.lower()
+    for e in literature or []:
+        pn = str(e.get("parameter", "")).lower()
+        if "unbound" in key and "unbound" in pn:
+            rp = e.get("reported_range_percent")
+            if rp:
+                return (min(rp) / 100.0, max(rp) / 100.0)
+            vals = ([float(e["value"])] if e.get("value") is not None else []) + \
+                   [float(x) for x in e.get("reported_values", [])]
+            if vals:
+                return (min(vals), max(vals))
+        if "solub" in key and "solub" in pn and e.get("value") is not None:
+            v = float(e["value"])
+            return (v / 2.0, v * 2.0)   # solubility rarely refined beyond ~2-fold
+    return None
 
 
 # --------------------------------------------------------------------------- #

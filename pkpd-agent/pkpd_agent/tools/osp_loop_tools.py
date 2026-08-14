@@ -167,15 +167,33 @@ def register_osp_loop_tools(registry: ToolRegistry, config, ctx: dict) -> None:
             "large molecule / protein (biologic): disposition is via size-limited "
             "distribution + FcRn recycling + target binding, NOT enzyme processes; "
             "tune the compound parameters (radius, FcRn Kd, target binding)")
+        lit = (inp.get("given_data", {}) or {}).get("literature_physicochemical", [])
         editable = []
         for p in model["parameters"]:
             cat = osp_catalog.describe_parameter(p["name"])
-            editable.append({**p, "description": cat.get("description"),
-                             "plausible_range": cat.get("range"),
-                             "role": cat.get("role", "unknown")})
+            tier = osp_catalog.param_tier(p["name"])
+            entry = {**p, "description": cat.get("description"),
+                     "plausible_range": cat.get("range"),
+                     "role": cat.get("role", "unknown"), "tier": tier}
+            if tier == "constant":
+                entry["rule"] = "measured constant - cannot be estimated; fix it"
+            elif tier == "measured_soft":
+                mr = osp_catalog.measured_range(p["name"], lit)
+                entry["measured_range"] = list(mr) if mr else None
+                entry["rule"] = ("measured - fix by default; may be estimated only "
+                                 "when justified and only within measured_range")
+            editable.append(entry)
         return ToolResult.success(
             "authoritative action space: what you may edit and legal choices",
             molecule_type=molecule_type,
+            identification_principle=(
+                "Measured physical constants (tier=constant: MW, pKa, reference "
+                "pH) are never estimated. Measured-but-refinable quantities "
+                "(tier=measured_soft: fraction unbound, solubility) are fixed by "
+                "default and may be estimated only when a residual misfit justifies "
+                "it, constrained to their measured_range. Estimate the minimal "
+                "identifiable set first (tier=estimate); free a measured quantity "
+                "only if the data demand it."),
             editable_parameters=editable,
             calculation_methods={
                 "partition": {"current": next(
@@ -225,11 +243,43 @@ def register_osp_loop_tools(registry: ToolRegistry, config, ctx: dict) -> None:
     # -- act (numerical parameter identification) ----------------------- #
     def optimize(args: dict, session) -> ToolResult:
         from ..engines import osp_optimize as OO
-        estimate = args.get("estimate") or {}
+        estimate = dict(args.get("estimate") or {})
         if not estimate:
             return ToolResult.error(
                 "provide 'estimate': {parameter: [lo, hi]} - the parameters to "
                 "fit numerically (choose 2-4 identifiable, uncertain ones)")
+
+        # --- the measured-quantity principle (enforced, not just advised) --- #
+        #  * a measured physical CONSTANT (MW, pKa, reference pH) can never be
+        #    estimated - reject outright.
+        #  * a MEASURED-SOFT parameter (fraction unbound, solubility) may be
+        #    refined, but only WITHIN its measured uncertainty range - clamp the
+        #    requested bounds to that range so the optimizer cannot drag a measured
+        #    value outside what the measurement supports to rescue a bad structure.
+        lit = (inp.get("given_data", {}) or {}).get("literature_physicochemical", [])
+        constraint_notes = []
+        for name in list(estimate.keys()):
+            tier = osp_catalog.param_tier(name)
+            if tier == "constant":
+                return ToolResult.error(
+                    f"'{name}' is a measured physical constant and cannot be "
+                    "estimated (fitting it would model a different molecule). Fix "
+                    "it at its literature value and remove it from 'estimate'.")
+            if tier == "measured_soft":
+                mr = osp_catalog.measured_range(name, lit)
+                if mr and isinstance(estimate.get(name), (list, tuple)) \
+                        and len(estimate[name]) == 2:
+                    lo, hi = float(estimate[name][0]), float(estimate[name][1])
+                    clo, chi = max(lo, mr[0]), min(hi, mr[1])
+                    if clo >= chi:            # requested band entirely outside
+                        clo, chi = mr
+                    if (clo, chi) != (lo, hi):
+                        estimate[name] = [clo, chi]
+                        constraint_notes.append(
+                            f"{name}: a measured quantity - bounds constrained to "
+                            f"its measured range [{mr[0]:.3g}, {mr[1]:.3g}] "
+                            f"(requested [{lo:.3g}, {hi:.3g}]).")
+
         def _progress(i, values, sse):
             vs = ", ".join(f"{k}={v:.3g}" for k, v in values.items())
             msg = (f"       eval {i}: log_sse={sse} [{vs}]" if sse is not None
@@ -278,6 +328,7 @@ def register_osp_loop_tools(registry: ToolRegistry, config, ctx: dict) -> None:
                               "uncertain; consider fixing it or not over-"
                               "interpreting it."),
             parameter_flags=flags,
+            measured_constraints=constraint_notes or None,
             n_evals=r["n_evals"], fit_simulations=r["fit_simulations"],
             iteration=len(hist))
 
