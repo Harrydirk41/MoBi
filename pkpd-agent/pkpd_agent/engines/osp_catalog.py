@@ -291,47 +291,58 @@ PROCESS_TYPES: dict[str, dict[str, Any]] = {
 # offered through ``add_processes`` (which builds single-compound mechanisms);
 # adding them requires a DDI setup with >1 Compound. ``validated`` marks the
 # InternalNames confirmed against the Rifampicin-Digoxin-DDI library snapshot.
+# InternalNames and parameter names below are VERIFIED against the OSP library
+# DDI snapshots (Rifampicin, Erythromycin, Fluconazole, Atazanavir, ...).
+# ``validated`` still means "confirmed to run end-to-end through PKSim.CLI here",
+# which requires the multi-compound DDI build (not yet exercised), so it stays
+# False; ``internal_name_verified`` marks the name/params as ground-truth-correct.
 INTERACTION_PROCESS_TYPES: dict[str, dict[str, Any]] = {
     "competitive_inhibition": {
-        "internal_name": "CompetitiveInhibition", "validated": True,
-        "provenance": "Rifampicin-Digoxin-DDI snapshot",
+        "internal_name": "CompetitiveInhibition", "validated": False,
+        "internal_name_verified": True,
+        "provenance": "verified: Rifampicin/Itraconazole/Cimetidine snapshots",
         "parameters": [{"name": "Ki", "unit": "µmol/l"}],
         "description": "reversible competitive enzyme/transporter inhibition (Ki).",
     },
     "uncompetitive_inhibition": {
         "internal_name": "UncompetitiveInhibition", "validated": False,
-        "provenance": "PK-Sim standard; verify InternalName",
+        "internal_name_verified": False,
+        "provenance": "PK-Sim standard; not seen in the library DDI set - verify",
         "parameters": [{"name": "Ki", "unit": "µmol/l"}],
         "description": "reversible uncompetitive inhibition (Ki).",
     },
     "noncompetitive_inhibition": {
-        "internal_name": "NonCompetitiveInhibition", "validated": False,
-        "provenance": "PK-Sim standard; verify InternalName",
+        "internal_name": "NoncompetitiveInhibition", "validated": False,
+        "internal_name_verified": True,
+        "provenance": "verified: Fluconazole snapshot",
         "parameters": [{"name": "Ki", "unit": "µmol/l"}],
         "description": "reversible noncompetitive inhibition (Ki).",
     },
     "mixed_inhibition": {
         "internal_name": "MixedInhibition", "validated": False,
-        "provenance": "PK-Sim standard; verify InternalName/params",
+        "internal_name_verified": True,
+        "provenance": "verified: Atazanavir/Mefenamic_acid snapshots",
         "parameters": [{"name": "Ki_c", "unit": "µmol/l"},
                        {"name": "Ki_u", "unit": "µmol/l"}],
         "description": "mixed competitive/uncompetitive inhibition (Ki_c, Ki_u).",
     },
     "mechanism_based_inhibition": {
-        "internal_name": "IrreversibleInhibition", "validated": True,
-        "provenance": "Rifampicin-Digoxin-DDI snapshot",
+        "internal_name": "IrreversibleInhibition", "validated": False,
+        "internal_name_verified": True,
+        "provenance": "verified: Erythromycin/Clarithromycin/Moclobemide snapshots",
         "parameters": [{"name": "kinact", "unit": "1/min"},
-                       {"name": "Ki", "unit": "µmol/l"}],
+                       {"name": "K_kinact_half", "unit": "µmol/l"}],
         "description": "irreversible / mechanism-based (time-dependent) inhibition "
-                       "(kinact, Ki) - enzyme is inactivated.",
+                       "(kinact, K_kinact_half) - the enzyme is inactivated.",
     },
     "induction": {
-        "internal_name": "Induction", "validated": True,
-        "provenance": "Rifampicin-Digoxin-DDI snapshot",
+        "internal_name": "Induction", "validated": False,
+        "internal_name_verified": True,
+        "provenance": "verified: Rifampicin/Carbamazepine/Efavirenz snapshots",
         "parameters": [{"name": "EC50", "unit": "µmol/l"},
                        {"name": "Emax", "unit": ""}],
         "description": "enzyme induction (EC50, Emax) - perpetrator up-regulates "
-                       "the victim's enzyme, increasing its clearance.",
+                       "the target enzyme, increasing its clearance.",
     },
 }
 
@@ -342,6 +353,7 @@ def interaction_process_types() -> list[dict[str, Any]]:
     multi-compound DDI setup with an Interactions block)."""
     return [{"type": k, "internal_name": s["internal_name"],
              "description": s["description"], "validated": s.get("validated", False),
+             "internal_name_verified": s.get("internal_name_verified", False),
              "provenance": s.get("provenance"), "parameters": s["parameters"]}
             for k, s in INTERACTION_PROCESS_TYPES.items()]
 

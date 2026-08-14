@@ -41,11 +41,21 @@ class TestProcessCatalog(unittest.TestCase):
 
     def test_ddi_internal_names_flagged(self):
         by = {r["type"]: r for r in C.interaction_process_types()}
-        # confirmed against the DDI library snapshot
-        self.assertTrue(by["competitive_inhibition"]["validated"])
-        self.assertTrue(by["induction"]["validated"])
-        # inferred ones honestly marked unvalidated
-        self.assertFalse(by["mixed_inhibition"]["validated"])
+        # InternalNames confirmed against the library DDI snapshots
+        self.assertTrue(by["competitive_inhibition"]["internal_name_verified"])
+        self.assertTrue(by["induction"]["internal_name_verified"])
+        self.assertTrue(by["mechanism_based_inhibition"]["internal_name_verified"])
+        # not seen in the library set -> honestly still unverified
+        self.assertFalse(by["uncompetitive_inhibition"]["internal_name_verified"])
+        # validated (runs end-to-end through PKSim.CLI) is still False for all DDI:
+        # it needs the multi-compound build, not yet exercised here
+        self.assertFalse(any(r["validated"] for r in C.interaction_process_types()))
+
+    def test_mbi_uses_k_kinact_half(self):
+        by = {r["type"]: r for r in C.interaction_process_types()}
+        pnames = [p["name"] for p in by["mechanism_based_inhibition"]["parameters"]]
+        self.assertIn("K_kinact_half", pnames)   # ground truth, not "Ki"
+        self.assertIn("kinact", pnames)
 
 
 if __name__ == "__main__":
