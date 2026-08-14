@@ -20,6 +20,8 @@ class AgentConfig:
     model: str = "claude-opus-5"
     effort: str = "medium"          # low | medium | high | xhigh | max
     max_tokens: int = 16000
+    adaptive_thinking: bool | None = None  # None = auto (on for Claude-5, off for
+                                           # Haiku/older which reject it)
 
     # --- loop control ---
     max_steps: int = 24             # hard stop on Decide->Act->Evaluate iterations

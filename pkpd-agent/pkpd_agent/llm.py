@@ -140,17 +140,28 @@ class LLMPolicy:
         if pending:
             self._messages.append({"role": "user", "content": pending})
 
+    def _supports_adaptive_thinking(self) -> bool:
+        """Adaptive thinking + effort are Claude 5-family features; Haiku 4.5 and
+        older models reject them. Allow an explicit config override."""
+        override = getattr(self.config, "adaptive_thinking", None)
+        if override is not None:
+            return bool(override)
+        m = (self.config.model or "").lower()
+        return "haiku" not in m and "claude-3" not in m and "claude-2" not in m
+
     def decide(self, session) -> PolicyStep:
         client = self._ensure_client()
-        resp = client.messages.create(
+        kwargs = dict(
             model=self.config.model,
             max_tokens=self.config.max_tokens,
             system=self.system_prompt,
             tools=self.registry.to_anthropic_schema(),
-            thinking={"type": "adaptive"},
-            output_config={"effort": self.config.effort},
             messages=self._messages,
         )
+        if self._supports_adaptive_thinking():
+            kwargs["thinking"] = {"type": "adaptive"}
+            kwargs["output_config"] = {"effort": self.config.effort}
+        resp = client.messages.create(**kwargs)
         # Preserve the full assistant turn (incl. thinking) for the next request.
         self._messages.append({"role": "assistant", "content": resp.content})
 
