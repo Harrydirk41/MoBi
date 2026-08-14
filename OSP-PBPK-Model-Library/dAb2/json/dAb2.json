@@ -1,0 +1,5218 @@
+{
+  "Version": 80,
+  "Individuals": [
+    {
+      "Name": "Mouse",
+      "Seed": 8184234,
+      "OriginData": {
+        "CalculationMethods": [
+          "SurfaceAreaPlsInt_VAR1"
+        ],
+        "Species": "Mouse"
+      },
+      "Parameters": [
+        {
+          "Path": "Organism|Bone|Fraction of blood for sampling",
+          "Value": 0.42,
+          "ValueOrigin": {
+            "Source": "Publication",
+            "Description": "Niederalt2018 (doi: 10.1007/s10928-017-9559-4)"
+          }
+        },
+        {
+          "Path": "Organism|Brain|Fraction of blood for sampling",
+          "Value": 0.42,
+          "ValueOrigin": {
+            "Source": "Publication",
+            "Description": "Niederalt2018 (doi: 10.1007/s10928-017-9559-4)"
+          }
+        },
+        {
+          "Path": "Organism|Fat|Fraction of blood for sampling",
+          "Value": 0.42,
+          "ValueOrigin": {
+            "Source": "Publication",
+            "Description": "Niederalt2018 (doi: 10.1007/s10928-017-9559-4)"
+          }
+        },
+        {
+          "Path": "Organism|Gonads|Fraction of blood for sampling",
+          "Value": 0.42,
+          "ValueOrigin": {
+            "Source": "Publication",
+            "Description": "Niederalt2018 (doi: 10.1007/s10928-017-9559-4)"
+          }
+        },
+        {
+          "Path": "Organism|Heart|Fraction of blood for sampling",
+          "Value": 0.42,
+          "ValueOrigin": {
+            "Source": "Publication",
+            "Description": "Niederalt2018 (doi: 10.1007/s10928-017-9559-4)"
+          }
+        },
+        {
+          "Path": "Organism|Kidney|Fraction of blood for sampling",
+          "Value": 0.42,
+          "ValueOrigin": {
+            "Source": "Publication",
+            "Description": "Niederalt2018 (doi: 10.1007/s10928-017-9559-4)"
+          }
+        },
+        {
+          "Path": "Organism|LargeIntestine|Fraction of blood for sampling",
+          "Value": 0.42,
+          "ValueOrigin": {
+            "Source": "Publication",
+            "Description": "Niederalt2018 (doi: 10.1007/s10928-017-9559-4)"
+          }
+        },
+        {
+          "Path": "Organism|LargeIntestine|Mucosa|Caecum|Fraction of blood for sampling",
+          "Value": 0.42,
+          "ValueOrigin": {
+            "Source": "Publication",
+            "Description": "Niederalt2018 (doi: 10.1007/s10928-017-9559-4)"
+          }
+        },
+        {
+          "Path": "Organism|LargeIntestine|Mucosa|ColonAscendens|Fraction of blood for sampling",
+          "Value": 0.42,
+          "ValueOrigin": {
+            "Source": "Publication",
+            "Description": "Niederalt2018 (doi: 10.1007/s10928-017-9559-4)"
+          }
+        },
+        {
+          "Path": "Organism|LargeIntestine|Mucosa|ColonDescendens|Fraction of blood for sampling",
+          "Value": 0.42,
+          "ValueOrigin": {
+            "Source": "Publication",
+            "Description": "Niederalt2018 (doi: 10.1007/s10928-017-9559-4)"
+          }
+        },
+        {
+          "Path": "Organism|LargeIntestine|Mucosa|ColonSigmoid|Fraction of blood for sampling",
+          "Value": 0.42,
+          "ValueOrigin": {
+            "Source": "Publication",
+            "Description": "Niederalt2018 (doi: 10.1007/s10928-017-9559-4)"
+          }
+        },
+        {
+          "Path": "Organism|LargeIntestine|Mucosa|ColonTransversum|Fraction of blood for sampling",
+          "Value": 0.42,
+          "ValueOrigin": {
+            "Source": "Publication",
+            "Description": "Niederalt2018 (doi: 10.1007/s10928-017-9559-4)"
+          }
+        },
+        {
+          "Path": "Organism|LargeIntestine|Mucosa|Rectum|Fraction of blood for sampling",
+          "Value": 0.42,
+          "ValueOrigin": {
+            "Source": "Publication",
+            "Description": "Niederalt2018 (doi: 10.1007/s10928-017-9559-4)"
+          }
+        },
+        {
+          "Path": "Organism|Liver|Fraction of blood for sampling",
+          "Value": 0.42,
+          "ValueOrigin": {
+            "Source": "Publication",
+            "Description": "Niederalt2018 (doi: 10.1007/s10928-017-9559-4)"
+          }
+        },
+        {
+          "Path": "Organism|Lung|Fraction of blood for sampling",
+          "Value": 0.42,
+          "ValueOrigin": {
+            "Source": "Publication",
+            "Description": "Niederalt2018 (doi: 10.1007/s10928-017-9559-4)"
+          }
+        },
+        {
+          "Path": "Organism|Muscle|Fraction of blood for sampling",
+          "Value": 0.42,
+          "ValueOrigin": {
+            "Source": "Publication",
+            "Description": "Niederalt2018 (doi: 10.1007/s10928-017-9559-4)"
+          }
+        },
+        {
+          "Path": "Organism|Pancreas|Fraction of blood for sampling",
+          "Value": 0.42,
+          "ValueOrigin": {
+            "Source": "Publication",
+            "Description": "Niederalt2018 (doi: 10.1007/s10928-017-9559-4)"
+          }
+        },
+        {
+          "Path": "Organism|Skin|Fraction of blood for sampling",
+          "Value": 0.42,
+          "ValueOrigin": {
+            "Source": "Publication",
+            "Description": "Niederalt2018 (doi: 10.1007/s10928-017-9559-4)"
+          }
+        },
+        {
+          "Path": "Organism|SmallIntestine|Fraction of blood for sampling",
+          "Value": 0.42,
+          "ValueOrigin": {
+            "Source": "Publication",
+            "Description": "Niederalt2018 (doi: 10.1007/s10928-017-9559-4)"
+          }
+        },
+        {
+          "Path": "Organism|SmallIntestine|Mucosa|Duodenum|Fraction of blood for sampling",
+          "Value": 0.42,
+          "ValueOrigin": {
+            "Source": "Publication",
+            "Description": "Niederalt2018 (doi: 10.1007/s10928-017-9559-4)"
+          }
+        },
+        {
+          "Path": "Organism|SmallIntestine|Mucosa|LowerIleum|Fraction of blood for sampling",
+          "Value": 0.42,
+          "ValueOrigin": {
+            "Source": "Publication",
+            "Description": "Niederalt2018 (doi: 10.1007/s10928-017-9559-4)"
+          }
+        },
+        {
+          "Path": "Organism|SmallIntestine|Mucosa|LowerJejunum|Fraction of blood for sampling",
+          "Value": 0.42,
+          "ValueOrigin": {
+            "Source": "Publication",
+            "Description": "Niederalt2018 (doi: 10.1007/s10928-017-9559-4)"
+          }
+        },
+        {
+          "Path": "Organism|SmallIntestine|Mucosa|UpperIleum|Fraction of blood for sampling",
+          "Value": 0.42,
+          "ValueOrigin": {
+            "Source": "Publication",
+            "Description": "Niederalt2018 (doi: 10.1007/s10928-017-9559-4)"
+          }
+        },
+        {
+          "Path": "Organism|SmallIntestine|Mucosa|UpperJejunum|Fraction of blood for sampling",
+          "Value": 0.42,
+          "ValueOrigin": {
+            "Source": "Publication",
+            "Description": "Niederalt2018 (doi: 10.1007/s10928-017-9559-4)"
+          }
+        },
+        {
+          "Path": "Organism|Spleen|Fraction of blood for sampling",
+          "Value": 0.42,
+          "ValueOrigin": {
+            "Source": "Publication",
+            "Description": "Niederalt2018 (doi: 10.1007/s10928-017-9559-4)"
+          }
+        },
+        {
+          "Path": "Organism|Stomach|Fraction of blood for sampling",
+          "Value": 0.42,
+          "ValueOrigin": {
+            "Source": "Publication",
+            "Description": "Niederalt2018 (doi: 10.1007/s10928-017-9559-4)"
+          }
+        }
+      ],
+      "ExpressionProfiles": []
+    }
+  ],
+  "Compounds": [
+    {
+      "Name": "dAb2",
+      "IsSmallMolecule": false,
+      "Lipophilicity": [
+        {
+          "Name": "Measurement",
+          "Parameters": [
+            {
+              "Name": "Lipophilicity",
+              "Value": -5.0,
+              "Unit": "Log Units",
+              "ValueOrigin": {
+                "Source": "Other",
+                "Description": "/Dummy value not used in the simulation"
+              }
+            }
+          ]
+        }
+      ],
+      "FractionUnbound": [
+        {
+          "Name": "Measurement",
+          "Species": "Human",
+          "Parameters": [
+            {
+              "Name": "Fraction unbound (plasma, reference value)",
+              "Value": 1.0,
+              "ValueOrigin": {
+                "Source": "Other",
+                "Description": "Assumption"
+              }
+            }
+          ]
+        }
+      ],
+      "Solubility": [
+        {
+          "Name": "Measurement",
+          "Parameters": [
+            {
+              "Name": "Solubility at reference pH",
+              "Value": 9999.0,
+              "Unit": "mg/l",
+              "ValueOrigin": {
+                "Source": "Other",
+                "Description": "/Dummy value not used in the simulation"
+              }
+            },
+            {
+              "Name": "Reference pH",
+              "Value": 7.0,
+              "ValueOrigin": {
+                "Source": "Other",
+                "Description": "/Dummy value not used in the simulation"
+              }
+            }
+          ]
+        }
+      ],
+      "Processes": [
+        {
+          "InternalName": "GlomerularFiltration",
+          "DataSource": "GFR",
+          "Species": "Mouse",
+          "Parameters": [
+            {
+              "Name": "GFR fraction",
+              "Value": 0.24,
+              "ValueOrigin": {
+                "Source": "ParameterIdentification"
+              }
+            }
+          ]
+        }
+      ],
+      "CalculationMethods": [
+        "Cellular partition coefficient method - PK-Sim Standard",
+        "Cellular permeability - PK-Sim Standard"
+      ],
+      "Parameters": [
+        {
+          "Name": "Molecular weight",
+          "Value": 25600.0,
+          "Unit": "g/mol",
+          "ValueOrigin": {
+            "Source": "Publication",
+            "Description": "Sepp2015"
+          }
+        }
+      ]
+    }
+  ],
+  "Protocols": [
+    {
+      "Name": "10mgkg",
+      "ApplicationType": "Intravenous",
+      "DosingInterval": "Single",
+      "Parameters": [
+        {
+          "Name": "Start time",
+          "Value": 0.0,
+          "Unit": "h"
+        },
+        {
+          "Name": "InputDose",
+          "Value": 10.0,
+          "Unit": "mg/kg"
+        },
+        {
+          "Name": "Infusion time",
+          "Value": 0.1,
+          "Unit": "s"
+        }
+      ]
+    }
+  ],
+  "Simulations": [
+    {
+      "Name": "dAb2_Sim",
+      "Model": "TwoPores",
+      "ObservedData": [
+        "Sepp2015_PBPK_dAb_PKSimImport.PKData.Brain.QWBA.3",
+        "Sepp2015_PBPK_dAb_PKSimImport.PKData.Brain.QWBA.1",
+        "Sepp2015_PBPK_dAb_PKSimImport.PKData.Brain.QWBA.2",
+        "Sepp2015_PBPK_dAb_PKSimImport.PKData.GIT.QWBA.3",
+        "Sepp2015_PBPK_dAb_PKSimImport.PKData.GIT.QWBA.2",
+        "Sepp2015_PBPK_dAb_PKSimImport.PKData.GIT.QWBA.1",
+        "Sepp2015_PBPK_dAb_PKSimImport.PKData.Bone.QWBA.3",
+        "Sepp2015_PBPK_dAb_PKSimImport.PKData.Bone.QWBA.1",
+        "Sepp2015_PBPK_dAb_PKSimImport.PKData.Bone.QWBA.2",
+        "Sepp2015_PBPK_dAb_PKSimImport.PKData.Lung.QWBA.2",
+        "Sepp2015_PBPK_dAb_PKSimImport.PKData.Skin.QWBA.2",
+        "Sepp2015_PBPK_dAb_PKSimImport.PKData.Skin.QWBA.1",
+        "Sepp2015_PBPK_dAb_PKSimImport.PKData.Blood.QWBA.2",
+        "Sepp2015_PBPK_dAb_PKSimImport.PKData.Blood.LSC.6",
+        "Sepp2015_PBPK_dAb_PKSimImport.PKData.Blood.LSC.5",
+        "Sepp2015_PBPK_dAb_PKSimImport.PKData.Lung.QWBA.1",
+        "Sepp2015_PBPK_dAb_PKSimImport.PKData.Blood.QWBA.3",
+        "Sepp2015_PBPK_dAb_PKSimImport.PKData.Blood.QWBA.1",
+        "Sepp2015_PBPK_dAb_PKSimImport.PKData.Blood.LSC.4",
+        "Sepp2015_PBPK_dAb_PKSimImport.PKData.Blood.LSC.3",
+        "Sepp2015_PBPK_dAb_PKSimImport.PKData.Blood.LSC.2",
+        "Sepp2015_PBPK_dAb_PKSimImport.PKData.Muscle.QWBA.2",
+        "Sepp2015_PBPK_dAb_PKSimImport.PKData.Muscle.QWBA.1",
+        "Sepp2015_PBPK_dAb_PKSimImport.PKData.Skin.QWBA.3",
+        "Sepp2015_PBPK_dAb_PKSimImport.PKData.Blood.LSC.1",
+        "Sepp2015_PBPK_dAb_PKSimImport.PKData.Spleen.QWBA.1",
+        "Sepp2015_PBPK_dAb_PKSimImport.PKData.Muscle.QWBA.3",
+        "Sepp2015_PBPK_dAb_PKSimImport.PKData.Heart.QWBA.3",
+        "Sepp2015_PBPK_dAb_PKSimImport.PKData.Heart.QWBA.2",
+        "Sepp2015_PBPK_dAb_PKSimImport.PKData.Liver.QWBA.3",
+        "Sepp2015_PBPK_dAb_PKSimImport.PKData.Spleen.QWBA.3",
+        "Sepp2015_PBPK_dAb_PKSimImport.PKData.Lung.QWBA.3",
+        "Sepp2015_PBPK_dAb_PKSimImport.PKData.Spleen.QWBA.2",
+        "Sepp2015_PBPK_dAb_PKSimImport.PKData.Heart.QWBA.1",
+        "Sepp2015_PBPK_dAb_PKSimImport.PKData.Liver.QWBA.2",
+        "Sepp2015_PBPK_dAb_PKSimImport.PKData.Liver.QWBA.1"
+      ],
+      "Solver": {},
+      "OutputSchema": [
+        {
+          "Parameters": [
+            {
+              "Name": "Start time",
+              "Value": 0.0,
+              "Unit": "h"
+            },
+            {
+              "Name": "End time",
+              "Value": 4.0,
+              "Unit": "h",
+              "ValueOrigin": {
+                "Source": "Unknown"
+              }
+            },
+            {
+              "Name": "Resolution",
+              "Value": 60.0,
+              "Unit": "pts/h",
+              "ValueOrigin": {
+                "Source": "Unknown"
+              }
+            }
+          ]
+        }
+      ],
+      "Parameters": [
+        {
+          "Path": "Events|10mgkg|Application_1|ProtocolSchemaItem|Infusion time",
+          "Value": 0.0016666666667,
+          "Unit": "min"
+        }
+      ],
+      "OutputSelections": [
+        "Organism|VenousBlood|dAb2|Whole Blood",
+        "Organism|Lung|dAb2|Whole Organ incl. FcRn_Complex-dAb2",
+        "Organism|Skin|dAb2|Whole Organ incl. FcRn_Complex-dAb2",
+        "Organism|Muscle|dAb2|Whole Organ incl. FcRn_Complex-dAb2",
+        "Organism|Spleen|dAb2|Whole Organ incl. FcRn_Complex-dAb2",
+        "Organism|Liver|dAb2|Whole Organ incl. FcRn_Complex (Liver)-dAb2",
+        "Organism|Heart|dAb2|Whole Organ incl. FcRn_Complex-dAb2",
+        "Organism|Bone|dAb2|Whole Organ incl. FcRn_Complex-dAb2",
+        "Organism|LargeIntestine|dAb2|Whole Organ (Large Intestine) incl. FcRn_Complex-dAb2",
+        "Organism|SmallIntestine|dAb2|Whole Organ (Small Intestine) incl. FcRn_Complex-dAb2",
+        "Organism|Brain|dAb2|Whole Organ incl. FcRn_Complex-dAb2",
+        "Organism|Kidney|dAb2|Whole Organ incl. FcRn_Complex-dAb2"
+      ],
+      "OutputMappings": [
+        {
+          "Scaling": "Log",
+          "Path": "dAb2_Sim|Organism|VenousBlood|dAb2|Whole Blood",
+          "ObservedData": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Blood.LSC.1"
+        },
+        {
+          "Scaling": "Log",
+          "Path": "dAb2_Sim|Organism|VenousBlood|dAb2|Whole Blood",
+          "ObservedData": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Blood.LSC.2"
+        },
+        {
+          "Scaling": "Log",
+          "Path": "dAb2_Sim|Organism|VenousBlood|dAb2|Whole Blood",
+          "ObservedData": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Blood.LSC.3"
+        },
+        {
+          "Scaling": "Log",
+          "Path": "dAb2_Sim|Organism|VenousBlood|dAb2|Whole Blood",
+          "ObservedData": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Blood.LSC.4"
+        },
+        {
+          "Scaling": "Log",
+          "Path": "dAb2_Sim|Organism|VenousBlood|dAb2|Whole Blood",
+          "ObservedData": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Blood.LSC.5"
+        },
+        {
+          "Scaling": "Log",
+          "Path": "dAb2_Sim|Organism|VenousBlood|dAb2|Whole Blood",
+          "ObservedData": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Blood.LSC.6"
+        },
+        {
+          "Scaling": "Log",
+          "Path": "dAb2_Sim|Organism|VenousBlood|dAb2|Whole Blood",
+          "ObservedData": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Blood.QWBA.1"
+        },
+        {
+          "Scaling": "Log",
+          "Path": "dAb2_Sim|Organism|VenousBlood|dAb2|Whole Blood",
+          "ObservedData": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Blood.QWBA.2"
+        },
+        {
+          "Scaling": "Log",
+          "Path": "dAb2_Sim|Organism|VenousBlood|dAb2|Whole Blood",
+          "ObservedData": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Blood.QWBA.3"
+        },
+        {
+          "Scaling": "Log",
+          "Path": "dAb2_Sim|Organism|Bone|dAb2|Whole Organ incl. FcRn_Complex-dAb2",
+          "ObservedData": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Bone.QWBA.1"
+        },
+        {
+          "Scaling": "Log",
+          "Path": "dAb2_Sim|Organism|Bone|dAb2|Whole Organ incl. FcRn_Complex-dAb2",
+          "ObservedData": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Bone.QWBA.2"
+        },
+        {
+          "Scaling": "Log",
+          "Path": "dAb2_Sim|Organism|Bone|dAb2|Whole Organ incl. FcRn_Complex-dAb2",
+          "ObservedData": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Bone.QWBA.3"
+        },
+        {
+          "Scaling": "Log",
+          "Path": "dAb2_Sim|Organism|Brain|dAb2|Whole Organ incl. FcRn_Complex-dAb2",
+          "ObservedData": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Brain.QWBA.1"
+        },
+        {
+          "Scaling": "Log",
+          "Path": "dAb2_Sim|Organism|Brain|dAb2|Whole Organ incl. FcRn_Complex-dAb2",
+          "ObservedData": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Brain.QWBA.2"
+        },
+        {
+          "Scaling": "Log",
+          "Path": "dAb2_Sim|Organism|Brain|dAb2|Whole Organ incl. FcRn_Complex-dAb2",
+          "ObservedData": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Brain.QWBA.3"
+        },
+        {
+          "Scaling": "Log",
+          "Path": "dAb2_Sim|Organism|Heart|dAb2|Whole Organ incl. FcRn_Complex-dAb2",
+          "ObservedData": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Heart.QWBA.1"
+        },
+        {
+          "Scaling": "Log",
+          "Path": "dAb2_Sim|Organism|Heart|dAb2|Whole Organ incl. FcRn_Complex-dAb2",
+          "ObservedData": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Heart.QWBA.2"
+        },
+        {
+          "Scaling": "Log",
+          "Path": "dAb2_Sim|Organism|Heart|dAb2|Whole Organ incl. FcRn_Complex-dAb2",
+          "ObservedData": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Heart.QWBA.3"
+        },
+        {
+          "Scaling": "Log",
+          "Path": "dAb2_Sim|Organism|Liver|dAb2|Whole Organ incl. FcRn_Complex (Liver)-dAb2",
+          "ObservedData": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Liver.QWBA.1"
+        },
+        {
+          "Scaling": "Log",
+          "Path": "dAb2_Sim|Organism|Liver|dAb2|Whole Organ incl. FcRn_Complex (Liver)-dAb2",
+          "ObservedData": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Liver.QWBA.2"
+        },
+        {
+          "Scaling": "Log",
+          "Path": "dAb2_Sim|Organism|Liver|dAb2|Whole Organ incl. FcRn_Complex (Liver)-dAb2",
+          "ObservedData": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Liver.QWBA.3"
+        },
+        {
+          "Scaling": "Log",
+          "Path": "dAb2_Sim|Organism|Lung|dAb2|Whole Organ incl. FcRn_Complex-dAb2",
+          "ObservedData": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Lung.QWBA.1"
+        },
+        {
+          "Scaling": "Log",
+          "Path": "dAb2_Sim|Organism|Lung|dAb2|Whole Organ incl. FcRn_Complex-dAb2",
+          "ObservedData": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Lung.QWBA.2"
+        },
+        {
+          "Scaling": "Log",
+          "Path": "dAb2_Sim|Organism|Lung|dAb2|Whole Organ incl. FcRn_Complex-dAb2",
+          "ObservedData": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Lung.QWBA.3"
+        },
+        {
+          "Scaling": "Log",
+          "Path": "dAb2_Sim|Organism|Muscle|dAb2|Whole Organ incl. FcRn_Complex-dAb2",
+          "ObservedData": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Muscle.QWBA.1"
+        },
+        {
+          "Scaling": "Log",
+          "Path": "dAb2_Sim|Organism|Muscle|dAb2|Whole Organ incl. FcRn_Complex-dAb2",
+          "ObservedData": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Muscle.QWBA.2"
+        },
+        {
+          "Scaling": "Log",
+          "Path": "dAb2_Sim|Organism|Muscle|dAb2|Whole Organ incl. FcRn_Complex-dAb2",
+          "ObservedData": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Muscle.QWBA.3"
+        },
+        {
+          "Scaling": "Log",
+          "Path": "dAb2_Sim|Organism|Skin|dAb2|Whole Organ incl. FcRn_Complex-dAb2",
+          "ObservedData": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Skin.QWBA.1"
+        },
+        {
+          "Scaling": "Log",
+          "Path": "dAb2_Sim|Organism|Skin|dAb2|Whole Organ incl. FcRn_Complex-dAb2",
+          "ObservedData": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Skin.QWBA.2"
+        },
+        {
+          "Scaling": "Log",
+          "Path": "dAb2_Sim|Organism|Skin|dAb2|Whole Organ incl. FcRn_Complex-dAb2",
+          "ObservedData": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Skin.QWBA.3"
+        },
+        {
+          "Scaling": "Log",
+          "Path": "dAb2_Sim|Organism|Spleen|dAb2|Whole Organ incl. FcRn_Complex-dAb2",
+          "ObservedData": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Spleen.QWBA.1"
+        },
+        {
+          "Scaling": "Log",
+          "Path": "dAb2_Sim|Organism|Spleen|dAb2|Whole Organ incl. FcRn_Complex-dAb2",
+          "ObservedData": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Spleen.QWBA.2"
+        },
+        {
+          "Scaling": "Log",
+          "Path": "dAb2_Sim|Organism|Spleen|dAb2|Whole Organ incl. FcRn_Complex-dAb2",
+          "ObservedData": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Spleen.QWBA.3"
+        }
+      ],
+      "Individual": "Mouse",
+      "Compounds": [
+        {
+          "Name": "dAb2",
+          "CalculationMethods": [
+            "Cellular partition coefficient method - PK-Sim Standard",
+            "Cellular permeability - PK-Sim Standard"
+          ],
+          "Processes": [
+            {
+              "Name": "Glomerular Filtration-GFR",
+              "SystemicProcessType": "GFR"
+            }
+          ],
+          "Protocol": {
+            "Name": "10mgkg"
+          }
+        }
+      ],
+      "HasResults": true,
+      "IndividualAnalyses": [
+        {
+          "Axes": [
+            {
+              "Unit": "h",
+              "Dimension": "Time",
+              "Type": "X",
+              "GridLines": false,
+              "Visible": true,
+              "DefaultColor": "#FFFFFF",
+              "DefaultLineStyle": "None",
+              "Scaling": "Linear",
+              "NumberMode": "Normal"
+            },
+            {
+              "Unit": "µmol/l",
+              "Dimension": "Concentration (molar)",
+              "Type": "Y",
+              "GridLines": false,
+              "Visible": true,
+              "DefaultColor": "#FFFFFF",
+              "DefaultLineStyle": "Solid",
+              "Scaling": "Linear",
+              "NumberMode": "Normal"
+            }
+          ],
+          "Curves": [
+            {
+              "Name": "dAb2-Venous Blood-Whole Blood-Concentration",
+              "X": "Time",
+              "Y": "dAb2_Sim|Organism|VenousBlood|dAb2|Whole Blood",
+              "CurveOptions": {
+                "Color": "#FF0000",
+                "LegendIndex": 1
+              }
+            },
+            {
+              "Name": "Sepp2015.Blood.QWBA.3-dAb2-Blood-WholeBlood-Measurement",
+              "X": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Blood.QWBA.3|Time",
+              "Y": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Blood.QWBA.3|ObservedData|Blood|WholeBlood|dAb2|Measurement",
+              "CurveOptions": {
+                "VisibleInLegend": false,
+                "Color": "#FF0000",
+                "LegendIndex": 10,
+                "LineStyle": "None",
+                "Symbol": "Circle"
+              }
+            },
+            {
+              "Name": "Sepp2015.Blood.QWBA.1-dAb2-Blood-WholeBlood-Measurement",
+              "X": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Blood.QWBA.1|Time",
+              "Y": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Blood.QWBA.1|ObservedData|Blood|WholeBlood|dAb2|Measurement",
+              "CurveOptions": {
+                "Color": "#FF0000",
+                "LegendIndex": 8,
+                "LineStyle": "None",
+                "Symbol": "Circle"
+              }
+            },
+            {
+              "Name": "Sepp2015.Blood.QWBA.2-dAb2-Blood-WholeBlood-Measurement",
+              "X": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Blood.QWBA.2|Time",
+              "Y": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Blood.QWBA.2|ObservedData|Blood|WholeBlood|dAb2|Measurement",
+              "CurveOptions": {
+                "VisibleInLegend": false,
+                "Color": "#FF0000",
+                "LegendIndex": 9,
+                "LineStyle": "None",
+                "Symbol": "Circle"
+              }
+            },
+            {
+              "Name": "Sepp2015.Blood.LSC.6-dAb2-Blood-WholeBlood-Measurement",
+              "X": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Blood.LSC.6|Time",
+              "Y": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Blood.LSC.6|ObservedData|Blood|WholeBlood|dAb2|Measurement",
+              "CurveOptions": {
+                "VisibleInLegend": false,
+                "Color": "#FF0000",
+                "LegendIndex": 7,
+                "LineStyle": "None",
+                "Symbol": "Triangle"
+              }
+            },
+            {
+              "Name": "Sepp2015.Blood.LSC.5-dAb2-Blood-WholeBlood-Measurement",
+              "X": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Blood.LSC.5|Time",
+              "Y": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Blood.LSC.5|ObservedData|Blood|WholeBlood|dAb2|Measurement",
+              "CurveOptions": {
+                "VisibleInLegend": false,
+                "Color": "#FF0000",
+                "LegendIndex": 6,
+                "LineStyle": "None",
+                "Symbol": "Triangle"
+              }
+            },
+            {
+              "Name": "Sepp2015.Blood.LSC.4-dAb2-Blood-WholeBlood-Measurement",
+              "X": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Blood.LSC.4|Time",
+              "Y": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Blood.LSC.4|ObservedData|Blood|WholeBlood|dAb2|Measurement",
+              "CurveOptions": {
+                "VisibleInLegend": false,
+                "Color": "#FF0000",
+                "LegendIndex": 5,
+                "LineStyle": "None",
+                "Symbol": "Triangle"
+              }
+            },
+            {
+              "Name": "Sepp2015.Blood.LSC.3-dAb2-Blood-WholeBlood-Measurement",
+              "X": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Blood.LSC.3|Time",
+              "Y": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Blood.LSC.3|ObservedData|Blood|WholeBlood|dAb2|Measurement",
+              "CurveOptions": {
+                "VisibleInLegend": false,
+                "Color": "#FF0000",
+                "LegendIndex": 4,
+                "LineStyle": "None",
+                "Symbol": "Triangle"
+              }
+            },
+            {
+              "Name": "Sepp2015.Blood.LSC.1-dAb2-Blood-WholeBlood-Measurement",
+              "X": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Blood.LSC.1|Time",
+              "Y": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Blood.LSC.1|ObservedData|Blood|WholeBlood|dAb2|Measurement",
+              "CurveOptions": {
+                "Color": "#FF0000",
+                "LegendIndex": 2,
+                "LineStyle": "None",
+                "Symbol": "Triangle"
+              }
+            },
+            {
+              "Name": "Sepp2015.Blood.LSC.2-dAb2-Blood-WholeBlood-Measurement",
+              "X": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Blood.LSC.2|Time",
+              "Y": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Blood.LSC.2|ObservedData|Blood|WholeBlood|dAb2|Measurement",
+              "CurveOptions": {
+                "VisibleInLegend": false,
+                "Color": "#FF0000",
+                "LegendIndex": 3,
+                "LineStyle": "None",
+                "Symbol": "Triangle"
+              }
+            }
+          ],
+          "Name": "Blood - lin scale",
+          "FontAndSize": {
+            "Fonts": {
+              "AxisSize": 10,
+              "LegendSize": 8,
+              "TitleSize": 16,
+              "DescriptionSize": 12,
+              "OriginSize": 8,
+              "FontFamilyName": "Microsoft Sans Serif",
+              "WatermarkSize": 32
+            }
+          },
+          "Settings": {
+            "SideMarginsEnabled": true,
+            "LegendPosition": "RightInside",
+            "BackColor": "#FFFFFF",
+            "DiagramBackColor": "#FFFFFF"
+          },
+          "OriginText": "dAb2\ndAb2_Sim\n2023-03-14 12:14"
+        },
+        {
+          "Axes": [
+            {
+              "Unit": "h",
+              "Dimension": "Time",
+              "Type": "X",
+              "GridLines": false,
+              "Visible": true,
+              "DefaultColor": "#FFFFFF",
+              "DefaultLineStyle": "None",
+              "Scaling": "Linear",
+              "NumberMode": "Normal"
+            },
+            {
+              "Unit": "µmol/l",
+              "Dimension": "Concentration (molar)",
+              "Type": "Y",
+              "GridLines": false,
+              "Visible": true,
+              "Min": 0.01,
+              "Max": 3.0,
+              "DefaultColor": "#FFFFFF",
+              "DefaultLineStyle": "Solid",
+              "Scaling": "Log",
+              "NumberMode": "Normal"
+            }
+          ],
+          "Curves": [
+            {
+              "Name": "dAb2-Venous Blood-Whole Blood-Concentration",
+              "X": "Time",
+              "Y": "dAb2_Sim|Organism|VenousBlood|dAb2|Whole Blood",
+              "CurveOptions": {
+                "Color": "#FF0000",
+                "LegendIndex": 14
+              }
+            },
+            {
+              "Name": "Sepp2015.Blood.QWBA.3-dAb2-Blood-WholeBlood-Measurement",
+              "X": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Blood.QWBA.3|Time",
+              "Y": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Blood.QWBA.3|ObservedData|Blood|WholeBlood|dAb2|Measurement",
+              "CurveOptions": {
+                "VisibleInLegend": false,
+                "Color": "#FF0000",
+                "LegendIndex": 23,
+                "LineStyle": "None",
+                "Symbol": "Circle"
+              }
+            },
+            {
+              "Name": "Sepp2015.Blood.QWBA.1-dAb2-Blood-WholeBlood-Measurement",
+              "X": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Blood.QWBA.1|Time",
+              "Y": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Blood.QWBA.1|ObservedData|Blood|WholeBlood|dAb2|Measurement",
+              "CurveOptions": {
+                "Color": "#FF0000",
+                "LegendIndex": 21,
+                "LineStyle": "None",
+                "Symbol": "Circle"
+              }
+            },
+            {
+              "Name": "Sepp2015.Blood.QWBA.2-dAb2-Blood-WholeBlood-Measurement",
+              "X": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Blood.QWBA.2|Time",
+              "Y": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Blood.QWBA.2|ObservedData|Blood|WholeBlood|dAb2|Measurement",
+              "CurveOptions": {
+                "VisibleInLegend": false,
+                "Color": "#FF0000",
+                "LegendIndex": 22,
+                "LineStyle": "None",
+                "Symbol": "Circle"
+              }
+            },
+            {
+              "Name": "Sepp2015.Blood.LSC.6-dAb2-Blood-WholeBlood-Measurement",
+              "X": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Blood.LSC.6|Time",
+              "Y": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Blood.LSC.6|ObservedData|Blood|WholeBlood|dAb2|Measurement",
+              "CurveOptions": {
+                "VisibleInLegend": false,
+                "Color": "#FF0000",
+                "LegendIndex": 20,
+                "LineStyle": "None",
+                "Symbol": "Triangle"
+              }
+            },
+            {
+              "Name": "Sepp2015.Blood.LSC.5-dAb2-Blood-WholeBlood-Measurement",
+              "X": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Blood.LSC.5|Time",
+              "Y": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Blood.LSC.5|ObservedData|Blood|WholeBlood|dAb2|Measurement",
+              "CurveOptions": {
+                "VisibleInLegend": false,
+                "Color": "#FF0000",
+                "LegendIndex": 19,
+                "LineStyle": "None",
+                "Symbol": "Triangle"
+              }
+            },
+            {
+              "Name": "Sepp2015.Blood.LSC.4-dAb2-Blood-WholeBlood-Measurement",
+              "X": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Blood.LSC.4|Time",
+              "Y": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Blood.LSC.4|ObservedData|Blood|WholeBlood|dAb2|Measurement",
+              "CurveOptions": {
+                "VisibleInLegend": false,
+                "Color": "#FF0000",
+                "LegendIndex": 18,
+                "LineStyle": "None",
+                "Symbol": "Triangle"
+              }
+            },
+            {
+              "Name": "Sepp2015.Blood.LSC.3-dAb2-Blood-WholeBlood-Measurement",
+              "X": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Blood.LSC.3|Time",
+              "Y": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Blood.LSC.3|ObservedData|Blood|WholeBlood|dAb2|Measurement",
+              "CurveOptions": {
+                "VisibleInLegend": false,
+                "Color": "#FF0000",
+                "LegendIndex": 17,
+                "LineStyle": "None",
+                "Symbol": "Triangle"
+              }
+            },
+            {
+              "Name": "Sepp2015.Blood.LSC.1-dAb2-Blood-WholeBlood-Measurement",
+              "X": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Blood.LSC.1|Time",
+              "Y": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Blood.LSC.1|ObservedData|Blood|WholeBlood|dAb2|Measurement",
+              "CurveOptions": {
+                "Color": "#FF0000",
+                "LegendIndex": 15,
+                "LineStyle": "None",
+                "Symbol": "Triangle"
+              }
+            },
+            {
+              "Name": "Sepp2015.Blood.LSC.2-dAb2-Blood-WholeBlood-Measurement",
+              "X": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Blood.LSC.2|Time",
+              "Y": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Blood.LSC.2|ObservedData|Blood|WholeBlood|dAb2|Measurement",
+              "CurveOptions": {
+                "VisibleInLegend": false,
+                "Color": "#FF0000",
+                "LegendIndex": 16,
+                "LineStyle": "None",
+                "Symbol": "Triangle"
+              }
+            }
+          ],
+          "Name": "Blood - log scale",
+          "FontAndSize": {
+            "Fonts": {
+              "AxisSize": 10,
+              "LegendSize": 8,
+              "TitleSize": 16,
+              "DescriptionSize": 12,
+              "OriginSize": 8,
+              "FontFamilyName": "Microsoft Sans Serif",
+              "WatermarkSize": 32
+            }
+          },
+          "Settings": {
+            "SideMarginsEnabled": true,
+            "LegendPosition": "RightInside",
+            "BackColor": "#FFFFFF",
+            "DiagramBackColor": "#FFFFFF"
+          },
+          "OriginText": "dAb2\ndAb2_Sim\n2023-03-14 12:14"
+        },
+        {
+          "Axes": [
+            {
+              "Unit": "h",
+              "Dimension": "Time",
+              "Type": "X",
+              "GridLines": false,
+              "Visible": true,
+              "DefaultColor": "#FFFFFF",
+              "DefaultLineStyle": "None",
+              "Scaling": "Linear",
+              "NumberMode": "Normal"
+            },
+            {
+              "Unit": "µmol/l",
+              "Dimension": "Concentration (molar)",
+              "Type": "Y",
+              "GridLines": false,
+              "Visible": true,
+              "Min": 0.01,
+              "Max": 3.0,
+              "DefaultColor": "#FFFFFF",
+              "DefaultLineStyle": "Solid",
+              "Scaling": "Log",
+              "NumberMode": "Normal"
+            }
+          ],
+          "Curves": [
+            {
+              "Name": "dAb2-Lung-Whole Organ incl. FcRn_Complex-dAb2-Concentration",
+              "X": "Time",
+              "Y": "dAb2_Sim|Organism|Lung|dAb2|Whole Organ incl. FcRn_Complex-dAb2",
+              "CurveOptions": {
+                "Color": "#0000FF",
+                "LegendIndex": 7
+              }
+            },
+            {
+              "Name": "Sepp2015.Lung.QWBA.1-dAb2-Lung-Tissue-Measurement",
+              "X": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Lung.QWBA.1|Time",
+              "Y": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Lung.QWBA.1|ObservedData|Lung|Tissue|dAb2|Measurement",
+              "CurveOptions": {
+                "Color": "#0000FF",
+                "LegendIndex": 8,
+                "LineStyle": "None",
+                "Symbol": "Circle"
+              }
+            },
+            {
+              "Name": "Sepp2015.Lung.QWBA.3-dAb2-Lung-Tissue-Measurement",
+              "X": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Lung.QWBA.3|Time",
+              "Y": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Lung.QWBA.3|ObservedData|Lung|Tissue|dAb2|Measurement",
+              "CurveOptions": {
+                "VisibleInLegend": false,
+                "Color": "#0000FF",
+                "LegendIndex": 10,
+                "LineStyle": "None",
+                "Symbol": "Circle"
+              }
+            },
+            {
+              "Name": "Sepp2015.Lung.QWBA.2-dAb2-Lung-Tissue-Measurement",
+              "X": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Lung.QWBA.2|Time",
+              "Y": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Lung.QWBA.2|ObservedData|Lung|Tissue|dAb2|Measurement",
+              "CurveOptions": {
+                "VisibleInLegend": false,
+                "Color": "#0000FF",
+                "LegendIndex": 9,
+                "LineStyle": "None",
+                "Symbol": "Circle"
+              }
+            }
+          ],
+          "Name": "Lung",
+          "FontAndSize": {
+            "Fonts": {
+              "AxisSize": 10,
+              "LegendSize": 8,
+              "TitleSize": 16,
+              "DescriptionSize": 12,
+              "OriginSize": 8,
+              "FontFamilyName": "Microsoft Sans Serif",
+              "WatermarkSize": 32
+            }
+          },
+          "Settings": {
+            "SideMarginsEnabled": true,
+            "LegendPosition": "RightInside",
+            "BackColor": "#FFFFFF",
+            "DiagramBackColor": "#FFFFFF"
+          },
+          "OriginText": "dAb2\ndAb2_Sim\n2023-03-14 12:14"
+        },
+        {
+          "Axes": [
+            {
+              "Unit": "h",
+              "Dimension": "Time",
+              "Type": "X",
+              "GridLines": false,
+              "Visible": true,
+              "DefaultColor": "#FFFFFF",
+              "DefaultLineStyle": "None",
+              "Scaling": "Linear",
+              "NumberMode": "Normal"
+            },
+            {
+              "Unit": "µmol/l",
+              "Dimension": "Concentration (molar)",
+              "Type": "Y",
+              "GridLines": false,
+              "Visible": true,
+              "Min": 0.01,
+              "Max": 3.0,
+              "DefaultColor": "#FFFFFF",
+              "DefaultLineStyle": "Solid",
+              "Scaling": "Log",
+              "NumberMode": "Normal"
+            }
+          ],
+          "Curves": [
+            {
+              "Name": "dAb2-Skin-Whole Organ incl. FcRn_Complex-dAb2-Concentration",
+              "X": "Time",
+              "Y": "dAb2_Sim|Organism|Skin|dAb2|Whole Organ incl. FcRn_Complex-dAb2",
+              "CurveOptions": {
+                "Color": "#FF00FF",
+                "LegendIndex": 14
+              }
+            },
+            {
+              "Name": "Sepp2015.Skin.QWBA.3-dAb2-Skin-Tissue-Measurement",
+              "X": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Skin.QWBA.3|Time",
+              "Y": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Skin.QWBA.3|ObservedData|Skin|Tissue|dAb2|Measurement",
+              "CurveOptions": {
+                "VisibleInLegend": false,
+                "Color": "#FF00FF",
+                "LegendIndex": 17,
+                "LineStyle": "None",
+                "Symbol": "Circle"
+              }
+            },
+            {
+              "Name": "Sepp2015.Skin.QWBA.2-dAb2-Skin-Tissue-Measurement",
+              "X": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Skin.QWBA.2|Time",
+              "Y": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Skin.QWBA.2|ObservedData|Skin|Tissue|dAb2|Measurement",
+              "CurveOptions": {
+                "VisibleInLegend": false,
+                "Color": "#FF00FF",
+                "LegendIndex": 16,
+                "LineStyle": "None",
+                "Symbol": "Circle"
+              }
+            },
+            {
+              "Name": "Sepp2015.Skin.QWBA.1-dAb2-Skin-Tissue-Measurement",
+              "X": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Skin.QWBA.1|Time",
+              "Y": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Skin.QWBA.1|ObservedData|Skin|Tissue|dAb2|Measurement",
+              "CurveOptions": {
+                "Color": "#FF00FF",
+                "LegendIndex": 15,
+                "LineStyle": "None",
+                "Symbol": "Circle"
+              }
+            }
+          ],
+          "Name": "Skin",
+          "FontAndSize": {
+            "Fonts": {
+              "AxisSize": 10,
+              "LegendSize": 8,
+              "TitleSize": 16,
+              "DescriptionSize": 12,
+              "OriginSize": 8,
+              "FontFamilyName": "Microsoft Sans Serif",
+              "WatermarkSize": 32
+            }
+          },
+          "Settings": {
+            "SideMarginsEnabled": true,
+            "LegendPosition": "RightInside",
+            "BackColor": "#FFFFFF",
+            "DiagramBackColor": "#FFFFFF"
+          },
+          "OriginText": "dAb2\ndAb2_Sim\n2023-03-14 12:14"
+        },
+        {
+          "Axes": [
+            {
+              "Unit": "h",
+              "Dimension": "Time",
+              "Type": "X",
+              "GridLines": false,
+              "Visible": true,
+              "DefaultColor": "#FFFFFF",
+              "DefaultLineStyle": "None",
+              "Scaling": "Linear",
+              "NumberMode": "Normal"
+            },
+            {
+              "Unit": "µmol/l",
+              "Dimension": "Concentration (molar)",
+              "Type": "Y",
+              "GridLines": false,
+              "Visible": true,
+              "Min": 0.01,
+              "Max": 3.0,
+              "DefaultColor": "#FFFFFF",
+              "DefaultLineStyle": "Solid",
+              "Scaling": "Log",
+              "NumberMode": "Normal"
+            }
+          ],
+          "Curves": [
+            {
+              "Name": "dAb2-Muscle-Whole Organ incl. FcRn_Complex-dAb2-Concentration",
+              "X": "Time",
+              "Y": "dAb2_Sim|Organism|Muscle|dAb2|Whole Organ incl. FcRn_Complex-dAb2",
+              "CurveOptions": {
+                "Color": "#800080",
+                "LegendIndex": 7
+              }
+            },
+            {
+              "Name": "Sepp2015.Muscle.QWBA.3-dAb2-Muscle-Tissue-Measurement",
+              "X": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Muscle.QWBA.3|Time",
+              "Y": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Muscle.QWBA.3|ObservedData|Muscle|Tissue|dAb2|Measurement",
+              "CurveOptions": {
+                "VisibleInLegend": false,
+                "Color": "#800080",
+                "LegendIndex": 10,
+                "LineStyle": "None",
+                "Symbol": "Circle"
+              }
+            },
+            {
+              "Name": "Sepp2015.Muscle.QWBA.2-dAb2-Muscle-Tissue-Measurement",
+              "X": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Muscle.QWBA.2|Time",
+              "Y": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Muscle.QWBA.2|ObservedData|Muscle|Tissue|dAb2|Measurement",
+              "CurveOptions": {
+                "VisibleInLegend": false,
+                "Color": "#800080",
+                "LegendIndex": 9,
+                "LineStyle": "None",
+                "Symbol": "Circle"
+              }
+            },
+            {
+              "Name": "Sepp2015.Muscle.QWBA.1-dAb2-Muscle-Tissue-Measurement",
+              "X": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Muscle.QWBA.1|Time",
+              "Y": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Muscle.QWBA.1|ObservedData|Muscle|Tissue|dAb2|Measurement",
+              "CurveOptions": {
+                "Color": "#800080",
+                "LegendIndex": 8,
+                "LineStyle": "None",
+                "Symbol": "Circle"
+              }
+            }
+          ],
+          "Name": "Muscle",
+          "FontAndSize": {
+            "Fonts": {
+              "AxisSize": 10,
+              "LegendSize": 8,
+              "TitleSize": 16,
+              "DescriptionSize": 12,
+              "OriginSize": 8,
+              "FontFamilyName": "Microsoft Sans Serif",
+              "WatermarkSize": 32
+            }
+          },
+          "Settings": {
+            "SideMarginsEnabled": true,
+            "LegendPosition": "RightInside",
+            "BackColor": "#FFFFFF",
+            "DiagramBackColor": "#FFFFFF"
+          },
+          "OriginText": "dAb2\ndAb2_Sim\n2023-03-14 12:14"
+        },
+        {
+          "Axes": [
+            {
+              "Unit": "h",
+              "Dimension": "Time",
+              "Type": "X",
+              "GridLines": false,
+              "Visible": true,
+              "DefaultColor": "#FFFFFF",
+              "DefaultLineStyle": "None",
+              "Scaling": "Linear",
+              "NumberMode": "Normal"
+            },
+            {
+              "Unit": "µmol/l",
+              "Dimension": "Concentration (molar)",
+              "Type": "Y",
+              "GridLines": false,
+              "Visible": true,
+              "Min": 0.01,
+              "Max": 3.0,
+              "DefaultColor": "#FFFFFF",
+              "DefaultLineStyle": "Solid",
+              "Scaling": "Log",
+              "NumberMode": "Normal"
+            }
+          ],
+          "Curves": [
+            {
+              "Name": "dAb2-Spleen-Whole Organ incl. FcRn_Complex-dAb2-Concentration",
+              "X": "Time",
+              "Y": "dAb2_Sim|Organism|Spleen|dAb2|Whole Organ incl. FcRn_Complex-dAb2",
+              "CurveOptions": {
+                "Color": "#00FF00",
+                "LegendIndex": 9
+              }
+            },
+            {
+              "Name": "Sepp2015.Spleen.QWBA.3-dAb2-Spleen-Tissue-Measurement",
+              "X": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Spleen.QWBA.3|Time",
+              "Y": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Spleen.QWBA.3|ObservedData|Spleen|Tissue|dAb2|Measurement",
+              "CurveOptions": {
+                "VisibleInLegend": false,
+                "Color": "#00FF00",
+                "LegendIndex": 12,
+                "LineStyle": "None",
+                "Symbol": "Circle"
+              }
+            },
+            {
+              "Name": "Sepp2015.Spleen.QWBA.2-dAb2-Spleen-Tissue-Measurement",
+              "X": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Spleen.QWBA.2|Time",
+              "Y": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Spleen.QWBA.2|ObservedData|Spleen|Tissue|dAb2|Measurement",
+              "CurveOptions": {
+                "VisibleInLegend": false,
+                "Color": "#00FF00",
+                "LegendIndex": 11,
+                "LineStyle": "None",
+                "Symbol": "Circle"
+              }
+            },
+            {
+              "Name": "Sepp2015.Spleen.QWBA.1-dAb2-Spleen-Tissue-Measurement",
+              "X": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Spleen.QWBA.1|Time",
+              "Y": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Spleen.QWBA.1|ObservedData|Spleen|Tissue|dAb2|Measurement",
+              "CurveOptions": {
+                "Color": "#00FF00",
+                "LegendIndex": 10,
+                "LineStyle": "None",
+                "Symbol": "Circle"
+              }
+            }
+          ],
+          "Name": "Spleen",
+          "FontAndSize": {
+            "Fonts": {
+              "AxisSize": 10,
+              "LegendSize": 8,
+              "TitleSize": 16,
+              "DescriptionSize": 12,
+              "OriginSize": 8,
+              "FontFamilyName": "Microsoft Sans Serif",
+              "WatermarkSize": 32
+            }
+          },
+          "Settings": {
+            "SideMarginsEnabled": true,
+            "LegendPosition": "RightInside",
+            "BackColor": "#FFFFFF",
+            "DiagramBackColor": "#FFFFFF"
+          },
+          "OriginText": "dAb2\ndAb2_Sim\n2023-03-14 12:14"
+        },
+        {
+          "Axes": [
+            {
+              "Unit": "h",
+              "Dimension": "Time",
+              "Type": "X",
+              "GridLines": false,
+              "Visible": true,
+              "DefaultColor": "#FFFFFF",
+              "DefaultLineStyle": "None",
+              "Scaling": "Linear",
+              "NumberMode": "Normal"
+            },
+            {
+              "Unit": "µmol/l",
+              "Dimension": "Concentration (molar)",
+              "Type": "Y",
+              "GridLines": false,
+              "Visible": true,
+              "Min": 0.01,
+              "Max": 3.0,
+              "DefaultColor": "#FFFFFF",
+              "DefaultLineStyle": "Solid",
+              "Scaling": "Log",
+              "NumberMode": "Normal"
+            }
+          ],
+          "Curves": [
+            {
+              "Name": "dAb2-Liver-Whole Organ incl. FcRn_Complex (Liver)-dAb2-Concentration",
+              "X": "Time",
+              "Y": "dAb2_Sim|Organism|Liver|dAb2|Whole Organ incl. FcRn_Complex (Liver)-dAb2",
+              "CurveOptions": {
+                "Color": "#C04000",
+                "LegendIndex": 5
+              }
+            },
+            {
+              "Name": "Sepp2015.Liver.QWBA.3-dAb2-Liver-Tissue-Measurement",
+              "X": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Liver.QWBA.3|Time",
+              "Y": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Liver.QWBA.3|ObservedData|Liver|Tissue|dAb2|Measurement",
+              "CurveOptions": {
+                "VisibleInLegend": false,
+                "Color": "#C04000",
+                "LegendIndex": 8,
+                "LineStyle": "None",
+                "Symbol": "Circle"
+              }
+            },
+            {
+              "Name": "Sepp2015.Liver.QWBA.2-dAb2-Liver-Tissue-Measurement",
+              "X": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Liver.QWBA.2|Time",
+              "Y": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Liver.QWBA.2|ObservedData|Liver|Tissue|dAb2|Measurement",
+              "CurveOptions": {
+                "VisibleInLegend": false,
+                "Color": "#C04000",
+                "LegendIndex": 7,
+                "LineStyle": "None",
+                "Symbol": "Circle"
+              }
+            },
+            {
+              "Name": "Sepp2015.Liver.QWBA.1-dAb2-Liver-Tissue-Measurement",
+              "X": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Liver.QWBA.1|Time",
+              "Y": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Liver.QWBA.1|ObservedData|Liver|Tissue|dAb2|Measurement",
+              "CurveOptions": {
+                "Color": "#C04000",
+                "LegendIndex": 6,
+                "LineStyle": "None",
+                "Symbol": "Circle"
+              }
+            }
+          ],
+          "Name": "Liver",
+          "FontAndSize": {
+            "Fonts": {
+              "AxisSize": 10,
+              "LegendSize": 8,
+              "TitleSize": 16,
+              "DescriptionSize": 12,
+              "OriginSize": 8,
+              "FontFamilyName": "Microsoft Sans Serif",
+              "WatermarkSize": 32
+            }
+          },
+          "Settings": {
+            "SideMarginsEnabled": true,
+            "LegendPosition": "RightInside",
+            "BackColor": "#FFFFFF",
+            "DiagramBackColor": "#FFFFFF"
+          },
+          "OriginText": "dAb2\ndAb2_Sim\n2023-03-14 12:14"
+        },
+        {
+          "Axes": [
+            {
+              "Unit": "h",
+              "Dimension": "Time",
+              "Type": "X",
+              "GridLines": false,
+              "Visible": true,
+              "DefaultColor": "#FFFFFF",
+              "DefaultLineStyle": "None",
+              "Scaling": "Linear",
+              "NumberMode": "Normal"
+            },
+            {
+              "Unit": "µmol/l",
+              "Dimension": "Concentration (molar)",
+              "Type": "Y",
+              "GridLines": false,
+              "Visible": true,
+              "Min": 0.01,
+              "Max": 3.0,
+              "DefaultColor": "#FFFFFF",
+              "DefaultLineStyle": "Solid",
+              "Scaling": "Log",
+              "NumberMode": "Normal"
+            }
+          ],
+          "Curves": [
+            {
+              "Name": "dAb2-Heart-Whole Organ incl. FcRn_Complex-dAb2-Concentration",
+              "X": "Time",
+              "Y": "dAb2_Sim|Organism|Heart|dAb2|Whole Organ incl. FcRn_Complex-dAb2",
+              "CurveOptions": {
+                "Color": "#FF8080",
+                "LegendIndex": 14
+              }
+            },
+            {
+              "Name": "Sepp2015.Heart.QWBA.1-dAb2-Heart-Tissue-Measurement",
+              "X": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Heart.QWBA.1|Time",
+              "Y": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Heart.QWBA.1|ObservedData|Heart|Tissue|dAb2|Measurement",
+              "CurveOptions": {
+                "Color": "#FF8080",
+                "LegendIndex": 15,
+                "LineStyle": "None",
+                "Symbol": "Circle"
+              }
+            },
+            {
+              "Name": "Sepp2015.Heart.QWBA.3-dAb2-Heart-Tissue-Measurement",
+              "X": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Heart.QWBA.3|Time",
+              "Y": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Heart.QWBA.3|ObservedData|Heart|Tissue|dAb2|Measurement",
+              "CurveOptions": {
+                "VisibleInLegend": false,
+                "Color": "#FF8080",
+                "LegendIndex": 17,
+                "LineStyle": "None",
+                "Symbol": "Circle"
+              }
+            },
+            {
+              "Name": "Sepp2015.Heart.QWBA.2-dAb2-Heart-Tissue-Measurement",
+              "X": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Heart.QWBA.2|Time",
+              "Y": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Heart.QWBA.2|ObservedData|Heart|Tissue|dAb2|Measurement",
+              "CurveOptions": {
+                "VisibleInLegend": false,
+                "Color": "#FF8080",
+                "LegendIndex": 16,
+                "LineStyle": "None",
+                "Symbol": "Circle"
+              }
+            }
+          ],
+          "Name": "Heart",
+          "FontAndSize": {
+            "Fonts": {
+              "AxisSize": 10,
+              "LegendSize": 8,
+              "TitleSize": 16,
+              "DescriptionSize": 12,
+              "OriginSize": 8,
+              "FontFamilyName": "Microsoft Sans Serif",
+              "WatermarkSize": 32
+            }
+          },
+          "Settings": {
+            "SideMarginsEnabled": true,
+            "LegendPosition": "RightInside",
+            "BackColor": "#FFFFFF",
+            "DiagramBackColor": "#FFFFFF"
+          },
+          "OriginText": "dAb2\ndAb2_Sim\n2023-03-14 12:14"
+        },
+        {
+          "Axes": [
+            {
+              "Unit": "h",
+              "Dimension": "Time",
+              "Type": "X",
+              "GridLines": false,
+              "Visible": true,
+              "DefaultColor": "#FFFFFF",
+              "DefaultLineStyle": "None",
+              "Scaling": "Linear",
+              "NumberMode": "Normal"
+            },
+            {
+              "Unit": "µmol/l",
+              "Dimension": "Concentration (molar)",
+              "Type": "Y",
+              "GridLines": false,
+              "Visible": true,
+              "Min": 0.01,
+              "Max": 3.0,
+              "DefaultColor": "#FFFFFF",
+              "DefaultLineStyle": "Solid",
+              "Scaling": "Log",
+              "NumberMode": "Normal"
+            }
+          ],
+          "Curves": [
+            {
+              "Name": "dAb2-Bone-Whole Organ incl. FcRn_Complex-dAb2-Concentration",
+              "X": "Time",
+              "Y": "dAb2_Sim|Organism|Bone|dAb2|Whole Organ incl. FcRn_Complex-dAb2",
+              "CurveOptions": {
+                "Color": "#0000C0",
+                "LegendIndex": 14
+              }
+            },
+            {
+              "Name": "Sepp2015.Bone.QWBA.3-dAb2-Bone-Tissue-Measurement",
+              "X": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Bone.QWBA.3|Time",
+              "Y": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Bone.QWBA.3|ObservedData|Bone|Tissue|dAb2|Measurement",
+              "CurveOptions": {
+                "VisibleInLegend": false,
+                "Color": "#0000C0",
+                "LegendIndex": 17,
+                "LineStyle": "None",
+                "Symbol": "Circle"
+              }
+            },
+            {
+              "Name": "Sepp2015.Bone.QWBA.2-dAb2-Bone-Tissue-Measurement",
+              "X": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Bone.QWBA.2|Time",
+              "Y": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Bone.QWBA.2|ObservedData|Bone|Tissue|dAb2|Measurement",
+              "CurveOptions": {
+                "VisibleInLegend": false,
+                "Color": "#0000C0",
+                "LegendIndex": 16,
+                "LineStyle": "None",
+                "Symbol": "Circle"
+              }
+            },
+            {
+              "Name": "Sepp2015.Bone.QWBA.1-dAb2-Bone-Tissue-Measurement",
+              "X": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Bone.QWBA.1|Time",
+              "Y": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Bone.QWBA.1|ObservedData|Bone|Tissue|dAb2|Measurement",
+              "CurveOptions": {
+                "Color": "#0000C0",
+                "LegendIndex": 15,
+                "LineStyle": "None",
+                "Symbol": "Circle"
+              }
+            }
+          ],
+          "Name": "Bone",
+          "FontAndSize": {
+            "Fonts": {
+              "AxisSize": 10,
+              "LegendSize": 8,
+              "TitleSize": 16,
+              "DescriptionSize": 12,
+              "OriginSize": 8,
+              "FontFamilyName": "Microsoft Sans Serif",
+              "WatermarkSize": 32
+            }
+          },
+          "Settings": {
+            "SideMarginsEnabled": true,
+            "LegendPosition": "RightInside",
+            "BackColor": "#FFFFFF",
+            "DiagramBackColor": "#FFFFFF"
+          },
+          "OriginText": "dAb2\ndAb2_Sim\n2023-03-14 12:14"
+        },
+        {
+          "Axes": [
+            {
+              "Unit": "h",
+              "Dimension": "Time",
+              "Type": "X",
+              "GridLines": false,
+              "Visible": true,
+              "DefaultColor": "#FFFFFF",
+              "DefaultLineStyle": "None",
+              "Scaling": "Linear",
+              "NumberMode": "Normal"
+            },
+            {
+              "Unit": "µmol/l",
+              "Dimension": "Concentration (molar)",
+              "Type": "Y",
+              "GridLines": false,
+              "Visible": true,
+              "Min": 0.01,
+              "Max": 3.0,
+              "DefaultColor": "#FFFFFF",
+              "DefaultLineStyle": "Solid",
+              "Scaling": "Log",
+              "NumberMode": "Normal"
+            }
+          ],
+          "Curves": [
+            {
+              "Name": "dAb2-Small Intestine-Whole Organ (Small Intestine) incl. FcRn_Complex-dAb2-Concentration",
+              "X": "Time",
+              "Y": "dAb2_Sim|Organism|SmallIntestine|dAb2|Whole Organ (Small Intestine) incl. FcRn_Complex-dAb2",
+              "CurveOptions": {
+                "Color": "#804040",
+                "LegendIndex": 14
+              }
+            },
+            {
+              "Name": "dAb2-Large Intestine-Whole Organ (Large Intestine) incl. FcRn_Complex-dAb2-Concentration",
+              "X": "Time",
+              "Y": "dAb2_Sim|Organism|LargeIntestine|dAb2|Whole Organ (Large Intestine) incl. FcRn_Complex-dAb2",
+              "CurveOptions": {
+                "Color": "#808080",
+                "LegendIndex": 15
+              }
+            },
+            {
+              "Name": "Sepp2015.Gut.QWBA.3-dAb2-Gut-Tissue-Measurement",
+              "X": "Sepp2015_PBPK_dAb_PKSimImport.PKData.GIT.QWBA.3|Time",
+              "Y": "Sepp2015_PBPK_dAb_PKSimImport.PKData.GIT.QWBA.3|ObservedData|GIT|Tissue|dAb2|Measurement",
+              "CurveOptions": {
+                "VisibleInLegend": false,
+                "Color": "#804040",
+                "LegendIndex": 18,
+                "LineStyle": "None",
+                "Symbol": "Circle"
+              }
+            },
+            {
+              "Name": "Sepp2015.Gut.QWBA.1-dAb2-Gut-Tissue-Measurement",
+              "X": "Sepp2015_PBPK_dAb_PKSimImport.PKData.GIT.QWBA.1|Time",
+              "Y": "Sepp2015_PBPK_dAb_PKSimImport.PKData.GIT.QWBA.1|ObservedData|GIT|Tissue|dAb2|Measurement",
+              "CurveOptions": {
+                "Color": "#804040",
+                "LegendIndex": 16,
+                "LineStyle": "None",
+                "Symbol": "Circle"
+              }
+            },
+            {
+              "Name": "Sepp2015.Gut.QWBA.2-dAb2-Gut-Tissue-Measurement",
+              "X": "Sepp2015_PBPK_dAb_PKSimImport.PKData.GIT.QWBA.2|Time",
+              "Y": "Sepp2015_PBPK_dAb_PKSimImport.PKData.GIT.QWBA.2|ObservedData|GIT|Tissue|dAb2|Measurement",
+              "CurveOptions": {
+                "VisibleInLegend": false,
+                "Color": "#804040",
+                "LegendIndex": 17,
+                "LineStyle": "None",
+                "Symbol": "Circle"
+              }
+            }
+          ],
+          "Name": "Intestine",
+          "FontAndSize": {
+            "Fonts": {
+              "AxisSize": 10,
+              "LegendSize": 8,
+              "TitleSize": 16,
+              "DescriptionSize": 12,
+              "OriginSize": 8,
+              "FontFamilyName": "Microsoft Sans Serif",
+              "WatermarkSize": 32
+            }
+          },
+          "Settings": {
+            "SideMarginsEnabled": true,
+            "LegendPosition": "RightInside",
+            "BackColor": "#FFFFFF",
+            "DiagramBackColor": "#FFFFFF"
+          },
+          "OriginText": "dAb2\ndAb2_Sim\n2023-03-14 12:14"
+        },
+        {
+          "Axes": [
+            {
+              "Unit": "h",
+              "Dimension": "Time",
+              "Type": "X",
+              "GridLines": false,
+              "Visible": true,
+              "DefaultColor": "#FFFFFF",
+              "DefaultLineStyle": "None",
+              "Scaling": "Linear",
+              "NumberMode": "Normal"
+            },
+            {
+              "Unit": "µmol/l",
+              "Dimension": "Concentration (molar)",
+              "Type": "Y",
+              "GridLines": false,
+              "Visible": true,
+              "Min": 0.01,
+              "Max": 3.0,
+              "DefaultColor": "#FFFFFF",
+              "DefaultLineStyle": "Solid",
+              "Scaling": "Log",
+              "NumberMode": "Normal"
+            }
+          ],
+          "Curves": [
+            {
+              "Name": "dAb2-Brain-Whole Organ incl. FcRn_Complex-dAb2-Concentration",
+              "X": "Time",
+              "Y": "dAb2_Sim|Organism|Brain|dAb2|Whole Organ incl. FcRn_Complex-dAb2",
+              "CurveOptions": {
+                "Color": "#008000",
+                "LegendIndex": 1
+              }
+            },
+            {
+              "Name": "Sepp2015.Brain.QWBA.3-dAb2-Brain-Tissue-Measurement",
+              "X": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Brain.QWBA.3|Time",
+              "Y": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Brain.QWBA.3|ObservedData|Brain|Tissue|dAb2|Measurement",
+              "CurveOptions": {
+                "VisibleInLegend": false,
+                "Color": "#008000",
+                "LegendIndex": 4,
+                "LineStyle": "None",
+                "Symbol": "Circle"
+              }
+            },
+            {
+              "Name": "Sepp2015.Brain.QWBA.2-dAb2-Brain-Tissue-Measurement",
+              "X": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Brain.QWBA.2|Time",
+              "Y": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Brain.QWBA.2|ObservedData|Brain|Tissue|dAb2|Measurement",
+              "CurveOptions": {
+                "VisibleInLegend": false,
+                "Color": "#008000",
+                "LegendIndex": 3,
+                "LineStyle": "None",
+                "Symbol": "Circle"
+              }
+            },
+            {
+              "Name": "Sepp2015.Brain.QWBA.1-dAb2-Brain-Tissue-Measurement",
+              "X": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Brain.QWBA.1|Time",
+              "Y": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Brain.QWBA.1|ObservedData|Brain|Tissue|dAb2|Measurement",
+              "CurveOptions": {
+                "Color": "#008000",
+                "LegendIndex": 2,
+                "LineStyle": "None",
+                "Symbol": "Circle"
+              }
+            }
+          ],
+          "Name": "Brain",
+          "FontAndSize": {
+            "Fonts": {
+              "AxisSize": 10,
+              "LegendSize": 8,
+              "TitleSize": 16,
+              "DescriptionSize": 12,
+              "OriginSize": 8,
+              "FontFamilyName": "Microsoft Sans Serif",
+              "WatermarkSize": 32
+            }
+          },
+          "Settings": {
+            "SideMarginsEnabled": true,
+            "LegendPosition": "RightInside",
+            "BackColor": "#00FFFFFF",
+            "DiagramBackColor": "#FFFFFF"
+          },
+          "OriginText": "dAb2\ndAb2_Sim\n2023-03-14 12:14"
+        }
+      ]
+    },
+    {
+      "Name": "dAb2_Sim_Kidney",
+      "Model": "TwoPores",
+      "ObservedData": [
+        "Sepp2015_PBPK_dAb_PKSimImport.PKData.Kidney.QWBA.3",
+        "Sepp2015_PBPK_dAb_PKSimImport.PKData.Kidney.QWBA.2",
+        "Sepp2015_PBPK_dAb_PKSimImport.PKData.Kidney.QWBA.1"
+      ],
+      "Solver": {},
+      "OutputSchema": [
+        {
+          "Parameters": [
+            {
+              "Name": "Start time",
+              "Value": 0.0,
+              "Unit": "h"
+            },
+            {
+              "Name": "End time",
+              "Value": 4.0,
+              "Unit": "h",
+              "ValueOrigin": {
+                "Source": "Unknown"
+              }
+            },
+            {
+              "Name": "Resolution",
+              "Value": 20.0,
+              "Unit": "pts/h"
+            }
+          ]
+        }
+      ],
+      "Parameters": [
+        {
+          "Path": "Events|10mgkg|Application_1|ProtocolSchemaItem|Infusion time",
+          "Value": 0.0016666666667,
+          "Unit": "min"
+        }
+      ],
+      "OutputSelections": [
+        "Organism|VenousBlood|dAb2|Whole Blood",
+        "Organism|Lung|dAb2|Whole Organ incl. FcRn_Complex-dAb2",
+        "Organism|Skin|dAb2|Whole Organ incl. FcRn_Complex-dAb2",
+        "Organism|Muscle|dAb2|Whole Organ incl. FcRn_Complex-dAb2",
+        "Organism|Spleen|dAb2|Whole Organ incl. FcRn_Complex-dAb2",
+        "Organism|Liver|dAb2|Whole Organ incl. FcRn_Complex (Liver)-dAb2",
+        "Organism|Heart|dAb2|Whole Organ incl. FcRn_Complex-dAb2",
+        "Organism|Bone|dAb2|Whole Organ incl. FcRn_Complex-dAb2",
+        "Organism|LargeIntestine|dAb2|Whole Organ (Large Intestine) incl. FcRn_Complex-dAb2",
+        "Organism|SmallIntestine|dAb2|Whole Organ (Small Intestine) incl. FcRn_Complex-dAb2",
+        "Organism|Brain|dAb2|Whole Organ incl. FcRn_Complex-dAb2",
+        "Organism|Kidney|dAb2|Whole Organ incl. FcRn_Complex-dAb2"
+      ],
+      "OutputMappings": [
+        {
+          "Scaling": "Log",
+          "Path": "dAb2_Sim_Kidney|Organism|Kidney|dAb2|Whole Organ incl. FcRn_Complex-dAb2",
+          "ObservedData": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Kidney.QWBA.1"
+        },
+        {
+          "Scaling": "Log",
+          "Path": "dAb2_Sim_Kidney|Organism|Kidney|dAb2|Whole Organ incl. FcRn_Complex-dAb2",
+          "ObservedData": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Kidney.QWBA.2"
+        },
+        {
+          "Scaling": "Log",
+          "Path": "dAb2_Sim_Kidney|Organism|Kidney|dAb2|Whole Organ incl. FcRn_Complex-dAb2",
+          "ObservedData": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Kidney.QWBA.3"
+        }
+      ],
+      "Individual": "Mouse",
+      "Compounds": [
+        {
+          "Name": "dAb2",
+          "CalculationMethods": [
+            "Cellular partition coefficient method - PK-Sim Standard",
+            "Cellular permeability - PK-Sim Standard"
+          ],
+          "Processes": [
+            {
+              "Name": "Glomerular Filtration-GFR",
+              "SystemicProcessType": "GFR"
+            }
+          ],
+          "Protocol": {
+            "Name": "10mgkg"
+          }
+        }
+      ],
+      "HasResults": true,
+      "IndividualAnalyses": [
+        {
+          "Axes": [
+            {
+              "Unit": "h",
+              "Dimension": "Time",
+              "Type": "X",
+              "GridLines": false,
+              "Visible": true,
+              "DefaultColor": "#FFFFFF",
+              "DefaultLineStyle": "None",
+              "Scaling": "Linear",
+              "NumberMode": "Normal"
+            },
+            {
+              "Unit": "µmol/l",
+              "Dimension": "Concentration (molar)",
+              "Type": "Y",
+              "GridLines": false,
+              "Visible": true,
+              "DefaultColor": "#FFFFFF",
+              "DefaultLineStyle": "Solid",
+              "Scaling": "Log",
+              "NumberMode": "Normal"
+            }
+          ],
+          "Curves": [
+            {
+              "Name": "dAb2-Kidney-Whole Organ incl. FcRn_Complex-dAb2-Concentration",
+              "X": "Time",
+              "Y": "dAb2_Sim_Kidney|Organism|Kidney|dAb2|Whole Organ incl. FcRn_Complex-dAb2",
+              "CurveOptions": {
+                "Color": "#FF8000",
+                "LegendIndex": 1
+              }
+            },
+            {
+              "Name": "Sepp2015.Kidney.QWBA.3-dAb2-Kidney-Tissue-Measurement",
+              "X": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Kidney.QWBA.3|Time",
+              "Y": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Kidney.QWBA.3|ObservedData|Kidney|Tissue|dAb2|Measurement",
+              "CurveOptions": {
+                "VisibleInLegend": false,
+                "Color": "#FF8000",
+                "LegendIndex": 4,
+                "LineStyle": "None",
+                "Symbol": "Circle"
+              }
+            },
+            {
+              "Name": "Sepp2015.Kidney.QWBA.2-dAb2-Kidney-Tissue-Measurement",
+              "X": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Kidney.QWBA.2|Time",
+              "Y": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Kidney.QWBA.2|ObservedData|Kidney|Tissue|dAb2|Measurement",
+              "CurveOptions": {
+                "VisibleInLegend": false,
+                "Color": "#FF8000",
+                "LegendIndex": 3,
+                "LineStyle": "None",
+                "Symbol": "Circle"
+              }
+            },
+            {
+              "Name": "Sepp2015.Kidney.QWBA.1-dAb2-Kidney-Tissue-Measurement",
+              "X": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Kidney.QWBA.1|Time",
+              "Y": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Kidney.QWBA.1|ObservedData|Kidney|Tissue|dAb2|Measurement",
+              "CurveOptions": {
+                "Color": "#FF8000",
+                "LegendIndex": 2,
+                "LineStyle": "None",
+                "Symbol": "Circle"
+              }
+            }
+          ],
+          "Name": "Kidney - log scale",
+          "FontAndSize": {
+            "Fonts": {
+              "AxisSize": 10,
+              "LegendSize": 8,
+              "TitleSize": 16,
+              "DescriptionSize": 12,
+              "OriginSize": 8,
+              "FontFamilyName": "Microsoft Sans Serif",
+              "WatermarkSize": 32
+            }
+          },
+          "Settings": {
+            "SideMarginsEnabled": true,
+            "LegendPosition": "RightInside",
+            "BackColor": "#FFFFFF",
+            "DiagramBackColor": "#FFFFFF"
+          },
+          "OriginText": "dAb2\ndAb2_Sim_Kidney\n2023-03-14 12:14"
+        }
+      ]
+    }
+  ],
+  "ObservedData": [
+    {
+      "Name": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Skin.QWBA.3",
+      "ExtendedProperties": [
+        {
+          "Name": "Sheet",
+          "Value": "PKData",
+          "Type": "String"
+        },
+        {
+          "Name": "Organ",
+          "Value": "Skin",
+          "Type": "String"
+        },
+        {
+          "Name": "Compartment",
+          "Value": "Tissue",
+          "Type": "String"
+        },
+        {
+          "Name": "Molecule",
+          "Value": "dAb2",
+          "Type": "String"
+        },
+        {
+          "Name": "Species",
+          "Value": "Mouse",
+          "Type": "String"
+        },
+        {
+          "Name": "Experiment",
+          "Value": "QWBA",
+          "Type": "String"
+        },
+        {
+          "Name": "DataPoint",
+          "Value": 3.0,
+          "Type": "Double"
+        }
+      ],
+      "Columns": [
+        {
+          "Name": "Measurement",
+          "QuantityInfo": {
+            "Path": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Skin.QWBA.3|ObservedData|Skin|Tissue|dAb2|Measurement"
+          },
+          "DataInfo": {
+            "Origin": "Observation",
+            "AuxiliaryType": "Undefined",
+            "MolWeight": 25600.0
+          },
+          "Values": [
+            3.13174772,
+            0.9999093,
+            5.973852,
+            2.24153185,
+            1.31874537
+          ],
+          "Dimension": "Concentration (mass)",
+          "Unit": "mg/l"
+        }
+      ],
+      "BaseGrid": {
+        "Name": "Time",
+        "QuantityInfo": {
+          "Path": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Skin.QWBA.3|Time",
+          "Type": "Time"
+        },
+        "DataInfo": {
+          "Origin": "BaseGrid",
+          "AuxiliaryType": "Undefined"
+        },
+        "Values": [
+          0.0833333358,
+          0.166666672,
+          0.5,
+          1.0,
+          3.33333325
+        ],
+        "Dimension": "Time",
+        "Unit": "h"
+      }
+    },
+    {
+      "Name": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Skin.QWBA.2",
+      "ExtendedProperties": [
+        {
+          "Name": "Sheet",
+          "Value": "PKData",
+          "Type": "String"
+        },
+        {
+          "Name": "Organ",
+          "Value": "Skin",
+          "Type": "String"
+        },
+        {
+          "Name": "Compartment",
+          "Value": "Tissue",
+          "Type": "String"
+        },
+        {
+          "Name": "Molecule",
+          "Value": "dAb2",
+          "Type": "String"
+        },
+        {
+          "Name": "Species",
+          "Value": "Mouse",
+          "Type": "String"
+        },
+        {
+          "Name": "Experiment",
+          "Value": "QWBA",
+          "Type": "String"
+        },
+        {
+          "Name": "DataPoint",
+          "Value": 2.0,
+          "Type": "Double"
+        }
+      ],
+      "Columns": [
+        {
+          "Name": "Measurement",
+          "QuantityInfo": {
+            "Path": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Skin.QWBA.2|ObservedData|Skin|Tissue|dAb2|Measurement"
+          },
+          "DataInfo": {
+            "Origin": "Observation",
+            "AuxiliaryType": "Undefined",
+            "MolWeight": 25600.0
+          },
+          "Values": [
+            3.680474,
+            2.043987,
+            6.55120468,
+            2.37457919,
+            3.16807318,
+            1.66084015
+          ],
+          "Dimension": "Concentration (mass)",
+          "Unit": "mg/l"
+        }
+      ],
+      "BaseGrid": {
+        "Name": "Time",
+        "QuantityInfo": {
+          "Path": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Skin.QWBA.2|Time",
+          "Type": "Time"
+        },
+        "DataInfo": {
+          "Origin": "BaseGrid",
+          "AuxiliaryType": "Undefined"
+        },
+        "Values": [
+          0.0833333358,
+          0.166666672,
+          0.5,
+          1.0,
+          2.0,
+          3.33333325
+        ],
+        "Dimension": "Time",
+        "Unit": "h"
+      }
+    },
+    {
+      "Name": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Skin.QWBA.1",
+      "ExtendedProperties": [
+        {
+          "Name": "Sheet",
+          "Value": "PKData",
+          "Type": "String"
+        },
+        {
+          "Name": "Organ",
+          "Value": "Skin",
+          "Type": "String"
+        },
+        {
+          "Name": "Compartment",
+          "Value": "Tissue",
+          "Type": "String"
+        },
+        {
+          "Name": "Molecule",
+          "Value": "dAb2",
+          "Type": "String"
+        },
+        {
+          "Name": "Species",
+          "Value": "Mouse",
+          "Type": "String"
+        },
+        {
+          "Name": "Experiment",
+          "Value": "QWBA",
+          "Type": "String"
+        },
+        {
+          "Name": "DataPoint",
+          "Value": 1.0,
+          "Type": "Double"
+        }
+      ],
+      "Columns": [
+        {
+          "Name": "Measurement",
+          "QuantityInfo": {
+            "Path": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Skin.QWBA.1|ObservedData|Skin|Tissue|dAb2|Measurement"
+          },
+          "DataInfo": {
+            "Origin": "Observation",
+            "AuxiliaryType": "Undefined",
+            "MolWeight": 25600.0
+          },
+          "Values": [
+            4.854049,
+            2.790638,
+            7.101984,
+            4.477606,
+            5.08320427,
+            3.13174772
+          ],
+          "Dimension": "Concentration (mass)",
+          "Unit": "mg/l"
+        }
+      ],
+      "BaseGrid": {
+        "Name": "Time",
+        "QuantityInfo": {
+          "Path": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Skin.QWBA.1|Time",
+          "Type": "Time"
+        },
+        "DataInfo": {
+          "Origin": "BaseGrid",
+          "AuxiliaryType": "Undefined"
+        },
+        "Values": [
+          0.0833333358,
+          0.166666672,
+          0.5,
+          1.0,
+          2.0,
+          3.33333325
+        ],
+        "Dimension": "Time",
+        "Unit": "h"
+      }
+    },
+    {
+      "Name": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Kidney.QWBA.3",
+      "ExtendedProperties": [
+        {
+          "Name": "Sheet",
+          "Value": "PKData",
+          "Type": "String"
+        },
+        {
+          "Name": "Organ",
+          "Value": "Kidney",
+          "Type": "String"
+        },
+        {
+          "Name": "Compartment",
+          "Value": "Tissue",
+          "Type": "String"
+        },
+        {
+          "Name": "Molecule",
+          "Value": "dAb2",
+          "Type": "String"
+        },
+        {
+          "Name": "Species",
+          "Value": "Mouse",
+          "Type": "String"
+        },
+        {
+          "Name": "Experiment",
+          "Value": "QWBA",
+          "Type": "String"
+        },
+        {
+          "Name": "DataPoint",
+          "Value": 3.0,
+          "Type": "Double"
+        }
+      ],
+      "Columns": [
+        {
+          "Name": "Measurement",
+          "QuantityInfo": {
+            "Path": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Kidney.QWBA.3|ObservedData|Kidney|Tissue|dAb2|Measurement"
+          },
+          "DataInfo": {
+            "Origin": "Observation",
+            "AuxiliaryType": "Undefined",
+            "MolWeight": 25600.0
+          },
+          "Values": [
+            94.01849,
+            105.470276,
+            8.221993
+          ],
+          "Dimension": "Concentration (mass)",
+          "Unit": "mg/l"
+        }
+      ],
+      "BaseGrid": {
+        "Name": "Time",
+        "QuantityInfo": {
+          "Path": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Kidney.QWBA.3|Time",
+          "Type": "Time"
+        },
+        "DataInfo": {
+          "Origin": "BaseGrid",
+          "AuxiliaryType": "Undefined"
+        },
+        "Values": [
+          0.0833333358,
+          1.0,
+          3.33333325
+        ],
+        "Dimension": "Time",
+        "Unit": "h"
+      }
+    },
+    {
+      "Name": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Kidney.QWBA.2",
+      "ExtendedProperties": [
+        {
+          "Name": "Sheet",
+          "Value": "PKData",
+          "Type": "String"
+        },
+        {
+          "Name": "Organ",
+          "Value": "Kidney",
+          "Type": "String"
+        },
+        {
+          "Name": "Compartment",
+          "Value": "Tissue",
+          "Type": "String"
+        },
+        {
+          "Name": "Molecule",
+          "Value": "dAb2",
+          "Type": "String"
+        },
+        {
+          "Name": "Species",
+          "Value": "Mouse",
+          "Type": "String"
+        },
+        {
+          "Name": "Experiment",
+          "Value": "QWBA",
+          "Type": "String"
+        },
+        {
+          "Name": "DataPoint",
+          "Value": 2.0,
+          "Type": "Double"
+        }
+      ],
+      "Columns": [
+        {
+          "Name": "Measurement",
+          "QuantityInfo": {
+            "Path": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Kidney.QWBA.2|ObservedData|Kidney|Tissue|dAb2|Measurement"
+          },
+          "DataInfo": {
+            "Origin": "Observation",
+            "AuxiliaryType": "Undefined",
+            "MolWeight": 25600.0
+          },
+          "Values": [
+            118.316925,
+            51.1274643,
+            155.9004,
+            110.432487,
+            64.3409958,
+            19.4694214
+          ],
+          "Dimension": "Concentration (mass)",
+          "Unit": "mg/l"
+        }
+      ],
+      "BaseGrid": {
+        "Name": "Time",
+        "QuantityInfo": {
+          "Path": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Kidney.QWBA.2|Time",
+          "Type": "Time"
+        },
+        "DataInfo": {
+          "Origin": "BaseGrid",
+          "AuxiliaryType": "Undefined"
+        },
+        "Values": [
+          0.0833333358,
+          0.166666672,
+          0.5,
+          1.0,
+          2.0,
+          3.33333325
+        ],
+        "Dimension": "Time",
+        "Unit": "h"
+      }
+    },
+    {
+      "Name": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Kidney.QWBA.1",
+      "ExtendedProperties": [
+        {
+          "Name": "Sheet",
+          "Value": "PKData",
+          "Type": "String"
+        },
+        {
+          "Name": "Organ",
+          "Value": "Kidney",
+          "Type": "String"
+        },
+        {
+          "Name": "Compartment",
+          "Value": "Tissue",
+          "Type": "String"
+        },
+        {
+          "Name": "Molecule",
+          "Value": "dAb2",
+          "Type": "String"
+        },
+        {
+          "Name": "Species",
+          "Value": "Mouse",
+          "Type": "String"
+        },
+        {
+          "Name": "Experiment",
+          "Value": "QWBA",
+          "Type": "String"
+        },
+        {
+          "Name": "DataPoint",
+          "Value": 1.0,
+          "Type": "Double"
+        }
+      ],
+      "Columns": [
+        {
+          "Name": "Measurement",
+          "QuantityInfo": {
+            "Path": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Kidney.QWBA.1|ObservedData|Kidney|Tissue|dAb2|Measurement"
+          },
+          "DataInfo": {
+            "Origin": "Observation",
+            "AuxiliaryType": "Undefined",
+            "MolWeight": 25600.0
+          },
+          "Values": [
+            131.211548,
+            77.3312,
+            183.117889,
+            159.5257,
+            73.0123444,
+            29.7882786
+          ],
+          "Dimension": "Concentration (mass)",
+          "Unit": "mg/l"
+        }
+      ],
+      "BaseGrid": {
+        "Name": "Time",
+        "QuantityInfo": {
+          "Path": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Kidney.QWBA.1|Time",
+          "Type": "Time"
+        },
+        "DataInfo": {
+          "Origin": "BaseGrid",
+          "AuxiliaryType": "Undefined"
+        },
+        "Values": [
+          0.0833333358,
+          0.166666672,
+          0.5,
+          1.0,
+          2.0,
+          3.33333325
+        ],
+        "Dimension": "Time",
+        "Unit": "h"
+      }
+    },
+    {
+      "Name": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Liver.QWBA.3",
+      "ExtendedProperties": [
+        {
+          "Name": "Sheet",
+          "Value": "PKData",
+          "Type": "String"
+        },
+        {
+          "Name": "Organ",
+          "Value": "Liver",
+          "Type": "String"
+        },
+        {
+          "Name": "Compartment",
+          "Value": "Tissue",
+          "Type": "String"
+        },
+        {
+          "Name": "Molecule",
+          "Value": "dAb2",
+          "Type": "String"
+        },
+        {
+          "Name": "Species",
+          "Value": "Mouse",
+          "Type": "String"
+        },
+        {
+          "Name": "Experiment",
+          "Value": "QWBA",
+          "Type": "String"
+        },
+        {
+          "Name": "DataPoint",
+          "Value": 3.0,
+          "Type": "Double"
+        }
+      ],
+      "Columns": [
+        {
+          "Name": "Measurement",
+          "QuantityInfo": {
+            "Path": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Liver.QWBA.3|ObservedData|Liver|Tissue|dAb2|Measurement"
+          },
+          "DataInfo": {
+            "Origin": "Observation",
+            "AuxiliaryType": "Undefined",
+            "MolWeight": 25600.0
+          },
+          "Values": [
+            9.347082,
+            4.495679,
+            1.97323811,
+            0.8086531,
+            0.3715471
+          ],
+          "Dimension": "Concentration (mass)",
+          "Unit": "mg/l"
+        }
+      ],
+      "BaseGrid": {
+        "Name": "Time",
+        "QuantityInfo": {
+          "Path": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Liver.QWBA.3|Time",
+          "Type": "Time"
+        },
+        "DataInfo": {
+          "Origin": "BaseGrid",
+          "AuxiliaryType": "Undefined"
+        },
+        "Values": [
+          0.0833333358,
+          0.166666672,
+          0.5,
+          2.0,
+          3.33333325
+        ],
+        "Dimension": "Time",
+        "Unit": "h"
+      }
+    },
+    {
+      "Name": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Liver.QWBA.2",
+      "ExtendedProperties": [
+        {
+          "Name": "Sheet",
+          "Value": "PKData",
+          "Type": "String"
+        },
+        {
+          "Name": "Organ",
+          "Value": "Liver",
+          "Type": "String"
+        },
+        {
+          "Name": "Compartment",
+          "Value": "Tissue",
+          "Type": "String"
+        },
+        {
+          "Name": "Molecule",
+          "Value": "dAb2",
+          "Type": "String"
+        },
+        {
+          "Name": "Species",
+          "Value": "Mouse",
+          "Type": "String"
+        },
+        {
+          "Name": "Experiment",
+          "Value": "QWBA",
+          "Type": "String"
+        },
+        {
+          "Name": "DataPoint",
+          "Value": 2.0,
+          "Type": "Double"
+        }
+      ],
+      "Columns": [
+        {
+          "Name": "Measurement",
+          "QuantityInfo": {
+            "Path": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Liver.QWBA.2|ObservedData|Liver|Tissue|dAb2|Measurement"
+          },
+          "DataInfo": {
+            "Origin": "Observation",
+            "AuxiliaryType": "Undefined",
+            "MolWeight": 25600.0
+          },
+          "Values": [
+            17.73462,
+            5.21632862,
+            2.23776865,
+            1.66217279,
+            1.0049237,
+            0.4888991
+          ],
+          "Dimension": "Concentration (mass)",
+          "Unit": "mg/l"
+        }
+      ],
+      "BaseGrid": {
+        "Name": "Time",
+        "QuantityInfo": {
+          "Path": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Liver.QWBA.2|Time",
+          "Type": "Time"
+        },
+        "DataInfo": {
+          "Origin": "BaseGrid",
+          "AuxiliaryType": "Undefined"
+        },
+        "Values": [
+          0.0833333358,
+          0.166666672,
+          0.5,
+          1.0,
+          2.0,
+          3.33333325
+        ],
+        "Dimension": "Time",
+        "Unit": "h"
+      }
+    },
+    {
+      "Name": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Liver.QWBA.1",
+      "ExtendedProperties": [
+        {
+          "Name": "Sheet",
+          "Value": "PKData",
+          "Type": "String"
+        },
+        {
+          "Name": "Organ",
+          "Value": "Liver",
+          "Type": "String"
+        },
+        {
+          "Name": "Compartment",
+          "Value": "Tissue",
+          "Type": "String"
+        },
+        {
+          "Name": "Molecule",
+          "Value": "dAb2",
+          "Type": "String"
+        },
+        {
+          "Name": "Species",
+          "Value": "Mouse",
+          "Type": "String"
+        },
+        {
+          "Name": "Experiment",
+          "Value": "QWBA",
+          "Type": "String"
+        },
+        {
+          "Name": "DataPoint",
+          "Value": 1.0,
+          "Type": "Double"
+        }
+      ],
+      "Columns": [
+        {
+          "Name": "Measurement",
+          "QuantityInfo": {
+            "Path": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Liver.QWBA.1|ObservedData|Liver|Tissue|dAb2|Measurement"
+          },
+          "DataInfo": {
+            "Origin": "Observation",
+            "AuxiliaryType": "Undefined",
+            "MolWeight": 25600.0
+          },
+          "Values": [
+            18.7783012,
+            9.673347,
+            2.48037386,
+            1.84237552,
+            1.192989,
+            0.511784136
+          ],
+          "Dimension": "Concentration (mass)",
+          "Unit": "mg/l"
+        }
+      ],
+      "BaseGrid": {
+        "Name": "Time",
+        "QuantityInfo": {
+          "Path": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Liver.QWBA.1|Time",
+          "Type": "Time"
+        },
+        "DataInfo": {
+          "Origin": "BaseGrid",
+          "AuxiliaryType": "Undefined"
+        },
+        "Values": [
+          0.0833333358,
+          0.166666672,
+          0.5,
+          1.0,
+          2.0,
+          3.33333325
+        ],
+        "Dimension": "Time",
+        "Unit": "h"
+      }
+    },
+    {
+      "Name": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Lung.QWBA.3",
+      "ExtendedProperties": [
+        {
+          "Name": "Sheet",
+          "Value": "PKData",
+          "Type": "String"
+        },
+        {
+          "Name": "Organ",
+          "Value": "Lung",
+          "Type": "String"
+        },
+        {
+          "Name": "Compartment",
+          "Value": "Tissue",
+          "Type": "String"
+        },
+        {
+          "Name": "Molecule",
+          "Value": "dAb2",
+          "Type": "String"
+        },
+        {
+          "Name": "Species",
+          "Value": "Mouse",
+          "Type": "String"
+        },
+        {
+          "Name": "Experiment",
+          "Value": "QWBA",
+          "Type": "String"
+        },
+        {
+          "Name": "DataPoint",
+          "Value": 3.0,
+          "Type": "Double"
+        }
+      ],
+      "Columns": [
+        {
+          "Name": "Measurement",
+          "QuantityInfo": {
+            "Path": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Lung.QWBA.3|ObservedData|Lung|Tissue|dAb2|Measurement"
+          },
+          "DataInfo": {
+            "Origin": "Observation",
+            "AuxiliaryType": "Undefined",
+            "MolWeight": 25600.0
+          },
+          "Values": [
+            25.3984,
+            10.9223022,
+            6.74357557
+          ],
+          "Dimension": "Concentration (mass)",
+          "Unit": "mg/l"
+        }
+      ],
+      "BaseGrid": {
+        "Name": "Time",
+        "QuantityInfo": {
+          "Path": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Lung.QWBA.3|Time",
+          "Type": "Time"
+        },
+        "DataInfo": {
+          "Origin": "BaseGrid",
+          "AuxiliaryType": "Undefined"
+        },
+        "Values": [
+          0.0833333358,
+          0.166666672,
+          0.5
+        ],
+        "Dimension": "Time",
+        "Unit": "h"
+      }
+    },
+    {
+      "Name": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Lung.QWBA.2",
+      "ExtendedProperties": [
+        {
+          "Name": "Sheet",
+          "Value": "PKData",
+          "Type": "String"
+        },
+        {
+          "Name": "Organ",
+          "Value": "Lung",
+          "Type": "String"
+        },
+        {
+          "Name": "Compartment",
+          "Value": "Tissue",
+          "Type": "String"
+        },
+        {
+          "Name": "Molecule",
+          "Value": "dAb2",
+          "Type": "String"
+        },
+        {
+          "Name": "Species",
+          "Value": "Mouse",
+          "Type": "String"
+        },
+        {
+          "Name": "Experiment",
+          "Value": "QWBA",
+          "Type": "String"
+        },
+        {
+          "Name": "DataPoint",
+          "Value": 2.0,
+          "Type": "Double"
+        }
+      ],
+      "Columns": [
+        {
+          "Name": "Measurement",
+          "QuantityInfo": {
+            "Path": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Lung.QWBA.2|ObservedData|Lung|Tissue|dAb2|Measurement"
+          },
+          "DataInfo": {
+            "Origin": "Observation",
+            "AuxiliaryType": "Undefined",
+            "MolWeight": 25600.0
+          },
+          "Values": [
+            39.2001724,
+            17.4784412,
+            9.918121,
+            3.602789,
+            1.21740377
+          ],
+          "Dimension": "Concentration (mass)",
+          "Unit": "mg/l"
+        }
+      ],
+      "BaseGrid": {
+        "Name": "Time",
+        "QuantityInfo": {
+          "Path": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Lung.QWBA.2|Time",
+          "Type": "Time"
+        },
+        "DataInfo": {
+          "Origin": "BaseGrid",
+          "AuxiliaryType": "Undefined"
+        },
+        "Values": [
+          0.0833333358,
+          0.166666672,
+          0.5,
+          2.0,
+          3.33333325
+        ],
+        "Dimension": "Time",
+        "Unit": "h"
+      }
+    },
+    {
+      "Name": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Lung.QWBA.1",
+      "ExtendedProperties": [
+        {
+          "Name": "Sheet",
+          "Value": "PKData",
+          "Type": "String"
+        },
+        {
+          "Name": "Organ",
+          "Value": "Lung",
+          "Type": "String"
+        },
+        {
+          "Name": "Compartment",
+          "Value": "Tissue",
+          "Type": "String"
+        },
+        {
+          "Name": "Molecule",
+          "Value": "dAb2",
+          "Type": "String"
+        },
+        {
+          "Name": "Species",
+          "Value": "Mouse",
+          "Type": "String"
+        },
+        {
+          "Name": "Experiment",
+          "Value": "QWBA",
+          "Type": "String"
+        },
+        {
+          "Name": "DataPoint",
+          "Value": 1.0,
+          "Type": "Double"
+        }
+      ],
+      "Columns": [
+        {
+          "Name": "Measurement",
+          "QuantityInfo": {
+            "Path": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Lung.QWBA.1|ObservedData|Lung|Tissue|dAb2|Measurement"
+          },
+          "DataInfo": {
+            "Origin": "Observation",
+            "AuxiliaryType": "Undefined",
+            "MolWeight": 25600.0
+          },
+          "Values": [
+            52.35312,
+            26.6531639,
+            11.0547733,
+            9.115495,
+            5.17257643,
+            1.83419347
+          ],
+          "Dimension": "Concentration (mass)",
+          "Unit": "mg/l"
+        }
+      ],
+      "BaseGrid": {
+        "Name": "Time",
+        "QuantityInfo": {
+          "Path": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Lung.QWBA.1|Time",
+          "Type": "Time"
+        },
+        "DataInfo": {
+          "Origin": "BaseGrid",
+          "AuxiliaryType": "Undefined"
+        },
+        "Values": [
+          0.0833333358,
+          0.166666672,
+          0.5,
+          1.0,
+          2.0,
+          3.33333325
+        ],
+        "Dimension": "Time",
+        "Unit": "h"
+      }
+    },
+    {
+      "Name": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Blood.QWBA.3",
+      "ExtendedProperties": [
+        {
+          "Name": "Sheet",
+          "Value": "PKData",
+          "Type": "String"
+        },
+        {
+          "Name": "Organ",
+          "Value": "Blood",
+          "Type": "String"
+        },
+        {
+          "Name": "Compartment",
+          "Value": "WholeBlood",
+          "Type": "String"
+        },
+        {
+          "Name": "Molecule",
+          "Value": "dAb2",
+          "Type": "String"
+        },
+        {
+          "Name": "Species",
+          "Value": "Mouse",
+          "Type": "String"
+        },
+        {
+          "Name": "Experiment",
+          "Value": "QWBA",
+          "Type": "String"
+        },
+        {
+          "Name": "DataPoint",
+          "Value": 3.0,
+          "Type": "Double"
+        }
+      ],
+      "Columns": [
+        {
+          "Name": "Measurement",
+          "QuantityInfo": {
+            "Path": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Blood.QWBA.3|ObservedData|Blood|WholeBlood|dAb2|Measurement"
+          },
+          "DataInfo": {
+            "Origin": "Observation",
+            "AuxiliaryType": "Undefined",
+            "MolWeight": 25600.0
+          },
+          "Values": [
+            22.5187035,
+            11.5279408,
+            3.81896377,
+            2.79410625,
+            1.44643152,
+            0.7829588
+          ],
+          "Dimension": "Concentration (mass)",
+          "Unit": "mg/l"
+        }
+      ],
+      "BaseGrid": {
+        "Name": "Time",
+        "QuantityInfo": {
+          "Path": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Blood.QWBA.3|Time",
+          "Type": "Time"
+        },
+        "DataInfo": {
+          "Origin": "BaseGrid",
+          "AuxiliaryType": "Undefined"
+        },
+        "Values": [
+          0.0833333358,
+          0.166666672,
+          0.5,
+          1.0,
+          2.0,
+          3.33333325
+        ],
+        "Dimension": "Time",
+        "Unit": "h"
+      }
+    },
+    {
+      "Name": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Blood.QWBA.2",
+      "ExtendedProperties": [
+        {
+          "Name": "Sheet",
+          "Value": "PKData",
+          "Type": "String"
+        },
+        {
+          "Name": "Organ",
+          "Value": "Blood",
+          "Type": "String"
+        },
+        {
+          "Name": "Compartment",
+          "Value": "WholeBlood",
+          "Type": "String"
+        },
+        {
+          "Name": "Molecule",
+          "Value": "dAb2",
+          "Type": "String"
+        },
+        {
+          "Name": "Species",
+          "Value": "Mouse",
+          "Type": "String"
+        },
+        {
+          "Name": "Experiment",
+          "Value": "QWBA",
+          "Type": "String"
+        },
+        {
+          "Name": "DataPoint",
+          "Value": 2.0,
+          "Type": "Double"
+        }
+      ],
+      "Columns": [
+        {
+          "Name": "Measurement",
+          "QuantityInfo": {
+            "Path": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Blood.QWBA.2|ObservedData|Blood|WholeBlood|dAb2|Measurement"
+          },
+          "DataInfo": {
+            "Origin": "Observation",
+            "AuxiliaryType": "Undefined",
+            "MolWeight": 25600.0
+          },
+          "Values": [
+            43.98807,
+            14.735857,
+            6.102389,
+            3.531994,
+            1.99915826,
+            0.9360162
+          ],
+          "Dimension": "Concentration (mass)",
+          "Unit": "mg/l"
+        }
+      ],
+      "BaseGrid": {
+        "Name": "Time",
+        "QuantityInfo": {
+          "Path": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Blood.QWBA.2|Time",
+          "Type": "Time"
+        },
+        "DataInfo": {
+          "Origin": "BaseGrid",
+          "AuxiliaryType": "Undefined"
+        },
+        "Values": [
+          0.0833333358,
+          0.166666672,
+          0.5,
+          1.0,
+          2.0,
+          3.33333325
+        ],
+        "Dimension": "Time",
+        "Unit": "h"
+      }
+    },
+    {
+      "Name": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Blood.QWBA.1",
+      "ExtendedProperties": [
+        {
+          "Name": "Sheet",
+          "Value": "PKData",
+          "Type": "String"
+        },
+        {
+          "Name": "Organ",
+          "Value": "Blood",
+          "Type": "String"
+        },
+        {
+          "Name": "Compartment",
+          "Value": "WholeBlood",
+          "Type": "String"
+        },
+        {
+          "Name": "Molecule",
+          "Value": "dAb2",
+          "Type": "String"
+        },
+        {
+          "Name": "Species",
+          "Value": "Mouse",
+          "Type": "String"
+        },
+        {
+          "Name": "Experiment",
+          "Value": "QWBA",
+          "Type": "String"
+        },
+        {
+          "Name": "DataPoint",
+          "Value": 1.0,
+          "Type": "Double"
+        }
+      ],
+      "Columns": [
+        {
+          "Name": "Measurement",
+          "QuantityInfo": {
+            "Path": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Blood.QWBA.1|ObservedData|Blood|WholeBlood|dAb2|Measurement"
+          },
+          "DataInfo": {
+            "Origin": "Observation",
+            "AuxiliaryType": "Undefined",
+            "MolWeight": 25600.0
+          },
+          "Values": [
+            48.0958061,
+            24.8978672,
+            6.380957,
+            4.66856241,
+            2.2856276,
+            1.15709043
+          ],
+          "Dimension": "Concentration (mass)",
+          "Unit": "mg/l"
+        }
+      ],
+      "BaseGrid": {
+        "Name": "Time",
+        "QuantityInfo": {
+          "Path": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Blood.QWBA.1|Time",
+          "Type": "Time"
+        },
+        "DataInfo": {
+          "Origin": "BaseGrid",
+          "AuxiliaryType": "Undefined"
+        },
+        "Values": [
+          0.0833333358,
+          0.166666672,
+          0.5,
+          1.0,
+          2.0,
+          3.33333325
+        ],
+        "Dimension": "Time",
+        "Unit": "h"
+      }
+    },
+    {
+      "Name": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Bone.QWBA.3",
+      "ExtendedProperties": [
+        {
+          "Name": "Sheet",
+          "Value": "PKData",
+          "Type": "String"
+        },
+        {
+          "Name": "Organ",
+          "Value": "Bone",
+          "Type": "String"
+        },
+        {
+          "Name": "Compartment",
+          "Value": "Tissue",
+          "Type": "String"
+        },
+        {
+          "Name": "Molecule",
+          "Value": "dAb2",
+          "Type": "String"
+        },
+        {
+          "Name": "Species",
+          "Value": "Mouse",
+          "Type": "String"
+        },
+        {
+          "Name": "Experiment",
+          "Value": "QWBA",
+          "Type": "String"
+        },
+        {
+          "Name": "DataPoint",
+          "Value": 3.0,
+          "Type": "Double"
+        }
+      ],
+      "Columns": [
+        {
+          "Name": "Measurement",
+          "QuantityInfo": {
+            "Path": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Bone.QWBA.3|ObservedData|Bone|Tissue|dAb2|Measurement"
+          },
+          "DataInfo": {
+            "Origin": "Observation",
+            "AuxiliaryType": "Undefined",
+            "MolWeight": 25600.0
+          },
+          "Values": [
+            10.4051962,
+            6.53853273,
+            2.39928675,
+            1.25506508,
+            0.560045958
+          ],
+          "Dimension": "Concentration (mass)",
+          "Unit": "mg/l"
+        }
+      ],
+      "BaseGrid": {
+        "Name": "Time",
+        "QuantityInfo": {
+          "Path": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Bone.QWBA.3|Time",
+          "Type": "Time"
+        },
+        "DataInfo": {
+          "Origin": "BaseGrid",
+          "AuxiliaryType": "Undefined"
+        },
+        "Values": [
+          0.0833333358,
+          0.166666672,
+          1.0,
+          2.0,
+          3.33333325
+        ],
+        "Dimension": "Time",
+        "Unit": "h"
+      }
+    },
+    {
+      "Name": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Bone.QWBA.2",
+      "ExtendedProperties": [
+        {
+          "Name": "Sheet",
+          "Value": "PKData",
+          "Type": "String"
+        },
+        {
+          "Name": "Organ",
+          "Value": "Bone",
+          "Type": "String"
+        },
+        {
+          "Name": "Compartment",
+          "Value": "Tissue",
+          "Type": "String"
+        },
+        {
+          "Name": "Molecule",
+          "Value": "dAb2",
+          "Type": "String"
+        },
+        {
+          "Name": "Species",
+          "Value": "Mouse",
+          "Type": "String"
+        },
+        {
+          "Name": "Experiment",
+          "Value": "QWBA",
+          "Type": "String"
+        },
+        {
+          "Name": "DataPoint",
+          "Value": 2.0,
+          "Type": "Double"
+        }
+      ],
+      "Columns": [
+        {
+          "Name": "Measurement",
+          "QuantityInfo": {
+            "Path": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Bone.QWBA.2|ObservedData|Bone|Tissue|dAb2|Measurement"
+          },
+          "DataInfo": {
+            "Origin": "Observation",
+            "AuxiliaryType": "Undefined",
+            "MolWeight": 25600.0
+          },
+          "Values": [
+            18.4845028,
+            7.66490841,
+            2.71131182,
+            3.10160565,
+            1.94902194,
+            0.970871747
+          ],
+          "Dimension": "Concentration (mass)",
+          "Unit": "mg/l"
+        }
+      ],
+      "BaseGrid": {
+        "Name": "Time",
+        "QuantityInfo": {
+          "Path": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Bone.QWBA.2|Time",
+          "Type": "Time"
+        },
+        "DataInfo": {
+          "Origin": "BaseGrid",
+          "AuxiliaryType": "Undefined"
+        },
+        "Values": [
+          0.0833333358,
+          0.166666672,
+          0.5,
+          1.0,
+          2.0,
+          3.33333325
+        ],
+        "Dimension": "Time",
+        "Unit": "h"
+      }
+    },
+    {
+      "Name": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Bone.QWBA.1",
+      "ExtendedProperties": [
+        {
+          "Name": "Sheet",
+          "Value": "PKData",
+          "Type": "String"
+        },
+        {
+          "Name": "Organ",
+          "Value": "Bone",
+          "Type": "String"
+        },
+        {
+          "Name": "Compartment",
+          "Value": "Tissue",
+          "Type": "String"
+        },
+        {
+          "Name": "Molecule",
+          "Value": "dAb2",
+          "Type": "String"
+        },
+        {
+          "Name": "Species",
+          "Value": "Mouse",
+          "Type": "String"
+        },
+        {
+          "Name": "Experiment",
+          "Value": "QWBA",
+          "Type": "String"
+        },
+        {
+          "Name": "DataPoint",
+          "Value": 1.0,
+          "Type": "Double"
+        }
+      ],
+      "Columns": [
+        {
+          "Name": "Measurement",
+          "QuantityInfo": {
+            "Path": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Bone.QWBA.1|ObservedData|Bone|Tissue|dAb2|Measurement"
+          },
+          "DataInfo": {
+            "Origin": "Observation",
+            "AuxiliaryType": "Undefined",
+            "MolWeight": 25600.0
+          },
+          "Values": [
+            20.63457,
+            14.1251678,
+            3.10160565,
+            3.37873983,
+            2.61366749,
+            0.9949042
+          ],
+          "Dimension": "Concentration (mass)",
+          "Unit": "mg/l"
+        }
+      ],
+      "BaseGrid": {
+        "Name": "Time",
+        "QuantityInfo": {
+          "Path": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Bone.QWBA.1|Time",
+          "Type": "Time"
+        },
+        "DataInfo": {
+          "Origin": "BaseGrid",
+          "AuxiliaryType": "Undefined"
+        },
+        "Values": [
+          0.0833333358,
+          0.166666672,
+          0.5,
+          1.0,
+          2.0,
+          3.33333325
+        ],
+        "Dimension": "Time",
+        "Unit": "h"
+      }
+    },
+    {
+      "Name": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Muscle.QWBA.3",
+      "ExtendedProperties": [
+        {
+          "Name": "Sheet",
+          "Value": "PKData",
+          "Type": "String"
+        },
+        {
+          "Name": "Organ",
+          "Value": "Muscle",
+          "Type": "String"
+        },
+        {
+          "Name": "Compartment",
+          "Value": "Tissue",
+          "Type": "String"
+        },
+        {
+          "Name": "Molecule",
+          "Value": "dAb2",
+          "Type": "String"
+        },
+        {
+          "Name": "Species",
+          "Value": "Mouse",
+          "Type": "String"
+        },
+        {
+          "Name": "Experiment",
+          "Value": "QWBA",
+          "Type": "String"
+        },
+        {
+          "Name": "DataPoint",
+          "Value": 3.0,
+          "Type": "Double"
+        }
+      ],
+      "Columns": [
+        {
+          "Name": "Measurement",
+          "QuantityInfo": {
+            "Path": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Muscle.QWBA.3|ObservedData|Muscle|Tissue|dAb2|Measurement"
+          },
+          "DataInfo": {
+            "Origin": "Observation",
+            "AuxiliaryType": "Undefined",
+            "MolWeight": 25600.0
+          },
+          "Values": [
+            2.3473525,
+            1.381002,
+            2.06769514
+          ],
+          "Dimension": "Concentration (mass)",
+          "Unit": "mg/l"
+        }
+      ],
+      "BaseGrid": {
+        "Name": "Time",
+        "QuantityInfo": {
+          "Path": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Muscle.QWBA.3|Time",
+          "Type": "Time"
+        },
+        "DataInfo": {
+          "Origin": "BaseGrid",
+          "AuxiliaryType": "Undefined"
+        },
+        "Values": [
+          0.0833333358,
+          0.166666672,
+          0.5
+        ],
+        "Dimension": "Time",
+        "Unit": "h"
+      }
+    },
+    {
+      "Name": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Muscle.QWBA.2",
+      "ExtendedProperties": [
+        {
+          "Name": "Sheet",
+          "Value": "PKData",
+          "Type": "String"
+        },
+        {
+          "Name": "Organ",
+          "Value": "Muscle",
+          "Type": "String"
+        },
+        {
+          "Name": "Compartment",
+          "Value": "Tissue",
+          "Type": "String"
+        },
+        {
+          "Name": "Molecule",
+          "Value": "dAb2",
+          "Type": "String"
+        },
+        {
+          "Name": "Species",
+          "Value": "Mouse",
+          "Type": "String"
+        },
+        {
+          "Name": "Experiment",
+          "Value": "QWBA",
+          "Type": "String"
+        },
+        {
+          "Name": "DataPoint",
+          "Value": 2.0,
+          "Type": "Double"
+        }
+      ],
+      "Columns": [
+        {
+          "Name": "Measurement",
+          "QuantityInfo": {
+            "Path": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Muscle.QWBA.2|ObservedData|Muscle|Tissue|dAb2|Measurement"
+          },
+          "DataInfo": {
+            "Origin": "Observation",
+            "AuxiliaryType": "Undefined",
+            "MolWeight": 25600.0
+          },
+          "Values": [
+            2.85575,
+            2.091678,
+            2.82300663,
+            1.58596826,
+            0.5748572,
+            0.294493556
+          ],
+          "Dimension": "Concentration (mass)",
+          "Unit": "mg/l"
+        }
+      ],
+      "BaseGrid": {
+        "Name": "Time",
+        "QuantityInfo": {
+          "Path": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Muscle.QWBA.2|Time",
+          "Type": "Time"
+        },
+        "DataInfo": {
+          "Origin": "BaseGrid",
+          "AuxiliaryType": "Undefined"
+        },
+        "Values": [
+          0.0833333358,
+          0.166666672,
+          0.5,
+          1.0,
+          2.0,
+          3.33333325
+        ],
+        "Dimension": "Time",
+        "Unit": "h"
+      }
+    },
+    {
+      "Name": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Muscle.QWBA.1",
+      "ExtendedProperties": [
+        {
+          "Name": "Sheet",
+          "Value": "PKData",
+          "Type": "String"
+        },
+        {
+          "Name": "Organ",
+          "Value": "Muscle",
+          "Type": "String"
+        },
+        {
+          "Name": "Compartment",
+          "Value": "Tissue",
+          "Type": "String"
+        },
+        {
+          "Name": "Molecule",
+          "Value": "dAb2",
+          "Type": "String"
+        },
+        {
+          "Name": "Species",
+          "Value": "Mouse",
+          "Type": "String"
+        },
+        {
+          "Name": "Experiment",
+          "Value": "QWBA",
+          "Type": "String"
+        },
+        {
+          "Name": "DataPoint",
+          "Value": 1.0,
+          "Type": "Double"
+        }
+      ],
+      "Columns": [
+        {
+          "Name": "Measurement",
+          "QuantityInfo": {
+            "Path": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Muscle.QWBA.1|ObservedData|Muscle|Tissue|dAb2|Measurement"
+          },
+          "DataInfo": {
+            "Origin": "Observation",
+            "AuxiliaryType": "Undefined",
+            "MolWeight": 25600.0
+          },
+          "Values": [
+            4.082997,
+            2.88887358,
+            3.31763482,
+            1.75942051,
+            0.841076255,
+            0.3883973
+          ],
+          "Dimension": "Concentration (mass)",
+          "Unit": "mg/l"
+        }
+      ],
+      "BaseGrid": {
+        "Name": "Time",
+        "QuantityInfo": {
+          "Path": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Muscle.QWBA.1|Time",
+          "Type": "Time"
+        },
+        "DataInfo": {
+          "Origin": "BaseGrid",
+          "AuxiliaryType": "Undefined"
+        },
+        "Values": [
+          0.0833333358,
+          0.166666672,
+          0.5,
+          1.0,
+          2.0,
+          3.33333325
+        ],
+        "Dimension": "Time",
+        "Unit": "h"
+      }
+    },
+    {
+      "Name": "Sepp2015_PBPK_dAb_PKSimImport.PKData.GIT.QWBA.3",
+      "ExtendedProperties": [
+        {
+          "Name": "Sheet",
+          "Value": "PKData",
+          "Type": "String"
+        },
+        {
+          "Name": "Organ",
+          "Value": "GIT",
+          "Type": "String"
+        },
+        {
+          "Name": "Compartment",
+          "Value": "Tissue",
+          "Type": "String"
+        },
+        {
+          "Name": "Molecule",
+          "Value": "dAb2",
+          "Type": "String"
+        },
+        {
+          "Name": "Species",
+          "Value": "Mouse",
+          "Type": "String"
+        },
+        {
+          "Name": "Experiment",
+          "Value": "QWBA",
+          "Type": "String"
+        },
+        {
+          "Name": "DataPoint",
+          "Value": 3.0,
+          "Type": "Double"
+        }
+      ],
+      "Columns": [
+        {
+          "Name": "Measurement",
+          "QuantityInfo": {
+            "Path": "Sepp2015_PBPK_dAb_PKSimImport.PKData.GIT.QWBA.3|ObservedData|GIT|Tissue|dAb2|Measurement"
+          },
+          "DataInfo": {
+            "Origin": "Observation",
+            "AuxiliaryType": "Undefined",
+            "MolWeight": 25600.0
+          },
+          "Values": [
+            5.31452274,
+            2.07873273,
+            2.46019435,
+            1.36418056,
+            0.7473909
+          ],
+          "Dimension": "Concentration (mass)",
+          "Unit": "mg/l"
+        }
+      ],
+      "BaseGrid": {
+        "Name": "Time",
+        "QuantityInfo": {
+          "Path": "Sepp2015_PBPK_dAb_PKSimImport.PKData.GIT.QWBA.3|Time",
+          "Type": "Time"
+        },
+        "DataInfo": {
+          "Origin": "BaseGrid",
+          "AuxiliaryType": "Undefined"
+        },
+        "Values": [
+          0.166666672,
+          0.5,
+          1.0,
+          2.0,
+          3.33333325
+        ],
+        "Dimension": "Time",
+        "Unit": "h"
+      }
+    },
+    {
+      "Name": "Sepp2015_PBPK_dAb_PKSimImport.PKData.GIT.QWBA.2",
+      "ExtendedProperties": [
+        {
+          "Name": "Sheet",
+          "Value": "PKData",
+          "Type": "String"
+        },
+        {
+          "Name": "Organ",
+          "Value": "GIT",
+          "Type": "String"
+        },
+        {
+          "Name": "Compartment",
+          "Value": "Tissue",
+          "Type": "String"
+        },
+        {
+          "Name": "Molecule",
+          "Value": "dAb2",
+          "Type": "String"
+        },
+        {
+          "Name": "Species",
+          "Value": "Mouse",
+          "Type": "String"
+        },
+        {
+          "Name": "Experiment",
+          "Value": "QWBA",
+          "Type": "String"
+        },
+        {
+          "Name": "DataPoint",
+          "Value": 2.0,
+          "Type": "Double"
+        }
+      ],
+      "Columns": [
+        {
+          "Name": "Measurement",
+          "QuantityInfo": {
+            "Path": "Sepp2015_PBPK_dAb_PKSimImport.PKData.GIT.QWBA.2|ObservedData|GIT|Tissue|dAb2|Measurement"
+          },
+          "DataInfo": {
+            "Origin": "Observation",
+            "AuxiliaryType": "Undefined",
+            "MolWeight": 25600.0
+          },
+          "Values": [
+            10.1787443,
+            8.395961,
+            2.58151913,
+            2.5506382,
+            1.71464825,
+            0.8635063
+          ],
+          "Dimension": "Concentration (mass)",
+          "Unit": "mg/l"
+        }
+      ],
+      "BaseGrid": {
+        "Name": "Time",
+        "QuantityInfo": {
+          "Path": "Sepp2015_PBPK_dAb_PKSimImport.PKData.GIT.QWBA.2|Time",
+          "Type": "Time"
+        },
+        "DataInfo": {
+          "Origin": "BaseGrid",
+          "AuxiliaryType": "Undefined"
+        },
+        "Values": [
+          0.0833333358,
+          0.166666672,
+          0.5,
+          1.0,
+          2.0,
+          3.33333325
+        ],
+        "Dimension": "Time",
+        "Unit": "h"
+      }
+    },
+    {
+      "Name": "Sepp2015_PBPK_dAb_PKSimImport.PKData.GIT.QWBA.1",
+      "ExtendedProperties": [
+        {
+          "Name": "Sheet",
+          "Value": "PKData",
+          "Type": "String"
+        },
+        {
+          "Name": "Organ",
+          "Value": "GIT",
+          "Type": "String"
+        },
+        {
+          "Name": "Compartment",
+          "Value": "Tissue",
+          "Type": "String"
+        },
+        {
+          "Name": "Molecule",
+          "Value": "dAb2",
+          "Type": "String"
+        },
+        {
+          "Name": "Species",
+          "Value": "Mouse",
+          "Type": "String"
+        },
+        {
+          "Name": "Experiment",
+          "Value": "QWBA",
+          "Type": "String"
+        },
+        {
+          "Name": "DataPoint",
+          "Value": 1.0,
+          "Type": "Double"
+        }
+      ],
+      "Columns": [
+        {
+          "Name": "Measurement",
+          "QuantityInfo": {
+            "Path": "Sepp2015_PBPK_dAb_PKSimImport.PKData.GIT.QWBA.1|ObservedData|GIT|Tissue|dAb2|Measurement"
+          },
+          "DataInfo": {
+            "Origin": "Observation",
+            "AuxiliaryType": "Undefined",
+            "MolWeight": 25600.0
+          },
+          "Values": [
+            11.902504,
+            9.817814,
+            3.61590266,
+            3.36401439,
+            1.88793421,
+            1.00974059
+          ],
+          "Dimension": "Concentration (mass)",
+          "Unit": "mg/l"
+        }
+      ],
+      "BaseGrid": {
+        "Name": "Time",
+        "QuantityInfo": {
+          "Path": "Sepp2015_PBPK_dAb_PKSimImport.PKData.GIT.QWBA.1|Time",
+          "Type": "Time"
+        },
+        "DataInfo": {
+          "Origin": "BaseGrid",
+          "AuxiliaryType": "Undefined"
+        },
+        "Values": [
+          0.0833333358,
+          0.166666672,
+          0.5,
+          1.0,
+          2.0,
+          3.33333325
+        ],
+        "Dimension": "Time",
+        "Unit": "h"
+      }
+    },
+    {
+      "Name": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Brain.QWBA.3",
+      "ExtendedProperties": [
+        {
+          "Name": "Sheet",
+          "Value": "PKData",
+          "Type": "String"
+        },
+        {
+          "Name": "Organ",
+          "Value": "Brain",
+          "Type": "String"
+        },
+        {
+          "Name": "Compartment",
+          "Value": "Tissue",
+          "Type": "String"
+        },
+        {
+          "Name": "Molecule",
+          "Value": "dAb2",
+          "Type": "String"
+        },
+        {
+          "Name": "Species",
+          "Value": "Mouse",
+          "Type": "String"
+        },
+        {
+          "Name": "Experiment",
+          "Value": "QWBA",
+          "Type": "String"
+        },
+        {
+          "Name": "DataPoint",
+          "Value": 3.0,
+          "Type": "Double"
+        }
+      ],
+      "Columns": [
+        {
+          "Name": "Measurement",
+          "QuantityInfo": {
+            "Path": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Brain.QWBA.3|ObservedData|Brain|Tissue|dAb2|Measurement"
+          },
+          "DataInfo": {
+            "Origin": "Observation",
+            "AuxiliaryType": "Undefined",
+            "MolWeight": 25600.0
+          },
+          "Values": [
+            0.31296742
+          ],
+          "Dimension": "Concentration (mass)",
+          "Unit": "mg/l"
+        }
+      ],
+      "BaseGrid": {
+        "Name": "Time",
+        "QuantityInfo": {
+          "Path": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Brain.QWBA.3|Time",
+          "Type": "Time"
+        },
+        "DataInfo": {
+          "Origin": "BaseGrid",
+          "AuxiliaryType": "Undefined"
+        },
+        "Values": [
+          0.0833333358
+        ],
+        "Dimension": "Time",
+        "Unit": "h"
+      }
+    },
+    {
+      "Name": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Brain.QWBA.2",
+      "ExtendedProperties": [
+        {
+          "Name": "Sheet",
+          "Value": "PKData",
+          "Type": "String"
+        },
+        {
+          "Name": "Organ",
+          "Value": "Brain",
+          "Type": "String"
+        },
+        {
+          "Name": "Compartment",
+          "Value": "Tissue",
+          "Type": "String"
+        },
+        {
+          "Name": "Molecule",
+          "Value": "dAb2",
+          "Type": "String"
+        },
+        {
+          "Name": "Species",
+          "Value": "Mouse",
+          "Type": "String"
+        },
+        {
+          "Name": "Experiment",
+          "Value": "QWBA",
+          "Type": "String"
+        },
+        {
+          "Name": "DataPoint",
+          "Value": 2.0,
+          "Type": "Double"
+        }
+      ],
+      "Columns": [
+        {
+          "Name": "Measurement",
+          "QuantityInfo": {
+            "Path": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Brain.QWBA.2|ObservedData|Brain|Tissue|dAb2|Measurement"
+          },
+          "DataInfo": {
+            "Origin": "Observation",
+            "AuxiliaryType": "Undefined",
+            "MolWeight": 25600.0
+          },
+          "Values": [
+            0.5922464,
+            0.21551533
+          ],
+          "Dimension": "Concentration (mass)",
+          "Unit": "mg/l"
+        }
+      ],
+      "BaseGrid": {
+        "Name": "Time",
+        "QuantityInfo": {
+          "Path": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Brain.QWBA.2|Time",
+          "Type": "Time"
+        },
+        "DataInfo": {
+          "Origin": "BaseGrid",
+          "AuxiliaryType": "Undefined"
+        },
+        "Values": [
+          0.0833333358,
+          0.166666672
+        ],
+        "Dimension": "Time",
+        "Unit": "h"
+      }
+    },
+    {
+      "Name": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Brain.QWBA.1",
+      "ExtendedProperties": [
+        {
+          "Name": "Sheet",
+          "Value": "PKData",
+          "Type": "String"
+        },
+        {
+          "Name": "Organ",
+          "Value": "Brain",
+          "Type": "String"
+        },
+        {
+          "Name": "Compartment",
+          "Value": "Tissue",
+          "Type": "String"
+        },
+        {
+          "Name": "Molecule",
+          "Value": "dAb2",
+          "Type": "String"
+        },
+        {
+          "Name": "Species",
+          "Value": "Mouse",
+          "Type": "String"
+        },
+        {
+          "Name": "Experiment",
+          "Value": "QWBA",
+          "Type": "String"
+        },
+        {
+          "Name": "DataPoint",
+          "Value": 1.0,
+          "Type": "Double"
+        }
+      ],
+      "Columns": [
+        {
+          "Name": "Measurement",
+          "QuantityInfo": {
+            "Path": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Brain.QWBA.1|ObservedData|Brain|Tissue|dAb2|Measurement"
+          },
+          "DataInfo": {
+            "Origin": "Observation",
+            "AuxiliaryType": "Undefined",
+            "MolWeight": 25600.0
+          },
+          "Values": [
+            0.6599954,
+            0.384015977
+          ],
+          "Dimension": "Concentration (mass)",
+          "Unit": "mg/l"
+        }
+      ],
+      "BaseGrid": {
+        "Name": "Time",
+        "QuantityInfo": {
+          "Path": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Brain.QWBA.1|Time",
+          "Type": "Time"
+        },
+        "DataInfo": {
+          "Origin": "BaseGrid",
+          "AuxiliaryType": "Undefined"
+        },
+        "Values": [
+          0.0833333358,
+          0.166666672
+        ],
+        "Dimension": "Time",
+        "Unit": "h"
+      }
+    },
+    {
+      "Name": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Blood.LSC.6",
+      "ExtendedProperties": [
+        {
+          "Name": "Sheet",
+          "Value": "PKData",
+          "Type": "String"
+        },
+        {
+          "Name": "Organ",
+          "Value": "Blood",
+          "Type": "String"
+        },
+        {
+          "Name": "Compartment",
+          "Value": "WholeBlood",
+          "Type": "String"
+        },
+        {
+          "Name": "Molecule",
+          "Value": "dAb2",
+          "Type": "String"
+        },
+        {
+          "Name": "Species",
+          "Value": "Mouse",
+          "Type": "String"
+        },
+        {
+          "Name": "Experiment",
+          "Value": "LSC",
+          "Type": "String"
+        },
+        {
+          "Name": "DataPoint",
+          "Value": 6.0,
+          "Type": "Double"
+        }
+      ],
+      "Columns": [
+        {
+          "Name": "Measurement",
+          "QuantityInfo": {
+            "Path": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Blood.LSC.6|ObservedData|Blood|WholeBlood|dAb2|Measurement"
+          },
+          "DataInfo": {
+            "Origin": "Observation",
+            "AuxiliaryType": "Undefined",
+            "MolWeight": 25600.0
+          },
+          "Values": [
+            0.957141757
+          ],
+          "Dimension": "Concentration (mass)",
+          "Unit": "mg/l"
+        }
+      ],
+      "BaseGrid": {
+        "Name": "Time",
+        "QuantityInfo": {
+          "Path": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Blood.LSC.6|Time",
+          "Type": "Time"
+        },
+        "DataInfo": {
+          "Origin": "BaseGrid",
+          "AuxiliaryType": "Undefined"
+        },
+        "Values": [
+          2.66666675
+        ],
+        "Dimension": "Time",
+        "Unit": "h"
+      }
+    },
+    {
+      "Name": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Blood.LSC.5",
+      "ExtendedProperties": [
+        {
+          "Name": "Sheet",
+          "Value": "PKData",
+          "Type": "String"
+        },
+        {
+          "Name": "Organ",
+          "Value": "Blood",
+          "Type": "String"
+        },
+        {
+          "Name": "Compartment",
+          "Value": "WholeBlood",
+          "Type": "String"
+        },
+        {
+          "Name": "Molecule",
+          "Value": "dAb2",
+          "Type": "String"
+        },
+        {
+          "Name": "Species",
+          "Value": "Mouse",
+          "Type": "String"
+        },
+        {
+          "Name": "Experiment",
+          "Value": "LSC",
+          "Type": "String"
+        },
+        {
+          "Name": "DataPoint",
+          "Value": 5.0,
+          "Type": "Double"
+        }
+      ],
+      "Columns": [
+        {
+          "Name": "Measurement",
+          "QuantityInfo": {
+            "Path": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Blood.LSC.5|ObservedData|Blood|WholeBlood|dAb2|Measurement"
+          },
+          "DataInfo": {
+            "Origin": "Observation",
+            "AuxiliaryType": "Undefined",
+            "MolWeight": 25600.0
+          },
+          "Values": [
+            65.0075,
+            9.971189,
+            1.99915826,
+            0.978744745,
+            0.313562185
+          ],
+          "Dimension": "Concentration (mass)",
+          "Unit": "mg/l"
+        }
+      ],
+      "BaseGrid": {
+        "Name": "Time",
+        "QuantityInfo": {
+          "Path": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Blood.LSC.5|Time",
+          "Type": "Time"
+        },
+        "DataInfo": {
+          "Origin": "BaseGrid",
+          "AuxiliaryType": "Undefined"
+        },
+        "Values": [
+          0.0333333351,
+          0.166666672,
+          1.5,
+          2.66666675,
+          4.0
+        ],
+        "Dimension": "Time",
+        "Unit": "h"
+      }
+    },
+    {
+      "Name": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Blood.LSC.4",
+      "ExtendedProperties": [
+        {
+          "Name": "Sheet",
+          "Value": "PKData",
+          "Type": "String"
+        },
+        {
+          "Name": "Organ",
+          "Value": "Blood",
+          "Type": "String"
+        },
+        {
+          "Name": "Compartment",
+          "Value": "WholeBlood",
+          "Type": "String"
+        },
+        {
+          "Name": "Molecule",
+          "Value": "dAb2",
+          "Type": "String"
+        },
+        {
+          "Name": "Species",
+          "Value": "Mouse",
+          "Type": "String"
+        },
+        {
+          "Name": "Experiment",
+          "Value": "LSC",
+          "Type": "String"
+        },
+        {
+          "Name": "DataPoint",
+          "Value": 4.0,
+          "Type": "Double"
+        }
+      ],
+      "Columns": [
+        {
+          "Name": "Measurement",
+          "QuantityInfo": {
+            "Path": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Blood.LSC.4|ObservedData|Blood|WholeBlood|dAb2|Measurement"
+          },
+          "DataInfo": {
+            "Origin": "Observation",
+            "AuxiliaryType": "Undefined",
+            "MolWeight": 25600.0
+          },
+          "Values": [
+            66.47473,
+            26.6220379,
+            13.0335779,
+            4.51485348,
+            2.44390655,
+            2.13759923,
+            1.18320608,
+            1.54659641,
+            0.626337349,
+            0.4382474
+          ],
+          "Dimension": "Concentration (mass)",
+          "Unit": "mg/l"
+        }
+      ],
+      "BaseGrid": {
+        "Name": "Time",
+        "QuantityInfo": {
+          "Path": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Blood.LSC.4|Time",
+          "Type": "Time"
+        },
+        "DataInfo": {
+          "Origin": "BaseGrid",
+          "AuxiliaryType": "Undefined"
+        },
+        "Values": [
+          0.0333333351,
+          0.0833333358,
+          0.166666672,
+          0.5,
+          1.0,
+          1.5,
+          2.0,
+          2.66666675,
+          3.33333325,
+          4.0
+        ],
+        "Dimension": "Time",
+        "Unit": "h"
+      }
+    },
+    {
+      "Name": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Blood.LSC.3",
+      "ExtendedProperties": [
+        {
+          "Name": "Sheet",
+          "Value": "PKData",
+          "Type": "String"
+        },
+        {
+          "Name": "Organ",
+          "Value": "Blood",
+          "Type": "String"
+        },
+        {
+          "Name": "Compartment",
+          "Value": "WholeBlood",
+          "Type": "String"
+        },
+        {
+          "Name": "Molecule",
+          "Value": "dAb2",
+          "Type": "String"
+        },
+        {
+          "Name": "Species",
+          "Value": "Mouse",
+          "Type": "String"
+        },
+        {
+          "Name": "Experiment",
+          "Value": "LSC",
+          "Type": "String"
+        },
+        {
+          "Name": "DataPoint",
+          "Value": 3.0,
+          "Type": "Double"
+        }
+      ],
+      "Columns": [
+        {
+          "Name": "Measurement",
+          "QuantityInfo": {
+            "Path": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Blood.LSC.3|ObservedData|Blood|WholeBlood|dAb2|Measurement"
+          },
+          "DataInfo": {
+            "Origin": "Observation",
+            "AuxiliaryType": "Undefined",
+            "MolWeight": 25600.0
+          },
+          "Values": [
+            77.71554,
+            28.14971,
+            18.0141125,
+            4.99186,
+            3.19448614,
+            2.47133231,
+            1.76821589,
+            1.65369773,
+            0.6697112,
+            0.47385478
+          ],
+          "Dimension": "Concentration (mass)",
+          "Unit": "mg/l"
+        }
+      ],
+      "BaseGrid": {
+        "Name": "Time",
+        "QuantityInfo": {
+          "Path": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Blood.LSC.3|Time",
+          "Type": "Time"
+        },
+        "DataInfo": {
+          "Origin": "BaseGrid",
+          "AuxiliaryType": "Undefined"
+        },
+        "Values": [
+          0.0333333351,
+          0.0833333358,
+          0.166666672,
+          0.5,
+          1.0,
+          1.5,
+          2.0,
+          2.66666675,
+          3.33333325,
+          4.0
+        ],
+        "Dimension": "Time",
+        "Unit": "h"
+      }
+    },
+    {
+      "Name": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Blood.LSC.2",
+      "ExtendedProperties": [
+        {
+          "Name": "Sheet",
+          "Value": "PKData",
+          "Type": "String"
+        },
+        {
+          "Name": "Organ",
+          "Value": "Blood",
+          "Type": "String"
+        },
+        {
+          "Name": "Compartment",
+          "Value": "WholeBlood",
+          "Type": "String"
+        },
+        {
+          "Name": "Molecule",
+          "Value": "dAb2",
+          "Type": "String"
+        },
+        {
+          "Name": "Species",
+          "Value": "Mouse",
+          "Type": "String"
+        },
+        {
+          "Name": "Experiment",
+          "Value": "LSC",
+          "Type": "String"
+        },
+        {
+          "Name": "DataPoint",
+          "Value": 2.0,
+          "Type": "Double"
+        }
+      ],
+      "Columns": [
+        {
+          "Name": "Measurement",
+          "QuantityInfo": {
+            "Path": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Blood.LSC.2|ObservedData|Blood|WholeBlood|dAb2|Measurement"
+          },
+          "DataInfo": {
+            "Origin": "Observation",
+            "AuxiliaryType": "Undefined",
+            "MolWeight": 25600.0
+          },
+          "Values": [
+            82.1751556,
+            39.3431969,
+            22.5187035,
+            5.104525,
+            3.94898224,
+            2.95444179,
+            1.86968279,
+            2.09041858,
+            1.19648409,
+            0.4899872
+          ],
+          "Dimension": "Concentration (mass)",
+          "Unit": "mg/l"
+        }
+      ],
+      "BaseGrid": {
+        "Name": "Time",
+        "QuantityInfo": {
+          "Path": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Blood.LSC.2|Time",
+          "Type": "Time"
+        },
+        "DataInfo": {
+          "Origin": "BaseGrid",
+          "AuxiliaryType": "Undefined"
+        },
+        "Values": [
+          0.0333333351,
+          0.0833333358,
+          0.166666672,
+          0.5,
+          1.0,
+          1.5,
+          2.0,
+          2.66666675,
+          3.33333325,
+          4.0
+        ],
+        "Dimension": "Time",
+        "Unit": "h"
+      }
+    },
+    {
+      "Name": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Blood.LSC.1",
+      "ExtendedProperties": [
+        {
+          "Name": "Sheet",
+          "Value": "PKData",
+          "Type": "String"
+        },
+        {
+          "Name": "Organ",
+          "Value": "Blood",
+          "Type": "String"
+        },
+        {
+          "Name": "Compartment",
+          "Value": "WholeBlood",
+          "Type": "String"
+        },
+        {
+          "Name": "Molecule",
+          "Value": "dAb2",
+          "Type": "String"
+        },
+        {
+          "Name": "Species",
+          "Value": "Mouse",
+          "Type": "String"
+        },
+        {
+          "Name": "Experiment",
+          "Value": "LSC",
+          "Type": "String"
+        },
+        {
+          "Name": "DataPoint",
+          "Value": 1.0,
+          "Type": "Double"
+        }
+      ],
+      "Columns": [
+        {
+          "Name": "Measurement",
+          "QuantityInfo": {
+            "Path": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Blood.LSC.1|ObservedData|Blood|WholeBlood|dAb2|Measurement"
+          },
+          "DataInfo": {
+            "Origin": "Observation",
+            "AuxiliaryType": "Undefined",
+            "MolWeight": 25600.0
+          },
+          "Values": [
+            87.86577,
+            50.8557358,
+            23.546669,
+            5.45801163,
+            5.16180849,
+            3.61171222,
+            2.55546951,
+            3.19448614,
+            1.32289565,
+            0.5123549
+          ],
+          "Dimension": "Concentration (mass)",
+          "Unit": "mg/l"
+        }
+      ],
+      "BaseGrid": {
+        "Name": "Time",
+        "QuantityInfo": {
+          "Path": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Blood.LSC.1|Time",
+          "Type": "Time"
+        },
+        "DataInfo": {
+          "Origin": "BaseGrid",
+          "AuxiliaryType": "Undefined"
+        },
+        "Values": [
+          0.0333333351,
+          0.0833333358,
+          0.166666672,
+          0.5,
+          1.0,
+          1.5,
+          2.0,
+          2.66666675,
+          3.33333325,
+          4.0
+        ],
+        "Dimension": "Time",
+        "Unit": "h"
+      }
+    },
+    {
+      "Name": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Spleen.QWBA.3",
+      "ExtendedProperties": [
+        {
+          "Name": "Sheet",
+          "Value": "PKData",
+          "Type": "String"
+        },
+        {
+          "Name": "Organ",
+          "Value": "Spleen",
+          "Type": "String"
+        },
+        {
+          "Name": "Compartment",
+          "Value": "Tissue",
+          "Type": "String"
+        },
+        {
+          "Name": "Molecule",
+          "Value": "dAb2",
+          "Type": "String"
+        },
+        {
+          "Name": "Species",
+          "Value": "Mouse",
+          "Type": "String"
+        },
+        {
+          "Name": "Experiment",
+          "Value": "QWBA",
+          "Type": "String"
+        },
+        {
+          "Name": "DataPoint",
+          "Value": 3.0,
+          "Type": "Double"
+        }
+      ],
+      "Columns": [
+        {
+          "Name": "Measurement",
+          "QuantityInfo": {
+            "Path": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Spleen.QWBA.3|ObservedData|Spleen|Tissue|dAb2|Measurement"
+          },
+          "DataInfo": {
+            "Origin": "Observation",
+            "AuxiliaryType": "Undefined",
+            "MolWeight": 25600.0
+          },
+          "Values": [
+            4.869999,
+            2.362614,
+            1.6063993,
+            1.16009164,
+            0.590607047
+          ],
+          "Dimension": "Concentration (mass)",
+          "Unit": "mg/l"
+        }
+      ],
+      "BaseGrid": {
+        "Name": "Time",
+        "QuantityInfo": {
+          "Path": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Spleen.QWBA.3|Time",
+          "Type": "Time"
+        },
+        "DataInfo": {
+          "Origin": "BaseGrid",
+          "AuxiliaryType": "Undefined"
+        },
+        "Values": [
+          0.0833333358,
+          0.166666672,
+          1.0,
+          2.0,
+          3.33333325
+        ],
+        "Dimension": "Time",
+        "Unit": "h"
+      }
+    },
+    {
+      "Name": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Spleen.QWBA.2",
+      "ExtendedProperties": [
+        {
+          "Name": "Sheet",
+          "Value": "PKData",
+          "Type": "String"
+        },
+        {
+          "Name": "Organ",
+          "Value": "Spleen",
+          "Type": "String"
+        },
+        {
+          "Name": "Compartment",
+          "Value": "Tissue",
+          "Type": "String"
+        },
+        {
+          "Name": "Molecule",
+          "Value": "dAb2",
+          "Type": "String"
+        },
+        {
+          "Name": "Species",
+          "Value": "Mouse",
+          "Type": "String"
+        },
+        {
+          "Name": "Experiment",
+          "Value": "QWBA",
+          "Type": "String"
+        },
+        {
+          "Name": "DataPoint",
+          "Value": 2.0,
+          "Type": "Double"
+        }
+      ],
+      "Columns": [
+        {
+          "Name": "Measurement",
+          "QuantityInfo": {
+            "Path": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Spleen.QWBA.2|ObservedData|Spleen|Tissue|dAb2|Measurement"
+          },
+          "DataInfo": {
+            "Origin": "Observation",
+            "AuxiliaryType": "Undefined",
+            "MolWeight": 25600.0
+          },
+          "Values": [
+            9.22604752,
+            3.96756244,
+            2.09428978,
+            2.39126873,
+            1.70620632,
+            0.6582924
+          ],
+          "Dimension": "Concentration (mass)",
+          "Unit": "mg/l"
+        }
+      ],
+      "BaseGrid": {
+        "Name": "Time",
+        "QuantityInfo": {
+          "Path": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Spleen.QWBA.2|Time",
+          "Type": "Time"
+        },
+        "DataInfo": {
+          "Origin": "BaseGrid",
+          "AuxiliaryType": "Undefined"
+        },
+        "Values": [
+          0.0833333358,
+          0.166666672,
+          0.5,
+          1.0,
+          2.0,
+          3.33333325
+        ],
+        "Dimension": "Time",
+        "Unit": "h"
+      }
+    },
+    {
+      "Name": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Spleen.QWBA.1",
+      "ExtendedProperties": [
+        {
+          "Name": "Sheet",
+          "Value": "PKData",
+          "Type": "String"
+        },
+        {
+          "Name": "Organ",
+          "Value": "Spleen",
+          "Type": "String"
+        },
+        {
+          "Name": "Compartment",
+          "Value": "Tissue",
+          "Type": "String"
+        },
+        {
+          "Name": "Molecule",
+          "Value": "dAb2",
+          "Type": "String"
+        },
+        {
+          "Name": "Species",
+          "Value": "Mouse",
+          "Type": "String"
+        },
+        {
+          "Name": "Experiment",
+          "Value": "QWBA",
+          "Type": "String"
+        },
+        {
+          "Name": "DataPoint",
+          "Value": 1.0,
+          "Type": "Double"
+        }
+      ],
+      "Columns": [
+        {
+          "Name": "Measurement",
+          "QuantityInfo": {
+            "Path": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Spleen.QWBA.1|ObservedData|Spleen|Tissue|dAb2|Measurement"
+          },
+          "DataInfo": {
+            "Origin": "Observation",
+            "AuxiliaryType": "Undefined",
+            "MolWeight": 25600.0
+          },
+          "Values": [
+            9.451201,
+            5.69628429,
+            2.14539814,
+            2.8652494,
+            1.85643911,
+            0.798341334
+          ],
+          "Dimension": "Concentration (mass)",
+          "Unit": "mg/l"
+        }
+      ],
+      "BaseGrid": {
+        "Name": "Time",
+        "QuantityInfo": {
+          "Path": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Spleen.QWBA.1|Time",
+          "Type": "Time"
+        },
+        "DataInfo": {
+          "Origin": "BaseGrid",
+          "AuxiliaryType": "Undefined"
+        },
+        "Values": [
+          0.0833333358,
+          0.166666672,
+          0.5,
+          1.0,
+          2.0,
+          3.33333325
+        ],
+        "Dimension": "Time",
+        "Unit": "h"
+      }
+    },
+    {
+      "Name": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Heart.QWBA.3",
+      "ExtendedProperties": [
+        {
+          "Name": "Sheet",
+          "Value": "PKData",
+          "Type": "String"
+        },
+        {
+          "Name": "Organ",
+          "Value": "Heart",
+          "Type": "String"
+        },
+        {
+          "Name": "Compartment",
+          "Value": "Tissue",
+          "Type": "String"
+        },
+        {
+          "Name": "Molecule",
+          "Value": "dAb2",
+          "Type": "String"
+        },
+        {
+          "Name": "Species",
+          "Value": "Mouse",
+          "Type": "String"
+        },
+        {
+          "Name": "Experiment",
+          "Value": "QWBA",
+          "Type": "String"
+        },
+        {
+          "Name": "DataPoint",
+          "Value": 3.0,
+          "Type": "Double"
+        }
+      ],
+      "Columns": [
+        {
+          "Name": "Measurement",
+          "QuantityInfo": {
+            "Path": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Heart.QWBA.3|ObservedData|Heart|Tissue|dAb2|Measurement"
+          },
+          "DataInfo": {
+            "Origin": "Observation",
+            "AuxiliaryType": "Undefined",
+            "MolWeight": 25600.0
+          },
+          "Values": [
+            6.01062727,
+            3.947399,
+            0.968002,
+            0.584448
+          ],
+          "Dimension": "Concentration (mass)",
+          "Unit": "mg/l"
+        }
+      ],
+      "BaseGrid": {
+        "Name": "Time",
+        "QuantityInfo": {
+          "Path": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Heart.QWBA.3|Time",
+          "Type": "Time"
+        },
+        "DataInfo": {
+          "Origin": "BaseGrid",
+          "AuxiliaryType": "Undefined"
+        },
+        "Values": [
+          0.0833333358,
+          0.166666672,
+          1.0,
+          2.0
+        ],
+        "Dimension": "Time",
+        "Unit": "h"
+      }
+    },
+    {
+      "Name": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Heart.QWBA.2",
+      "ExtendedProperties": [
+        {
+          "Name": "Sheet",
+          "Value": "PKData",
+          "Type": "String"
+        },
+        {
+          "Name": "Organ",
+          "Value": "Heart",
+          "Type": "String"
+        },
+        {
+          "Name": "Compartment",
+          "Value": "Tissue",
+          "Type": "String"
+        },
+        {
+          "Name": "Molecule",
+          "Value": "dAb2",
+          "Type": "String"
+        },
+        {
+          "Name": "Species",
+          "Value": "Mouse",
+          "Type": "String"
+        },
+        {
+          "Name": "Experiment",
+          "Value": "QWBA",
+          "Type": "String"
+        },
+        {
+          "Name": "DataPoint",
+          "Value": 2.0,
+          "Type": "Double"
+        }
+      ],
+      "Columns": [
+        {
+          "Name": "Measurement",
+          "QuantityInfo": {
+            "Path": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Heart.QWBA.2|ObservedData|Heart|Tissue|dAb2|Measurement"
+          },
+          "DataInfo": {
+            "Origin": "Observation",
+            "AuxiliaryType": "Undefined",
+            "MolWeight": 25600.0
+          },
+          "Values": [
+            13.4426508,
+            4.78397942,
+            1.78633618,
+            1.47395742,
+            0.770452261
+          ],
+          "Dimension": "Concentration (mass)",
+          "Unit": "mg/l"
+        }
+      ],
+      "BaseGrid": {
+        "Name": "Time",
+        "QuantityInfo": {
+          "Path": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Heart.QWBA.2|Time",
+          "Type": "Time"
+        },
+        "DataInfo": {
+          "Origin": "BaseGrid",
+          "AuxiliaryType": "Undefined"
+        },
+        "Values": [
+          0.0833333358,
+          0.166666672,
+          0.5,
+          1.0,
+          2.0
+        ],
+        "Dimension": "Time",
+        "Unit": "h"
+      }
+    },
+    {
+      "Name": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Heart.QWBA.1",
+      "ExtendedProperties": [
+        {
+          "Name": "Sheet",
+          "Value": "PKData",
+          "Type": "String"
+        },
+        {
+          "Name": "Organ",
+          "Value": "Heart",
+          "Type": "String"
+        },
+        {
+          "Name": "Compartment",
+          "Value": "Tissue",
+          "Type": "String"
+        },
+        {
+          "Name": "Molecule",
+          "Value": "dAb2",
+          "Type": "String"
+        },
+        {
+          "Name": "Species",
+          "Value": "Mouse",
+          "Type": "String"
+        },
+        {
+          "Name": "Experiment",
+          "Value": "QWBA",
+          "Type": "String"
+        },
+        {
+          "Name": "DataPoint",
+          "Value": 1.0,
+          "Type": "Double"
+        }
+      ],
+      "Columns": [
+        {
+          "Name": "Measurement",
+          "QuantityInfo": {
+            "Path": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Heart.QWBA.1|ObservedData|Heart|Tissue|dAb2|Measurement"
+          },
+          "DataInfo": {
+            "Origin": "Observation",
+            "AuxiliaryType": "Undefined",
+            "MolWeight": 25600.0
+          },
+          "Values": [
+            14.4473848,
+            7.551794,
+            2.21756458,
+            1.52804852,
+            0.848174036,
+            0.417502254
+          ],
+          "Dimension": "Concentration (mass)",
+          "Unit": "mg/l"
+        }
+      ],
+      "BaseGrid": {
+        "Name": "Time",
+        "QuantityInfo": {
+          "Path": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Heart.QWBA.1|Time",
+          "Type": "Time"
+        },
+        "DataInfo": {
+          "Origin": "BaseGrid",
+          "AuxiliaryType": "Undefined"
+        },
+        "Values": [
+          0.0833333358,
+          0.166666672,
+          0.5,
+          1.0,
+          2.0,
+          3.33333325
+        ],
+        "Dimension": "Time",
+        "Unit": "h"
+      }
+    }
+  ]
+}

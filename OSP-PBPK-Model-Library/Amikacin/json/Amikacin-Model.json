@@ -1,0 +1,2762 @@
+{
+  "Version": 80,
+  "Individuals": [
+    {
+      "Name": "Walker 1979 Volunteer 1",
+      "Seed": 181147908,
+      "OriginData": {
+        "CalculationMethods": [
+          "SurfaceAreaPlsInt_VAR1",
+          "Body surface area - Mosteller"
+        ],
+        "Species": "Human",
+        "Population": "European_ICRP_2002",
+        "Gender": "MALE",
+        "Age": {
+          "Value": 27.0,
+          "Unit": "year(s)"
+        },
+        "Weight": {
+          "Value": 82.5,
+          "Unit": "kg"
+        },
+        "ValueOrigin": {
+          "Source": "Publication",
+          "Method": "InVivo",
+          "Description": "Walker 1979"
+        }
+      },
+      "ExpressionProfiles": []
+    },
+    {
+      "Name": "Walker 1979 Volunteer 10",
+      "Seed": 181630934,
+      "OriginData": {
+        "CalculationMethods": [
+          "SurfaceAreaPlsInt_VAR1",
+          "Body surface area - Mosteller"
+        ],
+        "Species": "Human",
+        "Population": "European_ICRP_2002",
+        "Gender": "FEMALE",
+        "Age": {
+          "Value": 37.0,
+          "Unit": "year(s)"
+        },
+        "Weight": {
+          "Value": 44.5,
+          "Unit": "kg"
+        },
+        "ValueOrigin": {
+          "Source": "Publication",
+          "Method": "InVivo",
+          "Description": "Walker 1979"
+        }
+      },
+      "ExpressionProfiles": []
+    },
+    {
+      "Name": "Walker 1979 Volunteer 2",
+      "Seed": 181954667,
+      "OriginData": {
+        "CalculationMethods": [
+          "SurfaceAreaPlsInt_VAR1",
+          "Body surface area - Mosteller"
+        ],
+        "Species": "Human",
+        "Population": "European_ICRP_2002",
+        "Gender": "MALE",
+        "Age": {
+          "Value": 27.0,
+          "Unit": "year(s)"
+        },
+        "Weight": {
+          "Value": 74.8,
+          "Unit": "kg"
+        },
+        "ValueOrigin": {
+          "Source": "Publication",
+          "Method": "InVivo",
+          "Description": "Walker 1979"
+        }
+      },
+      "ExpressionProfiles": []
+    },
+    {
+      "Name": "Walker 1979 Volunteer 3",
+      "Seed": 181970236,
+      "OriginData": {
+        "CalculationMethods": [
+          "SurfaceAreaPlsInt_VAR1",
+          "Body surface area - Mosteller"
+        ],
+        "Species": "Human",
+        "Population": "European_ICRP_2002",
+        "Gender": "MALE",
+        "Age": {
+          "Value": 27.0,
+          "Unit": "year(s)"
+        },
+        "Weight": {
+          "Value": 72.0,
+          "Unit": "kg"
+        },
+        "ValueOrigin": {
+          "Source": "Publication",
+          "Method": "InVivo",
+          "Description": "Walker 1979"
+        }
+      },
+      "ExpressionProfiles": []
+    },
+    {
+      "Name": "Walker 1979 Volunteer 4",
+      "Seed": 181993293,
+      "OriginData": {
+        "CalculationMethods": [
+          "SurfaceAreaPlsInt_VAR1",
+          "Body surface area - Mosteller"
+        ],
+        "Species": "Human",
+        "Population": "European_ICRP_2002",
+        "Gender": "MALE",
+        "Age": {
+          "Value": 27.0,
+          "Unit": "year(s)"
+        },
+        "Weight": {
+          "Value": 77.6,
+          "Unit": "kg"
+        },
+        "ValueOrigin": {
+          "Source": "Publication",
+          "Method": "InVivo",
+          "Description": "Walker 1979"
+        }
+      },
+      "ExpressionProfiles": []
+    },
+    {
+      "Name": "Walker 1979 Volunteer 5",
+      "Seed": 182008207,
+      "OriginData": {
+        "CalculationMethods": [
+          "SurfaceAreaPlsInt_VAR1",
+          "Body surface area - Mosteller"
+        ],
+        "Species": "Human",
+        "Population": "European_ICRP_2002",
+        "Gender": "MALE",
+        "Age": {
+          "Value": 27.0,
+          "Unit": "year(s)"
+        },
+        "Weight": {
+          "Value": 74.7,
+          "Unit": "kg"
+        },
+        "ValueOrigin": {
+          "Source": "Publication",
+          "Method": "InVivo",
+          "Description": "Walker 1979"
+        }
+      },
+      "ExpressionProfiles": []
+    },
+    {
+      "Name": "Walker 1979 Volunteer 6",
+      "Seed": 182030328,
+      "OriginData": {
+        "CalculationMethods": [
+          "SurfaceAreaPlsInt_VAR1",
+          "Body surface area - Mosteller"
+        ],
+        "Species": "Human",
+        "Population": "European_ICRP_2002",
+        "Gender": "MALE",
+        "Age": {
+          "Value": 27.0,
+          "Unit": "year(s)"
+        },
+        "Weight": {
+          "Value": 68.0,
+          "Unit": "kg"
+        },
+        "ValueOrigin": {
+          "Source": "Publication",
+          "Method": "InVivo",
+          "Description": "Walker 1979"
+        }
+      },
+      "ExpressionProfiles": []
+    },
+    {
+      "Name": "Walker 1979 Volunteer 7",
+      "Seed": 182043650,
+      "OriginData": {
+        "CalculationMethods": [
+          "SurfaceAreaPlsInt_VAR1",
+          "Body surface area - Mosteller"
+        ],
+        "Species": "Human",
+        "Population": "European_ICRP_2002",
+        "Gender": "MALE",
+        "Age": {
+          "Value": 27.0,
+          "Unit": "year(s)"
+        },
+        "Weight": {
+          "Value": 68.7,
+          "Unit": "kg"
+        },
+        "ValueOrigin": {
+          "Source": "Publication",
+          "Method": "InVivo",
+          "Description": "Walker 1979"
+        }
+      },
+      "ExpressionProfiles": []
+    },
+    {
+      "Name": "Walker 1979 Volunteer 8",
+      "Seed": 182064352,
+      "OriginData": {
+        "CalculationMethods": [
+          "SurfaceAreaPlsInt_VAR1",
+          "Body surface area - Mosteller"
+        ],
+        "Species": "Human",
+        "Population": "European_ICRP_2002",
+        "Gender": "MALE",
+        "Age": {
+          "Value": 27.0,
+          "Unit": "year(s)"
+        },
+        "Weight": {
+          "Value": 64.8,
+          "Unit": "kg"
+        },
+        "ValueOrigin": {
+          "Source": "Publication",
+          "Method": "InVivo",
+          "Description": "Walker 1979"
+        }
+      },
+      "ExpressionProfiles": []
+    },
+    {
+      "Name": "Walker 1979 Volunteer 9",
+      "Seed": 182084039,
+      "OriginData": {
+        "CalculationMethods": [
+          "SurfaceAreaPlsInt_VAR1",
+          "Body surface area - Mosteller"
+        ],
+        "Species": "Human",
+        "Population": "European_ICRP_2002",
+        "Gender": "MALE",
+        "Age": {
+          "Value": 27.0,
+          "Unit": "year(s)"
+        },
+        "Weight": {
+          "Value": 82.5,
+          "Unit": "kg"
+        },
+        "ValueOrigin": {
+          "Source": "Publication",
+          "Method": "InVivo",
+          "Description": "Walker 1979"
+        }
+      },
+      "ExpressionProfiles": []
+    }
+  ],
+  "Populations": [
+    {
+      "Name": "Walker 1979 pop",
+      "Seed": 183984490,
+      "Settings": {
+        "NumberOfIndividuals": 500,
+        "ProportionOfFemales": 30,
+        "Age": {
+          "Min": 22.0,
+          "Max": 32.0,
+          "Unit": "year(s)"
+        },
+        "Weight": {
+          "Min": 44.5,
+          "Max": 82.5,
+          "Unit": "kg"
+        },
+        "Individual": {
+          "Name": "Walker 1979 Volunteer 1",
+          "Seed": 181147908,
+          "OriginData": {
+            "CalculationMethods": [
+              "SurfaceAreaPlsInt_VAR1",
+              "Body surface area - Mosteller"
+            ],
+            "Species": "Human",
+            "Population": "European_ICRP_2002",
+            "Gender": "MALE",
+            "Age": {
+              "Value": 27.0,
+              "Unit": "year(s)"
+            },
+            "Weight": {
+              "Value": 82.5,
+              "Unit": "kg"
+            },
+            "ValueOrigin": {
+              "Source": "Publication",
+              "Method": "InVivo",
+              "Description": "Walker 1979"
+            }
+          },
+          "ExpressionProfiles": []
+        }
+      }
+    }
+  ],
+  "Compounds": [
+    {
+      "Name": "Amikacin",
+      "IsSmallMolecule": true,
+      "PlasmaProteinBindingPartner": "Albumin",
+      "Lipophilicity": [
+        {
+          "Name": "Measurement",
+          "Parameters": [
+            {
+              "Name": "Lipophilicity",
+              "Value": -0.48,
+              "Unit": "Log Units",
+              "ValueOrigin": {
+                "Source": "Publication",
+                "Method": "Other",
+                "Description": "Claassen et al 2015"
+              }
+            }
+          ]
+        }
+      ],
+      "FractionUnbound": [
+        {
+          "Name": "Measurement",
+          "Species": "Human",
+          "Parameters": [
+            {
+              "Name": "Fraction unbound (plasma, reference value)",
+              "Value": 1.0,
+              "ValueOrigin": {
+                "Source": "Publication",
+                "Method": "Other",
+                "Description": "Claassen et al 2015"
+              }
+            }
+          ]
+        }
+      ],
+      "Solubility": [
+        {
+          "Name": "Measurement",
+          "Parameters": [
+            {
+              "Name": "Solubility at reference pH",
+              "Value": 50.0,
+              "Unit": "mg/l",
+              "ValueOrigin": {
+                "Source": "Publication",
+                "Method": "InVitro",
+                "Description": "Drugbank.de"
+              }
+            },
+            {
+              "Name": "Reference pH",
+              "Value": 7.0,
+              "ValueOrigin": {
+                "Source": "Publication",
+                "Method": "InVitro",
+                "Description": "Drugbank.de"
+              }
+            }
+          ]
+        }
+      ],
+      "PkaTypes": [
+        {
+          "Type": "Base",
+          "Pka": 9.7,
+          "ValueOrigin": {
+            "Source": "Publication",
+            "Description": "Claassen et al 2015"
+          }
+        },
+        {
+          "Type": "Base",
+          "Pka": 8.92,
+          "ValueOrigin": {
+            "Source": "Publication",
+            "Description": "Claassen et al 2015"
+          }
+        },
+        {
+          "Type": "Base",
+          "Pka": 8.13,
+          "ValueOrigin": {
+            "Source": "Publication",
+            "Description": "Claassen et al 2015"
+          }
+        }
+      ],
+      "Processes": [
+        {
+          "InternalName": "GlomerularFiltration",
+          "DataSource": "Claassen et al 2015",
+          "Species": "Human",
+          "Parameters": [
+            {
+              "Name": "GFR fraction",
+              "Value": 1.0,
+              "ValueOrigin": {
+                "Source": "Publication",
+                "Description": "Claassen et al 2015"
+              }
+            }
+          ]
+        }
+      ],
+      "CalculationMethods": [
+        "Cellular partition coefficient method - PK-Sim Standard",
+        "Cellular permeability - PK-Sim Standard"
+      ],
+      "Parameters": [
+        {
+          "Name": "Molecular weight",
+          "Value": 588.6,
+          "Unit": "g/mol",
+          "ValueOrigin": {
+            "Source": "Publication",
+            "Description": "Claassen et al 2015"
+          }
+        }
+      ]
+    }
+  ],
+  "Protocols": [
+    {
+      "Name": "Walker 1979 Volunteer 1",
+      "ApplicationType": "Intravenous",
+      "DosingInterval": "Single",
+      "Parameters": [
+        {
+          "Name": "Start time",
+          "Value": 0.0,
+          "Unit": "h"
+        },
+        {
+          "Name": "InputDose",
+          "Value": 500.0,
+          "Unit": "mg"
+        },
+        {
+          "Name": "Infusion time",
+          "Value": 4.0,
+          "Unit": "min"
+        }
+      ]
+    }
+  ],
+  "Simulations": [
+    {
+      "Name": "Walker 1979 Volunteer 1",
+      "Model": "4Comp",
+      "Solver": {},
+      "OutputSchema": [
+        {
+          "Parameters": [
+            {
+              "Name": "Start time",
+              "Value": 0.0,
+              "Unit": "h"
+            },
+            {
+              "Name": "End time",
+              "Value": 24.0,
+              "Unit": "h",
+              "ValueOrigin": {
+                "Source": "Unknown"
+              }
+            },
+            {
+              "Name": "Resolution",
+              "Value": 10.0,
+              "Unit": "pts/h",
+              "ValueOrigin": {
+                "Source": "Unknown"
+              }
+            }
+          ]
+        }
+      ],
+      "Parameters": [
+        {
+          "Path": "Events|Walker 1979 Volunteer 1|Application_1|ProtocolSchemaItem|Infusion time",
+          "Value": 4.0,
+          "Unit": "min"
+        }
+      ],
+      "OutputSelections": [
+        "Organism|PeripheralVenousBlood|Amikacin|Plasma (Peripheral Venous Blood)",
+        "Organism|Kidney|Urine|Amikacin|Fraction excreted to urine"
+      ],
+      "Individual": "Walker 1979 Volunteer 1",
+      "Compounds": [
+        {
+          "Name": "Amikacin",
+          "CalculationMethods": [
+            "Cellular partition coefficient method - PK-Sim Standard",
+            "Cellular permeability - PK-Sim Standard"
+          ],
+          "Processes": [
+            {
+              "Name": "Glomerular Filtration-Claassen et al 2015",
+              "SystemicProcessType": "GFR"
+            }
+          ],
+          "Protocol": {
+            "Name": "Walker 1979 Volunteer 1"
+          }
+        }
+      ],
+      "HasResults": true,
+      "IndividualAnalyses": [
+        {
+          "Axes": [
+            {
+              "Unit": "h",
+              "Dimension": "Time",
+              "Type": "X",
+              "GridLines": false,
+              "Visible": true,
+              "DefaultColor": "#FFFFFF",
+              "DefaultLineStyle": "None",
+              "Scaling": "Linear",
+              "NumberMode": "Normal"
+            },
+            {
+              "Unit": "µmol/l",
+              "Dimension": "Concentration (molar)",
+              "Type": "Y",
+              "GridLines": false,
+              "Visible": true,
+              "DefaultColor": "#FFFFFF",
+              "DefaultLineStyle": "Solid",
+              "Scaling": "Log",
+              "NumberMode": "Normal"
+            },
+            {
+              "Unit": "",
+              "Dimension": "Fraction",
+              "Type": "Y2",
+              "GridLines": false,
+              "Visible": true,
+              "DefaultColor": "#FFFFFF",
+              "DefaultLineStyle": "Dash",
+              "Scaling": "Log",
+              "NumberMode": "Normal"
+            }
+          ],
+          "Curves": [
+            {
+              "Name": "Walker 1979 Volunteer 1-Amikacin-Peripheral Venous Blood-Plasma-Concentration",
+              "X": "Time",
+              "Y": "Walker 1979 Volunteer 1|Organism|PeripheralVenousBlood|Amikacin|Plasma (Peripheral Venous Blood)",
+              "CurveOptions": {
+                "Color": "#FF0000",
+                "LegendIndex": 1
+              }
+            },
+            {
+              "Name": "Walker 1979 Volunteer 1-Amikacin-Kidney-Urine-Fraction excreted to urine",
+              "X": "Time",
+              "Y": "Walker 1979 Volunteer 1|Organism|Kidney|Urine|Amikacin|Fraction excreted to urine",
+              "CurveOptions": {
+                "yAxisType": "Y2",
+                "Color": "#0000FF",
+                "LegendIndex": 2,
+                "LineStyle": "Dash"
+              }
+            }
+          ],
+          "Name": "Time Profile Analysis",
+          "FontAndSize": {
+            "Fonts": {
+              "AxisSize": 10,
+              "LegendSize": 8,
+              "TitleSize": 16,
+              "DescriptionSize": 12,
+              "OriginSize": 8,
+              "FontFamilyName": "Microsoft Sans Serif",
+              "WatermarkSize": 32
+            }
+          },
+          "Settings": {
+            "SideMarginsEnabled": true,
+            "LegendPosition": "RightInside",
+            "BackColor": "#00FFFFFF",
+            "DiagramBackColor": "#FFFFFF"
+          },
+          "OriginText": "Amikacin_clean\nWalker 1979 Volunteer 1\n2019-05-11 11:03"
+        }
+      ]
+    },
+    {
+      "Name": "Walker 1979 POP",
+      "Model": "4Comp",
+      "ObservedData": [
+        "Walker 1979 - population - Amikacin - iv - 500 mg - Plasma - agg. (n=10)"
+      ],
+      "Solver": {},
+      "OutputSchema": [
+        {
+          "Parameters": [
+            {
+              "Name": "Start time",
+              "Value": 0.0,
+              "Unit": "h"
+            },
+            {
+              "Name": "End time",
+              "Value": 8.0,
+              "Unit": "h",
+              "ValueOrigin": {
+                "Source": "Unknown"
+              }
+            },
+            {
+              "Name": "Resolution",
+              "Value": 10.0,
+              "Unit": "pts/h",
+              "ValueOrigin": {
+                "Source": "Unknown"
+              }
+            }
+          ]
+        }
+      ],
+      "Parameters": [
+        {
+          "Path": "Events|Walker 1979 Volunteer 1|Application_1|ProtocolSchemaItem|Infusion time",
+          "Value": 4.0,
+          "Unit": "min"
+        }
+      ],
+      "OutputSelections": [
+        "Organism|PeripheralVenousBlood|Amikacin|Plasma (Peripheral Venous Blood)"
+      ],
+      "OutputMappings": [
+        {
+          "Scaling": "Log",
+          "Path": "Walker 1979 POP|Organism|PeripheralVenousBlood|Amikacin|Plasma (Peripheral Venous Blood)",
+          "ObservedData": "Walker 1979 - population - Amikacin - iv - 500 mg - Plasma - agg. (n=10)"
+        }
+      ],
+      "Population": "Walker 1979 pop",
+      "Compounds": [
+        {
+          "Name": "Amikacin",
+          "CalculationMethods": [
+            "Cellular partition coefficient method - PK-Sim Standard",
+            "Cellular permeability - PK-Sim Standard"
+          ],
+          "Processes": [
+            {
+              "Name": "Glomerular Filtration-Claassen et al 2015",
+              "SystemicProcessType": "GFR"
+            }
+          ],
+          "Protocol": {
+            "Name": "Walker 1979 Volunteer 1"
+          }
+        }
+      ],
+      "HasResults": true,
+      "PopulationAnalyses": [
+        {
+          "Type": "TimeProfile",
+          "Analysis": {
+            "Fields": [
+              {
+                "Name": "Concentration-Walker 1979 POP-Amikacin-Organism-Peripheral Venous Blood-Plasma",
+                "Dimension": "Concentration (molar)",
+                "Scaling": "Log",
+                "Unit": "µg/l",
+                "QuantityPath": "Organism|PeripheralVenousBlood|Amikacin|Plasma (Peripheral Venous Blood)",
+                "QuantityType": "Drug, Observer",
+                "Color": "#000000",
+                "Area": "DataArea"
+              }
+            ],
+            "Statistics": [
+              {
+                "Id": "ArithmeticMean",
+                "LineStyle": "Solid"
+              },
+              {
+                "Id": "ArithmeticStandardDeviation",
+                "LineStyle": "Solid"
+              }
+            ]
+          },
+          "ObservedDataCollection": {
+            "ObservedData": [
+              "Walker 1979 - population - Amikacin - iv - 500 mg - Plasma - agg. (n=10)"
+            ],
+            "ApplyGrouping": false,
+            "CurveOptions": [
+              {
+                "Caption": "Walker 1979 - population - Amikacin - iv - 500 mg - Plasma - agg. (n=10)-Amikacin-Peripheral Venous Blood-Plasma-ArithmeticMean",
+                "Path": "Walker 1979 - population - Amikacin - iv - 500 mg - Plasma - agg. (n=10)|ObservedData|Peripheral Venous Blood|Plasma|Amikacin|ArithmeticMean",
+                "CurveOptions": {
+                  "LineStyle": "None",
+                  "Symbol": "Circle"
+                }
+              }
+            ]
+          },
+          "XAxisSettings": {
+            "AutoRange": false
+          },
+          "YAxisSettings": {
+            "AutoRange": false
+          },
+          "SecondaryYAxisSettings": [],
+          "Name": "Time Profile Analysis",
+          "FontAndSize": {
+            "ChartWidth": 600,
+            "ChartHeight": 400,
+            "Fonts": {
+              "AxisSize": 10,
+              "LegendSize": 8,
+              "TitleSize": 16,
+              "DescriptionSize": 12,
+              "OriginSize": 8,
+              "FontFamilyName": "Microsoft Sans Serif",
+              "WatermarkSize": 32
+            }
+          },
+          "Settings": {
+            "SideMarginsEnabled": true,
+            "LegendPosition": "Bottom",
+            "BackColor": "#FFFFFF",
+            "DiagramBackColor": "#FFFFFF"
+          },
+          "OriginText": "Amikacin\nWalker 1979 POP\n2021-09-17 15:21"
+        },
+        {
+          "Type": "TimeProfile",
+          "Analysis": {
+            "Fields": [
+              {
+                "Name": "Concentration-Walker 1979 POP-Amikacin-Organism-Peripheral Venous Blood-Plasma",
+                "Dimension": "Concentration (molar)",
+                "Scaling": "Linear",
+                "Unit": "µg/l",
+                "QuantityPath": "Organism|PeripheralVenousBlood|Amikacin|Plasma (Peripheral Venous Blood)",
+                "QuantityType": "Drug, Observer",
+                "Color": "#000000",
+                "Area": "DataArea"
+              }
+            ],
+            "Statistics": [
+              {
+                "Id": "ArithmeticMean",
+                "LineStyle": "Solid"
+              },
+              {
+                "Id": "ArithmeticStandardDeviation",
+                "LineStyle": "Solid"
+              }
+            ]
+          },
+          "ObservedDataCollection": {
+            "ObservedData": [
+              "Walker 1979 - population - Amikacin - iv - 500 mg - Plasma - agg. (n=10)"
+            ],
+            "ApplyGrouping": false,
+            "CurveOptions": [
+              {
+                "Caption": "Walker 1979 - population - Amikacin - iv - 500 mg - Plasma - agg. (n=10)-Amikacin-Peripheral Venous Blood-Plasma-ArithmeticMean",
+                "Path": "Walker 1979 - population - Amikacin - iv - 500 mg - Plasma - agg. (n=10)|ObservedData|Peripheral Venous Blood|Plasma|Amikacin|ArithmeticMean",
+                "CurveOptions": {
+                  "LineStyle": "None",
+                  "Symbol": "Circle"
+                }
+              }
+            ]
+          },
+          "XAxisSettings": {
+            "AutoRange": false
+          },
+          "YAxisSettings": {
+            "AutoRange": false
+          },
+          "SecondaryYAxisSettings": [],
+          "Name": "Time Profile Analysis 1",
+          "FontAndSize": {
+            "ChartWidth": 600,
+            "ChartHeight": 400,
+            "Fonts": {
+              "AxisSize": 10,
+              "LegendSize": 8,
+              "TitleSize": 16,
+              "DescriptionSize": 12,
+              "OriginSize": 8,
+              "FontFamilyName": "Microsoft Sans Serif",
+              "WatermarkSize": 32
+            }
+          },
+          "Settings": {
+            "SideMarginsEnabled": true,
+            "LegendPosition": "Bottom",
+            "BackColor": "#FFFFFF",
+            "DiagramBackColor": "#FFFFFF"
+          },
+          "OriginText": "Amikacin\nWalker 1979 POP\n2021-09-17 15:21"
+        }
+      ]
+    },
+    {
+      "Name": "Walker 1979 Volunteer 9",
+      "Model": "4Comp",
+      "ObservedData": [
+        "Walker 1979 - Volunteer 9 - Amikacin - iv - 500 mg - Plasma - indiv."
+      ],
+      "Solver": {},
+      "OutputSchema": [
+        {
+          "Parameters": [
+            {
+              "Name": "Start time",
+              "Value": 0.0,
+              "Unit": "h"
+            },
+            {
+              "Name": "End time",
+              "Value": 8.0,
+              "Unit": "h",
+              "ValueOrigin": {
+                "Source": "Unknown"
+              }
+            },
+            {
+              "Name": "Resolution",
+              "Value": 20.0,
+              "Unit": "pts/h",
+              "ValueOrigin": {
+                "Source": "Unknown"
+              }
+            }
+          ]
+        }
+      ],
+      "Parameters": [
+        {
+          "Path": "Events|Walker 1979 Volunteer 1|Application_1|ProtocolSchemaItem|Infusion time",
+          "Value": 4.0,
+          "Unit": "min"
+        }
+      ],
+      "OutputSelections": [
+        "Organism|PeripheralVenousBlood|Amikacin|Plasma (Peripheral Venous Blood)"
+      ],
+      "OutputMappings": [
+        {
+          "Scaling": "Log",
+          "Path": "Walker 1979 Volunteer 9|Organism|PeripheralVenousBlood|Amikacin|Plasma (Peripheral Venous Blood)",
+          "ObservedData": "Walker 1979 - Volunteer 9 - Amikacin - iv - 500 mg - Plasma - indiv."
+        }
+      ],
+      "Individual": "Walker 1979 Volunteer 9",
+      "Compounds": [
+        {
+          "Name": "Amikacin",
+          "CalculationMethods": [
+            "Cellular partition coefficient method - PK-Sim Standard",
+            "Cellular permeability - PK-Sim Standard"
+          ],
+          "Processes": [
+            {
+              "Name": "Glomerular Filtration-Claassen et al 2015",
+              "SystemicProcessType": "GFR"
+            }
+          ],
+          "Protocol": {
+            "Name": "Walker 1979 Volunteer 1"
+          }
+        }
+      ],
+      "HasResults": true,
+      "IndividualAnalyses": [
+        {
+          "Axes": [
+            {
+              "Unit": "h",
+              "Dimension": "Time",
+              "Type": "X",
+              "GridLines": false,
+              "Visible": true,
+              "DefaultColor": "#FFFFFF",
+              "DefaultLineStyle": "None",
+              "Scaling": "Linear",
+              "NumberMode": "Normal"
+            },
+            {
+              "Unit": "µg/l",
+              "Dimension": "Concentration (molar)",
+              "Type": "Y",
+              "GridLines": false,
+              "Visible": true,
+              "DefaultColor": "#FFFFFF",
+              "DefaultLineStyle": "Solid",
+              "Scaling": "Log",
+              "NumberMode": "Normal"
+            }
+          ],
+          "Curves": [
+            {
+              "Name": "Walker 1979 Volunteer 9-Amikacin-Peripheral Venous Blood-Plasma-Concentration",
+              "X": "Time",
+              "Y": "Walker 1979 Volunteer 9|Organism|PeripheralVenousBlood|Amikacin|Plasma (Peripheral Venous Blood)",
+              "CurveOptions": {
+                "Color": "#FF0000",
+                "LegendIndex": 1
+              }
+            },
+            {
+              "Name": "Walker 1979 - Volunteer 9 - Amikacin - iv - 500 mg - Plasma - indiv.-Amikacin-Peripheral Venous Blood-Plasma-Individual",
+              "X": "Walker 1979 - Volunteer 9 - Amikacin - iv - 500 mg - Plasma - indiv.|Time",
+              "Y": "Walker 1979 - Volunteer 9 - Amikacin - iv - 500 mg - Plasma - indiv.|ObservedData|Peripheral Venous Blood|Plasma|Amikacin|Individual",
+              "CurveOptions": {
+                "Color": "#008000",
+                "LegendIndex": 4,
+                "LineStyle": "None",
+                "Symbol": "Circle"
+              }
+            }
+          ],
+          "Name": "Time Profile Analysis",
+          "FontAndSize": {
+            "ChartWidth": 600,
+            "ChartHeight": 400,
+            "Fonts": {
+              "AxisSize": 10,
+              "LegendSize": 8,
+              "TitleSize": 16,
+              "DescriptionSize": 12,
+              "OriginSize": 8,
+              "FontFamilyName": "Microsoft Sans Serif",
+              "WatermarkSize": 32
+            }
+          },
+          "Settings": {
+            "SideMarginsEnabled": true,
+            "LegendPosition": "RightInside",
+            "BackColor": "#00FFFFFF",
+            "DiagramBackColor": "#FFFFFF"
+          },
+          "OriginText": "Amikacin\nWalker 1979 Volunteer 9\n2019-06-21 16:55"
+        },
+        {
+          "Axes": [
+            {
+              "Unit": "h",
+              "Dimension": "Time",
+              "Type": "X",
+              "GridLines": false,
+              "Visible": true,
+              "DefaultColor": "#FFFFFF",
+              "DefaultLineStyle": "None",
+              "Scaling": "Linear",
+              "NumberMode": "Normal"
+            },
+            {
+              "Unit": "µg/l",
+              "Dimension": "Concentration (molar)",
+              "Type": "Y",
+              "GridLines": false,
+              "Visible": true,
+              "DefaultColor": "#FFFFFF",
+              "DefaultLineStyle": "Solid",
+              "Scaling": "Linear",
+              "NumberMode": "Normal"
+            }
+          ],
+          "Curves": [
+            {
+              "Name": "Walker 1979 Volunteer 9-Amikacin-Peripheral Venous Blood-Plasma-Concentration",
+              "X": "Time",
+              "Y": "Walker 1979 Volunteer 9|Organism|PeripheralVenousBlood|Amikacin|Plasma (Peripheral Venous Blood)",
+              "CurveOptions": {
+                "Color": "#FF0000",
+                "LegendIndex": 1
+              }
+            },
+            {
+              "Name": "Walker 1979 - Volunteer 9 - Amikacin - iv - 500 mg - Plasma - indiv.-Amikacin-Peripheral Venous Blood-Plasma-Individual",
+              "X": "Walker 1979 - Volunteer 9 - Amikacin - iv - 500 mg - Plasma - indiv.|Time",
+              "Y": "Walker 1979 - Volunteer 9 - Amikacin - iv - 500 mg - Plasma - indiv.|ObservedData|Peripheral Venous Blood|Plasma|Amikacin|Individual",
+              "CurveOptions": {
+                "Color": "#008000",
+                "LegendIndex": 4,
+                "LineStyle": "None",
+                "Symbol": "Circle"
+              }
+            }
+          ],
+          "Name": "Time Profile Analysis 1",
+          "FontAndSize": {
+            "ChartWidth": 600,
+            "ChartHeight": 400,
+            "Fonts": {
+              "AxisSize": 10,
+              "LegendSize": 8,
+              "TitleSize": 16,
+              "DescriptionSize": 12,
+              "OriginSize": 8,
+              "FontFamilyName": "Microsoft Sans Serif",
+              "WatermarkSize": 32
+            }
+          },
+          "Settings": {
+            "SideMarginsEnabled": true,
+            "LegendPosition": "RightInside",
+            "BackColor": "#00FFFFFF",
+            "DiagramBackColor": "#FFFFFF"
+          },
+          "OriginText": "Amikacin\nWalker 1979 Volunteer 9\n2019-06-21 16:55"
+        }
+      ]
+    },
+    {
+      "Name": "Walker 1979 Volunteer 8",
+      "Model": "4Comp",
+      "Solver": {},
+      "OutputSchema": [
+        {
+          "Parameters": [
+            {
+              "Name": "Start time",
+              "Value": 0.0,
+              "Unit": "h"
+            },
+            {
+              "Name": "End time",
+              "Value": 24.0,
+              "Unit": "h",
+              "ValueOrigin": {
+                "Source": "Unknown"
+              }
+            },
+            {
+              "Name": "Resolution",
+              "Value": 10.0,
+              "Unit": "pts/h",
+              "ValueOrigin": {
+                "Source": "Unknown"
+              }
+            }
+          ]
+        }
+      ],
+      "Parameters": [
+        {
+          "Path": "Events|Walker 1979 Volunteer 1|Application_1|ProtocolSchemaItem|Infusion time",
+          "Value": 4.0,
+          "Unit": "min"
+        }
+      ],
+      "OutputSelections": [
+        "Organism|PeripheralVenousBlood|Amikacin|Plasma (Peripheral Venous Blood)",
+        "Organism|Kidney|Urine|Amikacin|Fraction excreted to urine"
+      ],
+      "Individual": "Walker 1979 Volunteer 8",
+      "Compounds": [
+        {
+          "Name": "Amikacin",
+          "CalculationMethods": [
+            "Cellular partition coefficient method - PK-Sim Standard",
+            "Cellular permeability - PK-Sim Standard"
+          ],
+          "Processes": [
+            {
+              "Name": "Glomerular Filtration-Claassen et al 2015",
+              "SystemicProcessType": "GFR"
+            }
+          ],
+          "Protocol": {
+            "Name": "Walker 1979 Volunteer 1"
+          }
+        }
+      ],
+      "HasResults": true,
+      "IndividualAnalyses": [
+        {
+          "Axes": [
+            {
+              "Unit": "h",
+              "Dimension": "Time",
+              "Type": "X",
+              "GridLines": false,
+              "Visible": true,
+              "DefaultColor": "#FFFFFF",
+              "DefaultLineStyle": "None",
+              "Scaling": "Linear",
+              "NumberMode": "Normal"
+            },
+            {
+              "Unit": "µmol/l",
+              "Dimension": "Concentration (molar)",
+              "Type": "Y",
+              "GridLines": false,
+              "Visible": true,
+              "DefaultColor": "#FFFFFF",
+              "DefaultLineStyle": "Solid",
+              "Scaling": "Log",
+              "NumberMode": "Normal"
+            },
+            {
+              "Unit": "",
+              "Dimension": "Fraction",
+              "Type": "Y2",
+              "GridLines": false,
+              "Visible": true,
+              "DefaultColor": "#FFFFFF",
+              "DefaultLineStyle": "Dash",
+              "Scaling": "Log",
+              "NumberMode": "Normal"
+            }
+          ],
+          "Curves": [
+            {
+              "Name": "Walker 1979 Volunteer 8-Amikacin-Peripheral Venous Blood-Plasma-Concentration",
+              "X": "Time",
+              "Y": "Walker 1979 Volunteer 8|Organism|PeripheralVenousBlood|Amikacin|Plasma (Peripheral Venous Blood)",
+              "CurveOptions": {
+                "Color": "#FF0000",
+                "LegendIndex": 1
+              }
+            },
+            {
+              "Name": "Walker 1979 Volunteer 8-Amikacin-Kidney-Urine-Fraction excreted to urine",
+              "X": "Time",
+              "Y": "Walker 1979 Volunteer 8|Organism|Kidney|Urine|Amikacin|Fraction excreted to urine",
+              "CurveOptions": {
+                "yAxisType": "Y2",
+                "Color": "#0000FF",
+                "LegendIndex": 2,
+                "LineStyle": "Dash"
+              }
+            }
+          ],
+          "Name": "Time Profile Analysis",
+          "FontAndSize": {
+            "Fonts": {
+              "AxisSize": 10,
+              "LegendSize": 8,
+              "TitleSize": 16,
+              "DescriptionSize": 12,
+              "OriginSize": 8,
+              "FontFamilyName": "Microsoft Sans Serif",
+              "WatermarkSize": 32
+            }
+          },
+          "Settings": {
+            "SideMarginsEnabled": true,
+            "LegendPosition": "RightInside",
+            "BackColor": "#00FFFFFF",
+            "DiagramBackColor": "#FFFFFF"
+          },
+          "OriginText": "Amikacin_clean\nWalker 1979 Volunteer 8\n2019-05-11 11:10"
+        }
+      ]
+    },
+    {
+      "Name": "Walker 1979 Volunteer 7",
+      "Model": "4Comp",
+      "Solver": {},
+      "OutputSchema": [
+        {
+          "Parameters": [
+            {
+              "Name": "Start time",
+              "Value": 0.0,
+              "Unit": "h"
+            },
+            {
+              "Name": "End time",
+              "Value": 24.0,
+              "Unit": "h",
+              "ValueOrigin": {
+                "Source": "Unknown"
+              }
+            },
+            {
+              "Name": "Resolution",
+              "Value": 10.0,
+              "Unit": "pts/h",
+              "ValueOrigin": {
+                "Source": "Unknown"
+              }
+            }
+          ]
+        }
+      ],
+      "Parameters": [
+        {
+          "Path": "Events|Walker 1979 Volunteer 1|Application_1|ProtocolSchemaItem|Infusion time",
+          "Value": 4.0,
+          "Unit": "min"
+        }
+      ],
+      "OutputSelections": [
+        "Organism|PeripheralVenousBlood|Amikacin|Plasma (Peripheral Venous Blood)",
+        "Organism|Kidney|Urine|Amikacin|Fraction excreted to urine"
+      ],
+      "Individual": "Walker 1979 Volunteer 7",
+      "Compounds": [
+        {
+          "Name": "Amikacin",
+          "CalculationMethods": [
+            "Cellular partition coefficient method - PK-Sim Standard",
+            "Cellular permeability - PK-Sim Standard"
+          ],
+          "Processes": [
+            {
+              "Name": "Glomerular Filtration-Claassen et al 2015",
+              "SystemicProcessType": "GFR"
+            }
+          ],
+          "Protocol": {
+            "Name": "Walker 1979 Volunteer 1"
+          }
+        }
+      ],
+      "HasResults": true,
+      "IndividualAnalyses": [
+        {
+          "Axes": [
+            {
+              "Unit": "h",
+              "Dimension": "Time",
+              "Type": "X",
+              "GridLines": false,
+              "Visible": true,
+              "DefaultColor": "#FFFFFF",
+              "DefaultLineStyle": "None",
+              "Scaling": "Linear",
+              "NumberMode": "Normal"
+            },
+            {
+              "Unit": "µmol/l",
+              "Dimension": "Concentration (molar)",
+              "Type": "Y",
+              "GridLines": false,
+              "Visible": true,
+              "DefaultColor": "#FFFFFF",
+              "DefaultLineStyle": "Solid",
+              "Scaling": "Log",
+              "NumberMode": "Normal"
+            },
+            {
+              "Unit": "",
+              "Dimension": "Fraction",
+              "Type": "Y2",
+              "GridLines": false,
+              "Visible": true,
+              "DefaultColor": "#FFFFFF",
+              "DefaultLineStyle": "Dash",
+              "Scaling": "Log",
+              "NumberMode": "Normal"
+            }
+          ],
+          "Curves": [
+            {
+              "Name": "Walker 1979 Volunteer 7-Amikacin-Peripheral Venous Blood-Plasma-Concentration",
+              "X": "Time",
+              "Y": "Walker 1979 Volunteer 7|Organism|PeripheralVenousBlood|Amikacin|Plasma (Peripheral Venous Blood)",
+              "CurveOptions": {
+                "Color": "#FF0000",
+                "LegendIndex": 1
+              }
+            },
+            {
+              "Name": "Walker 1979 Volunteer 7-Amikacin-Kidney-Urine-Fraction excreted to urine",
+              "X": "Time",
+              "Y": "Walker 1979 Volunteer 7|Organism|Kidney|Urine|Amikacin|Fraction excreted to urine",
+              "CurveOptions": {
+                "yAxisType": "Y2",
+                "Color": "#0000FF",
+                "LegendIndex": 2,
+                "LineStyle": "Dash"
+              }
+            }
+          ],
+          "Name": "Time Profile Analysis",
+          "FontAndSize": {
+            "Fonts": {
+              "AxisSize": 10,
+              "LegendSize": 8,
+              "TitleSize": 16,
+              "DescriptionSize": 12,
+              "OriginSize": 8,
+              "FontFamilyName": "Microsoft Sans Serif",
+              "WatermarkSize": 32
+            }
+          },
+          "Settings": {
+            "SideMarginsEnabled": true,
+            "LegendPosition": "RightInside",
+            "BackColor": "#00FFFFFF",
+            "DiagramBackColor": "#FFFFFF"
+          },
+          "OriginText": "Amikacin_clean\nWalker 1979 Volunteer 7\n2019-05-11 11:10"
+        }
+      ]
+    },
+    {
+      "Name": "Walker 1979 Volunteer 6",
+      "Model": "4Comp",
+      "ObservedData": [
+        "Walker 1979 - Volunteer 6 - Amikacin - iv - 500 mg - Plasma - indiv."
+      ],
+      "Solver": {},
+      "OutputSchema": [
+        {
+          "Parameters": [
+            {
+              "Name": "Start time",
+              "Value": 0.0,
+              "Unit": "h"
+            },
+            {
+              "Name": "End time",
+              "Value": 8.0,
+              "Unit": "h",
+              "ValueOrigin": {
+                "Source": "Unknown"
+              }
+            },
+            {
+              "Name": "Resolution",
+              "Value": 20.0,
+              "Unit": "pts/h",
+              "ValueOrigin": {
+                "Source": "Unknown"
+              }
+            }
+          ]
+        }
+      ],
+      "Parameters": [
+        {
+          "Path": "Events|Walker 1979 Volunteer 1|Application_1|ProtocolSchemaItem|Infusion time",
+          "Value": 4.0,
+          "Unit": "min"
+        }
+      ],
+      "OutputSelections": [
+        "Organism|PeripheralVenousBlood|Amikacin|Plasma (Peripheral Venous Blood)"
+      ],
+      "OutputMappings": [
+        {
+          "Scaling": "Log",
+          "Path": "Walker 1979 Volunteer 6|Organism|PeripheralVenousBlood|Amikacin|Plasma (Peripheral Venous Blood)",
+          "ObservedData": "Walker 1979 - Volunteer 6 - Amikacin - iv - 500 mg - Plasma - indiv."
+        }
+      ],
+      "Individual": "Walker 1979 Volunteer 6",
+      "Compounds": [
+        {
+          "Name": "Amikacin",
+          "CalculationMethods": [
+            "Cellular partition coefficient method - PK-Sim Standard",
+            "Cellular permeability - PK-Sim Standard"
+          ],
+          "Processes": [
+            {
+              "Name": "Glomerular Filtration-Claassen et al 2015",
+              "SystemicProcessType": "GFR"
+            }
+          ],
+          "Protocol": {
+            "Name": "Walker 1979 Volunteer 1"
+          }
+        }
+      ],
+      "HasResults": true,
+      "IndividualAnalyses": [
+        {
+          "Axes": [
+            {
+              "Unit": "h",
+              "Dimension": "Time",
+              "Type": "X",
+              "GridLines": false,
+              "Visible": true,
+              "DefaultColor": "#FFFFFF",
+              "DefaultLineStyle": "None",
+              "Scaling": "Linear",
+              "NumberMode": "Normal"
+            },
+            {
+              "Unit": "µg/l",
+              "Dimension": "Concentration (molar)",
+              "Type": "Y",
+              "GridLines": false,
+              "Visible": true,
+              "DefaultColor": "#FFFFFF",
+              "DefaultLineStyle": "Solid",
+              "Scaling": "Log",
+              "NumberMode": "Normal"
+            }
+          ],
+          "Curves": [
+            {
+              "Name": "Walker 1979 Volunteer 6-Amikacin-Peripheral Venous Blood-Plasma-Concentration",
+              "X": "Time",
+              "Y": "Walker 1979 Volunteer 6|Organism|PeripheralVenousBlood|Amikacin|Plasma (Peripheral Venous Blood)",
+              "CurveOptions": {
+                "Color": "#FF0000",
+                "LegendIndex": 1
+              }
+            },
+            {
+              "Name": "Walker 1979 - Volunteer 6 - Amikacin - iv - 500 mg - Plasma - indiv.-Amikacin-Peripheral Venous Blood-Plasma-Individual",
+              "X": "Walker 1979 - Volunteer 6 - Amikacin - iv - 500 mg - Plasma - indiv.|Time",
+              "Y": "Walker 1979 - Volunteer 6 - Amikacin - iv - 500 mg - Plasma - indiv.|ObservedData|Peripheral Venous Blood|Plasma|Amikacin|Individual",
+              "CurveOptions": {
+                "Color": "#008000",
+                "LegendIndex": 4,
+                "LineStyle": "None",
+                "Symbol": "Circle"
+              }
+            }
+          ],
+          "Name": "Time Profile Analysis",
+          "FontAndSize": {
+            "ChartWidth": 600,
+            "ChartHeight": 400,
+            "Fonts": {
+              "AxisSize": 10,
+              "LegendSize": 8,
+              "TitleSize": 16,
+              "DescriptionSize": 12,
+              "OriginSize": 8,
+              "FontFamilyName": "Microsoft Sans Serif",
+              "WatermarkSize": 32
+            }
+          },
+          "Settings": {
+            "SideMarginsEnabled": true,
+            "LegendPosition": "RightInside",
+            "BackColor": "#00FFFFFF",
+            "DiagramBackColor": "#FFFFFF"
+          },
+          "OriginText": "Amikacin\nWalker 1979 Volunteer 6\n2021-09-17 15:20"
+        },
+        {
+          "Axes": [
+            {
+              "Unit": "h",
+              "Dimension": "Time",
+              "Type": "X",
+              "GridLines": false,
+              "Visible": true,
+              "DefaultColor": "#FFFFFF",
+              "DefaultLineStyle": "None",
+              "Scaling": "Linear",
+              "NumberMode": "Normal"
+            },
+            {
+              "Unit": "µg/l",
+              "Dimension": "Concentration (molar)",
+              "Type": "Y",
+              "GridLines": false,
+              "Visible": true,
+              "DefaultColor": "#FFFFFF",
+              "DefaultLineStyle": "Solid",
+              "Scaling": "Linear",
+              "NumberMode": "Normal"
+            }
+          ],
+          "Curves": [
+            {
+              "Name": "Walker 1979 Volunteer 6-Amikacin-Peripheral Venous Blood-Plasma-Concentration",
+              "X": "Time",
+              "Y": "Walker 1979 Volunteer 6|Organism|PeripheralVenousBlood|Amikacin|Plasma (Peripheral Venous Blood)",
+              "CurveOptions": {
+                "Color": "#FF0000",
+                "LegendIndex": 1
+              }
+            },
+            {
+              "Name": "Walker 1979 - Volunteer 6 - Amikacin - iv - 500 mg - Plasma - indiv.-Amikacin-Peripheral Venous Blood-Plasma-Individual",
+              "X": "Walker 1979 - Volunteer 6 - Amikacin - iv - 500 mg - Plasma - indiv.|Time",
+              "Y": "Walker 1979 - Volunteer 6 - Amikacin - iv - 500 mg - Plasma - indiv.|ObservedData|Peripheral Venous Blood|Plasma|Amikacin|Individual",
+              "CurveOptions": {
+                "Color": "#008000",
+                "LegendIndex": 4,
+                "LineStyle": "None",
+                "Symbol": "Circle"
+              }
+            }
+          ],
+          "Name": "Time Profile Analysis 1",
+          "FontAndSize": {
+            "ChartWidth": 600,
+            "ChartHeight": 400,
+            "Fonts": {
+              "AxisSize": 10,
+              "LegendSize": 8,
+              "TitleSize": 16,
+              "DescriptionSize": 12,
+              "OriginSize": 8,
+              "FontFamilyName": "Microsoft Sans Serif",
+              "WatermarkSize": 32
+            }
+          },
+          "Settings": {
+            "SideMarginsEnabled": true,
+            "LegendPosition": "RightInside",
+            "BackColor": "#00FFFFFF",
+            "DiagramBackColor": "#FFFFFF"
+          },
+          "OriginText": "Amikacin\nWalker 1979 Volunteer 6\n2021-09-17 15:20"
+        }
+      ]
+    },
+    {
+      "Name": "Walker 1979 Volunteer 5",
+      "Model": "4Comp",
+      "Solver": {},
+      "OutputSchema": [
+        {
+          "Parameters": [
+            {
+              "Name": "Start time",
+              "Value": 0.0,
+              "Unit": "h"
+            },
+            {
+              "Name": "End time",
+              "Value": 24.0,
+              "Unit": "h",
+              "ValueOrigin": {
+                "Source": "Unknown"
+              }
+            },
+            {
+              "Name": "Resolution",
+              "Value": 10.0,
+              "Unit": "pts/h",
+              "ValueOrigin": {
+                "Source": "Unknown"
+              }
+            }
+          ]
+        }
+      ],
+      "Parameters": [
+        {
+          "Path": "Events|Walker 1979 Volunteer 1|Application_1|ProtocolSchemaItem|Infusion time",
+          "Value": 4.0,
+          "Unit": "min"
+        }
+      ],
+      "OutputSelections": [
+        "Organism|PeripheralVenousBlood|Amikacin|Plasma (Peripheral Venous Blood)",
+        "Organism|Kidney|Urine|Amikacin|Fraction excreted to urine"
+      ],
+      "Individual": "Walker 1979 Volunteer 5",
+      "Compounds": [
+        {
+          "Name": "Amikacin",
+          "CalculationMethods": [
+            "Cellular partition coefficient method - PK-Sim Standard",
+            "Cellular permeability - PK-Sim Standard"
+          ],
+          "Processes": [
+            {
+              "Name": "Glomerular Filtration-Claassen et al 2015",
+              "SystemicProcessType": "GFR"
+            }
+          ],
+          "Protocol": {
+            "Name": "Walker 1979 Volunteer 1"
+          }
+        }
+      ],
+      "HasResults": true,
+      "IndividualAnalyses": [
+        {
+          "Axes": [
+            {
+              "Unit": "h",
+              "Dimension": "Time",
+              "Type": "X",
+              "GridLines": false,
+              "Visible": true,
+              "DefaultColor": "#FFFFFF",
+              "DefaultLineStyle": "None",
+              "Scaling": "Linear",
+              "NumberMode": "Normal"
+            },
+            {
+              "Unit": "µmol/l",
+              "Dimension": "Concentration (molar)",
+              "Type": "Y",
+              "GridLines": false,
+              "Visible": true,
+              "DefaultColor": "#FFFFFF",
+              "DefaultLineStyle": "Solid",
+              "Scaling": "Log",
+              "NumberMode": "Normal"
+            },
+            {
+              "Unit": "",
+              "Dimension": "Fraction",
+              "Type": "Y2",
+              "GridLines": false,
+              "Visible": true,
+              "DefaultColor": "#FFFFFF",
+              "DefaultLineStyle": "Dash",
+              "Scaling": "Log",
+              "NumberMode": "Normal"
+            }
+          ],
+          "Curves": [
+            {
+              "Name": "Walker 1979 Volunteer 5-Amikacin-Peripheral Venous Blood-Plasma-Concentration",
+              "X": "Time",
+              "Y": "Walker 1979 Volunteer 5|Organism|PeripheralVenousBlood|Amikacin|Plasma (Peripheral Venous Blood)",
+              "CurveOptions": {
+                "Color": "#FF0000",
+                "LegendIndex": 1
+              }
+            },
+            {
+              "Name": "Walker 1979 Volunteer 5-Amikacin-Kidney-Urine-Fraction excreted to urine",
+              "X": "Time",
+              "Y": "Walker 1979 Volunteer 5|Organism|Kidney|Urine|Amikacin|Fraction excreted to urine",
+              "CurveOptions": {
+                "yAxisType": "Y2",
+                "Color": "#0000FF",
+                "LegendIndex": 2,
+                "LineStyle": "Dash"
+              }
+            }
+          ],
+          "Name": "Time Profile Analysis",
+          "FontAndSize": {
+            "Fonts": {
+              "AxisSize": 10,
+              "LegendSize": 8,
+              "TitleSize": 16,
+              "DescriptionSize": 12,
+              "OriginSize": 8,
+              "FontFamilyName": "Microsoft Sans Serif",
+              "WatermarkSize": 32
+            }
+          },
+          "Settings": {
+            "SideMarginsEnabled": true,
+            "LegendPosition": "RightInside",
+            "BackColor": "#00FFFFFF",
+            "DiagramBackColor": "#FFFFFF"
+          },
+          "OriginText": "Amikacin_clean\nWalker 1979 Volunteer 5\n2019-05-11 11:10"
+        }
+      ]
+    },
+    {
+      "Name": "Walker 1979 Volunteer 4",
+      "Model": "4Comp",
+      "Solver": {},
+      "OutputSchema": [
+        {
+          "Parameters": [
+            {
+              "Name": "Start time",
+              "Value": 0.0,
+              "Unit": "h"
+            },
+            {
+              "Name": "End time",
+              "Value": 24.0,
+              "Unit": "h",
+              "ValueOrigin": {
+                "Source": "Unknown"
+              }
+            },
+            {
+              "Name": "Resolution",
+              "Value": 10.0,
+              "Unit": "pts/h",
+              "ValueOrigin": {
+                "Source": "Unknown"
+              }
+            }
+          ]
+        }
+      ],
+      "Parameters": [
+        {
+          "Path": "Events|Walker 1979 Volunteer 1|Application_1|ProtocolSchemaItem|Infusion time",
+          "Value": 4.0,
+          "Unit": "min"
+        }
+      ],
+      "OutputSelections": [
+        "Organism|PeripheralVenousBlood|Amikacin|Plasma (Peripheral Venous Blood)",
+        "Organism|Kidney|Urine|Amikacin|Fraction excreted to urine"
+      ],
+      "Individual": "Walker 1979 Volunteer 4",
+      "Compounds": [
+        {
+          "Name": "Amikacin",
+          "CalculationMethods": [
+            "Cellular partition coefficient method - PK-Sim Standard",
+            "Cellular permeability - PK-Sim Standard"
+          ],
+          "Processes": [
+            {
+              "Name": "Glomerular Filtration-Claassen et al 2015",
+              "SystemicProcessType": "GFR"
+            }
+          ],
+          "Protocol": {
+            "Name": "Walker 1979 Volunteer 1"
+          }
+        }
+      ],
+      "HasResults": true,
+      "IndividualAnalyses": [
+        {
+          "Axes": [
+            {
+              "Unit": "h",
+              "Dimension": "Time",
+              "Type": "X",
+              "GridLines": false,
+              "Visible": true,
+              "DefaultColor": "#FFFFFF",
+              "DefaultLineStyle": "None",
+              "Scaling": "Linear",
+              "NumberMode": "Normal"
+            },
+            {
+              "Unit": "µmol/l",
+              "Dimension": "Concentration (molar)",
+              "Type": "Y",
+              "GridLines": false,
+              "Visible": true,
+              "DefaultColor": "#FFFFFF",
+              "DefaultLineStyle": "Solid",
+              "Scaling": "Log",
+              "NumberMode": "Normal"
+            },
+            {
+              "Unit": "",
+              "Dimension": "Fraction",
+              "Type": "Y2",
+              "GridLines": false,
+              "Visible": true,
+              "DefaultColor": "#FFFFFF",
+              "DefaultLineStyle": "Dash",
+              "Scaling": "Log",
+              "NumberMode": "Normal"
+            }
+          ],
+          "Curves": [
+            {
+              "Name": "Walker 1979 Volunteer 4-Amikacin-Peripheral Venous Blood-Plasma-Concentration",
+              "X": "Time",
+              "Y": "Walker 1979 Volunteer 4|Organism|PeripheralVenousBlood|Amikacin|Plasma (Peripheral Venous Blood)",
+              "CurveOptions": {
+                "Color": "#FF0000",
+                "LegendIndex": 1
+              }
+            },
+            {
+              "Name": "Walker 1979 Volunteer 4-Amikacin-Kidney-Urine-Fraction excreted to urine",
+              "X": "Time",
+              "Y": "Walker 1979 Volunteer 4|Organism|Kidney|Urine|Amikacin|Fraction excreted to urine",
+              "CurveOptions": {
+                "yAxisType": "Y2",
+                "Color": "#0000FF",
+                "LegendIndex": 2,
+                "LineStyle": "Dash"
+              }
+            }
+          ],
+          "Name": "Time Profile Analysis",
+          "FontAndSize": {
+            "Fonts": {
+              "AxisSize": 10,
+              "LegendSize": 8,
+              "TitleSize": 16,
+              "DescriptionSize": 12,
+              "OriginSize": 8,
+              "FontFamilyName": "Microsoft Sans Serif",
+              "WatermarkSize": 32
+            }
+          },
+          "Settings": {
+            "SideMarginsEnabled": true,
+            "LegendPosition": "RightInside",
+            "BackColor": "#00FFFFFF",
+            "DiagramBackColor": "#FFFFFF"
+          },
+          "OriginText": "Amikacin_clean\nWalker 1979 Volunteer 4\n2019-05-11 11:09"
+        }
+      ]
+    },
+    {
+      "Name": "Walker 1979 Volunteer 3",
+      "Model": "4Comp",
+      "Solver": {},
+      "OutputSchema": [
+        {
+          "Parameters": [
+            {
+              "Name": "Start time",
+              "Value": 0.0,
+              "Unit": "h"
+            },
+            {
+              "Name": "End time",
+              "Value": 24.0,
+              "Unit": "h",
+              "ValueOrigin": {
+                "Source": "Unknown"
+              }
+            },
+            {
+              "Name": "Resolution",
+              "Value": 10.0,
+              "Unit": "pts/h",
+              "ValueOrigin": {
+                "Source": "Unknown"
+              }
+            }
+          ]
+        }
+      ],
+      "Parameters": [
+        {
+          "Path": "Events|Walker 1979 Volunteer 1|Application_1|ProtocolSchemaItem|Infusion time",
+          "Value": 4.0,
+          "Unit": "min"
+        }
+      ],
+      "OutputSelections": [
+        "Organism|PeripheralVenousBlood|Amikacin|Plasma (Peripheral Venous Blood)",
+        "Organism|Kidney|Urine|Amikacin|Fraction excreted to urine"
+      ],
+      "Individual": "Walker 1979 Volunteer 3",
+      "Compounds": [
+        {
+          "Name": "Amikacin",
+          "CalculationMethods": [
+            "Cellular partition coefficient method - PK-Sim Standard",
+            "Cellular permeability - PK-Sim Standard"
+          ],
+          "Processes": [
+            {
+              "Name": "Glomerular Filtration-Claassen et al 2015",
+              "SystemicProcessType": "GFR"
+            }
+          ],
+          "Protocol": {
+            "Name": "Walker 1979 Volunteer 1"
+          }
+        }
+      ],
+      "HasResults": true,
+      "IndividualAnalyses": [
+        {
+          "Axes": [
+            {
+              "Unit": "h",
+              "Dimension": "Time",
+              "Type": "X",
+              "GridLines": false,
+              "Visible": true,
+              "DefaultColor": "#FFFFFF",
+              "DefaultLineStyle": "None",
+              "Scaling": "Linear",
+              "NumberMode": "Normal"
+            },
+            {
+              "Unit": "µmol/l",
+              "Dimension": "Concentration (molar)",
+              "Type": "Y",
+              "GridLines": false,
+              "Visible": true,
+              "DefaultColor": "#FFFFFF",
+              "DefaultLineStyle": "Solid",
+              "Scaling": "Log",
+              "NumberMode": "Normal"
+            },
+            {
+              "Unit": "",
+              "Dimension": "Fraction",
+              "Type": "Y2",
+              "GridLines": false,
+              "Visible": true,
+              "DefaultColor": "#FFFFFF",
+              "DefaultLineStyle": "Dash",
+              "Scaling": "Log",
+              "NumberMode": "Normal"
+            }
+          ],
+          "Curves": [
+            {
+              "Name": "Walker 1979 Volunteer 3-Amikacin-Peripheral Venous Blood-Plasma-Concentration",
+              "X": "Time",
+              "Y": "Walker 1979 Volunteer 3|Organism|PeripheralVenousBlood|Amikacin|Plasma (Peripheral Venous Blood)",
+              "CurveOptions": {
+                "Color": "#FF0000",
+                "LegendIndex": 1
+              }
+            },
+            {
+              "Name": "Walker 1979 Volunteer 3-Amikacin-Kidney-Urine-Fraction excreted to urine",
+              "X": "Time",
+              "Y": "Walker 1979 Volunteer 3|Organism|Kidney|Urine|Amikacin|Fraction excreted to urine",
+              "CurveOptions": {
+                "yAxisType": "Y2",
+                "Color": "#0000FF",
+                "LegendIndex": 2,
+                "LineStyle": "Dash"
+              }
+            }
+          ],
+          "Name": "Time Profile Analysis",
+          "FontAndSize": {
+            "Fonts": {
+              "AxisSize": 10,
+              "LegendSize": 8,
+              "TitleSize": 16,
+              "DescriptionSize": 12,
+              "OriginSize": 8,
+              "FontFamilyName": "Microsoft Sans Serif",
+              "WatermarkSize": 32
+            }
+          },
+          "Settings": {
+            "SideMarginsEnabled": true,
+            "LegendPosition": "RightInside",
+            "BackColor": "#00FFFFFF",
+            "DiagramBackColor": "#FFFFFF"
+          },
+          "OriginText": "Amikacin_clean\nWalker 1979 Volunteer 3\n2019-05-11 11:09"
+        }
+      ]
+    },
+    {
+      "Name": "Walker 1979 Volunteer 2",
+      "Model": "4Comp",
+      "Solver": {},
+      "OutputSchema": [
+        {
+          "Parameters": [
+            {
+              "Name": "Start time",
+              "Value": 0.0,
+              "Unit": "h"
+            },
+            {
+              "Name": "End time",
+              "Value": 24.0,
+              "Unit": "h",
+              "ValueOrigin": {
+                "Source": "Unknown"
+              }
+            },
+            {
+              "Name": "Resolution",
+              "Value": 10.0,
+              "Unit": "pts/h",
+              "ValueOrigin": {
+                "Source": "Unknown"
+              }
+            }
+          ]
+        }
+      ],
+      "Parameters": [
+        {
+          "Path": "Events|Walker 1979 Volunteer 1|Application_1|ProtocolSchemaItem|Infusion time",
+          "Value": 4.0,
+          "Unit": "min"
+        }
+      ],
+      "OutputSelections": [
+        "Organism|PeripheralVenousBlood|Amikacin|Plasma (Peripheral Venous Blood)",
+        "Organism|Kidney|Urine|Amikacin|Fraction excreted to urine"
+      ],
+      "Individual": "Walker 1979 Volunteer 2",
+      "Compounds": [
+        {
+          "Name": "Amikacin",
+          "CalculationMethods": [
+            "Cellular partition coefficient method - PK-Sim Standard",
+            "Cellular permeability - PK-Sim Standard"
+          ],
+          "Processes": [
+            {
+              "Name": "Glomerular Filtration-Claassen et al 2015",
+              "SystemicProcessType": "GFR"
+            }
+          ],
+          "Protocol": {
+            "Name": "Walker 1979 Volunteer 1"
+          }
+        }
+      ],
+      "HasResults": true,
+      "IndividualAnalyses": [
+        {
+          "Axes": [
+            {
+              "Unit": "h",
+              "Dimension": "Time",
+              "Type": "X",
+              "GridLines": false,
+              "Visible": true,
+              "DefaultColor": "#FFFFFF",
+              "DefaultLineStyle": "None",
+              "Scaling": "Linear",
+              "NumberMode": "Normal"
+            },
+            {
+              "Unit": "µmol/l",
+              "Dimension": "Concentration (molar)",
+              "Type": "Y",
+              "GridLines": false,
+              "Visible": true,
+              "DefaultColor": "#FFFFFF",
+              "DefaultLineStyle": "Solid",
+              "Scaling": "Log",
+              "NumberMode": "Normal"
+            },
+            {
+              "Unit": "",
+              "Dimension": "Fraction",
+              "Type": "Y2",
+              "GridLines": false,
+              "Visible": true,
+              "DefaultColor": "#FFFFFF",
+              "DefaultLineStyle": "Dash",
+              "Scaling": "Log",
+              "NumberMode": "Normal"
+            }
+          ],
+          "Curves": [
+            {
+              "Name": "Walker 1979 Volunteer 2-Amikacin-Peripheral Venous Blood-Plasma-Concentration",
+              "X": "Time",
+              "Y": "Walker 1979 Volunteer 2|Organism|PeripheralVenousBlood|Amikacin|Plasma (Peripheral Venous Blood)",
+              "CurveOptions": {
+                "Color": "#FF0000",
+                "LegendIndex": 1
+              }
+            },
+            {
+              "Name": "Walker 1979 Volunteer 2-Amikacin-Kidney-Urine-Fraction excreted to urine",
+              "X": "Time",
+              "Y": "Walker 1979 Volunteer 2|Organism|Kidney|Urine|Amikacin|Fraction excreted to urine",
+              "CurveOptions": {
+                "yAxisType": "Y2",
+                "Color": "#0000FF",
+                "LegendIndex": 2,
+                "LineStyle": "Dash"
+              }
+            }
+          ],
+          "Name": "Time Profile Analysis",
+          "FontAndSize": {
+            "Fonts": {
+              "AxisSize": 10,
+              "LegendSize": 8,
+              "TitleSize": 16,
+              "DescriptionSize": 12,
+              "OriginSize": 8,
+              "FontFamilyName": "Microsoft Sans Serif",
+              "WatermarkSize": 32
+            }
+          },
+          "Settings": {
+            "SideMarginsEnabled": true,
+            "LegendPosition": "RightInside",
+            "BackColor": "#00FFFFFF",
+            "DiagramBackColor": "#FFFFFF"
+          },
+          "OriginText": "Amikacin_clean\nWalker 1979 Volunteer 2\n2019-05-11 11:09"
+        }
+      ]
+    },
+    {
+      "Name": "Walker 1979 Volunteer 10",
+      "Model": "4Comp",
+      "Solver": {},
+      "OutputSchema": [
+        {
+          "Parameters": [
+            {
+              "Name": "Start time",
+              "Value": 0.0,
+              "Unit": "h"
+            },
+            {
+              "Name": "End time",
+              "Value": 24.0,
+              "Unit": "h",
+              "ValueOrigin": {
+                "Source": "Unknown"
+              }
+            },
+            {
+              "Name": "Resolution",
+              "Value": 10.0,
+              "Unit": "pts/h",
+              "ValueOrigin": {
+                "Source": "Unknown"
+              }
+            }
+          ]
+        }
+      ],
+      "Parameters": [
+        {
+          "Path": "Events|Walker 1979 Volunteer 1|Application_1|ProtocolSchemaItem|Infusion time",
+          "Value": 4.0,
+          "Unit": "min"
+        }
+      ],
+      "OutputSelections": [
+        "Organism|PeripheralVenousBlood|Amikacin|Plasma (Peripheral Venous Blood)",
+        "Organism|Kidney|Urine|Amikacin|Fraction excreted to urine"
+      ],
+      "Individual": "Walker 1979 Volunteer 10",
+      "Compounds": [
+        {
+          "Name": "Amikacin",
+          "CalculationMethods": [
+            "Cellular partition coefficient method - PK-Sim Standard",
+            "Cellular permeability - PK-Sim Standard"
+          ],
+          "Processes": [
+            {
+              "Name": "Glomerular Filtration-Claassen et al 2015",
+              "SystemicProcessType": "GFR"
+            }
+          ],
+          "Protocol": {
+            "Name": "Walker 1979 Volunteer 1"
+          }
+        }
+      ],
+      "HasResults": true,
+      "IndividualAnalyses": [
+        {
+          "Axes": [
+            {
+              "Unit": "h",
+              "Dimension": "Time",
+              "Type": "X",
+              "GridLines": false,
+              "Visible": true,
+              "DefaultColor": "#FFFFFF",
+              "DefaultLineStyle": "None",
+              "Scaling": "Linear",
+              "NumberMode": "Normal"
+            },
+            {
+              "Unit": "µmol/l",
+              "Dimension": "Concentration (molar)",
+              "Type": "Y",
+              "GridLines": false,
+              "Visible": true,
+              "DefaultColor": "#FFFFFF",
+              "DefaultLineStyle": "Solid",
+              "Scaling": "Log",
+              "NumberMode": "Normal"
+            },
+            {
+              "Unit": "",
+              "Dimension": "Fraction",
+              "Type": "Y2",
+              "GridLines": false,
+              "Visible": true,
+              "DefaultColor": "#FFFFFF",
+              "DefaultLineStyle": "Dash",
+              "Scaling": "Log",
+              "NumberMode": "Normal"
+            }
+          ],
+          "Curves": [
+            {
+              "Name": "Walker 1979 Volunteer 10-Amikacin-Peripheral Venous Blood-Plasma-Concentration",
+              "X": "Time",
+              "Y": "Walker 1979 Volunteer 10|Organism|PeripheralVenousBlood|Amikacin|Plasma (Peripheral Venous Blood)",
+              "CurveOptions": {
+                "Color": "#FF0000",
+                "LegendIndex": 1
+              }
+            },
+            {
+              "Name": "Walker 1979 Volunteer 10-Amikacin-Kidney-Urine-Fraction excreted to urine",
+              "X": "Time",
+              "Y": "Walker 1979 Volunteer 10|Organism|Kidney|Urine|Amikacin|Fraction excreted to urine",
+              "CurveOptions": {
+                "yAxisType": "Y2",
+                "Color": "#0000FF",
+                "LegendIndex": 2,
+                "LineStyle": "Dash"
+              }
+            }
+          ],
+          "Name": "Time Profile Analysis",
+          "FontAndSize": {
+            "Fonts": {
+              "AxisSize": 10,
+              "LegendSize": 8,
+              "TitleSize": 16,
+              "DescriptionSize": 12,
+              "OriginSize": 8,
+              "FontFamilyName": "Microsoft Sans Serif",
+              "WatermarkSize": 32
+            }
+          },
+          "Settings": {
+            "SideMarginsEnabled": true,
+            "LegendPosition": "RightInside",
+            "BackColor": "#00FFFFFF",
+            "DiagramBackColor": "#FFFFFF"
+          },
+          "OriginText": "Amikacin_clean\nWalker 1979 Volunteer 10\n2019-05-11 11:02"
+        }
+      ]
+    }
+  ],
+  "ObservedData": [
+    {
+      "Name": "Walker 1979 - Volunteer 9 - Amikacin - iv - 500 mg - Plasma - indiv.",
+      "ExtendedProperties": [
+        {
+          "Name": "DB Version",
+          "Value": "OSP DATABASE",
+          "Type": "String"
+        },
+        {
+          "Name": "ID",
+          "Value": 5399.0,
+          "Type": "Double"
+        },
+        {
+          "Name": "Study Id",
+          "Value": "Walker 1979",
+          "Type": "String"
+        },
+        {
+          "Name": "Reference",
+          "Value": "https://www.ncbi.nlm.nih.gov/pubmed/762009",
+          "Type": "String"
+        },
+        {
+          "Name": "Source",
+          "Value": "Tab.2",
+          "Type": "String"
+        },
+        {
+          "Name": "Grouping",
+          "Value": "Volunteer 9",
+          "Type": "String"
+        },
+        {
+          "Name": "Data type",
+          "Value": "individual",
+          "Type": "String"
+        },
+        {
+          "Name": "N",
+          "Value": 1.0,
+          "Type": "Double"
+        },
+        {
+          "Name": "Molecule",
+          "Value": "Amikacin",
+          "Type": "String"
+        },
+        {
+          "Name": "Species",
+          "Value": "Human",
+          "Type": "String"
+        },
+        {
+          "Name": "Organ",
+          "Value": "Peripheral Venous Blood",
+          "Type": "String"
+        },
+        {
+          "Name": "Compartment",
+          "Value": "Plasma",
+          "Type": "String"
+        },
+        {
+          "Name": "Route",
+          "Value": "iv",
+          "Type": "String"
+        },
+        {
+          "Name": "Dose",
+          "Value": "500 mg",
+          "Type": "String"
+        },
+        {
+          "Name": "Times of Administration [h]",
+          "Value": 0.0,
+          "Type": "Double"
+        },
+        {
+          "Name": "Formulation",
+          "Value": ".",
+          "Type": "String"
+        },
+        {
+          "Name": "Food state",
+          "Value": ".",
+          "Type": "String"
+        },
+        {
+          "Name": "Comment",
+          "Value": ".",
+          "Type": "String"
+        }
+      ],
+      "Columns": [
+        {
+          "Name": "Avg",
+          "QuantityInfo": {
+            "Path": "Walker 1979 - Volunteer 9 - Amikacin - iv - 500 mg - Plasma - indiv.|ObservedData|Peripheral Venous Blood|Plasma|Amikacin|Individual"
+          },
+          "DataInfo": {
+            "Origin": "Observation",
+            "AuxiliaryType": "Undefined",
+            "MolWeight": 588.6
+          },
+          "Values": [
+            34940.27,
+            26621.0,
+            26339.6211,
+            18603.3789,
+            14651.0,
+            12051.26,
+            8334.432,
+            5340.858,
+            3348.717,
+            2445.345,
+            1048.928
+          ],
+          "Dimension": "Concentration (mass)",
+          "Unit": "µg/l"
+        }
+      ],
+      "BaseGrid": {
+        "Name": "Time",
+        "QuantityInfo": {
+          "Path": "Walker 1979 - Volunteer 9 - Amikacin - iv - 500 mg - Plasma - indiv.|Time",
+          "Type": "Time"
+        },
+        "DataInfo": {
+          "Origin": "BaseGrid",
+          "AuxiliaryType": "Undefined"
+        },
+        "Values": [
+          0.166666672,
+          0.333333343,
+          0.5,
+          1.0,
+          1.5,
+          2.0,
+          3.0,
+          4.0,
+          5.0,
+          6.0,
+          8.0
+        ],
+        "Dimension": "Time",
+        "Unit": "h"
+      }
+    },
+    {
+      "Name": "Walker 1979 - population - Amikacin - iv - 500 mg - Plasma - agg. (n=10)",
+      "ExtendedProperties": [
+        {
+          "Name": "DB Version",
+          "Value": "OSP DATABASE",
+          "Type": "String"
+        },
+        {
+          "Name": "ID",
+          "Value": 5400.0,
+          "Type": "Double"
+        },
+        {
+          "Name": "Study Id",
+          "Value": "Walker 1979",
+          "Type": "String"
+        },
+        {
+          "Name": "Reference",
+          "Value": "https://www.ncbi.nlm.nih.gov/pubmed/762009",
+          "Type": "String"
+        },
+        {
+          "Name": "Source",
+          "Value": "Tab.2",
+          "Type": "String"
+        },
+        {
+          "Name": "Grouping",
+          "Value": "population",
+          "Type": "String"
+        },
+        {
+          "Name": "Data type",
+          "Value": "aggregated",
+          "Type": "String"
+        },
+        {
+          "Name": "N",
+          "Value": 10.0,
+          "Type": "Double"
+        },
+        {
+          "Name": "Molecule",
+          "Value": "Amikacin",
+          "Type": "String"
+        },
+        {
+          "Name": "Species",
+          "Value": "Human",
+          "Type": "String"
+        },
+        {
+          "Name": "Organ",
+          "Value": "Peripheral Venous Blood",
+          "Type": "String"
+        },
+        {
+          "Name": "Compartment",
+          "Value": "Plasma",
+          "Type": "String"
+        },
+        {
+          "Name": "Route",
+          "Value": "iv",
+          "Type": "String"
+        },
+        {
+          "Name": "Dose",
+          "Value": "500 mg",
+          "Type": "String"
+        },
+        {
+          "Name": "Times of Administration [h]",
+          "Value": 0.0,
+          "Type": "Double"
+        },
+        {
+          "Name": "Formulation",
+          "Value": ".",
+          "Type": "String"
+        },
+        {
+          "Name": "Food state",
+          "Value": ".",
+          "Type": "String"
+        },
+        {
+          "Name": "Comment",
+          "Value": ".",
+          "Type": "String"
+        }
+      ],
+      "Columns": [
+        {
+          "Name": "Avg",
+          "RelatedColumns": [
+            {
+              "Name": "Var",
+              "QuantityInfo": {
+                "Path": "Walker 1979 - population - Amikacin - iv - 500 mg - Plasma - agg. (n=10)|ObservedData|Peripheral Venous Blood|Plasma|Amikacin|ArithmeticStdDev"
+              },
+              "DataInfo": {
+                "Origin": "ObservationAuxiliary",
+                "AuxiliaryType": "ArithmeticStdDev",
+                "MolWeight": 588.6
+              },
+              "Values": [
+                4.154259,
+                4.876438,
+                5.383064,
+                4.258938,
+                3.355116,
+                3.038549,
+                2.520929,
+                1.484951,
+                1.090955,
+                1.001264,
+                0.9366865
+              ],
+              "Dimension": "Concentration (mass)",
+              "Unit": "mg/l"
+            }
+          ],
+          "QuantityInfo": {
+            "Path": "Walker 1979 - population - Amikacin - iv - 500 mg - Plasma - agg. (n=10)|ObservedData|Peripheral Venous Blood|Plasma|Amikacin|ArithmeticMean"
+          },
+          "DataInfo": {
+            "Origin": "Observation",
+            "AuxiliaryType": "Undefined",
+            "MolWeight": 588.6
+          },
+          "Values": [
+            40.25455,
+            34.94848,
+            30.34499,
+            22.3857,
+            17.62928,
+            14.03583,
+            9.812667,
+            6.860368,
+            4.744505,
+            3.353179,
+            1.586411
+          ],
+          "Dimension": "Concentration (mass)",
+          "Unit": "mg/l"
+        }
+      ],
+      "BaseGrid": {
+        "Name": "Time",
+        "QuantityInfo": {
+          "Path": "Walker 1979 - population - Amikacin - iv - 500 mg - Plasma - agg. (n=10)|Time",
+          "Type": "Time"
+        },
+        "DataInfo": {
+          "Origin": "BaseGrid",
+          "AuxiliaryType": "Undefined"
+        },
+        "Values": [
+          0.166666672,
+          0.333333343,
+          0.5,
+          1.0,
+          1.5,
+          2.0,
+          3.0,
+          4.0,
+          5.0,
+          6.0,
+          8.0
+        ],
+        "Dimension": "Time",
+        "Unit": "h"
+      }
+    },
+    {
+      "Name": "Walker 1979 - Volunteer 6 - Amikacin - iv - 500 mg - Plasma - indiv.",
+      "ExtendedProperties": [
+        {
+          "Name": "DB Version",
+          "Value": "OSP DATABASE",
+          "Type": "String"
+        },
+        {
+          "Name": "ID",
+          "Value": 5417.0,
+          "Type": "Double"
+        },
+        {
+          "Name": "Study Id",
+          "Value": "Walker 1979",
+          "Type": "String"
+        },
+        {
+          "Name": "Reference",
+          "Value": "https://www.ncbi.nlm.nih.gov/pubmed/762009",
+          "Type": "String"
+        },
+        {
+          "Name": "Source",
+          "Value": "Tab.2",
+          "Type": "String"
+        },
+        {
+          "Name": "Grouping",
+          "Value": "Volunteer 6",
+          "Type": "String"
+        },
+        {
+          "Name": "Data type",
+          "Value": "individual",
+          "Type": "String"
+        },
+        {
+          "Name": "N",
+          "Value": 1.0,
+          "Type": "Double"
+        },
+        {
+          "Name": "Molecule",
+          "Value": "Amikacin",
+          "Type": "String"
+        },
+        {
+          "Name": "Species",
+          "Value": "Human",
+          "Type": "String"
+        },
+        {
+          "Name": "Organ",
+          "Value": "Peripheral Venous Blood",
+          "Type": "String"
+        },
+        {
+          "Name": "Compartment",
+          "Value": "Plasma",
+          "Type": "String"
+        },
+        {
+          "Name": "Route",
+          "Value": "iv",
+          "Type": "String"
+        },
+        {
+          "Name": "Dose",
+          "Value": "500 mg",
+          "Type": "String"
+        },
+        {
+          "Name": "Times of Administration [h]",
+          "Value": 0.0,
+          "Type": "Double"
+        },
+        {
+          "Name": "Formulation",
+          "Value": ".",
+          "Type": "String"
+        },
+        {
+          "Name": "Food state",
+          "Value": ".",
+          "Type": "String"
+        },
+        {
+          "Name": "Comment",
+          "Value": ".",
+          "Type": "String"
+        }
+      ],
+      "Columns": [
+        {
+          "Name": "Avg",
+          "QuantityInfo": {
+            "Path": "Walker 1979 - Volunteer 6 - Amikacin - iv - 500 mg - Plasma - indiv.|ObservedData|Peripheral Venous Blood|Plasma|Amikacin|Individual"
+          },
+          "DataInfo": {
+            "Origin": "Observation",
+            "AuxiliaryType": "Undefined",
+            "MolWeight": 588.6
+          },
+          "Values": [
+            49502.53,
+            36504.99,
+            32393.35,
+            22878.47,
+            18819.7988,
+            14345.17,
+            10705.63,
+            7403.627,
+            6094.348,
+            3618.805,
+            2425.57
+          ],
+          "Dimension": "Concentration (mass)",
+          "Unit": "µg/l"
+        }
+      ],
+      "BaseGrid": {
+        "Name": "Time",
+        "QuantityInfo": {
+          "Path": "Walker 1979 - Volunteer 6 - Amikacin - iv - 500 mg - Plasma - indiv.|Time",
+          "Type": "Time"
+        },
+        "DataInfo": {
+          "Origin": "BaseGrid",
+          "AuxiliaryType": "Undefined"
+        },
+        "Values": [
+          0.166666672,
+          0.333333343,
+          0.5,
+          1.0,
+          1.5,
+          2.0,
+          3.0,
+          4.0,
+          5.0,
+          6.0,
+          8.0
+        ],
+        "Dimension": "Time",
+        "Unit": "h"
+      }
+    }
+  ],
+  "SimulationClassifications": [
+    {
+      "Name": "Adults",
+      "Classifications": [
+        {
+          "Name": "Population",
+          "Classifiables": [
+            "Walker 1979 POP"
+          ]
+        },
+        {
+          "Name": "Individual",
+          "Classifiables": [
+            "Walker 1979 Volunteer 1",
+            "Walker 1979 Volunteer 9",
+            "Walker 1979 Volunteer 8",
+            "Walker 1979 Volunteer 7",
+            "Walker 1979 Volunteer 6",
+            "Walker 1979 Volunteer 5",
+            "Walker 1979 Volunteer 4",
+            "Walker 1979 Volunteer 3",
+            "Walker 1979 Volunteer 2",
+            "Walker 1979 Volunteer 10"
+          ]
+        }
+      ]
+    }
+  ]
+}

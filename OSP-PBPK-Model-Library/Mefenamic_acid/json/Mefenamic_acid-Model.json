@@ -1,0 +1,4200 @@
+{
+  "Version": 80,
+  "ExpressionProfiles": [
+    {
+      "Type": "Enzyme",
+      "Species": "Human",
+      "Molecule": "CYP3A4",
+      "Category": "Standard_Adult",
+      "Parameters": [
+        {
+          "Path": "CYP3A4|Reference concentration",
+          "Value": 4.32,
+          "Unit": "µmol/l"
+        },
+        {
+          "Path": "CYP3A4|t1/2 (intestine)",
+          "Value": 1380.0,
+          "Unit": "min"
+        },
+        {
+          "Path": "CYP3A4|t1/2 (liver)",
+          "Value": 2220.0,
+          "Unit": "min"
+        },
+        {
+          "Path": "Organism|Brain|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.0041682898325
+        },
+        {
+          "Path": "Organism|Gonads|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.00078691079081
+        },
+        {
+          "Path": "Organism|Kidney|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.0053603428126
+        },
+        {
+          "Path": "Organism|Liver|Pericentral|Intracellular|CYP3A4|Relative expression",
+          "Value": 1.0
+        },
+        {
+          "Path": "Organism|Liver|Periportal|Intracellular|CYP3A4|Relative expression",
+          "Value": 1.0
+        },
+        {
+          "Path": "Organism|Lung|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.00042695753798
+        },
+        {
+          "Path": "Organism|SmallIntestine|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.0727697702
+        },
+        {
+          "Path": "Organism|SmallIntestine|Mucosa|Duodenum|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.0727697702
+        },
+        {
+          "Path": "Organism|SmallIntestine|Mucosa|LowerIleum|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.0727697702
+        },
+        {
+          "Path": "Organism|SmallIntestine|Mucosa|LowerJejunum|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.0727697702
+        },
+        {
+          "Path": "Organism|SmallIntestine|Mucosa|UpperIleum|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.0727697702
+        },
+        {
+          "Path": "Organism|SmallIntestine|Mucosa|UpperJejunum|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.0727697702
+        }
+      ],
+      "Localization": "Intracellular, BloodCellsIntracellular, VascEndosome",
+      "Ontogeny": {
+        "Name": "CYP3A4"
+      }
+    },
+    {
+      "Type": "Enzyme",
+      "Species": "Human",
+      "Molecule": "CYP1A1",
+      "Category": "Standard_Adult",
+      "Parameters": [
+        {
+          "Path": "CYP1A1|Reference concentration",
+          "Value": 0.8454956,
+          "Unit": "µmol/l",
+          "ValueOrigin": {
+            "Source": "Other",
+            "Description": "Riociguat PBPK report"
+          }
+        },
+        {
+          "Path": "CYP1A1|t1/2 (intestine)",
+          "Value": 1380.0,
+          "Unit": "min"
+        },
+        {
+          "Path": "CYP1A1|t1/2 (liver)",
+          "Value": 2160.0,
+          "Unit": "min"
+        },
+        {
+          "Path": "Organism|Brain|Intracellular|CYP1A1|Relative expression",
+          "Value": 0.0057142857143
+        },
+        {
+          "Path": "Organism|Gonads|Intracellular|CYP1A1|Relative expression",
+          "Value": 0.0316642121
+        },
+        {
+          "Path": "Organism|Kidney|Intracellular|CYP1A1|Relative expression",
+          "Value": 0.0035198821797
+        },
+        {
+          "Path": "Organism|Liver|Pericentral|Intracellular|CYP1A1|Relative expression",
+          "Value": 0.4394108984
+        },
+        {
+          "Path": "Organism|Liver|Periportal|Intracellular|CYP1A1|Relative expression",
+          "Value": 0.4394108984
+        },
+        {
+          "Path": "Organism|Lung|Intracellular|CYP1A1|Relative expression",
+          "Value": 1.0
+        },
+        {
+          "Path": "Organism|SmallIntestine|Intracellular|CYP1A1|Relative expression",
+          "Value": 0.0259204713
+        },
+        {
+          "Path": "Organism|SmallIntestine|Mucosa|Duodenum|Intracellular|CYP1A1|Relative expression",
+          "Value": 0.0259204713
+        },
+        {
+          "Path": "Organism|SmallIntestine|Mucosa|LowerIleum|Intracellular|CYP1A1|Relative expression",
+          "Value": 0.0259204713
+        },
+        {
+          "Path": "Organism|SmallIntestine|Mucosa|LowerJejunum|Intracellular|CYP1A1|Relative expression",
+          "Value": 0.0259204713
+        },
+        {
+          "Path": "Organism|SmallIntestine|Mucosa|UpperIleum|Intracellular|CYP1A1|Relative expression",
+          "Value": 0.0259204713
+        },
+        {
+          "Path": "Organism|SmallIntestine|Mucosa|UpperJejunum|Intracellular|CYP1A1|Relative expression",
+          "Value": 0.0259204713
+        }
+      ],
+      "Localization": "Intracellular, BloodCellsIntracellular, VascEndosome"
+    },
+    {
+      "Type": "Enzyme",
+      "Species": "Human",
+      "Molecule": "UGT1A1",
+      "Category": "Standard_Adult",
+      "Parameters": [
+        {
+          "Path": "Organism|Gonads|Intracellular|UGT1A1|Relative expression",
+          "Value": 0.0013585313175
+        },
+        {
+          "Path": "Organism|Kidney|Intracellular|UGT1A1|Relative expression",
+          "Value": 0.0788336933
+        },
+        {
+          "Path": "Organism|LargeIntestine|Intracellular|UGT1A1|Relative expression",
+          "Value": 0.0349892009
+        },
+        {
+          "Path": "Organism|LargeIntestine|Mucosa|Caecum|Intracellular|UGT1A1|Relative expression",
+          "Value": 0.0349892009
+        },
+        {
+          "Path": "Organism|LargeIntestine|Mucosa|ColonAscendens|Intracellular|UGT1A1|Relative expression",
+          "Value": 0.0349892009
+        },
+        {
+          "Path": "Organism|LargeIntestine|Mucosa|ColonDescendens|Intracellular|UGT1A1|Relative expression",
+          "Value": 0.0349892009
+        },
+        {
+          "Path": "Organism|LargeIntestine|Mucosa|ColonSigmoid|Intracellular|UGT1A1|Relative expression",
+          "Value": 0.0349892009
+        },
+        {
+          "Path": "Organism|LargeIntestine|Mucosa|ColonTransversum|Intracellular|UGT1A1|Relative expression",
+          "Value": 0.0349892009
+        },
+        {
+          "Path": "Organism|Liver|Pericentral|Intracellular|UGT1A1|Relative expression",
+          "Value": 1.0
+        },
+        {
+          "Path": "Organism|Liver|Periportal|Intracellular|UGT1A1|Relative expression",
+          "Value": 1.0
+        },
+        {
+          "Path": "Organism|Lung|Intracellular|UGT1A1|Relative expression",
+          "Value": 0.00027429805616
+        },
+        {
+          "Path": "Organism|SmallIntestine|Intracellular|UGT1A1|Relative expression",
+          "Value": 0.3239740821
+        },
+        {
+          "Path": "Organism|SmallIntestine|Mucosa|Duodenum|Intracellular|UGT1A1|Relative expression",
+          "Value": 0.3239740821
+        },
+        {
+          "Path": "Organism|SmallIntestine|Mucosa|LowerIleum|Intracellular|UGT1A1|Relative expression",
+          "Value": 0.3239740821
+        },
+        {
+          "Path": "Organism|SmallIntestine|Mucosa|LowerJejunum|Intracellular|UGT1A1|Relative expression",
+          "Value": 0.3239740821
+        },
+        {
+          "Path": "Organism|SmallIntestine|Mucosa|UpperIleum|Intracellular|UGT1A1|Relative expression",
+          "Value": 0.3239740821
+        },
+        {
+          "Path": "Organism|SmallIntestine|Mucosa|UpperJejunum|Intracellular|UGT1A1|Relative expression",
+          "Value": 0.3239740821
+        },
+        {
+          "Path": "Organism|Stomach|Intracellular|UGT1A1|Relative expression",
+          "Value": 0.016349892
+        },
+        {
+          "Path": "UGT1A1|Reference concentration",
+          "Value": 1.328,
+          "Unit": "µmol/l",
+          "ValueOrigin": {
+            "Source": "Publication",
+            "Description": "Ohtsuki et al."
+          }
+        },
+        {
+          "Path": "UGT1A1|t1/2 (intestine)",
+          "Value": 1380.0,
+          "Unit": "min"
+        },
+        {
+          "Path": "UGT1A1|t1/2 (liver)",
+          "Value": 2160.0,
+          "Unit": "min"
+        }
+      ],
+      "Localization": "Intracellular, BloodCellsIntracellular, VascEndosome",
+      "Ontogeny": {
+        "Name": "UGT1A1"
+      }
+    },
+    {
+      "Type": "Enzyme",
+      "Species": "Human",
+      "Molecule": "UGT1A9",
+      "Category": "Standard_Adult",
+      "Parameters": [
+        {
+          "Path": "Organism|Gonads|Intracellular|UGT1A9|Relative expression",
+          "Value": 0.00016153846154
+        },
+        {
+          "Path": "Organism|Kidney|Intracellular|UGT1A9|Relative expression",
+          "Value": 1.0
+        },
+        {
+          "Path": "Organism|LargeIntestine|Intracellular|UGT1A9|Relative expression",
+          "Value": 0.0079487179487
+        },
+        {
+          "Path": "Organism|LargeIntestine|Mucosa|Caecum|Intracellular|UGT1A9|Relative expression",
+          "Value": 0.0079487179487
+        },
+        {
+          "Path": "Organism|LargeIntestine|Mucosa|ColonAscendens|Intracellular|UGT1A9|Relative expression",
+          "Value": 0.0079487179487
+        },
+        {
+          "Path": "Organism|LargeIntestine|Mucosa|ColonDescendens|Intracellular|UGT1A9|Relative expression",
+          "Value": 0.0079487179487
+        },
+        {
+          "Path": "Organism|LargeIntestine|Mucosa|ColonSigmoid|Intracellular|UGT1A9|Relative expression",
+          "Value": 0.0079487179487
+        },
+        {
+          "Path": "Organism|LargeIntestine|Mucosa|ColonTransversum|Intracellular|UGT1A9|Relative expression",
+          "Value": 0.0079487179487
+        },
+        {
+          "Path": "Organism|Liver|Pericentral|Intracellular|UGT1A9|Relative expression",
+          "Value": 0.0982905983
+        },
+        {
+          "Path": "Organism|Liver|Periportal|Intracellular|UGT1A9|Relative expression",
+          "Value": 0.0982905983
+        },
+        {
+          "Path": "Organism|SmallIntestine|Intracellular|UGT1A9|Relative expression",
+          "Value": 0.0041282051282
+        },
+        {
+          "Path": "Organism|SmallIntestine|Mucosa|Duodenum|Intracellular|UGT1A9|Relative expression",
+          "Value": 0.0041282051282
+        },
+        {
+          "Path": "Organism|SmallIntestine|Mucosa|LowerIleum|Intracellular|UGT1A9|Relative expression",
+          "Value": 0.0041282051282
+        },
+        {
+          "Path": "Organism|SmallIntestine|Mucosa|LowerJejunum|Intracellular|UGT1A9|Relative expression",
+          "Value": 0.0041282051282
+        },
+        {
+          "Path": "Organism|SmallIntestine|Mucosa|UpperIleum|Intracellular|UGT1A9|Relative expression",
+          "Value": 0.0041282051282
+        },
+        {
+          "Path": "Organism|SmallIntestine|Mucosa|UpperJejunum|Intracellular|UGT1A9|Relative expression",
+          "Value": 0.0041282051282
+        },
+        {
+          "Path": "Organism|Stomach|Intracellular|UGT1A9|Relative expression",
+          "Value": 0.0017264957265
+        },
+        {
+          "Path": "UGT1A9|Reference concentration",
+          "Value": 10.36,
+          "Unit": "µmol/l",
+          "ValueOrigin": {
+            "Source": "Publication",
+            "Description": "Rodriguez-Antona et al."
+          }
+        },
+        {
+          "Path": "UGT1A9|t1/2 (intestine)",
+          "Value": 1380.0,
+          "Unit": "min"
+        },
+        {
+          "Path": "UGT1A9|t1/2 (liver)",
+          "Value": 2160.0,
+          "Unit": "min"
+        }
+      ],
+      "Localization": "Intracellular, BloodCellsIntracellular, VascEndosome",
+      "Ontogeny": {
+        "Name": "UGT1A1"
+      }
+    },
+    {
+      "Type": "Enzyme",
+      "Species": "Human",
+      "Molecule": "Cleavage-protein",
+      "Category": "Standard_Adult",
+      "Parameters": [
+        {
+          "Path": "Cleavage-protein|Reference concentration",
+          "Value": 1.0,
+          "Unit": "µmol/l"
+        },
+        {
+          "Path": "Cleavage-protein|t1/2 (intestine)",
+          "Value": 1380.0,
+          "Unit": "min"
+        },
+        {
+          "Path": "Cleavage-protein|t1/2 (liver)",
+          "Value": 2160.0,
+          "Unit": "min"
+        },
+        {
+          "Path": "Organism|Lumen|Caecum|Cleavage-protein|Relative expression",
+          "Value": 1.0
+        },
+        {
+          "Path": "Organism|Lumen|ColonAscendens|Cleavage-protein|Relative expression",
+          "Value": 1.0
+        },
+        {
+          "Path": "Organism|Lumen|ColonDescendens|Cleavage-protein|Relative expression",
+          "Value": 1.0
+        },
+        {
+          "Path": "Organism|Lumen|ColonSigmoid|Cleavage-protein|Relative expression",
+          "Value": 1.0
+        },
+        {
+          "Path": "Organism|Lumen|ColonTransversum|Cleavage-protein|Relative expression",
+          "Value": 1.0
+        },
+        {
+          "Path": "Organism|Lumen|Rectum|Cleavage-protein|Relative expression",
+          "Value": 1.0
+        }
+      ],
+      "Localization": "Intracellular, BloodCellsIntracellular, VascEndosome"
+    },
+    {
+      "Type": "Transporter",
+      "Species": "Human",
+      "Molecule": "ABCG2",
+      "Category": "Standard_Adult",
+      "Parameters": [
+        {
+          "Path": "ABCG2|Reference concentration",
+          "Value": 9.2028777,
+          "Unit": "nmol/l",
+          "ValueOrigin": {
+            "Source": "Publication",
+            "Description": "Tucker et al."
+          }
+        },
+        {
+          "Path": "ABCG2|t1/2 (intestine)",
+          "Value": 1380.0,
+          "Unit": "min"
+        },
+        {
+          "Path": "ABCG2|t1/2 (liver)",
+          "Value": 2160.0,
+          "Unit": "min"
+        },
+        {
+          "Path": "Organism|Bone|Intracellular|ABCG2|Relative expression",
+          "Value": 0.2113821138
+        },
+        {
+          "Path": "Organism|Brain|Intracellular|ABCG2|Relative expression",
+          "Value": 0.4552845528
+        },
+        {
+          "Path": "Organism|Gonads|Intracellular|ABCG2|Relative expression",
+          "Value": 0.2703252033
+        },
+        {
+          "Path": "Organism|Heart|Intracellular|ABCG2|Relative expression",
+          "Value": 0.1099593496
+        },
+        {
+          "Path": "Organism|Kidney|Intracellular|ABCG2|Relative expression",
+          "Value": 0.0941056911
+        },
+        {
+          "Path": "Organism|LargeIntestine|Intracellular|ABCG2|Relative expression",
+          "Value": 0.1593495935
+        },
+        {
+          "Path": "Organism|LargeIntestine|Mucosa|Caecum|Intracellular|ABCG2|Relative expression",
+          "Value": 0.1593495935
+        },
+        {
+          "Path": "Organism|LargeIntestine|Mucosa|ColonAscendens|Intracellular|ABCG2|Relative expression",
+          "Value": 0.1593495935
+        },
+        {
+          "Path": "Organism|LargeIntestine|Mucosa|ColonDescendens|Intracellular|ABCG2|Relative expression",
+          "Value": 0.1593495935
+        },
+        {
+          "Path": "Organism|LargeIntestine|Mucosa|ColonSigmoid|Intracellular|ABCG2|Relative expression",
+          "Value": 0.1593495935
+        },
+        {
+          "Path": "Organism|LargeIntestine|Mucosa|ColonTransversum|Intracellular|ABCG2|Relative expression",
+          "Value": 0.1593495935
+        },
+        {
+          "Path": "Organism|Liver|Pericentral|Intracellular|ABCG2|Relative expression",
+          "Value": 0.2825203252
+        },
+        {
+          "Path": "Organism|Liver|Periportal|Intracellular|ABCG2|Relative expression",
+          "Value": 0.2825203252
+        },
+        {
+          "Path": "Organism|Lung|Intracellular|ABCG2|Relative expression",
+          "Value": 0.2154471545
+        },
+        {
+          "Path": "Organism|Muscle|Intracellular|ABCG2|Relative expression",
+          "Value": 0.0331300813
+        },
+        {
+          "Path": "Organism|Pancreas|Intracellular|ABCG2|Relative expression",
+          "Value": 0.0054268292683
+        },
+        {
+          "Path": "Organism|SmallIntestine|Intracellular|ABCG2|Relative expression",
+          "Value": 1.0
+        },
+        {
+          "Path": "Organism|SmallIntestine|Mucosa|Duodenum|Intracellular|ABCG2|Relative expression",
+          "Value": 1.0
+        },
+        {
+          "Path": "Organism|SmallIntestine|Mucosa|LowerIleum|Intracellular|ABCG2|Relative expression",
+          "Value": 1.0
+        },
+        {
+          "Path": "Organism|SmallIntestine|Mucosa|LowerJejunum|Intracellular|ABCG2|Relative expression",
+          "Value": 1.0
+        },
+        {
+          "Path": "Organism|SmallIntestine|Mucosa|UpperIleum|Intracellular|ABCG2|Relative expression",
+          "Value": 1.0
+        },
+        {
+          "Path": "Organism|SmallIntestine|Mucosa|UpperJejunum|Intracellular|ABCG2|Relative expression",
+          "Value": 1.0
+        },
+        {
+          "Path": "Organism|Spleen|Intracellular|ABCG2|Relative expression",
+          "Value": 0.0585365854
+        },
+        {
+          "Path": "Organism|Stomach|Intracellular|ABCG2|Relative expression",
+          "Value": 0.0404471545
+        }
+      ],
+      "TransportType": "Efflux",
+      "Expression": [
+        {
+          "Name": "Bone",
+          "TransportDirection": "EffluxIntracellularToInterstitial",
+          "CompartmentName": "Intracellular"
+        },
+        {
+          "Name": "Brain",
+          "TransportDirection": "EffluxBrainInterstitialToPlasma",
+          "CompartmentName": "Plasma"
+        },
+        {
+          "Name": "Brain",
+          "TransportDirection": "EffluxBrainTissueToInterstitial",
+          "CompartmentName": "Interstitial"
+        },
+        {
+          "Name": "Fat",
+          "TransportDirection": "EffluxIntracellularToInterstitial",
+          "CompartmentName": "Intracellular"
+        },
+        {
+          "Name": "Gonads",
+          "TransportDirection": "EffluxIntracellularToInterstitial",
+          "CompartmentName": "Intracellular"
+        },
+        {
+          "Name": "Heart",
+          "TransportDirection": "EffluxIntracellularToInterstitial",
+          "CompartmentName": "Intracellular"
+        },
+        {
+          "Name": "Kidney",
+          "TransportDirection": "EffluxIntracellularToInterstitial",
+          "CompartmentName": "Interstitial"
+        },
+        {
+          "Name": "Kidney",
+          "TransportDirection": "ExcretionKidney",
+          "CompartmentName": "Intracellular"
+        },
+        {
+          "Name": "Stomach",
+          "TransportDirection": "EffluxIntracellularToInterstitial",
+          "CompartmentName": "Intracellular"
+        },
+        {
+          "Name": "SmallIntestine",
+          "TransportDirection": "EffluxIntracellularToInterstitial",
+          "CompartmentName": "Intracellular"
+        },
+        {
+          "Name": "Duodenum",
+          "TransportDirection": "EffluxIntracellularToInterstitial",
+          "CompartmentName": "Interstitial"
+        },
+        {
+          "Name": "Duodenum",
+          "TransportDirection": "EffluxMucosaIntracellularToLumen",
+          "CompartmentName": "Intracellular"
+        },
+        {
+          "Name": "UpperJejunum",
+          "TransportDirection": "EffluxIntracellularToInterstitial",
+          "CompartmentName": "Interstitial"
+        },
+        {
+          "Name": "UpperJejunum",
+          "TransportDirection": "EffluxMucosaIntracellularToLumen",
+          "CompartmentName": "Intracellular"
+        },
+        {
+          "Name": "LowerJejunum",
+          "TransportDirection": "EffluxIntracellularToInterstitial",
+          "CompartmentName": "Interstitial"
+        },
+        {
+          "Name": "LowerJejunum",
+          "TransportDirection": "EffluxMucosaIntracellularToLumen",
+          "CompartmentName": "Intracellular"
+        },
+        {
+          "Name": "UpperIleum",
+          "TransportDirection": "EffluxIntracellularToInterstitial",
+          "CompartmentName": "Interstitial"
+        },
+        {
+          "Name": "UpperIleum",
+          "TransportDirection": "EffluxMucosaIntracellularToLumen",
+          "CompartmentName": "Intracellular"
+        },
+        {
+          "Name": "LowerIleum",
+          "TransportDirection": "EffluxIntracellularToInterstitial",
+          "CompartmentName": "Interstitial"
+        },
+        {
+          "Name": "LowerIleum",
+          "TransportDirection": "EffluxMucosaIntracellularToLumen",
+          "CompartmentName": "Intracellular"
+        },
+        {
+          "Name": "LargeIntestine",
+          "TransportDirection": "EffluxIntracellularToInterstitial",
+          "CompartmentName": "Intracellular"
+        },
+        {
+          "Name": "Caecum",
+          "TransportDirection": "EffluxIntracellularToInterstitial",
+          "CompartmentName": "Interstitial"
+        },
+        {
+          "Name": "Caecum",
+          "TransportDirection": "EffluxMucosaIntracellularToLumen",
+          "CompartmentName": "Intracellular"
+        },
+        {
+          "Name": "ColonAscendens",
+          "TransportDirection": "EffluxIntracellularToInterstitial",
+          "CompartmentName": "Interstitial"
+        },
+        {
+          "Name": "ColonAscendens",
+          "TransportDirection": "EffluxMucosaIntracellularToLumen",
+          "CompartmentName": "Intracellular"
+        },
+        {
+          "Name": "ColonTransversum",
+          "TransportDirection": "EffluxIntracellularToInterstitial",
+          "CompartmentName": "Interstitial"
+        },
+        {
+          "Name": "ColonTransversum",
+          "TransportDirection": "EffluxMucosaIntracellularToLumen",
+          "CompartmentName": "Intracellular"
+        },
+        {
+          "Name": "ColonDescendens",
+          "TransportDirection": "EffluxIntracellularToInterstitial",
+          "CompartmentName": "Interstitial"
+        },
+        {
+          "Name": "ColonDescendens",
+          "TransportDirection": "EffluxMucosaIntracellularToLumen",
+          "CompartmentName": "Intracellular"
+        },
+        {
+          "Name": "ColonSigmoid",
+          "TransportDirection": "EffluxIntracellularToInterstitial",
+          "CompartmentName": "Interstitial"
+        },
+        {
+          "Name": "ColonSigmoid",
+          "TransportDirection": "EffluxMucosaIntracellularToLumen",
+          "CompartmentName": "Intracellular"
+        },
+        {
+          "Name": "Rectum",
+          "TransportDirection": "EffluxIntracellularToInterstitial",
+          "CompartmentName": "Interstitial"
+        },
+        {
+          "Name": "Rectum",
+          "TransportDirection": "EffluxMucosaIntracellularToLumen",
+          "CompartmentName": "Intracellular"
+        },
+        {
+          "Name": "Periportal",
+          "TransportDirection": "EffluxIntracellularToInterstitial",
+          "CompartmentName": "Interstitial"
+        },
+        {
+          "Name": "Periportal",
+          "TransportDirection": "ExcretionLiver",
+          "CompartmentName": "Intracellular"
+        },
+        {
+          "Name": "Pericentral",
+          "TransportDirection": "EffluxIntracellularToInterstitial",
+          "CompartmentName": "Interstitial"
+        },
+        {
+          "Name": "Pericentral",
+          "TransportDirection": "ExcretionLiver",
+          "CompartmentName": "Intracellular"
+        },
+        {
+          "Name": "Lung",
+          "TransportDirection": "EffluxIntracellularToInterstitial",
+          "CompartmentName": "Intracellular"
+        },
+        {
+          "Name": "Muscle",
+          "TransportDirection": "EffluxIntracellularToInterstitial",
+          "CompartmentName": "Intracellular"
+        },
+        {
+          "Name": "Pancreas",
+          "TransportDirection": "EffluxIntracellularToInterstitial",
+          "CompartmentName": "Intracellular"
+        },
+        {
+          "Name": "Skin",
+          "TransportDirection": "EffluxIntracellularToInterstitial",
+          "CompartmentName": "Intracellular"
+        },
+        {
+          "Name": "Spleen",
+          "TransportDirection": "EffluxIntracellularToInterstitial",
+          "CompartmentName": "Intracellular"
+        },
+        {
+          "Name": "BloodCells",
+          "TransportDirection": "EffluxBloodCellsToPlasma"
+        },
+        {
+          "Name": "VascularEndothelium",
+          "TransportDirection": "EffluxInterstitialToPlasma"
+        }
+      ]
+    },
+    {
+      "Type": "Transporter",
+      "Species": "Human",
+      "Molecule": "ABCB1",
+      "Category": "Standard_Adult",
+      "Parameters": [
+        {
+          "Path": "ABCB1|Reference concentration",
+          "Value": 96.57,
+          "Unit": "nmol/l",
+          "ValueOrigin": {
+            "Source": "Publication",
+            "Description": "Tucker et al."
+          }
+        },
+        {
+          "Path": "ABCB1|t1/2 (intestine)",
+          "Value": 1380.0,
+          "Unit": "min"
+        },
+        {
+          "Path": "ABCB1|t1/2 (liver)",
+          "Value": 2160.0,
+          "Unit": "min"
+        },
+        {
+          "Path": "Organism|Bone|Intracellular|ABCB1|Relative expression",
+          "Value": 0.0341950646
+        },
+        {
+          "Path": "Organism|Brain|Intracellular|ABCB1|Relative expression",
+          "Value": 0.1072855464
+        },
+        {
+          "Path": "Organism|Gonads|Intracellular|ABCB1|Relative expression",
+          "Value": 0.024559342
+        },
+        {
+          "Path": "Organism|Heart|Intracellular|ABCB1|Relative expression",
+          "Value": 0.059106933
+        },
+        {
+          "Path": "Organism|Kidney|Intracellular|ABCB1|Relative expression",
+          "Value": 1.0
+        },
+        {
+          "Path": "Organism|LargeIntestine|Intracellular|ABCB1|Relative expression",
+          "Value": 0.1562867215
+        },
+        {
+          "Path": "Organism|LargeIntestine|Mucosa|Caecum|Intracellular|ABCB1|Relative expression",
+          "Value": 0.1562867215
+        },
+        {
+          "Path": "Organism|LargeIntestine|Mucosa|ColonAscendens|Intracellular|ABCB1|Relative expression",
+          "Value": 0.1562867215
+        },
+        {
+          "Path": "Organism|LargeIntestine|Mucosa|ColonDescendens|Intracellular|ABCB1|Relative expression",
+          "Value": 0.1562867215
+        },
+        {
+          "Path": "Organism|LargeIntestine|Mucosa|ColonSigmoid|Intracellular|ABCB1|Relative expression",
+          "Value": 0.1562867215
+        },
+        {
+          "Path": "Organism|LargeIntestine|Mucosa|ColonTransversum|Intracellular|ABCB1|Relative expression",
+          "Value": 0.1562867215
+        },
+        {
+          "Path": "Organism|Liver|Pericentral|Intracellular|ABCB1|Relative expression",
+          "Value": 0.2702702703
+        },
+        {
+          "Path": "Organism|Liver|Periportal|Intracellular|ABCB1|Relative expression",
+          "Value": 0.2702702703
+        },
+        {
+          "Path": "Organism|Lung|Intracellular|ABCB1|Relative expression",
+          "Value": 0.0927144536
+        },
+        {
+          "Path": "Organism|Muscle|Intracellular|ABCB1|Relative expression",
+          "Value": 0.0180963572
+        },
+        {
+          "Path": "Organism|Pancreas|Intracellular|ABCB1|Relative expression",
+          "Value": 0.0200940071
+        },
+        {
+          "Path": "Organism|SmallIntestine|Intracellular|ABCB1|Relative expression",
+          "Value": 0.3960047004
+        },
+        {
+          "Path": "Organism|SmallIntestine|Mucosa|Duodenum|Intracellular|ABCB1|Relative expression",
+          "Value": 0.3960047004
+        },
+        {
+          "Path": "Organism|SmallIntestine|Mucosa|LowerIleum|Intracellular|ABCB1|Relative expression",
+          "Value": 0.3960047004
+        },
+        {
+          "Path": "Organism|SmallIntestine|Mucosa|LowerJejunum|Intracellular|ABCB1|Relative expression",
+          "Value": 0.3960047004
+        },
+        {
+          "Path": "Organism|SmallIntestine|Mucosa|UpperIleum|Intracellular|ABCB1|Relative expression",
+          "Value": 0.3960047004
+        },
+        {
+          "Path": "Organism|SmallIntestine|Mucosa|UpperJejunum|Intracellular|ABCB1|Relative expression",
+          "Value": 0.3960047004
+        },
+        {
+          "Path": "Organism|Spleen|Intracellular|ABCB1|Relative expression",
+          "Value": 0.1047003525
+        },
+        {
+          "Path": "Organism|Stomach|Intracellular|ABCB1|Relative expression",
+          "Value": 0.0367802585
+        }
+      ],
+      "TransportType": "PgpLike",
+      "Expression": [
+        {
+          "Name": "Bone",
+          "TransportDirection": "PgpIntracellularToInterstitial",
+          "CompartmentName": "Intracellular"
+        },
+        {
+          "Name": "Brain",
+          "TransportDirection": "PgpBrainInterstitialToPlasma",
+          "CompartmentName": "Plasma"
+        },
+        {
+          "Name": "Brain",
+          "TransportDirection": "PgpBrainTissueToInterstitial",
+          "CompartmentName": "Interstitial"
+        },
+        {
+          "Name": "Fat",
+          "TransportDirection": "PgpIntracellularToInterstitial",
+          "CompartmentName": "Intracellular"
+        },
+        {
+          "Name": "Gonads",
+          "TransportDirection": "PgpIntracellularToInterstitial",
+          "CompartmentName": "Intracellular"
+        },
+        {
+          "Name": "Heart",
+          "TransportDirection": "PgpIntracellularToInterstitial",
+          "CompartmentName": "Intracellular"
+        },
+        {
+          "Name": "Kidney",
+          "TransportDirection": "PgpIntracellularToInterstitial",
+          "CompartmentName": "Interstitial"
+        },
+        {
+          "Name": "Kidney",
+          "TransportDirection": "ExcretionKidney",
+          "CompartmentName": "Intracellular"
+        },
+        {
+          "Name": "Stomach",
+          "TransportDirection": "PgpIntracellularToInterstitial",
+          "CompartmentName": "Intracellular"
+        },
+        {
+          "Name": "SmallIntestine",
+          "TransportDirection": "PgpIntracellularToInterstitial",
+          "CompartmentName": "Intracellular"
+        },
+        {
+          "Name": "Duodenum",
+          "TransportDirection": "PgpIntracellularToInterstitial",
+          "CompartmentName": "Interstitial"
+        },
+        {
+          "Name": "Duodenum",
+          "TransportDirection": "PgpMucosaIntracellularToLumen",
+          "CompartmentName": "Intracellular"
+        },
+        {
+          "Name": "UpperJejunum",
+          "TransportDirection": "PgpIntracellularToInterstitial",
+          "CompartmentName": "Interstitial"
+        },
+        {
+          "Name": "UpperJejunum",
+          "TransportDirection": "PgpMucosaIntracellularToLumen",
+          "CompartmentName": "Intracellular"
+        },
+        {
+          "Name": "LowerJejunum",
+          "TransportDirection": "PgpIntracellularToInterstitial",
+          "CompartmentName": "Interstitial"
+        },
+        {
+          "Name": "LowerJejunum",
+          "TransportDirection": "PgpMucosaIntracellularToLumen",
+          "CompartmentName": "Intracellular"
+        },
+        {
+          "Name": "UpperIleum",
+          "TransportDirection": "PgpIntracellularToInterstitial",
+          "CompartmentName": "Interstitial"
+        },
+        {
+          "Name": "UpperIleum",
+          "TransportDirection": "PgpMucosaIntracellularToLumen",
+          "CompartmentName": "Intracellular"
+        },
+        {
+          "Name": "LowerIleum",
+          "TransportDirection": "PgpIntracellularToInterstitial",
+          "CompartmentName": "Interstitial"
+        },
+        {
+          "Name": "LowerIleum",
+          "TransportDirection": "PgpMucosaIntracellularToLumen",
+          "CompartmentName": "Intracellular"
+        },
+        {
+          "Name": "LargeIntestine",
+          "TransportDirection": "PgpIntracellularToInterstitial",
+          "CompartmentName": "Intracellular"
+        },
+        {
+          "Name": "Caecum",
+          "TransportDirection": "PgpIntracellularToInterstitial",
+          "CompartmentName": "Interstitial"
+        },
+        {
+          "Name": "Caecum",
+          "TransportDirection": "PgpMucosaIntracellularToLumen",
+          "CompartmentName": "Intracellular"
+        },
+        {
+          "Name": "ColonAscendens",
+          "TransportDirection": "PgpIntracellularToInterstitial",
+          "CompartmentName": "Interstitial"
+        },
+        {
+          "Name": "ColonAscendens",
+          "TransportDirection": "PgpMucosaIntracellularToLumen",
+          "CompartmentName": "Intracellular"
+        },
+        {
+          "Name": "ColonTransversum",
+          "TransportDirection": "PgpIntracellularToInterstitial",
+          "CompartmentName": "Interstitial"
+        },
+        {
+          "Name": "ColonTransversum",
+          "TransportDirection": "PgpMucosaIntracellularToLumen",
+          "CompartmentName": "Intracellular"
+        },
+        {
+          "Name": "ColonDescendens",
+          "TransportDirection": "PgpIntracellularToInterstitial",
+          "CompartmentName": "Interstitial"
+        },
+        {
+          "Name": "ColonDescendens",
+          "TransportDirection": "PgpMucosaIntracellularToLumen",
+          "CompartmentName": "Intracellular"
+        },
+        {
+          "Name": "ColonSigmoid",
+          "TransportDirection": "PgpIntracellularToInterstitial",
+          "CompartmentName": "Interstitial"
+        },
+        {
+          "Name": "ColonSigmoid",
+          "TransportDirection": "PgpMucosaIntracellularToLumen",
+          "CompartmentName": "Intracellular"
+        },
+        {
+          "Name": "Rectum",
+          "TransportDirection": "PgpIntracellularToInterstitial",
+          "CompartmentName": "Interstitial"
+        },
+        {
+          "Name": "Rectum",
+          "TransportDirection": "PgpMucosaIntracellularToLumen",
+          "CompartmentName": "Intracellular"
+        },
+        {
+          "Name": "Periportal",
+          "TransportDirection": "PgpIntracellularToInterstitial",
+          "CompartmentName": "Interstitial"
+        },
+        {
+          "Name": "Periportal",
+          "TransportDirection": "ExcretionLiver",
+          "CompartmentName": "Intracellular"
+        },
+        {
+          "Name": "Pericentral",
+          "TransportDirection": "PgpIntracellularToInterstitial",
+          "CompartmentName": "Interstitial"
+        },
+        {
+          "Name": "Pericentral",
+          "TransportDirection": "ExcretionLiver",
+          "CompartmentName": "Intracellular"
+        },
+        {
+          "Name": "Lung",
+          "TransportDirection": "PgpIntracellularToInterstitial",
+          "CompartmentName": "Intracellular"
+        },
+        {
+          "Name": "Muscle",
+          "TransportDirection": "PgpIntracellularToInterstitial",
+          "CompartmentName": "Intracellular"
+        },
+        {
+          "Name": "Pancreas",
+          "TransportDirection": "PgpIntracellularToInterstitial",
+          "CompartmentName": "Intracellular"
+        },
+        {
+          "Name": "Skin",
+          "TransportDirection": "PgpIntracellularToInterstitial",
+          "CompartmentName": "Intracellular"
+        },
+        {
+          "Name": "Spleen",
+          "TransportDirection": "PgpIntracellularToInterstitial",
+          "CompartmentName": "Intracellular"
+        },
+        {
+          "Name": "BloodCells",
+          "TransportDirection": "EffluxBloodCellsToPlasma"
+        },
+        {
+          "Name": "VascularEndothelium",
+          "TransportDirection": "EffluxInterstitialToPlasma"
+        }
+      ],
+      "Ontogeny": {
+        "Name": "Ontogeny for ABCB1.Edginton_2006.Table",
+        "Table": {
+          "Name": "TableFormula",
+          "Percentile": 0.0,
+          "DistributionMetaData": [
+            {
+              "Mean": 1E-14,
+              "Deviation": 1.6,
+              "Distribution": "LogNormal"
+            },
+            {
+              "Mean": 1.915059E-05,
+              "Deviation": 1.6,
+              "Distribution": "LogNormal"
+            },
+            {
+              "Mean": 5.486795E-05,
+              "Deviation": 1.6,
+              "Distribution": "LogNormal"
+            },
+            {
+              "Mean": 0.0001571905,
+              "Deviation": 1.6,
+              "Distribution": "LogNormal"
+            },
+            {
+              "Mean": 0.0004502473,
+              "Deviation": 1.6,
+              "Distribution": "LogNormal"
+            },
+            {
+              "Mean": 0.001288958,
+              "Deviation": 1.6,
+              "Distribution": "LogNormal"
+            },
+            {
+              "Mean": 0.00368424,
+              "Deviation": 1.6,
+              "Distribution": "LogNormal"
+            },
+            {
+              "Mean": 0.01048397,
+              "Deviation": 1.6,
+              "Distribution": "LogNormal"
+            },
+            {
+              "Mean": 0.02946235,
+              "Deviation": 1.6,
+              "Distribution": "LogNormal"
+            },
+            {
+              "Mean": 0.0800178,
+              "Deviation": 1.6,
+              "Distribution": "LogNormal"
+            },
+            {
+              "Mean": 0.1994918,
+              "Deviation": 1.6,
+              "Distribution": "LogNormal"
+            },
+            {
+              "Mean": 0.4165768,
+              "Deviation": 1.6,
+              "Distribution": "LogNormal"
+            },
+            {
+              "Mean": 0.6716791,
+              "Deviation": 1.6,
+              "Distribution": "LogNormal"
+            },
+            {
+              "Mean": 0.8542612,
+              "Deviation": 1.6,
+              "Distribution": "LogNormal"
+            },
+            {
+              "Mean": 0.943803,
+              "Deviation": 1.6,
+              "Distribution": "LogNormal"
+            },
+            {
+              "Mean": 0.9796414,
+              "Deviation": 1.6,
+              "Distribution": "LogNormal"
+            },
+            {
+              "Mean": 0.992799,
+              "Deviation": 1.6,
+              "Distribution": "LogNormal"
+            },
+            {
+              "Mean": 0.9974749,
+              "Deviation": 1.6,
+              "Distribution": "LogNormal"
+            },
+            {
+              "Mean": 0.9991173,
+              "Deviation": 1.6,
+              "Distribution": "LogNormal"
+            },
+            {
+              "Mean": 0.9996917,
+              "Deviation": 1.6,
+              "Distribution": "LogNormal"
+            },
+            {
+              "Mean": 0.9998924,
+              "Deviation": 1.6,
+              "Distribution": "LogNormal"
+            },
+            {
+              "Mean": 0.9999624,
+              "Deviation": 1.6,
+              "Distribution": "LogNormal"
+            },
+            {
+              "Mean": 0.9999869,
+              "Deviation": 1.6,
+              "Distribution": "LogNormal"
+            },
+            {
+              "Mean": 1.0,
+              "Deviation": 1.6,
+              "Distribution": "LogNormal"
+            }
+          ],
+          "XName": "Postmenstrual age",
+          "XDimension": "Age in years",
+          "XUnit": "year(s)",
+          "YName": "Ontogeny for ABCB1.Edginton_2006.Table",
+          "YDimension": "Fraction",
+          "UseDerivedValues": false,
+          "Points": [
+            {
+              "X": 0.0,
+              "Y": 1E-14,
+              "RestartSolver": false
+            },
+            {
+              "X": 0.08333334,
+              "Y": 1.915059E-05,
+              "RestartSolver": false
+            },
+            {
+              "X": 0.1666667,
+              "Y": 5.486795E-05,
+              "RestartSolver": false
+            },
+            {
+              "X": 0.25,
+              "Y": 0.0001571905,
+              "RestartSolver": false
+            },
+            {
+              "X": 0.3333333,
+              "Y": 0.0004502473,
+              "RestartSolver": false
+            },
+            {
+              "X": 0.4166667,
+              "Y": 0.001288958,
+              "RestartSolver": false
+            },
+            {
+              "X": 0.5,
+              "Y": 0.00368424,
+              "RestartSolver": false
+            },
+            {
+              "X": 0.5833333,
+              "Y": 0.01048397,
+              "RestartSolver": false
+            },
+            {
+              "X": 0.6666667,
+              "Y": 0.02946235,
+              "RestartSolver": false
+            },
+            {
+              "X": 0.75,
+              "Y": 0.0800178,
+              "RestartSolver": false
+            },
+            {
+              "X": 0.8333333,
+              "Y": 0.1994918,
+              "RestartSolver": false
+            },
+            {
+              "X": 0.9166667,
+              "Y": 0.4165768,
+              "RestartSolver": false
+            },
+            {
+              "X": 1.0,
+              "Y": 0.6716791,
+              "RestartSolver": false
+            },
+            {
+              "X": 1.083333,
+              "Y": 0.8542612,
+              "RestartSolver": false
+            },
+            {
+              "X": 1.166667,
+              "Y": 0.943803,
+              "RestartSolver": false
+            },
+            {
+              "X": 1.25,
+              "Y": 0.9796414,
+              "RestartSolver": false
+            },
+            {
+              "X": 1.333333,
+              "Y": 0.992799,
+              "RestartSolver": false
+            },
+            {
+              "X": 1.416667,
+              "Y": 0.9974749,
+              "RestartSolver": false
+            },
+            {
+              "X": 1.5,
+              "Y": 0.9991173,
+              "RestartSolver": false
+            },
+            {
+              "X": 1.583333,
+              "Y": 0.9996917,
+              "RestartSolver": false
+            },
+            {
+              "X": 1.666667,
+              "Y": 0.9998924,
+              "RestartSolver": false
+            },
+            {
+              "X": 1.75,
+              "Y": 0.9999624,
+              "RestartSolver": false
+            },
+            {
+              "X": 1.833333,
+              "Y": 0.9999869,
+              "RestartSolver": false
+            },
+            {
+              "X": 3.333333,
+              "Y": 1.0,
+              "RestartSolver": false
+            }
+          ]
+        }
+      }
+    },
+    {
+      "Type": "Transporter",
+      "Species": "Human",
+      "Molecule": "M-1 TS",
+      "Category": "Standard_Adult",
+      "Parameters": [
+        {
+          "Path": "M-1 TS|Reference concentration",
+          "Value": 1.0,
+          "Unit": "µmol/l"
+        },
+        {
+          "Path": "M-1 TS|t1/2 (intestine)",
+          "Value": 1380.0,
+          "Unit": "min"
+        },
+        {
+          "Path": "M-1 TS|t1/2 (liver)",
+          "Value": 2160.0,
+          "Unit": "min"
+        },
+        {
+          "Path": "Organism|Kidney|Intracellular|M-1 TS|Relative expression",
+          "Value": 1.0
+        }
+      ],
+      "TransportType": "Efflux",
+      "Expression": [
+        {
+          "Name": "Bone",
+          "TransportDirection": "EffluxIntracellularToInterstitial",
+          "CompartmentName": "Intracellular"
+        },
+        {
+          "Name": "Brain",
+          "TransportDirection": "EffluxBrainInterstitialToPlasma",
+          "CompartmentName": "Plasma"
+        },
+        {
+          "Name": "Brain",
+          "TransportDirection": "EffluxBrainTissueToInterstitial",
+          "CompartmentName": "Interstitial"
+        },
+        {
+          "Name": "Fat",
+          "TransportDirection": "EffluxIntracellularToInterstitial",
+          "CompartmentName": "Intracellular"
+        },
+        {
+          "Name": "Gonads",
+          "TransportDirection": "EffluxIntracellularToInterstitial",
+          "CompartmentName": "Intracellular"
+        },
+        {
+          "Name": "Heart",
+          "TransportDirection": "EffluxIntracellularToInterstitial",
+          "CompartmentName": "Intracellular"
+        },
+        {
+          "Name": "Kidney",
+          "TransportDirection": "EffluxIntracellularToInterstitial",
+          "CompartmentName": "Interstitial"
+        },
+        {
+          "Name": "Kidney",
+          "TransportDirection": "ExcretionKidney",
+          "CompartmentName": "Intracellular"
+        },
+        {
+          "Name": "Stomach",
+          "TransportDirection": "EffluxIntracellularToInterstitial",
+          "CompartmentName": "Intracellular"
+        },
+        {
+          "Name": "SmallIntestine",
+          "TransportDirection": "EffluxIntracellularToInterstitial",
+          "CompartmentName": "Intracellular"
+        },
+        {
+          "Name": "Duodenum",
+          "TransportDirection": "EffluxIntracellularToInterstitial",
+          "CompartmentName": "Interstitial"
+        },
+        {
+          "Name": "Duodenum",
+          "TransportDirection": "EffluxMucosaIntracellularToLumen",
+          "CompartmentName": "Intracellular"
+        },
+        {
+          "Name": "UpperJejunum",
+          "TransportDirection": "EffluxIntracellularToInterstitial",
+          "CompartmentName": "Interstitial"
+        },
+        {
+          "Name": "UpperJejunum",
+          "TransportDirection": "EffluxMucosaIntracellularToLumen",
+          "CompartmentName": "Intracellular"
+        },
+        {
+          "Name": "LowerJejunum",
+          "TransportDirection": "EffluxIntracellularToInterstitial",
+          "CompartmentName": "Interstitial"
+        },
+        {
+          "Name": "LowerJejunum",
+          "TransportDirection": "EffluxMucosaIntracellularToLumen",
+          "CompartmentName": "Intracellular"
+        },
+        {
+          "Name": "UpperIleum",
+          "TransportDirection": "EffluxIntracellularToInterstitial",
+          "CompartmentName": "Interstitial"
+        },
+        {
+          "Name": "UpperIleum",
+          "TransportDirection": "EffluxMucosaIntracellularToLumen",
+          "CompartmentName": "Intracellular"
+        },
+        {
+          "Name": "LowerIleum",
+          "TransportDirection": "EffluxIntracellularToInterstitial",
+          "CompartmentName": "Interstitial"
+        },
+        {
+          "Name": "LowerIleum",
+          "TransportDirection": "EffluxMucosaIntracellularToLumen",
+          "CompartmentName": "Intracellular"
+        },
+        {
+          "Name": "LargeIntestine",
+          "TransportDirection": "EffluxIntracellularToInterstitial",
+          "CompartmentName": "Intracellular"
+        },
+        {
+          "Name": "Caecum",
+          "TransportDirection": "EffluxIntracellularToInterstitial",
+          "CompartmentName": "Interstitial"
+        },
+        {
+          "Name": "Caecum",
+          "TransportDirection": "EffluxMucosaIntracellularToLumen",
+          "CompartmentName": "Intracellular"
+        },
+        {
+          "Name": "ColonAscendens",
+          "TransportDirection": "EffluxIntracellularToInterstitial",
+          "CompartmentName": "Interstitial"
+        },
+        {
+          "Name": "ColonAscendens",
+          "TransportDirection": "EffluxMucosaIntracellularToLumen",
+          "CompartmentName": "Intracellular"
+        },
+        {
+          "Name": "ColonTransversum",
+          "TransportDirection": "EffluxIntracellularToInterstitial",
+          "CompartmentName": "Interstitial"
+        },
+        {
+          "Name": "ColonTransversum",
+          "TransportDirection": "EffluxMucosaIntracellularToLumen",
+          "CompartmentName": "Intracellular"
+        },
+        {
+          "Name": "ColonDescendens",
+          "TransportDirection": "EffluxIntracellularToInterstitial",
+          "CompartmentName": "Interstitial"
+        },
+        {
+          "Name": "ColonDescendens",
+          "TransportDirection": "EffluxMucosaIntracellularToLumen",
+          "CompartmentName": "Intracellular"
+        },
+        {
+          "Name": "ColonSigmoid",
+          "TransportDirection": "EffluxIntracellularToInterstitial",
+          "CompartmentName": "Interstitial"
+        },
+        {
+          "Name": "ColonSigmoid",
+          "TransportDirection": "EffluxMucosaIntracellularToLumen",
+          "CompartmentName": "Intracellular"
+        },
+        {
+          "Name": "Rectum",
+          "TransportDirection": "EffluxIntracellularToInterstitial",
+          "CompartmentName": "Interstitial"
+        },
+        {
+          "Name": "Rectum",
+          "TransportDirection": "EffluxMucosaIntracellularToLumen",
+          "CompartmentName": "Intracellular"
+        },
+        {
+          "Name": "Periportal",
+          "TransportDirection": "EffluxIntracellularToInterstitial",
+          "CompartmentName": "Interstitial"
+        },
+        {
+          "Name": "Periportal",
+          "TransportDirection": "ExcretionLiver",
+          "CompartmentName": "Intracellular"
+        },
+        {
+          "Name": "Pericentral",
+          "TransportDirection": "EffluxIntracellularToInterstitial",
+          "CompartmentName": "Interstitial"
+        },
+        {
+          "Name": "Pericentral",
+          "TransportDirection": "ExcretionLiver",
+          "CompartmentName": "Intracellular"
+        },
+        {
+          "Name": "Lung",
+          "TransportDirection": "EffluxIntracellularToInterstitial",
+          "CompartmentName": "Intracellular"
+        },
+        {
+          "Name": "Muscle",
+          "TransportDirection": "EffluxIntracellularToInterstitial",
+          "CompartmentName": "Intracellular"
+        },
+        {
+          "Name": "Pancreas",
+          "TransportDirection": "EffluxIntracellularToInterstitial",
+          "CompartmentName": "Intracellular"
+        },
+        {
+          "Name": "Skin",
+          "TransportDirection": "EffluxIntracellularToInterstitial",
+          "CompartmentName": "Intracellular"
+        },
+        {
+          "Name": "Spleen",
+          "TransportDirection": "EffluxIntracellularToInterstitial",
+          "CompartmentName": "Intracellular"
+        },
+        {
+          "Name": "BloodCells",
+          "TransportDirection": "EffluxBloodCellsToPlasma"
+        },
+        {
+          "Name": "VascularEndothelium",
+          "TransportDirection": "EffluxInterstitialToPlasma"
+        }
+      ]
+    }
+  ],
+  "Individuals": [
+    {
+      "Name": "Standard_Adult",
+      "Seed": 965997659,
+      "OriginData": {
+        "CalculationMethods": [
+          "SurfaceAreaPlsInt_VAR1",
+          "Body surface area - Mosteller"
+        ],
+        "Species": "Human",
+        "Population": "European_ICRP_2002",
+        "Gender": "MALE",
+        "Age": {
+          "Value": 30.0,
+          "Unit": "year(s)"
+        }
+      },
+      "Parameters": [
+        {
+          "Path": "Organism|Liver|EHC continuous fraction",
+          "Value": 1.0,
+          "ValueOrigin": {
+            "Source": "Unknown"
+          }
+        }
+      ],
+      "ExpressionProfiles": [
+        "CYP3A4|Human|Standard_Adult",
+        "CYP1A1|Human|Standard_Adult",
+        "UGT1A1|Human|Standard_Adult",
+        "UGT1A9|Human|Standard_Adult",
+        "Cleavage-protein|Human|Standard_Adult",
+        "ABCG2|Human|Standard_Adult",
+        "ABCB1|Human|Standard_Adult",
+        "M-1 TS|Human|Standard_Adult"
+      ]
+    }
+  ],
+  "Compounds": [
+    {
+      "Name": "Mefenamic acid",
+      "IsSmallMolecule": true,
+      "PlasmaProteinBindingPartner": "Albumin",
+      "Lipophilicity": [
+        {
+          "Name": "Optimized",
+          "Parameters": [
+            {
+              "Name": "Lipophilicity",
+              "Value": 5.0302455255,
+              "Unit": "Log Units",
+              "ValueOrigin": {
+                "Source": "ParameterIdentification",
+                "Method": "ParameterIdentification",
+                "Description": "Value updated from 'PI (Pint, CLspec, Lipo, Solub, meal; fu=1.9, Disso fix) FINAL' on 2019-08-06 18:52"
+              }
+            }
+          ]
+        }
+      ],
+      "FractionUnbound": [
+        {
+          "Name": "Goosen 2016",
+          "Species": "Human",
+          "Parameters": [
+            {
+              "Name": "Fraction unbound (plasma, reference value)",
+              "Value": 1.9,
+              "Unit": "%",
+              "ValueOrigin": {
+                "Source": "ParameterIdentification",
+                "Method": "ParameterIdentification",
+                "Description": "Value updated from 'PI (Pint, CLspec, Lipo, Solub, meal; fu=1.9, Disso fix) FINAL' on 2019-08-06 18:52"
+              }
+            }
+          ]
+        }
+      ],
+      "Solubility": [
+        {
+          "Name": "Optimized",
+          "Parameters": [
+            {
+              "Name": "Solubility at reference pH",
+              "Value": 80.9542823654,
+              "Unit": "µg/ml",
+              "ValueOrigin": {
+                "Source": "ParameterIdentification",
+                "Method": "ParameterIdentification",
+                "Description": "Value updated from 'PI (Pint, CLspec, Lipo, Solub, meal; fu=1.9, Disso fix) FINAL' on 2019-08-06 18:52"
+              }
+            },
+            {
+              "Name": "Reference pH",
+              "Value": 5.5
+            }
+          ]
+        }
+      ],
+      "IntestinalPermeability": [
+        {
+          "Name": "Optimized",
+          "Parameters": [
+            {
+              "Name": "Specific intestinal permeability (transcellular)",
+              "Value": 1.4111809841E-05,
+              "Unit": "cm/min",
+              "ValueOrigin": {
+                "Source": "ParameterIdentification",
+                "Method": "ParameterIdentification",
+                "Description": "Value updated from 'PI (Pint, CLspec, Lipo, Solub, meal; fu=1.9, Disso fix) FINAL' on 2019-08-06 18:52"
+              }
+            }
+          ]
+        }
+      ],
+      "PkaTypes": [
+        {
+          "Type": "Acid",
+          "Pka": 4.2,
+          "ValueOrigin": {
+            "Source": "Database",
+            "Description": "Drugbank (SANGSTER (1994))"
+          }
+        }
+      ],
+      "Processes": [
+        {
+          "InternalName": "LiverClearance",
+          "DataSource": "Simcyp (oral CL)",
+          "Species": "Human",
+          "Parameters": [
+            {
+              "Name": "Fraction unbound (experiment)",
+              "Value": 0.01
+            },
+            {
+              "Name": "Lipophilicity (experiment)",
+              "Value": 3.52,
+              "Unit": "Log Units"
+            },
+            {
+              "Name": "Plasma clearance",
+              "Value": 0.2328761,
+              "Unit": "l/h/kg"
+            },
+            {
+              "Name": "Specific clearance",
+              "Value": 9.5031504329,
+              "Unit": "1/min",
+              "ValueOrigin": {
+                "Source": "ParameterIdentification",
+                "Method": "ParameterIdentification",
+                "Description": "Value updated from 'PI (Pint, CLspec, Lipo, Solub, meal; fu=1.9, Disso fix) FINAL' on 2019-08-06 18:52"
+              }
+            }
+          ]
+        },
+        {
+          "InternalName": "MixedInhibition",
+          "DataSource": "PH-41095",
+          "Molecule": "UGT1A9",
+          "Parameters": [
+            {
+              "Name": "Ki_c",
+              "Value": 0.3,
+              "Unit": "µmol/l"
+            },
+            {
+              "Name": "Ki_u",
+              "Value": 21.3,
+              "Unit": "µmol/l"
+            }
+          ]
+        }
+      ],
+      "CalculationMethods": [
+        "Cellular partition coefficient method - Rodgers and Rowland",
+        "Cellular permeability - PK-Sim Standard"
+      ],
+      "Parameters": [
+        {
+          "Name": "Molecular weight",
+          "Value": 241.29,
+          "Unit": "g/mol"
+        }
+      ]
+    }
+  ],
+  "Formulations": [
+    {
+      "Name": "Ponstan capsule",
+      "FormulationType": "Formulation_Tablet_Weibull",
+      "Parameters": [
+        {
+          "Name": "Dissolution time (50% dissolved)",
+          "Value": 1.0,
+          "Unit": "min",
+          "ValueOrigin": {
+            "Source": "ParameterIdentification",
+            "Method": "ParameterIdentification",
+            "Description": "Value updated from 'PI (Pint, CLspec, Lipo, Solub, meal; fu=1.9, Disso fix) FINAL' on 2019-08-06 18:52"
+          }
+        },
+        {
+          "Name": "Lag time",
+          "Value": 0.0,
+          "Unit": "min"
+        },
+        {
+          "Name": "Dissolution shape",
+          "Value": 10.0,
+          "ValueOrigin": {
+            "Source": "ParameterIdentification",
+            "Method": "ParameterIdentification",
+            "Description": "Value updated from 'PI (Pint, CLspec, Lipo, Solub, meal; fu=1.9, Disso fix) FINAL' on 2019-08-06 18:52"
+          }
+        },
+        {
+          "Name": "Use as suspension",
+          "Value": 1.0
+        }
+      ]
+    }
+  ],
+  "Protocols": [
+    {
+      "Name": "PO MD 500 mg loading / 250 mg every 6 h",
+      "DosingInterval": "Single",
+      "Schemas": [
+        {
+          "Name": "Schema 1",
+          "SchemaItems": [
+            {
+              "Name": "Schema Item 1",
+              "ApplicationType": "Oral",
+              "FormulationKey": "Formulation",
+              "Parameters": [
+                {
+                  "Name": "Start time",
+                  "Value": 0.0,
+                  "Unit": "h"
+                },
+                {
+                  "Name": "InputDose",
+                  "Value": 500.0,
+                  "Unit": "mg"
+                },
+                {
+                  "Name": "Volume of water/body weight",
+                  "Value": 3.5,
+                  "Unit": "ml/kg"
+                }
+              ]
+            }
+          ],
+          "Parameters": [
+            {
+              "Name": "Start time",
+              "Value": 0.0,
+              "Unit": "h"
+            },
+            {
+              "Name": "NumberOfRepetitions",
+              "Value": 1.0
+            },
+            {
+              "Name": "TimeBetweenRepetitions",
+              "Value": 0.0,
+              "Unit": "h"
+            }
+          ]
+        },
+        {
+          "Name": "Schema 2",
+          "SchemaItems": [
+            {
+              "Name": "Schema Item 1",
+              "ApplicationType": "Oral",
+              "FormulationKey": "Formulation",
+              "Parameters": [
+                {
+                  "Name": "Start time",
+                  "Value": 0.0,
+                  "Unit": "h"
+                },
+                {
+                  "Name": "InputDose",
+                  "Value": 250.0,
+                  "Unit": "mg"
+                },
+                {
+                  "Name": "Volume of water/body weight",
+                  "Value": 3.5,
+                  "Unit": "ml/kg"
+                }
+              ]
+            }
+          ],
+          "Parameters": [
+            {
+              "Name": "Start time",
+              "Value": 6.0,
+              "Unit": "h",
+              "ValueOrigin": {
+                "Source": "Unknown"
+              }
+            },
+            {
+              "Name": "NumberOfRepetitions",
+              "Value": 8.0,
+              "ValueOrigin": {
+                "Source": "Unknown"
+              }
+            },
+            {
+              "Name": "TimeBetweenRepetitions",
+              "Value": 6.0,
+              "Unit": "h",
+              "ValueOrigin": {
+                "Source": "Unknown"
+              }
+            }
+          ]
+        }
+      ],
+      "TimeUnit": "h"
+    },
+    {
+      "Name": "250 mg SD",
+      "ApplicationType": "Oral",
+      "DosingInterval": "Single",
+      "Parameters": [
+        {
+          "Name": "Start time",
+          "Value": 0.0,
+          "Unit": "h"
+        },
+        {
+          "Name": "InputDose",
+          "Value": 250.0,
+          "Unit": "mg"
+        },
+        {
+          "Name": "Volume of water/body weight",
+          "Value": 3.5,
+          "Unit": "ml/kg"
+        }
+      ]
+    },
+    {
+      "Name": "500 mg SD",
+      "ApplicationType": "Oral",
+      "DosingInterval": "Single",
+      "Parameters": [
+        {
+          "Name": "Start time",
+          "Value": 0.0,
+          "Unit": "h"
+        },
+        {
+          "Name": "InputDose",
+          "Value": 500.0,
+          "Unit": "mg"
+        },
+        {
+          "Name": "Volume of water/body weight",
+          "Value": 3.5,
+          "Unit": "ml/kg"
+        }
+      ]
+    }
+  ],
+  "Events": [
+    {
+      "Name": "breakfast",
+      "Template": "Meal: High-fat breakfast (Human)"
+    },
+    {
+      "Name": "snack (MEFA)",
+      "Template": "Meal: High-fat breakfast (Human)",
+      "Parameters": [
+        {
+          "Name": "Meal energy content",
+          "Value": 29.2656152796,
+          "Unit": "kcal",
+          "ValueOrigin": {
+            "Source": "ParameterIdentification",
+            "Method": "ParameterIdentification",
+            "Description": "Value updated from 'PI (Pint, CLspec, Lipo, Solub, meal; fu=1.9, Disso fix) FINAL' on 2019-08-06 18:52"
+          }
+        }
+      ]
+    }
+  ],
+  "Simulations": [
+    {
+      "Name": "PO MD 500 mg loading / 250 mg every 6 h",
+      "Model": "4Comp",
+      "Solver": {},
+      "OutputSchema": [
+        {
+          "Parameters": [
+            {
+              "Name": "Start time",
+              "Value": 0.0,
+              "Unit": "h"
+            },
+            {
+              "Name": "End time",
+              "Value": 2.0,
+              "Unit": "h"
+            },
+            {
+              "Name": "Resolution",
+              "Value": 20.0,
+              "Unit": "pts/h"
+            }
+          ]
+        },
+        {
+          "Parameters": [
+            {
+              "Name": "Start time",
+              "Value": 2.0,
+              "Unit": "h"
+            },
+            {
+              "Name": "End time",
+              "Value": 96.0,
+              "Unit": "h",
+              "ValueOrigin": {
+                "Source": "Unknown"
+              }
+            },
+            {
+              "Name": "Resolution",
+              "Value": 4.0,
+              "Unit": "pts/h"
+            }
+          ]
+        }
+      ],
+      "Parameters": [
+        {
+          "Path": "Events|PO MD 500 mg loading / 250 mg every 6 h|Ponstan capsule|Application_1|ProtocolSchemaItem|Volume of water/body weight",
+          "Value": 3.5,
+          "Unit": "ml/kg"
+        },
+        {
+          "Path": "Events|PO MD 500 mg loading / 250 mg every 6 h|Ponstan capsule|Application_2|ProtocolSchemaItem|Volume of water/body weight",
+          "Value": 3.5,
+          "Unit": "ml/kg"
+        },
+        {
+          "Path": "Events|PO MD 500 mg loading / 250 mg every 6 h|Ponstan capsule|Application_3|ProtocolSchemaItem|Volume of water/body weight",
+          "Value": 3.5,
+          "Unit": "ml/kg"
+        },
+        {
+          "Path": "Events|PO MD 500 mg loading / 250 mg every 6 h|Ponstan capsule|Application_4|ProtocolSchemaItem|Volume of water/body weight",
+          "Value": 3.5,
+          "Unit": "ml/kg"
+        },
+        {
+          "Path": "Events|PO MD 500 mg loading / 250 mg every 6 h|Ponstan capsule|Application_5|ProtocolSchemaItem|Volume of water/body weight",
+          "Value": 3.5,
+          "Unit": "ml/kg"
+        },
+        {
+          "Path": "Events|PO MD 500 mg loading / 250 mg every 6 h|Ponstan capsule|Application_6|ProtocolSchemaItem|Volume of water/body weight",
+          "Value": 3.5,
+          "Unit": "ml/kg"
+        },
+        {
+          "Path": "Events|PO MD 500 mg loading / 250 mg every 6 h|Ponstan capsule|Application_7|ProtocolSchemaItem|Volume of water/body weight",
+          "Value": 3.5,
+          "Unit": "ml/kg"
+        },
+        {
+          "Path": "Events|PO MD 500 mg loading / 250 mg every 6 h|Ponstan capsule|Application_8|ProtocolSchemaItem|Volume of water/body weight",
+          "Value": 3.5,
+          "Unit": "ml/kg"
+        },
+        {
+          "Path": "Events|PO MD 500 mg loading / 250 mg every 6 h|Ponstan capsule|Application_9|ProtocolSchemaItem|Volume of water/body weight",
+          "Value": 3.5,
+          "Unit": "ml/kg"
+        },
+        {
+          "Path": "Undefined Liver|Reference concentration",
+          "Value": 1.0,
+          "Unit": "µmol/l"
+        },
+        {
+          "Path": "Undefined Liver|t1/2 (intestine)",
+          "Value": 1380.0,
+          "Unit": "min"
+        },
+        {
+          "Path": "Undefined Liver|t1/2 (liver)",
+          "Value": 2160.0,
+          "Unit": "min"
+        }
+      ],
+      "OutputSelections": [
+        "Organism|PeripheralVenousBlood|Mefenamic acid|Plasma (Peripheral Venous Blood)"
+      ],
+      "Individual": "Standard_Adult",
+      "Compounds": [
+        {
+          "Name": "Mefenamic acid",
+          "CalculationMethods": [
+            "Cellular partition coefficient method - Rodgers and Rowland",
+            "Cellular permeability - PK-Sim Standard"
+          ],
+          "Alternatives": [
+            {
+              "AlternativeName": "Optimized",
+              "GroupName": "COMPOUND_INTESTINAL_PERMEABILITY"
+            }
+          ],
+          "Processes": [
+            {
+              "Name": "Total Hepatic Clearance-Simcyp (oral CL)",
+              "SystemicProcessType": "Hepatic"
+            }
+          ],
+          "Protocol": {
+            "Name": "PO MD 500 mg loading / 250 mg every 6 h",
+            "Formulations": [
+              {
+                "Name": "Ponstan capsule",
+                "Key": "Formulation"
+              }
+            ]
+          }
+        }
+      ],
+      "Events": [
+        {
+          "Name": "snack (MEFA)",
+          "StartTime": {
+            "Value": 0.0,
+            "Unit": "h"
+          }
+        },
+        {
+          "Name": "snack (MEFA)",
+          "StartTime": {
+            "Value": 6.0,
+            "Unit": "h",
+            "ValueOrigin": {
+              "Source": "Unknown"
+            }
+          }
+        },
+        {
+          "Name": "snack (MEFA)",
+          "StartTime": {
+            "Value": 12.0,
+            "Unit": "h",
+            "ValueOrigin": {
+              "Source": "Unknown"
+            }
+          }
+        },
+        {
+          "Name": "snack (MEFA)",
+          "StartTime": {
+            "Value": 18.0,
+            "Unit": "h",
+            "ValueOrigin": {
+              "Source": "Unknown"
+            }
+          }
+        },
+        {
+          "Name": "snack (MEFA)",
+          "StartTime": {
+            "Value": 30.0,
+            "Unit": "h",
+            "ValueOrigin": {
+              "Source": "Unknown"
+            }
+          }
+        },
+        {
+          "Name": "snack (MEFA)",
+          "StartTime": {
+            "Value": 36.0,
+            "Unit": "h",
+            "ValueOrigin": {
+              "Source": "Unknown"
+            }
+          }
+        },
+        {
+          "Name": "snack (MEFA)",
+          "StartTime": {
+            "Value": 42.0,
+            "Unit": "h",
+            "ValueOrigin": {
+              "Source": "Unknown"
+            }
+          }
+        },
+        {
+          "Name": "snack (MEFA)",
+          "StartTime": {
+            "Value": 48.0,
+            "Unit": "h",
+            "ValueOrigin": {
+              "Source": "Unknown"
+            }
+          }
+        },
+        {
+          "Name": "breakfast",
+          "StartTime": {
+            "Value": 24.0,
+            "Unit": "h",
+            "ValueOrigin": {
+              "Source": "Unknown"
+            }
+          }
+        }
+      ],
+      "HasResults": true,
+      "IndividualAnalyses": [
+        {
+          "Axes": [
+            {
+              "Unit": "h",
+              "Dimension": "Time",
+              "Type": "X",
+              "GridLines": false,
+              "Visible": true,
+              "DefaultColor": "#FFFFFF",
+              "DefaultLineStyle": "None",
+              "Scaling": "Linear",
+              "NumberMode": "Normal"
+            },
+            {
+              "Unit": "µg/l",
+              "Dimension": "Concentration (molar)",
+              "Type": "Y",
+              "GridLines": false,
+              "Visible": true,
+              "Min": 10.0,
+              "Max": 6000.0,
+              "DefaultColor": "#FFFFFF",
+              "DefaultLineStyle": "Solid",
+              "Scaling": "Log",
+              "NumberMode": "Normal"
+            }
+          ],
+          "Curves": [
+            {
+              "Name": "PO MD 500 mg loading / 250 mg every 6 h-Mefenamic acid-Peripheral Venous Blood-Plasma-Concentration",
+              "X": "Time",
+              "Y": "PO MD 500 mg loading / 250 mg every 6 h|Organism|PeripheralVenousBlood|Mefenamic acid|Plasma (Peripheral Venous Blood)",
+              "CurveOptions": {
+                "Color": "#FF0000",
+                "LegendIndex": 1
+              }
+            }
+          ],
+          "Name": "PO MD 500 mg loading / 250 mg every 6 h (log)",
+          "FontAndSize": {
+            "ChartWidth": 600,
+            "ChartHeight": 400,
+            "Fonts": {
+              "AxisSize": 10,
+              "LegendSize": 8,
+              "TitleSize": 16,
+              "DescriptionSize": 12,
+              "OriginSize": 8,
+              "FontFamilyName": "Microsoft Sans Serif",
+              "WatermarkSize": 32
+            }
+          },
+          "Settings": {
+            "SideMarginsEnabled": true,
+            "LegendPosition": "RightInside",
+            "BackColor": "#00FFFFFF",
+            "DiagramBackColor": "#FFFFFF"
+          },
+          "Title": "PO MD 500 mg loading / 250 mg every 6 h",
+          "OriginText": "Mefenamic_acid\nPO MD 500 mg loading / 250 mg every 6 h\n2019-08-19 10:32"
+        },
+        {
+          "Axes": [
+            {
+              "Unit": "h",
+              "Dimension": "Time",
+              "Type": "X",
+              "GridLines": false,
+              "Visible": true,
+              "DefaultColor": "#FFFFFF",
+              "DefaultLineStyle": "None",
+              "Scaling": "Linear",
+              "NumberMode": "Normal"
+            },
+            {
+              "Unit": "µg/l",
+              "Dimension": "Concentration (molar)",
+              "Type": "Y",
+              "GridLines": false,
+              "Visible": true,
+              "Min": 0.0,
+              "Max": 5200.0,
+              "DefaultColor": "#FFFFFF",
+              "DefaultLineStyle": "Solid",
+              "Scaling": "Linear",
+              "NumberMode": "Normal"
+            }
+          ],
+          "Curves": [
+            {
+              "Name": "PO MD 500 mg loading / 250 mg every 6 h-Mefenamic acid-Peripheral Venous Blood-Plasma-Concentration",
+              "X": "Time",
+              "Y": "PO MD 500 mg loading / 250 mg every 6 h|Organism|PeripheralVenousBlood|Mefenamic acid|Plasma (Peripheral Venous Blood)",
+              "CurveOptions": {
+                "Color": "#FF0000",
+                "LegendIndex": 1
+              }
+            }
+          ],
+          "Name": "PO MD 500 mg loading / 250 mg every 6 h (lin)",
+          "FontAndSize": {
+            "ChartWidth": 600,
+            "ChartHeight": 400,
+            "Fonts": {
+              "AxisSize": 10,
+              "LegendSize": 8,
+              "TitleSize": 16,
+              "DescriptionSize": 12,
+              "OriginSize": 8,
+              "FontFamilyName": "Microsoft Sans Serif",
+              "WatermarkSize": 32
+            }
+          },
+          "Settings": {
+            "SideMarginsEnabled": true,
+            "LegendPosition": "RightInside",
+            "BackColor": "#00FFFFFF",
+            "DiagramBackColor": "#FFFFFF"
+          },
+          "Title": "PO MD 500 mg loading / 250 mg every 6 h",
+          "OriginText": "Mefenamic_acid\nPO MD 500 mg loading / 250 mg every 6 h\n2019-08-19 10:32"
+        },
+        {
+          "Axes": [
+            {
+              "Unit": "h",
+              "Dimension": "Time",
+              "Type": "X",
+              "GridLines": false,
+              "Visible": true,
+              "Min": 24.0,
+              "Max": 30.0,
+              "DefaultColor": "#FFFFFF",
+              "DefaultLineStyle": "None",
+              "Scaling": "Linear",
+              "NumberMode": "Normal"
+            },
+            {
+              "Unit": "µg/l",
+              "Dimension": "Concentration (molar)",
+              "Type": "Y",
+              "GridLines": false,
+              "Visible": true,
+              "Min": 250.0,
+              "Max": 5000.0,
+              "DefaultColor": "#FFFFFF",
+              "DefaultLineStyle": "Solid",
+              "Scaling": "Log",
+              "NumberMode": "Normal"
+            }
+          ],
+          "Curves": [
+            {
+              "Name": "PO MD 500 mg loading / 250 mg every 6 h-Mefenamic acid-Peripheral Venous Blood-Plasma-Concentration",
+              "X": "Time",
+              "Y": "PO MD 500 mg loading / 250 mg every 6 h|Organism|PeripheralVenousBlood|Mefenamic acid|Plasma (Peripheral Venous Blood)",
+              "CurveOptions": {
+                "Color": "#FF0000",
+                "LegendIndex": 1
+              }
+            }
+          ],
+          "Name": "PO MD 500 mg loading / 250 mg every 6 h (log, geomean)",
+          "FontAndSize": {
+            "Fonts": {
+              "AxisSize": 10,
+              "LegendSize": 8,
+              "TitleSize": 16,
+              "DescriptionSize": 12,
+              "OriginSize": 8,
+              "FontFamilyName": "Microsoft Sans Serif",
+              "WatermarkSize": 32
+            }
+          },
+          "Settings": {
+            "SideMarginsEnabled": true,
+            "LegendPosition": "RightInside",
+            "BackColor": "#00FFFFFF",
+            "DiagramBackColor": "#FFFFFF"
+          },
+          "OriginText": "Mefenamic_acid\nPO MD 500 mg loading / 250 mg every 6 h\n2019-08-25 20:08"
+        },
+        {
+          "Axes": [
+            {
+              "Unit": "h",
+              "Dimension": "Time",
+              "Type": "X",
+              "GridLines": false,
+              "Visible": true,
+              "Min": 24.0,
+              "Max": 30.0,
+              "DefaultColor": "#FFFFFF",
+              "DefaultLineStyle": "None",
+              "Scaling": "Linear",
+              "NumberMode": "Normal"
+            },
+            {
+              "Unit": "µg/l",
+              "Dimension": "Concentration (molar)",
+              "Type": "Y",
+              "GridLines": false,
+              "Visible": true,
+              "Min": 250.0,
+              "Max": 5000.0,
+              "DefaultColor": "#FFFFFF",
+              "DefaultLineStyle": "Solid",
+              "Scaling": "Log",
+              "NumberMode": "Normal"
+            }
+          ],
+          "Curves": [
+            {
+              "Name": "PO MD 500 mg loading / 250 mg every 6 h-Mefenamic acid-Peripheral Venous Blood-Plasma-Concentration",
+              "X": "Time",
+              "Y": "PO MD 500 mg loading / 250 mg every 6 h|Organism|PeripheralVenousBlood|Mefenamic acid|Plasma (Peripheral Venous Blood)",
+              "CurveOptions": {
+                "Color": "#FF0000",
+                "LegendIndex": 1
+              }
+            }
+          ],
+          "Name": "PO MD 500 mg loading / 250 mg every 6 h (log, individuals)",
+          "FontAndSize": {
+            "Fonts": {
+              "AxisSize": 10,
+              "LegendSize": 8,
+              "TitleSize": 16,
+              "DescriptionSize": 12,
+              "OriginSize": 8,
+              "FontFamilyName": "Microsoft Sans Serif",
+              "WatermarkSize": 32
+            }
+          },
+          "Settings": {
+            "SideMarginsEnabled": true,
+            "LegendPosition": "RightInside",
+            "BackColor": "#00FFFFFF",
+            "DiagramBackColor": "#FFFFFF"
+          },
+          "OriginText": "Mefenamic_acid\nPO MD 500 mg loading / 250 mg every 6 h\n2019-08-25 20:09"
+        },
+        {
+          "Axes": [
+            {
+              "Unit": "h",
+              "Dimension": "Time",
+              "Type": "X",
+              "GridLines": false,
+              "Visible": true,
+              "DefaultColor": "#FFFFFF",
+              "DefaultLineStyle": "None",
+              "Scaling": "Linear",
+              "NumberMode": "Normal"
+            },
+            {
+              "Unit": "µg/l",
+              "Dimension": "Concentration (molar)",
+              "Type": "Y",
+              "GridLines": false,
+              "Visible": true,
+              "Min": 1.0,
+              "Max": 7000.0,
+              "DefaultColor": "#FFFFFF",
+              "DefaultLineStyle": "Solid",
+              "Scaling": "Log",
+              "NumberMode": "Normal"
+            }
+          ],
+          "Curves": [
+            {
+              "Name": "PO MD 500 mg loading / 250 mg every 6 h-Mefenamic acid-Peripheral Venous Blood-Plasma-Concentration",
+              "X": "Time",
+              "Y": "PO MD 500 mg loading / 250 mg every 6 h|Organism|PeripheralVenousBlood|Mefenamic acid|Plasma (Peripheral Venous Blood)",
+              "CurveOptions": {
+                "Color": "#FF0000",
+                "LegendIndex": 1
+              }
+            }
+          ],
+          "Name": "PO MD 500 mg loading / 250 mg every 6 h (log, individuals)",
+          "FontAndSize": {
+            "Fonts": {
+              "AxisSize": 10,
+              "LegendSize": 8,
+              "TitleSize": 16,
+              "DescriptionSize": 12,
+              "OriginSize": 8,
+              "FontFamilyName": "Microsoft Sans Serif",
+              "WatermarkSize": 32
+            }
+          },
+          "Settings": {
+            "SideMarginsEnabled": true,
+            "LegendPosition": "RightInside",
+            "BackColor": "#00FFFFFF",
+            "DiagramBackColor": "#FFFFFF"
+          },
+          "OriginText": "Mefenamic_acid\nPO MD 500 mg loading / 250 mg every 6 h\n2019-08-25 20:13"
+        }
+      ],
+      "Interactions": [
+        {
+          "Name": "UGT1A9-PH-41095",
+          "MoleculeName": "UGT1A9",
+          "CompoundName": "Mefenamic acid"
+        }
+      ]
+    },
+    {
+      "Name": "PO SD 250 mg",
+      "Model": "4Comp",
+      "ObservedData": [
+        "Rouini 2005 - Reference - Mefenamic acid - PO - 250 mg - Plasma - agg. (n=12)",
+        "Mahadik 2012 - Reference - Mefenamic acid - PO - 250 mg - Plasma - agg. (n=12)",
+        "Hamaguchi 1987 - Treatment 2 - fasted with 200 mL of water - Mefenamic acid - PO - 250 mg - Plasma - agg. (n=4)"
+      ],
+      "Solver": {},
+      "OutputSchema": [
+        {
+          "Parameters": [
+            {
+              "Name": "Start time",
+              "Value": 0.0,
+              "Unit": "h"
+            },
+            {
+              "Name": "End time",
+              "Value": 2.0,
+              "Unit": "h"
+            },
+            {
+              "Name": "Resolution",
+              "Value": 20.0,
+              "Unit": "pts/h"
+            }
+          ]
+        },
+        {
+          "Parameters": [
+            {
+              "Name": "Start time",
+              "Value": 2.0,
+              "Unit": "h"
+            },
+            {
+              "Name": "End time",
+              "Value": 24.0,
+              "Unit": "h",
+              "ValueOrigin": {
+                "Source": "Unknown"
+              }
+            },
+            {
+              "Name": "Resolution",
+              "Value": 4.0,
+              "Unit": "pts/h"
+            }
+          ]
+        }
+      ],
+      "Parameters": [
+        {
+          "Path": "Events|250 mg SD|Ponstan capsule|Application_1|ProtocolSchemaItem|Volume of water/body weight",
+          "Value": 3.5,
+          "Unit": "ml/kg"
+        },
+        {
+          "Path": "Undefined Liver|Reference concentration",
+          "Value": 1.0,
+          "Unit": "µmol/l"
+        },
+        {
+          "Path": "Undefined Liver|t1/2 (intestine)",
+          "Value": 1380.0,
+          "Unit": "min"
+        },
+        {
+          "Path": "Undefined Liver|t1/2 (liver)",
+          "Value": 2160.0,
+          "Unit": "min"
+        }
+      ],
+      "OutputSelections": [
+        "Organism|PeripheralVenousBlood|Mefenamic acid|Plasma (Peripheral Venous Blood)"
+      ],
+      "OutputMappings": [
+        {
+          "Scaling": "Log",
+          "Path": "PO SD 250 mg|Organism|PeripheralVenousBlood|Mefenamic acid|Plasma (Peripheral Venous Blood)",
+          "ObservedData": "Hamaguchi 1987 - Treatment 2 - fasted with 200 mL of water - Mefenamic acid - PO - 250 mg - Plasma - agg. (n=4)"
+        },
+        {
+          "Scaling": "Log",
+          "Path": "PO SD 250 mg|Organism|PeripheralVenousBlood|Mefenamic acid|Plasma (Peripheral Venous Blood)",
+          "ObservedData": "Mahadik 2012 - Reference - Mefenamic acid - PO - 250 mg - Plasma - agg. (n=12)"
+        },
+        {
+          "Scaling": "Log",
+          "Path": "PO SD 250 mg|Organism|PeripheralVenousBlood|Mefenamic acid|Plasma (Peripheral Venous Blood)",
+          "ObservedData": "Rouini 2005 - Reference - Mefenamic acid - PO - 250 mg - Plasma - agg. (n=12)"
+        }
+      ],
+      "Individual": "Standard_Adult",
+      "Compounds": [
+        {
+          "Name": "Mefenamic acid",
+          "CalculationMethods": [
+            "Cellular partition coefficient method - Rodgers and Rowland",
+            "Cellular permeability - PK-Sim Standard"
+          ],
+          "Alternatives": [
+            {
+              "AlternativeName": "Optimized",
+              "GroupName": "COMPOUND_INTESTINAL_PERMEABILITY"
+            }
+          ],
+          "Processes": [
+            {
+              "Name": "Total Hepatic Clearance-Simcyp (oral CL)",
+              "SystemicProcessType": "Hepatic"
+            }
+          ],
+          "Protocol": {
+            "Name": "250 mg SD",
+            "Formulations": [
+              {
+                "Name": "Ponstan capsule",
+                "Key": "Formulation"
+              }
+            ]
+          }
+        }
+      ],
+      "HasResults": true,
+      "IndividualAnalyses": [
+        {
+          "Axes": [
+            {
+              "Unit": "h",
+              "Dimension": "Time",
+              "Type": "X",
+              "GridLines": false,
+              "Visible": true,
+              "DefaultColor": "#FFFFFF",
+              "DefaultLineStyle": "None",
+              "Scaling": "Linear",
+              "NumberMode": "Normal"
+            },
+            {
+              "Unit": "µg/l",
+              "Dimension": "Concentration (molar)",
+              "Type": "Y",
+              "GridLines": false,
+              "Visible": true,
+              "DefaultColor": "#FFFFFF",
+              "DefaultLineStyle": "Solid",
+              "Scaling": "Log",
+              "NumberMode": "Normal"
+            }
+          ],
+          "Curves": [
+            {
+              "Name": "PO SD 250 mg-Mefenamic acid-Peripheral Venous Blood-Plasma-Concentration",
+              "X": "Time",
+              "Y": "PO SD 250 mg|Organism|PeripheralVenousBlood|Mefenamic acid|Plasma (Peripheral Venous Blood)",
+              "CurveOptions": {
+                "Color": "#FF0000",
+                "LegendIndex": 1
+              }
+            },
+            {
+              "Name": "Rouini 2005 - Reference - Mefenamic acid - PO - 250 mg - Plasma - agg. (n=12)-Mefenamic acid-Peripheral Venous Blood-Plasma-ArithmeticMean",
+              "X": "Rouini 2005 - Reference - Mefenamic acid - PO - 250 mg - Plasma - agg. (n=12)|Time",
+              "Y": "Rouini 2005 - Reference - Mefenamic acid - PO - 250 mg - Plasma - agg. (n=12)|ObservedData|Peripheral Venous Blood|Plasma|Mefenamic acid|ArithmeticMean",
+              "CurveOptions": {
+                "Color": "#0000FF",
+                "LegendIndex": 2,
+                "LineStyle": "None",
+                "Symbol": "Circle"
+              }
+            },
+            {
+              "Name": "Mahadik 2012 - Reference - Mefenamic acid - PO - 250 mg - Plasma - agg. (n=12)-Mefenamic acid-Peripheral Venous Blood-Plasma-ArithmeticMean",
+              "X": "Mahadik 2012 - Reference - Mefenamic acid - PO - 250 mg - Plasma - agg. (n=12)|Time",
+              "Y": "Mahadik 2012 - Reference - Mefenamic acid - PO - 250 mg - Plasma - agg. (n=12)|ObservedData|Peripheral Venous Blood|Plasma|Mefenamic acid|ArithmeticMean",
+              "CurveOptions": {
+                "Color": "#008000",
+                "LegendIndex": 3,
+                "LineStyle": "None",
+                "Symbol": "Circle"
+              }
+            },
+            {
+              "Name": "Hamaguchi 1987 - Treatment 2 - fasted with 200 mL of water - Mefenamic acid - PO - 250 mg - Plasma - agg. (n=4)-Mefenamic acid-Peripheral Venous Blood-Plasma-ArithmeticMean",
+              "X": "Hamaguchi 1987 - Treatment 2 - fasted with 200 mL of water - Mefenamic acid - PO - 250 mg - Plasma - agg. (n=4)|Time",
+              "Y": "Hamaguchi 1987 - Treatment 2 - fasted with 200 mL of water - Mefenamic acid - PO - 250 mg - Plasma - agg. (n=4)|ObservedData|Peripheral Venous Blood|Plasma|Mefenamic acid|ArithmeticMean",
+              "CurveOptions": {
+                "Color": "#FF00FF",
+                "LegendIndex": 4,
+                "LineStyle": "None",
+                "Symbol": "Circle"
+              }
+            }
+          ],
+          "Name": "PO SD 250 mg (log)",
+          "FontAndSize": {
+            "Fonts": {
+              "AxisSize": 10,
+              "LegendSize": 8,
+              "TitleSize": 16,
+              "DescriptionSize": 12,
+              "OriginSize": 8,
+              "FontFamilyName": "Microsoft Sans Serif",
+              "WatermarkSize": 32
+            }
+          },
+          "Settings": {
+            "SideMarginsEnabled": true,
+            "LegendPosition": "RightInside",
+            "BackColor": "#00FFFFFF",
+            "DiagramBackColor": "#FFFFFF"
+          },
+          "Title": "PO SD 250 mg",
+          "OriginText": "Mefenamic_acid\nPO SD 250 mg\n2019-08-19 10:32"
+        },
+        {
+          "Axes": [
+            {
+              "Unit": "h",
+              "Dimension": "Time",
+              "Type": "X",
+              "GridLines": false,
+              "Visible": true,
+              "DefaultColor": "#FFFFFF",
+              "DefaultLineStyle": "None",
+              "Scaling": "Linear",
+              "NumberMode": "Normal"
+            },
+            {
+              "Unit": "µg/l",
+              "Dimension": "Concentration (molar)",
+              "Type": "Y",
+              "GridLines": false,
+              "Visible": true,
+              "DefaultColor": "#FFFFFF",
+              "DefaultLineStyle": "Solid",
+              "Scaling": "Linear",
+              "NumberMode": "Normal"
+            }
+          ],
+          "Curves": [
+            {
+              "Name": "PO SD 250 mg-Mefenamic acid-Peripheral Venous Blood-Plasma-Concentration",
+              "X": "Time",
+              "Y": "PO SD 250 mg|Organism|PeripheralVenousBlood|Mefenamic acid|Plasma (Peripheral Venous Blood)",
+              "CurveOptions": {
+                "Color": "#FF0000",
+                "LegendIndex": 1
+              }
+            },
+            {
+              "Name": "Rouini 2005 - Reference - Mefenamic acid - PO - 250 mg - Plasma - agg. (n=12)-Mefenamic acid-Peripheral Venous Blood-Plasma-ArithmeticMean",
+              "X": "Rouini 2005 - Reference - Mefenamic acid - PO - 250 mg - Plasma - agg. (n=12)|Time",
+              "Y": "Rouini 2005 - Reference - Mefenamic acid - PO - 250 mg - Plasma - agg. (n=12)|ObservedData|Peripheral Venous Blood|Plasma|Mefenamic acid|ArithmeticMean",
+              "CurveOptions": {
+                "Color": "#0000FF",
+                "LegendIndex": 2,
+                "LineStyle": "None",
+                "Symbol": "Circle"
+              }
+            },
+            {
+              "Name": "Mahadik 2012 - Reference - Mefenamic acid - PO - 250 mg - Plasma - agg. (n=12)-Mefenamic acid-Peripheral Venous Blood-Plasma-ArithmeticMean",
+              "X": "Mahadik 2012 - Reference - Mefenamic acid - PO - 250 mg - Plasma - agg. (n=12)|Time",
+              "Y": "Mahadik 2012 - Reference - Mefenamic acid - PO - 250 mg - Plasma - agg. (n=12)|ObservedData|Peripheral Venous Blood|Plasma|Mefenamic acid|ArithmeticMean",
+              "CurveOptions": {
+                "Color": "#008000",
+                "LegendIndex": 3,
+                "LineStyle": "None",
+                "Symbol": "Circle"
+              }
+            },
+            {
+              "Name": "Hamaguchi 1987 - Treatment 2 - fasted with 200 mL of water - Mefenamic acid - PO - 250 mg - Plasma - agg. (n=4)-Mefenamic acid-Peripheral Venous Blood-Plasma-ArithmeticMean",
+              "X": "Hamaguchi 1987 - Treatment 2 - fasted with 200 mL of water - Mefenamic acid - PO - 250 mg - Plasma - agg. (n=4)|Time",
+              "Y": "Hamaguchi 1987 - Treatment 2 - fasted with 200 mL of water - Mefenamic acid - PO - 250 mg - Plasma - agg. (n=4)|ObservedData|Peripheral Venous Blood|Plasma|Mefenamic acid|ArithmeticMean",
+              "CurveOptions": {
+                "Color": "#FF00FF",
+                "LegendIndex": 4,
+                "LineStyle": "None",
+                "Symbol": "Circle"
+              }
+            }
+          ],
+          "Name": "PO SD 250 mg (lin)",
+          "FontAndSize": {
+            "Fonts": {
+              "AxisSize": 10,
+              "LegendSize": 8,
+              "TitleSize": 16,
+              "DescriptionSize": 12,
+              "OriginSize": 8,
+              "FontFamilyName": "Microsoft Sans Serif",
+              "WatermarkSize": 32
+            }
+          },
+          "Settings": {
+            "SideMarginsEnabled": true,
+            "LegendPosition": "RightInside",
+            "BackColor": "#00FFFFFF",
+            "DiagramBackColor": "#FFFFFF"
+          },
+          "Title": "PO SD 250 mg",
+          "OriginText": "Mefenamic_acid\nPO SD 250 mg\n2019-08-19 10:32"
+        }
+      ],
+      "Interactions": [
+        {
+          "Name": "UGT1A9-PH-41095",
+          "MoleculeName": "UGT1A9",
+          "CompoundName": "Mefenamic acid"
+        }
+      ]
+    },
+    {
+      "Name": "PO SD 500 mg",
+      "Model": "4Comp",
+      "ObservedData": [
+        "Goosen 2017 - 500 mg SD - Mefenamic acid - PO - 500 mg - Plasma - agg."
+      ],
+      "Solver": {},
+      "OutputSchema": [
+        {
+          "Parameters": [
+            {
+              "Name": "Start time",
+              "Value": 0.0,
+              "Unit": "h"
+            },
+            {
+              "Name": "End time",
+              "Value": 2.0,
+              "Unit": "h"
+            },
+            {
+              "Name": "Resolution",
+              "Value": 20.0,
+              "Unit": "pts/h"
+            }
+          ]
+        },
+        {
+          "Parameters": [
+            {
+              "Name": "Start time",
+              "Value": 2.0,
+              "Unit": "h"
+            },
+            {
+              "Name": "End time",
+              "Value": 24.0,
+              "Unit": "h",
+              "ValueOrigin": {
+                "Source": "Unknown"
+              }
+            },
+            {
+              "Name": "Resolution",
+              "Value": 4.0,
+              "Unit": "pts/h"
+            }
+          ]
+        }
+      ],
+      "Parameters": [
+        {
+          "Path": "Events|500 mg SD|Ponstan capsule|Application_1|ProtocolSchemaItem|Volume of water/body weight",
+          "Value": 3.5,
+          "Unit": "ml/kg"
+        },
+        {
+          "Path": "Undefined Liver|Reference concentration",
+          "Value": 1.0,
+          "Unit": "µmol/l"
+        },
+        {
+          "Path": "Undefined Liver|t1/2 (intestine)",
+          "Value": 1380.0,
+          "Unit": "min"
+        },
+        {
+          "Path": "Undefined Liver|t1/2 (liver)",
+          "Value": 2160.0,
+          "Unit": "min"
+        }
+      ],
+      "OutputSelections": [
+        "Organism|PeripheralVenousBlood|Mefenamic acid|Plasma (Peripheral Venous Blood)"
+      ],
+      "OutputMappings": [
+        {
+          "Scaling": "Log",
+          "Path": "PO SD 500 mg|Organism|PeripheralVenousBlood|Mefenamic acid|Plasma (Peripheral Venous Blood)",
+          "ObservedData": "Goosen 2017 - 500 mg SD - Mefenamic acid - PO - 500 mg - Plasma - agg."
+        }
+      ],
+      "Individual": "Standard_Adult",
+      "Compounds": [
+        {
+          "Name": "Mefenamic acid",
+          "CalculationMethods": [
+            "Cellular partition coefficient method - Rodgers and Rowland",
+            "Cellular permeability - PK-Sim Standard"
+          ],
+          "Alternatives": [
+            {
+              "AlternativeName": "Optimized",
+              "GroupName": "COMPOUND_INTESTINAL_PERMEABILITY"
+            }
+          ],
+          "Processes": [
+            {
+              "Name": "Total Hepatic Clearance-Simcyp (oral CL)",
+              "SystemicProcessType": "Hepatic"
+            }
+          ],
+          "Protocol": {
+            "Name": "500 mg SD",
+            "Formulations": [
+              {
+                "Name": "Ponstan capsule",
+                "Key": "Formulation"
+              }
+            ]
+          }
+        }
+      ],
+      "HasResults": true,
+      "IndividualAnalyses": [
+        {
+          "Axes": [
+            {
+              "Unit": "h",
+              "Dimension": "Time",
+              "Type": "X",
+              "GridLines": false,
+              "Visible": true,
+              "DefaultColor": "#FFFFFF",
+              "DefaultLineStyle": "None",
+              "Scaling": "Linear",
+              "NumberMode": "Normal"
+            },
+            {
+              "Unit": "µg/l",
+              "Dimension": "Concentration (molar)",
+              "Type": "Y",
+              "GridLines": false,
+              "Visible": true,
+              "DefaultColor": "#FFFFFF",
+              "DefaultLineStyle": "Solid",
+              "Scaling": "Log",
+              "NumberMode": "Normal"
+            }
+          ],
+          "Curves": [
+            {
+              "Name": "PO SD 500 mg-Mefenamic acid-Peripheral Venous Blood-Plasma-Concentration",
+              "X": "Time",
+              "Y": "PO SD 500 mg|Organism|PeripheralVenousBlood|Mefenamic acid|Plasma (Peripheral Venous Blood)",
+              "CurveOptions": {
+                "Color": "#FF0000",
+                "LegendIndex": 1
+              }
+            },
+            {
+              "Name": "Goosen 2017 - 500 mg SD - Mefenamic acid - PO - 500 mg - Plasma - agg.-Mefenamic acid-Peripheral Venous Blood-Plasma-ArithmeticMean",
+              "X": "Goosen 2017 - 500 mg SD - Mefenamic acid - PO - 500 mg - Plasma - agg.|Time",
+              "Y": "Goosen 2017 - 500 mg SD - Mefenamic acid - PO - 500 mg - Plasma - agg.|ObservedData|Peripheral Venous Blood|Plasma|Mefenamic acid|ArithmeticMean",
+              "CurveOptions": {
+                "Color": "#0000FF",
+                "LegendIndex": 2,
+                "LineStyle": "None",
+                "Symbol": "Circle"
+              }
+            }
+          ],
+          "Name": "PO SD 500 mg (log)",
+          "FontAndSize": {
+            "Fonts": {
+              "AxisSize": 10,
+              "LegendSize": 8,
+              "TitleSize": 16,
+              "DescriptionSize": 12,
+              "OriginSize": 8,
+              "FontFamilyName": "Microsoft Sans Serif",
+              "WatermarkSize": 32
+            }
+          },
+          "Settings": {
+            "SideMarginsEnabled": true,
+            "LegendPosition": "RightInside",
+            "BackColor": "#00FFFFFF",
+            "DiagramBackColor": "#FFFFFF"
+          },
+          "Title": "PO SD 500 mg",
+          "OriginText": "Mefenamic_acid\nPO SD 500 mg\n2019-08-19 10:32"
+        },
+        {
+          "Axes": [
+            {
+              "Unit": "h",
+              "Dimension": "Time",
+              "Type": "X",
+              "GridLines": false,
+              "Visible": true,
+              "DefaultColor": "#FFFFFF",
+              "DefaultLineStyle": "None",
+              "Scaling": "Linear",
+              "NumberMode": "Normal"
+            },
+            {
+              "Unit": "µg/l",
+              "Dimension": "Concentration (molar)",
+              "Type": "Y",
+              "GridLines": false,
+              "Visible": true,
+              "DefaultColor": "#FFFFFF",
+              "DefaultLineStyle": "Solid",
+              "Scaling": "Linear",
+              "NumberMode": "Normal"
+            }
+          ],
+          "Curves": [
+            {
+              "Name": "PO SD 500 mg-Mefenamic acid-Peripheral Venous Blood-Plasma-Concentration",
+              "X": "Time",
+              "Y": "PO SD 500 mg|Organism|PeripheralVenousBlood|Mefenamic acid|Plasma (Peripheral Venous Blood)",
+              "CurveOptions": {
+                "Color": "#FF0000",
+                "LegendIndex": 1
+              }
+            },
+            {
+              "Name": "Goosen 2017 - 500 mg SD - Mefenamic acid - PO - 500 mg - Plasma - agg.-Mefenamic acid-Peripheral Venous Blood-Plasma-ArithmeticMean",
+              "X": "Goosen 2017 - 500 mg SD - Mefenamic acid - PO - 500 mg - Plasma - agg.|Time",
+              "Y": "Goosen 2017 - 500 mg SD - Mefenamic acid - PO - 500 mg - Plasma - agg.|ObservedData|Peripheral Venous Blood|Plasma|Mefenamic acid|ArithmeticMean",
+              "CurveOptions": {
+                "Color": "#0000FF",
+                "LegendIndex": 2,
+                "LineStyle": "None",
+                "Symbol": "Circle"
+              }
+            }
+          ],
+          "Name": "PO SD 500 mg (lin)",
+          "FontAndSize": {
+            "Fonts": {
+              "AxisSize": 10,
+              "LegendSize": 8,
+              "TitleSize": 16,
+              "DescriptionSize": 12,
+              "OriginSize": 8,
+              "FontFamilyName": "Microsoft Sans Serif",
+              "WatermarkSize": 32
+            }
+          },
+          "Settings": {
+            "SideMarginsEnabled": true,
+            "LegendPosition": "RightInside",
+            "BackColor": "#00FFFFFF",
+            "DiagramBackColor": "#FFFFFF"
+          },
+          "Title": "PO SD 500 mg",
+          "OriginText": "Mefenamic_acid\nPO SD 500 mg\n2019-08-19 10:32"
+        }
+      ],
+      "Interactions": [
+        {
+          "Name": "UGT1A9-PH-41095",
+          "MoleculeName": "UGT1A9",
+          "CompoundName": "Mefenamic acid"
+        }
+      ]
+    }
+  ],
+  "ObservedData": [
+    {
+      "Name": "Rouini 2005 - Reference - Mefenamic acid - PO - 250 mg - Plasma - agg. (n=12)",
+      "ExtendedProperties": [
+        {
+          "Name": "DB Version",
+          "Value": "OSP DATABASE",
+          "Type": "String"
+        },
+        {
+          "Name": "ID",
+          "Value": 547.0,
+          "Type": "Double"
+        },
+        {
+          "Name": "Study Id",
+          "Value": "Rouini 2005",
+          "Type": "String"
+        },
+        {
+          "Name": "Reference",
+          "Value": "https://www.ncbi.nlm.nih.gov/pubmed/14698254",
+          "Type": "String"
+        },
+        {
+          "Name": "Source",
+          "Value": "Fig. 3",
+          "Type": "String"
+        },
+        {
+          "Name": "Grouping",
+          "Value": "Reference",
+          "Type": "String"
+        },
+        {
+          "Name": "Data type",
+          "Value": "aggregated",
+          "Type": "String"
+        },
+        {
+          "Name": "N",
+          "Value": 12.0,
+          "Type": "Double"
+        },
+        {
+          "Name": "Molecule",
+          "Value": "Mefenamic acid",
+          "Type": "String"
+        },
+        {
+          "Name": "Species",
+          "Value": "Human",
+          "Type": "String"
+        },
+        {
+          "Name": "Organ",
+          "Value": "Peripheral Venous Blood",
+          "Type": "String"
+        },
+        {
+          "Name": "Compartment",
+          "Value": "Plasma",
+          "Type": "String"
+        },
+        {
+          "Name": "Route",
+          "Value": "PO",
+          "Type": "String"
+        },
+        {
+          "Name": "Dose",
+          "Value": "250 mg",
+          "Type": "String"
+        },
+        {
+          "Name": "Times of Administration [h]",
+          "Value": 0.0,
+          "Type": "Double"
+        },
+        {
+          "Name": "Formulation",
+          "Value": "Ponstan capsule",
+          "Type": "String"
+        },
+        {
+          "Name": "Food state",
+          "Value": "Fasted",
+          "Type": "String"
+        },
+        {
+          "Name": "Comment",
+          "Value": ".",
+          "Type": "String"
+        }
+      ],
+      "Columns": [
+        {
+          "Name": "Avg",
+          "QuantityInfo": {
+            "Path": "Rouini 2005 - Reference - Mefenamic acid - PO - 250 mg - Plasma - agg. (n=12)|ObservedData|Peripheral Venous Blood|Plasma|Mefenamic acid|ArithmeticMean"
+          },
+          "DataInfo": {
+            "Origin": "Observation",
+            "AuxiliaryType": "Undefined",
+            "MolWeight": 241.29
+          },
+          "Values": [
+            1754.476,
+            2604.85864,
+            3079.284,
+            2542.199,
+            2345.269,
+            2067.775,
+            1566.496,
+            1101.023,
+            599.7443,
+            358.0563,
+            250.6394,
+            161.1253
+          ],
+          "Dimension": "Concentration (mass)",
+          "Unit": "µg/l"
+        }
+      ],
+      "BaseGrid": {
+        "Name": "Time",
+        "QuantityInfo": {
+          "Path": "Rouini 2005 - Reference - Mefenamic acid - PO - 250 mg - Plasma - agg. (n=12)|Time",
+          "Type": "Time"
+        },
+        "DataInfo": {
+          "Origin": "BaseGrid",
+          "AuxiliaryType": "Undefined"
+        },
+        "Values": [
+          0.5,
+          1.0,
+          1.5,
+          2.0,
+          2.5,
+          3.0,
+          3.5,
+          4.0,
+          5.0,
+          6.0,
+          8.0,
+          10.0
+        ],
+        "Dimension": "Time",
+        "Unit": "h"
+      }
+    },
+    {
+      "Name": "Mahadik 2012 - Reference - Mefenamic acid - PO - 250 mg - Plasma - agg. (n=12)",
+      "ExtendedProperties": [
+        {
+          "Name": "DB Version",
+          "Value": "OSP DATABASE",
+          "Type": "String"
+        },
+        {
+          "Name": "ID",
+          "Value": 548.0,
+          "Type": "Double"
+        },
+        {
+          "Name": "Study Id",
+          "Value": "Mahadik 2012",
+          "Type": "String"
+        },
+        {
+          "Name": "Reference",
+          "Value": "https://www.ncbi.nlm.nih.gov/pubmed/22275128",
+          "Type": "String"
+        },
+        {
+          "Name": "Source",
+          "Value": "Fig. 3",
+          "Type": "String"
+        },
+        {
+          "Name": "Grouping",
+          "Value": "Reference",
+          "Type": "String"
+        },
+        {
+          "Name": "Data type",
+          "Value": "aggregated",
+          "Type": "String"
+        },
+        {
+          "Name": "N",
+          "Value": 12.0,
+          "Type": "Double"
+        },
+        {
+          "Name": "Molecule",
+          "Value": "Mefenamic acid",
+          "Type": "String"
+        },
+        {
+          "Name": "Species",
+          "Value": "Human",
+          "Type": "String"
+        },
+        {
+          "Name": "Organ",
+          "Value": "Peripheral Venous Blood",
+          "Type": "String"
+        },
+        {
+          "Name": "Compartment",
+          "Value": "Plasma",
+          "Type": "String"
+        },
+        {
+          "Name": "Route",
+          "Value": "PO",
+          "Type": "String"
+        },
+        {
+          "Name": "Dose",
+          "Value": "250 mg",
+          "Type": "String"
+        },
+        {
+          "Name": "Times of Administration [h]",
+          "Value": 0.0,
+          "Type": "Double"
+        },
+        {
+          "Name": "Formulation",
+          "Value": "Capsule",
+          "Type": "String"
+        },
+        {
+          "Name": "Food state",
+          "Value": "Fasted",
+          "Type": "String"
+        },
+        {
+          "Name": "Comment",
+          "Value": ".",
+          "Type": "String"
+        }
+      ],
+      "Columns": [
+        {
+          "Name": "Avg",
+          "QuantityInfo": {
+            "Path": "Mahadik 2012 - Reference - Mefenamic acid - PO - 250 mg - Plasma - agg. (n=12)|ObservedData|Peripheral Venous Blood|Plasma|Mefenamic acid|ArithmeticMean"
+          },
+          "DataInfo": {
+            "Origin": "Observation",
+            "AuxiliaryType": "Undefined",
+            "MolWeight": 241.29
+          },
+          "Values": [
+            71.25891,
+            1128.26587,
+            1567.696,
+            1555.819,
+            1324.228,
+            1751.781,
+            1745.843,
+            1561.758,
+            2173.397,
+            1520.19,
+            1330.166,
+            1027.316,
+            587.886047,
+            415.677,
+            326.6033,
+            267.2209,
+            106.8884
+          ],
+          "Dimension": "Concentration (mass)",
+          "Unit": "µg/l"
+        }
+      ],
+      "BaseGrid": {
+        "Name": "Time",
+        "QuantityInfo": {
+          "Path": "Mahadik 2012 - Reference - Mefenamic acid - PO - 250 mg - Plasma - agg. (n=12)|Time",
+          "Type": "Time"
+        },
+        "DataInfo": {
+          "Origin": "BaseGrid",
+          "AuxiliaryType": "Undefined"
+        },
+        "Values": [
+          0.5,
+          1.0,
+          1.5,
+          2.0,
+          2.5,
+          3.0,
+          3.5,
+          4.0,
+          4.5,
+          5.0,
+          5.5,
+          6.0,
+          7.0,
+          8.0,
+          10.0,
+          12.0,
+          16.0
+        ],
+        "Dimension": "Time",
+        "Unit": "h"
+      }
+    },
+    {
+      "Name": "Hamaguchi 1987 - Treatment 1 - fasted with 50 mL of water - Mefenamic acid - PO - 250 mg - Plasma - agg. (n=4)",
+      "ExtendedProperties": [
+        {
+          "Name": "DB Version",
+          "Value": "OSP DATABASE",
+          "Type": "String"
+        },
+        {
+          "Name": "ID",
+          "Value": 588.0,
+          "Type": "Double"
+        },
+        {
+          "Name": "Study Id",
+          "Value": "Hamaguchi 1987",
+          "Type": "String"
+        },
+        {
+          "Name": "Reference",
+          "Value": "https://www.ncbi.nlm.nih.gov/pubmed/3783459",
+          "Type": "String"
+        },
+        {
+          "Name": "Source",
+          "Value": "Tab. 1",
+          "Type": "String"
+        },
+        {
+          "Name": "Grouping",
+          "Value": "Treatment 1 - fasted with 50 mL of water",
+          "Type": "String"
+        },
+        {
+          "Name": "Data type",
+          "Value": "aggregated",
+          "Type": "String"
+        },
+        {
+          "Name": "N",
+          "Value": 4.0,
+          "Type": "Double"
+        },
+        {
+          "Name": "Molecule",
+          "Value": "Mefenamic acid",
+          "Type": "String"
+        },
+        {
+          "Name": "Species",
+          "Value": "Human",
+          "Type": "String"
+        },
+        {
+          "Name": "Organ",
+          "Value": "Peripheral Venous Blood",
+          "Type": "String"
+        },
+        {
+          "Name": "Compartment",
+          "Value": "Plasma",
+          "Type": "String"
+        },
+        {
+          "Name": "Route",
+          "Value": "PO",
+          "Type": "String"
+        },
+        {
+          "Name": "Dose",
+          "Value": "250 mg",
+          "Type": "String"
+        },
+        {
+          "Name": "Times of Administration [h]",
+          "Value": 0.0,
+          "Type": "Double"
+        },
+        {
+          "Name": "Formulation",
+          "Value": "Spantac Capsule",
+          "Type": "String"
+        },
+        {
+          "Name": "Food state",
+          "Value": "Fasted",
+          "Type": "String"
+        },
+        {
+          "Name": "Comment",
+          "Value": ".",
+          "Type": "String"
+        }
+      ],
+      "Columns": [
+        {
+          "Name": "Avg",
+          "QuantityInfo": {
+            "Path": "Hamaguchi 1987 - Treatment 1 - fasted with 50 mL of water - Mefenamic acid - PO - 250 mg - Plasma - agg. (n=4)|ObservedData|Peripheral Venous Blood|Plasma|Mefenamic acid|ArithmeticMean"
+          },
+          "DataInfo": {
+            "Origin": "Observation",
+            "AuxiliaryType": "Undefined",
+            "MolWeight": 241.29
+          },
+          "Values": [
+            0.05,
+            0.44,
+            2.28,
+            2.68,
+            1.17,
+            0.3,
+            0.12,
+            0.01
+          ],
+          "Dimension": "Concentration (mass)",
+          "Unit": "mg/l"
+        }
+      ],
+      "BaseGrid": {
+        "Name": "Time",
+        "QuantityInfo": {
+          "Path": "Hamaguchi 1987 - Treatment 1 - fasted with 50 mL of water - Mefenamic acid - PO - 250 mg - Plasma - agg. (n=4)|Time",
+          "Type": "Time"
+        },
+        "DataInfo": {
+          "Origin": "BaseGrid",
+          "AuxiliaryType": "Undefined"
+        },
+        "Values": [
+          0.5,
+          1.0,
+          2.0,
+          3.0,
+          5.0,
+          7.0,
+          9.0,
+          24.0
+        ],
+        "Dimension": "Time",
+        "Unit": "h"
+      }
+    },
+    {
+      "Name": "Hamaguchi 1987 - Treatment 2 - fasted with 200 mL of water - Mefenamic acid - PO - 250 mg - Plasma - agg. (n=4)",
+      "ExtendedProperties": [
+        {
+          "Name": "DB Version",
+          "Value": "OSP DATABASE",
+          "Type": "String"
+        },
+        {
+          "Name": "ID",
+          "Value": 589.0,
+          "Type": "Double"
+        },
+        {
+          "Name": "Study Id",
+          "Value": "Hamaguchi 1987",
+          "Type": "String"
+        },
+        {
+          "Name": "Reference",
+          "Value": "https://www.ncbi.nlm.nih.gov/pubmed/3783459",
+          "Type": "String"
+        },
+        {
+          "Name": "Source",
+          "Value": "Tab. 1",
+          "Type": "String"
+        },
+        {
+          "Name": "Grouping",
+          "Value": "Treatment 2 - fasted with 200 mL of water",
+          "Type": "String"
+        },
+        {
+          "Name": "Data type",
+          "Value": "aggregated",
+          "Type": "String"
+        },
+        {
+          "Name": "N",
+          "Value": 4.0,
+          "Type": "Double"
+        },
+        {
+          "Name": "Molecule",
+          "Value": "Mefenamic acid",
+          "Type": "String"
+        },
+        {
+          "Name": "Species",
+          "Value": "Human",
+          "Type": "String"
+        },
+        {
+          "Name": "Organ",
+          "Value": "Peripheral Venous Blood",
+          "Type": "String"
+        },
+        {
+          "Name": "Compartment",
+          "Value": "Plasma",
+          "Type": "String"
+        },
+        {
+          "Name": "Route",
+          "Value": "PO",
+          "Type": "String"
+        },
+        {
+          "Name": "Dose",
+          "Value": "250 mg",
+          "Type": "String"
+        },
+        {
+          "Name": "Times of Administration [h]",
+          "Value": 0.0,
+          "Type": "Double"
+        },
+        {
+          "Name": "Formulation",
+          "Value": "Spantac Capsule",
+          "Type": "String"
+        },
+        {
+          "Name": "Food state",
+          "Value": "Fasted",
+          "Type": "String"
+        },
+        {
+          "Name": "Comment",
+          "Value": ".",
+          "Type": "String"
+        }
+      ],
+      "Columns": [
+        {
+          "Name": "Avg",
+          "QuantityInfo": {
+            "Path": "Hamaguchi 1987 - Treatment 2 - fasted with 200 mL of water - Mefenamic acid - PO - 250 mg - Plasma - agg. (n=4)|ObservedData|Peripheral Venous Blood|Plasma|Mefenamic acid|ArithmeticMean"
+          },
+          "DataInfo": {
+            "Origin": "Observation",
+            "AuxiliaryType": "Undefined",
+            "MolWeight": 241.29
+          },
+          "Values": [
+            1510.0,
+            2130.00024,
+            2130.00024,
+            1390.0,
+            700.0,
+            170.0,
+            80.0,
+            29.9999981
+          ],
+          "Dimension": "Concentration (mass)",
+          "Unit": "µg/l"
+        }
+      ],
+      "BaseGrid": {
+        "Name": "Time",
+        "QuantityInfo": {
+          "Path": "Hamaguchi 1987 - Treatment 2 - fasted with 200 mL of water - Mefenamic acid - PO - 250 mg - Plasma - agg. (n=4)|Time",
+          "Type": "Time"
+        },
+        "DataInfo": {
+          "Origin": "BaseGrid",
+          "AuxiliaryType": "Undefined"
+        },
+        "Values": [
+          0.5,
+          1.0,
+          2.0,
+          3.0,
+          5.0,
+          7.0,
+          9.0,
+          24.0
+        ],
+        "Dimension": "Time",
+        "Unit": "h"
+      }
+    },
+    {
+      "Name": "Hamaguchi 1987 - Treatment 3 - fasted with 500 mL of water - Mefenamic acid - PO - 250 mg - Plasma - agg. (n=4)",
+      "ExtendedProperties": [
+        {
+          "Name": "DB Version",
+          "Value": "OSP DATABASE",
+          "Type": "String"
+        },
+        {
+          "Name": "ID",
+          "Value": 590.0,
+          "Type": "Double"
+        },
+        {
+          "Name": "Study Id",
+          "Value": "Hamaguchi 1987",
+          "Type": "String"
+        },
+        {
+          "Name": "Reference",
+          "Value": "https://www.ncbi.nlm.nih.gov/pubmed/3783459",
+          "Type": "String"
+        },
+        {
+          "Name": "Source",
+          "Value": "Tab. 1",
+          "Type": "String"
+        },
+        {
+          "Name": "Grouping",
+          "Value": "Treatment 3 - fasted with 500 mL of water",
+          "Type": "String"
+        },
+        {
+          "Name": "Data type",
+          "Value": "aggregated",
+          "Type": "String"
+        },
+        {
+          "Name": "N",
+          "Value": 4.0,
+          "Type": "Double"
+        },
+        {
+          "Name": "Molecule",
+          "Value": "Mefenamic acid",
+          "Type": "String"
+        },
+        {
+          "Name": "Species",
+          "Value": "Human",
+          "Type": "String"
+        },
+        {
+          "Name": "Organ",
+          "Value": "Peripheral Venous Blood",
+          "Type": "String"
+        },
+        {
+          "Name": "Compartment",
+          "Value": "Plasma",
+          "Type": "String"
+        },
+        {
+          "Name": "Route",
+          "Value": "PO",
+          "Type": "String"
+        },
+        {
+          "Name": "Dose",
+          "Value": "250 mg",
+          "Type": "String"
+        },
+        {
+          "Name": "Times of Administration [h]",
+          "Value": 0.0,
+          "Type": "Double"
+        },
+        {
+          "Name": "Formulation",
+          "Value": "Spantac Capsule",
+          "Type": "String"
+        },
+        {
+          "Name": "Food state",
+          "Value": "Fasted",
+          "Type": "String"
+        },
+        {
+          "Name": "Comment",
+          "Value": ".",
+          "Type": "String"
+        }
+      ],
+      "Columns": [
+        {
+          "Name": "Avg",
+          "QuantityInfo": {
+            "Path": "Hamaguchi 1987 - Treatment 3 - fasted with 500 mL of water - Mefenamic acid - PO - 250 mg - Plasma - agg. (n=4)|ObservedData|Peripheral Venous Blood|Plasma|Mefenamic acid|ArithmeticMean"
+          },
+          "DataInfo": {
+            "Origin": "Observation",
+            "AuxiliaryType": "Undefined",
+            "MolWeight": 241.29
+          },
+          "Values": [
+            0.01,
+            1.06,
+            1.08,
+            0.64,
+            0.42,
+            0.16,
+            0.12,
+            0.04
+          ],
+          "Dimension": "Concentration (mass)",
+          "Unit": "mg/l"
+        }
+      ],
+      "BaseGrid": {
+        "Name": "Time",
+        "QuantityInfo": {
+          "Path": "Hamaguchi 1987 - Treatment 3 - fasted with 500 mL of water - Mefenamic acid - PO - 250 mg - Plasma - agg. (n=4)|Time",
+          "Type": "Time"
+        },
+        "DataInfo": {
+          "Origin": "BaseGrid",
+          "AuxiliaryType": "Undefined"
+        },
+        "Values": [
+          0.5,
+          1.0,
+          2.0,
+          3.0,
+          5.0,
+          7.0,
+          9.0,
+          24.0
+        ],
+        "Dimension": "Time",
+        "Unit": "h"
+      }
+    },
+    {
+      "Name": "Hamaguchi 1987 - Treatment 4 - fed with 50 mL of water - Mefenamic acid - PO - 250 mg - Plasma - agg. (n=4)",
+      "ExtendedProperties": [
+        {
+          "Name": "DB Version",
+          "Value": "OSP DATABASE",
+          "Type": "String"
+        },
+        {
+          "Name": "ID",
+          "Value": 591.0,
+          "Type": "Double"
+        },
+        {
+          "Name": "Study Id",
+          "Value": "Hamaguchi 1987",
+          "Type": "String"
+        },
+        {
+          "Name": "Reference",
+          "Value": "https://www.ncbi.nlm.nih.gov/pubmed/3783459",
+          "Type": "String"
+        },
+        {
+          "Name": "Source",
+          "Value": "Tab. 1",
+          "Type": "String"
+        },
+        {
+          "Name": "Grouping",
+          "Value": "Treatment 4 - fed with 50 mL of water",
+          "Type": "String"
+        },
+        {
+          "Name": "Data type",
+          "Value": "aggregated",
+          "Type": "String"
+        },
+        {
+          "Name": "N",
+          "Value": 4.0,
+          "Type": "Double"
+        },
+        {
+          "Name": "Molecule",
+          "Value": "Mefenamic acid",
+          "Type": "String"
+        },
+        {
+          "Name": "Species",
+          "Value": "Human",
+          "Type": "String"
+        },
+        {
+          "Name": "Organ",
+          "Value": "Peripheral Venous Blood",
+          "Type": "String"
+        },
+        {
+          "Name": "Compartment",
+          "Value": "Plasma",
+          "Type": "String"
+        },
+        {
+          "Name": "Route",
+          "Value": "PO",
+          "Type": "String"
+        },
+        {
+          "Name": "Dose",
+          "Value": "250 mg",
+          "Type": "String"
+        },
+        {
+          "Name": "Times of Administration [h]",
+          "Value": 0.0,
+          "Type": "Double"
+        },
+        {
+          "Name": "Formulation",
+          "Value": "Spantac Capsule",
+          "Type": "String"
+        },
+        {
+          "Name": "Food state",
+          "Value": "Fed",
+          "Type": "String"
+        },
+        {
+          "Name": "Comment",
+          "Value": ".",
+          "Type": "String"
+        }
+      ],
+      "Columns": [
+        {
+          "Name": "Avg",
+          "QuantityInfo": {
+            "Path": "Hamaguchi 1987 - Treatment 4 - fed with 50 mL of water - Mefenamic acid - PO - 250 mg - Plasma - agg. (n=4)|ObservedData|Peripheral Venous Blood|Plasma|Mefenamic acid|ArithmeticMean"
+          },
+          "DataInfo": {
+            "Origin": "Observation",
+            "AuxiliaryType": "Undefined",
+            "MolWeight": 241.29
+          },
+          "Values": [
+            0.07,
+            1.01,
+            2.86,
+            2.25,
+            0.71,
+            0.24,
+            16.0,
+            0.03
+          ],
+          "Dimension": "Concentration (mass)",
+          "Unit": "mg/l"
+        }
+      ],
+      "BaseGrid": {
+        "Name": "Time",
+        "QuantityInfo": {
+          "Path": "Hamaguchi 1987 - Treatment 4 - fed with 50 mL of water - Mefenamic acid - PO - 250 mg - Plasma - agg. (n=4)|Time",
+          "Type": "Time"
+        },
+        "DataInfo": {
+          "Origin": "BaseGrid",
+          "AuxiliaryType": "Undefined"
+        },
+        "Values": [
+          0.5,
+          1.0,
+          2.0,
+          3.0,
+          5.0,
+          7.0,
+          9.0,
+          24.0
+        ],
+        "Dimension": "Time",
+        "Unit": "h"
+      }
+    },
+    {
+      "Name": "Goosen 2017 - 500 mg SD - Mefenamic acid - PO - 500 mg - Plasma - agg.",
+      "ExtendedProperties": [
+        {
+          "Name": "DB Version",
+          "Value": "OSP DATABASE",
+          "Type": "String"
+        },
+        {
+          "Name": "ID",
+          "Value": 690.0,
+          "Type": "Double"
+        },
+        {
+          "Name": "Study Id",
+          "Value": "Goosen 2017",
+          "Type": "String"
+        },
+        {
+          "Name": "Reference",
+          "Value": "https://www.ifscomm.org/wp-content/uploads/2015/04/2017-06-21-GOOSEN_UGT-DDI_FINAL.pdf",
+          "Type": "String"
+        },
+        {
+          "Name": "Source",
+          "Value": "Slide 22",
+          "Type": "String"
+        },
+        {
+          "Name": "Grouping",
+          "Value": "500 mg SD",
+          "Type": "String"
+        },
+        {
+          "Name": "Data type",
+          "Value": "aggregated",
+          "Type": "String"
+        },
+        {
+          "Name": "N",
+          "Value": "n/a",
+          "Type": "String"
+        },
+        {
+          "Name": "Molecule",
+          "Value": "Mefenamic acid",
+          "Type": "String"
+        },
+        {
+          "Name": "Species",
+          "Value": "Human",
+          "Type": "String"
+        },
+        {
+          "Name": "Organ",
+          "Value": "Peripheral Venous Blood",
+          "Type": "String"
+        },
+        {
+          "Name": "Compartment",
+          "Value": "Plasma",
+          "Type": "String"
+        },
+        {
+          "Name": "Route",
+          "Value": "PO",
+          "Type": "String"
+        },
+        {
+          "Name": "Dose",
+          "Value": "500 mg",
+          "Type": "String"
+        },
+        {
+          "Name": "Times of Administration [h]",
+          "Value": 0.0,
+          "Type": "Double"
+        },
+        {
+          "Name": "Formulation",
+          "Value": ".",
+          "Type": "String"
+        },
+        {
+          "Name": "Food state",
+          "Value": ".",
+          "Type": "String"
+        },
+        {
+          "Name": "Comment",
+          "Value": ".",
+          "Type": "String"
+        }
+      ],
+      "Columns": [
+        {
+          "Name": "Avg",
+          "QuantityInfo": {
+            "Path": "Goosen 2017 - 500 mg SD - Mefenamic acid - PO - 500 mg - Plasma - agg.|ObservedData|Peripheral Venous Blood|Plasma|Mefenamic acid|ArithmeticMean"
+          },
+          "DataInfo": {
+            "Origin": "Observation",
+            "AuxiliaryType": "Undefined",
+            "MolWeight": 241.29
+          },
+          "Values": [
+            1006.74109,
+            2292.184,
+            3515.76,
+            4538.129,
+            5188.796,
+            6102.819,
+            5886.691,
+            2093.787,
+            872.3136
+          ],
+          "Dimension": "Concentration (mass)",
+          "Unit": "µg/l"
+        }
+      ],
+      "BaseGrid": {
+        "Name": "Time",
+        "QuantityInfo": {
+          "Path": "Goosen 2017 - 500 mg SD - Mefenamic acid - PO - 500 mg - Plasma - agg.|Time",
+          "Type": "Time"
+        },
+        "DataInfo": {
+          "Origin": "BaseGrid",
+          "AuxiliaryType": "Undefined"
+        },
+        "Values": [
+          0.25,
+          0.5,
+          0.75,
+          1.0,
+          1.5,
+          2.0,
+          3.0,
+          5.0,
+          8.0
+        ],
+        "Dimension": "Time",
+        "Unit": "h"
+      }
+    }
+  ],
+  "ObservedDataClassifications": [
+    {
+      "Name": "Mefenamic acid",
+      "Classifications": [
+        {
+          "Name": "Rouini 2005",
+          "Classifiables": [
+            "Rouini 2005 - Reference - Mefenamic acid - PO - 250 mg - Plasma - agg. (n=12)"
+          ]
+        },
+        {
+          "Name": "Mahadik 2012",
+          "Classifiables": [
+            "Mahadik 2012 - Reference - Mefenamic acid - PO - 250 mg - Plasma - agg. (n=12)"
+          ]
+        },
+        {
+          "Name": "Hamaguchi 1987",
+          "Classifications": [
+            {
+              "Name": "Treatment 1 - fasted with 50 mL of water",
+              "Classifiables": [
+                "Hamaguchi 1987 - Treatment 1 - fasted with 50 mL of water - Mefenamic acid - PO - 250 mg - Plasma - agg. (n=4)"
+              ]
+            },
+            {
+              "Name": "Treatment 2 - fasted with 200 mL of water",
+              "Classifiables": [
+                "Hamaguchi 1987 - Treatment 2 - fasted with 200 mL of water - Mefenamic acid - PO - 250 mg - Plasma - agg. (n=4)"
+              ]
+            },
+            {
+              "Name": "Treatment 3 - fasted with 500 mL of water",
+              "Classifiables": [
+                "Hamaguchi 1987 - Treatment 3 - fasted with 500 mL of water - Mefenamic acid - PO - 250 mg - Plasma - agg. (n=4)"
+              ]
+            },
+            {
+              "Name": "Treatment 4 - fed with 50 mL of water",
+              "Classifiables": [
+                "Hamaguchi 1987 - Treatment 4 - fed with 50 mL of water - Mefenamic acid - PO - 250 mg - Plasma - agg. (n=4)"
+              ]
+            }
+          ]
+        },
+        {
+          "Name": "Goosen 2017",
+          "Classifiables": [
+            "Goosen 2017 - 500 mg SD - Mefenamic acid - PO - 500 mg - Plasma - agg."
+          ]
+        }
+      ]
+    }
+  ]
+}

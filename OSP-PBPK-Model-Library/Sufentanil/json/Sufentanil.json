@@ -1,0 +1,1557 @@
+{
+  "Version": 80,
+  "ExpressionProfiles": [
+    {
+      "Type": "Enzyme",
+      "Species": "Human",
+      "Molecule": "CYP3A4",
+      "Category": "Healthy",
+      "Parameters": [
+        {
+          "Path": "CYP3A4|Reference concentration",
+          "Value": 4.32,
+          "Unit": "µmol/l"
+        },
+        {
+          "Path": "CYP3A4|t1/2 (intestine)",
+          "Value": 23.0,
+          "Unit": "h"
+        },
+        {
+          "Path": "CYP3A4|t1/2 (liver)",
+          "Value": 36.0,
+          "Unit": "h",
+          "ValueOrigin": {
+            "Source": "Unknown"
+          }
+        },
+        {
+          "Path": "Organism|Brain|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.0041682898325
+        },
+        {
+          "Path": "Organism|Gonads|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.00078691079081
+        },
+        {
+          "Path": "Organism|Kidney|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.0053603428126
+        },
+        {
+          "Path": "Organism|Liver|Pericentral|Intracellular|CYP3A4|Relative expression",
+          "Value": 1.0
+        },
+        {
+          "Path": "Organism|Liver|Periportal|Intracellular|CYP3A4|Relative expression",
+          "Value": 1.0
+        },
+        {
+          "Path": "Organism|Lung|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.00042695753798
+        },
+        {
+          "Path": "Organism|SmallIntestine|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.0727697702
+        },
+        {
+          "Path": "Organism|SmallIntestine|Mucosa|Duodenum|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.0727697702
+        },
+        {
+          "Path": "Organism|SmallIntestine|Mucosa|LowerIleum|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.0727697702
+        },
+        {
+          "Path": "Organism|SmallIntestine|Mucosa|LowerJejunum|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.0727697702
+        },
+        {
+          "Path": "Organism|SmallIntestine|Mucosa|UpperIleum|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.0727697702
+        },
+        {
+          "Path": "Organism|SmallIntestine|Mucosa|UpperJejunum|Intracellular|CYP3A4|Relative expression",
+          "Value": 0.0727697702
+        }
+      ],
+      "Localization": "Intracellular, BloodCellsIntracellular, VascEndosome",
+      "Ontogeny": {
+        "Name": "CYP3A4"
+      }
+    }
+  ],
+  "Individuals": [
+    {
+      "Name": "Bovill 1984",
+      "Seed": 290705616,
+      "OriginData": {
+        "CalculationMethods": [
+          "SurfaceAreaPlsInt_VAR1",
+          "Body surface area - Mosteller"
+        ],
+        "Species": "Human",
+        "Population": "European_ICRP_2002",
+        "Gender": "MALE",
+        "Age": {
+          "Value": 45.5,
+          "Unit": "year(s)"
+        },
+        "Weight": {
+          "Value": 71.1,
+          "Unit": "kg"
+        },
+        "ValueOrigin": {
+          "Source": "Publication",
+          "Method": "InVivo",
+          "Description": "Bovil 1984"
+        }
+      },
+      "ExpressionProfiles": [
+        "CYP3A4|Human|Healthy"
+      ]
+    },
+    {
+      "Name": "Taverne 1992",
+      "Seed": 291971798,
+      "OriginData": {
+        "CalculationMethods": [
+          "SurfaceAreaPlsInt_VAR1",
+          "Body surface area - Mosteller"
+        ],
+        "Species": "Human",
+        "Population": "European_ICRP_2002",
+        "Gender": "MALE",
+        "Age": {
+          "Value": 58.0,
+          "Unit": "year(s)"
+        },
+        "Weight": {
+          "Value": 66.0,
+          "Unit": "kg"
+        },
+        "Height": {
+          "Value": 166.0,
+          "Unit": "cm"
+        },
+        "ValueOrigin": {
+          "Source": "Publication",
+          "Method": "InVivo",
+          "Description": "Taverne 1992"
+        }
+      },
+      "ExpressionProfiles": [
+        "CYP3A4|Human|Healthy"
+      ]
+    },
+    {
+      "Name": "Willsie 2014",
+      "Seed": 292003888,
+      "OriginData": {
+        "CalculationMethods": [
+          "SurfaceAreaPlsInt_VAR1",
+          "Body surface area - Mosteller"
+        ],
+        "Species": "Human",
+        "Population": "European_ICRP_2002",
+        "Gender": "MALE",
+        "Age": {
+          "Value": 28.0,
+          "Unit": "year(s)"
+        },
+        "Weight": {
+          "Value": 75.0,
+          "Unit": "kg"
+        },
+        "Height": {
+          "Value": 170.0,
+          "Unit": "cm"
+        },
+        "ValueOrigin": {
+          "Source": "Publication",
+          "Method": "InVivo",
+          "Description": "Wilsie 2014"
+        }
+      },
+      "ExpressionProfiles": [
+        "CYP3A4|Human|Healthy"
+      ]
+    }
+  ],
+  "Compounds": [
+    {
+      "Name": "Sufentanil",
+      "IsSmallMolecule": true,
+      "PlasmaProteinBindingPartner": "Glycoprotein",
+      "Lipophilicity": [
+        {
+          "Name": "Fitted LogP",
+          "Parameters": [
+            {
+              "Name": "Lipophilicity",
+              "Value": 2.896,
+              "Unit": "Log Units",
+              "ValueOrigin": {
+                "Source": "ParameterIdentification",
+                "Method": "ParameterIdentification"
+              }
+            }
+          ]
+        }
+      ],
+      "FractionUnbound": [
+        {
+          "Name": "Zhou et al. 2017",
+          "Species": "Human",
+          "Parameters": [
+            {
+              "Name": "Fraction unbound (plasma, reference value)",
+              "Value": 0.075,
+              "ValueOrigin": {
+                "Source": "Publication",
+                "Description": "Zhou et al. 2017"
+              }
+            }
+          ]
+        }
+      ],
+      "Solubility": [
+        {
+          "Name": "ROY,SD & FLYNN,GL (1988)",
+          "Parameters": [
+            {
+              "Name": "Solubility at reference pH",
+              "Value": 0.076,
+              "Unit": "mg/l",
+              "ValueOrigin": {
+                "Source": "Internet",
+                "Method": "Other",
+                "Description": "ROY,SD & FLYNN,GL (1988)"
+              }
+            },
+            {
+              "Name": "Reference pH",
+              "Value": 7.0,
+              "ValueOrigin": {
+                "Source": "Internet",
+                "Method": "Other",
+                "Description": "ROY,SD & FLYNN,GL (1988)"
+              }
+            }
+          ]
+        }
+      ],
+      "PkaTypes": [
+        {
+          "Type": "Base",
+          "Pka": 8.0,
+          "ValueOrigin": {
+            "Source": "Publication",
+            "Description": "Zhou et al. 2017"
+          }
+        }
+      ],
+      "Processes": [
+        {
+          "InternalName": "GlomerularFiltration",
+          "DataSource": "GFR",
+          "Species": "Human",
+          "Parameters": [
+            {
+              "Name": "GFR fraction",
+              "Value": 1.0,
+              "ValueOrigin": {
+                "Source": "Publication",
+                "Description": "Zhou et al. 2017"
+              }
+            }
+          ]
+        },
+        {
+          "InternalName": "MetabolizationIntrinsic_FirstOrder",
+          "DataSource": "Zhou et al. 2017",
+          "Species": "Human",
+          "Molecule": "CYP3A4",
+          "Parameters": [
+            {
+              "Name": "Intrinsic clearance",
+              "Value": 9.6138746106,
+              "Unit": "l/min",
+              "ValueOrigin": {
+                "Source": "ParameterIdentification",
+                "Method": "ParameterIdentification"
+              }
+            }
+          ]
+        }
+      ],
+      "CalculationMethods": [
+        "Cellular partition coefficient method - Schmitt",
+        "Cellular permeability - PK-Sim Standard"
+      ],
+      "Parameters": [
+        {
+          "Name": "Molecular weight",
+          "Value": 386.6,
+          "Unit": "g/mol",
+          "ValueOrigin": {
+            "Source": "Publication",
+            "Description": "Zhou et al. 2017"
+          }
+        }
+      ]
+    }
+  ],
+  "Protocols": [
+    {
+      "Name": "15µg dose IV",
+      "ApplicationType": "IntravenousBolus",
+      "DosingInterval": "Single",
+      "Parameters": [
+        {
+          "Name": "Start time",
+          "Value": 0.0,
+          "Unit": "h"
+        },
+        {
+          "Name": "InputDose",
+          "Value": 0.015,
+          "Unit": "mg"
+        }
+      ]
+    },
+    {
+      "Name": "150µg",
+      "ApplicationType": "IntravenousBolus",
+      "DosingInterval": "Single",
+      "Parameters": [
+        {
+          "Name": "Start time",
+          "Value": 0.0,
+          "Unit": "h"
+        },
+        {
+          "Name": "InputDose",
+          "Value": 0.15,
+          "Unit": "mg"
+        }
+      ]
+    },
+    {
+      "Name": "5µg/kg dose IV",
+      "ApplicationType": "IntravenousBolus",
+      "DosingInterval": "Single",
+      "Parameters": [
+        {
+          "Name": "Start time",
+          "Value": 0.0,
+          "Unit": "h"
+        },
+        {
+          "Name": "InputDose",
+          "Value": 0.005,
+          "Unit": "mg/kg"
+        }
+      ]
+    }
+  ],
+  "Simulations": [
+    {
+      "Name": "Bovill 1984",
+      "Model": "4Comp",
+      "ObservedData": [
+        "Bovill 1984 - mean - Sufentanil - IV - 5 mg/kg - Plasma - agg. (n=10)"
+      ],
+      "Solver": {},
+      "OutputSchema": [
+        {
+          "Parameters": [
+            {
+              "Name": "Start time",
+              "Value": 0.0,
+              "Unit": "h"
+            },
+            {
+              "Name": "End time",
+              "Value": 2.0,
+              "Unit": "h"
+            },
+            {
+              "Name": "Resolution",
+              "Value": 20.0,
+              "Unit": "pts/h"
+            }
+          ]
+        },
+        {
+          "Parameters": [
+            {
+              "Name": "Start time",
+              "Value": 2.0,
+              "Unit": "h"
+            },
+            {
+              "Name": "End time",
+              "Value": 8.0,
+              "Unit": "h",
+              "ValueOrigin": {
+                "Source": "Unknown"
+              }
+            },
+            {
+              "Name": "Resolution",
+              "Value": 4.0,
+              "Unit": "pts/h"
+            }
+          ]
+        }
+      ],
+      "OutputSelections": [
+        "Organism|PeripheralVenousBlood|Sufentanil|Plasma (Peripheral Venous Blood)"
+      ],
+      "OutputMappings": [
+        {
+          "Scaling": "Log",
+          "Path": "Bovill 1984|Organism|PeripheralVenousBlood|Sufentanil|Plasma (Peripheral Venous Blood)",
+          "ObservedData": "Bovill 1984 - mean - Sufentanil - IV - 5 mg/kg - Plasma - agg. (n=10)"
+        }
+      ],
+      "Individual": "Bovill 1984",
+      "Compounds": [
+        {
+          "Name": "Sufentanil",
+          "CalculationMethods": [
+            "Cellular partition coefficient method - Schmitt",
+            "Cellular permeability - PK-Sim Standard"
+          ],
+          "Processes": [
+            {
+              "Name": "CYP3A4-Zhou et al. 2017",
+              "MoleculeName": "CYP3A4"
+            },
+            {
+              "Name": "Glomerular Filtration-GFR",
+              "SystemicProcessType": "GFR"
+            }
+          ],
+          "Protocol": {
+            "Name": "5µg/kg dose IV"
+          }
+        }
+      ],
+      "HasResults": true,
+      "IndividualAnalyses": [
+        {
+          "Axes": [
+            {
+              "Unit": "h",
+              "Dimension": "Time",
+              "Type": "X",
+              "GridLines": false,
+              "Visible": true,
+              "DefaultColor": "#FFFFFF",
+              "DefaultLineStyle": "None",
+              "Scaling": "Linear",
+              "NumberMode": "Normal"
+            },
+            {
+              "Unit": "µg/l",
+              "Dimension": "Concentration (molar)",
+              "Type": "Y",
+              "GridLines": false,
+              "Visible": true,
+              "DefaultColor": "#FFFFFF",
+              "DefaultLineStyle": "Solid",
+              "Scaling": "Log",
+              "NumberMode": "Normal"
+            }
+          ],
+          "Curves": [
+            {
+              "Name": "Bovill 1984-Sufentanil-Peripheral Venous Blood-Plasma-Concentration",
+              "X": "Time",
+              "Y": "Bovill 1984|Organism|PeripheralVenousBlood|Sufentanil|Plasma (Peripheral Venous Blood)",
+              "CurveOptions": {
+                "Color": "#FF0000",
+                "LegendIndex": 1
+              }
+            },
+            {
+              "Name": "Bovill 1984 - mean - Sufentanil - IV - 5 mg/kg - Plasma - agg. (n=10)-Sufentanil-Peripheral Venous Blood-Plasma-ArithmeticMean",
+              "X": "Bovill 1984 - mean - Sufentanil - IV - 5 mg/kg - Plasma - agg. (n=10)|Time",
+              "Y": "Bovill 1984 - mean - Sufentanil - IV - 5 mg/kg - Plasma - agg. (n=10)|ObservedData|Peripheral Venous Blood|Plasma|Sufentanil|ArithmeticMean",
+              "CurveOptions": {
+                "Color": "#008000",
+                "LegendIndex": 4,
+                "LineStyle": "None",
+                "Symbol": "Circle"
+              }
+            }
+          ],
+          "Name": "Time Profile Analysis",
+          "FontAndSize": {
+            "ChartWidth": 600,
+            "ChartHeight": 400,
+            "Fonts": {
+              "AxisSize": 10,
+              "LegendSize": 8,
+              "TitleSize": 16,
+              "DescriptionSize": 12,
+              "OriginSize": 8,
+              "FontFamilyName": "Microsoft Sans Serif",
+              "WatermarkSize": 32
+            }
+          },
+          "Settings": {
+            "SideMarginsEnabled": true,
+            "LegendPosition": "RightInside",
+            "BackColor": "#00FFFFFF",
+            "DiagramBackColor": "#FFFFFF"
+          },
+          "OriginText": "Sufentanil\nBovill 1984\n2019-06-14 13:32"
+        },
+        {
+          "Axes": [
+            {
+              "Unit": "h",
+              "Dimension": "Time",
+              "Type": "X",
+              "GridLines": false,
+              "Visible": true,
+              "DefaultColor": "#FFFFFF",
+              "DefaultLineStyle": "None",
+              "Scaling": "Linear",
+              "NumberMode": "Normal"
+            },
+            {
+              "Unit": "µg/l",
+              "Dimension": "Concentration (molar)",
+              "Type": "Y",
+              "GridLines": false,
+              "Visible": true,
+              "DefaultColor": "#FFFFFF",
+              "DefaultLineStyle": "Solid",
+              "Scaling": "Linear",
+              "NumberMode": "Normal"
+            }
+          ],
+          "Curves": [
+            {
+              "Name": "Bovill 1984-Sufentanil-Peripheral Venous Blood-Plasma-Concentration",
+              "X": "Time",
+              "Y": "Bovill 1984|Organism|PeripheralVenousBlood|Sufentanil|Plasma (Peripheral Venous Blood)",
+              "CurveOptions": {
+                "Color": "#FF0000",
+                "LegendIndex": 1
+              }
+            },
+            {
+              "Name": "Bovill 1984 - mean - Sufentanil - IV - 5 mg/kg - Plasma - agg. (n=10)-Sufentanil-Peripheral Venous Blood-Plasma-ArithmeticMean",
+              "X": "Bovill 1984 - mean - Sufentanil - IV - 5 mg/kg - Plasma - agg. (n=10)|Time",
+              "Y": "Bovill 1984 - mean - Sufentanil - IV - 5 mg/kg - Plasma - agg. (n=10)|ObservedData|Peripheral Venous Blood|Plasma|Sufentanil|ArithmeticMean",
+              "CurveOptions": {
+                "Color": "#008000",
+                "LegendIndex": 4,
+                "LineStyle": "None",
+                "Symbol": "Circle"
+              }
+            }
+          ],
+          "Name": "Time Profile Analysis 1",
+          "FontAndSize": {
+            "ChartWidth": 600,
+            "ChartHeight": 400,
+            "Fonts": {
+              "AxisSize": 10,
+              "LegendSize": 8,
+              "TitleSize": 16,
+              "DescriptionSize": 12,
+              "OriginSize": 8,
+              "FontFamilyName": "Microsoft Sans Serif",
+              "WatermarkSize": 32
+            }
+          },
+          "Settings": {
+            "SideMarginsEnabled": true,
+            "LegendPosition": "RightInside",
+            "BackColor": "#00FFFFFF",
+            "DiagramBackColor": "#FFFFFF"
+          },
+          "OriginText": "Sufentanil\nBovill 1984\n2019-06-14 13:32"
+        }
+      ]
+    },
+    {
+      "Name": "Willsie 2014 adults IV",
+      "Model": "4Comp",
+      "ObservedData": [
+        "Willsie 2015 - mean - Sufentanil - IV - 15 µg - Plasma - agg. (n=25)"
+      ],
+      "Solver": {},
+      "OutputSchema": [
+        {
+          "Parameters": [
+            {
+              "Name": "Start time",
+              "Value": 0.0,
+              "Unit": "h"
+            },
+            {
+              "Name": "End time",
+              "Value": 2.0,
+              "Unit": "h"
+            },
+            {
+              "Name": "Resolution",
+              "Value": 20.0,
+              "Unit": "pts/h"
+            }
+          ]
+        },
+        {
+          "Parameters": [
+            {
+              "Name": "Start time",
+              "Value": 2.0,
+              "Unit": "h"
+            },
+            {
+              "Name": "End time",
+              "Value": 24.0,
+              "Unit": "h",
+              "ValueOrigin": {
+                "Source": "Unknown"
+              }
+            },
+            {
+              "Name": "Resolution",
+              "Value": 4.0,
+              "Unit": "pts/h"
+            }
+          ]
+        }
+      ],
+      "OutputSelections": [
+        "Organism|PeripheralVenousBlood|Sufentanil|Plasma (Peripheral Venous Blood)"
+      ],
+      "OutputMappings": [
+        {
+          "Scaling": "Log",
+          "Path": "Willsie 2014 adults IV|Organism|PeripheralVenousBlood|Sufentanil|Plasma (Peripheral Venous Blood)",
+          "ObservedData": "Willsie 2015 - mean - Sufentanil - IV - 15 µg - Plasma - agg. (n=25)"
+        }
+      ],
+      "Individual": "Willsie 2014",
+      "Compounds": [
+        {
+          "Name": "Sufentanil",
+          "CalculationMethods": [
+            "Cellular partition coefficient method - Schmitt",
+            "Cellular permeability - PK-Sim Standard"
+          ],
+          "Processes": [
+            {
+              "Name": "CYP3A4-Zhou et al. 2017",
+              "MoleculeName": "CYP3A4"
+            },
+            {
+              "Name": "Glomerular Filtration-GFR",
+              "SystemicProcessType": "GFR"
+            }
+          ],
+          "Protocol": {
+            "Name": "15µg dose IV"
+          }
+        }
+      ],
+      "HasResults": true,
+      "IndividualAnalyses": [
+        {
+          "Axes": [
+            {
+              "Unit": "h",
+              "Dimension": "Time",
+              "Type": "X",
+              "GridLines": false,
+              "Visible": true,
+              "DefaultColor": "#FFFFFF",
+              "DefaultLineStyle": "None",
+              "Scaling": "Linear",
+              "NumberMode": "Normal"
+            },
+            {
+              "Unit": "µg/l",
+              "Dimension": "Concentration (molar)",
+              "Type": "Y",
+              "GridLines": false,
+              "Visible": true,
+              "DefaultColor": "#FFFFFF",
+              "DefaultLineStyle": "Solid",
+              "Scaling": "Log",
+              "NumberMode": "Normal"
+            }
+          ],
+          "Curves": [
+            {
+              "Name": "Willsie 2014 adults IV-Sufentanil-Peripheral Venous Blood-Plasma-Concentration",
+              "X": "Time",
+              "Y": "Willsie 2014 adults IV|Organism|PeripheralVenousBlood|Sufentanil|Plasma (Peripheral Venous Blood)",
+              "CurveOptions": {
+                "Color": "#FF0000",
+                "LegendIndex": 1
+              }
+            },
+            {
+              "Name": "Willsie 2015 - mean - Sufentanil - IV - 15 µg - Plasma - agg. (n=25)-Sufentanil-Peripheral Venous Blood-Plasma-ArithmeticMean",
+              "X": "Willsie 2015 - mean - Sufentanil - IV - 15 µg - Plasma - agg. (n=25)|Time",
+              "Y": "Willsie 2015 - mean - Sufentanil - IV - 15 µg - Plasma - agg. (n=25)|ObservedData|Peripheral Venous Blood|Plasma|Sufentanil|ArithmeticMean",
+              "CurveOptions": {
+                "Color": "#008000",
+                "LegendIndex": 4,
+                "LineStyle": "None",
+                "Symbol": "Circle"
+              }
+            }
+          ],
+          "Name": "Time Profile Analysis",
+          "FontAndSize": {
+            "ChartWidth": 600,
+            "ChartHeight": 400,
+            "Fonts": {
+              "AxisSize": 10,
+              "LegendSize": 8,
+              "TitleSize": 16,
+              "DescriptionSize": 12,
+              "OriginSize": 8,
+              "FontFamilyName": "Microsoft Sans Serif",
+              "WatermarkSize": 32
+            }
+          },
+          "Settings": {
+            "SideMarginsEnabled": true,
+            "LegendPosition": "RightInside",
+            "BackColor": "#00FFFFFF",
+            "DiagramBackColor": "#FFFFFF"
+          },
+          "OriginText": "Sufentanil\nWillsie 2014 adults IV\n2019-06-14 13:33"
+        },
+        {
+          "Axes": [
+            {
+              "Unit": "h",
+              "Dimension": "Time",
+              "Type": "X",
+              "GridLines": false,
+              "Visible": true,
+              "DefaultColor": "#FFFFFF",
+              "DefaultLineStyle": "None",
+              "Scaling": "Linear",
+              "NumberMode": "Normal"
+            },
+            {
+              "Unit": "µg/l",
+              "Dimension": "Concentration (molar)",
+              "Type": "Y",
+              "GridLines": false,
+              "Visible": true,
+              "DefaultColor": "#FFFFFF",
+              "DefaultLineStyle": "Solid",
+              "Scaling": "Linear",
+              "NumberMode": "Normal"
+            }
+          ],
+          "Curves": [
+            {
+              "Name": "Willsie 2014 adults IV-Sufentanil-Peripheral Venous Blood-Plasma-Concentration",
+              "X": "Time",
+              "Y": "Willsie 2014 adults IV|Organism|PeripheralVenousBlood|Sufentanil|Plasma (Peripheral Venous Blood)",
+              "CurveOptions": {
+                "Color": "#FF0000",
+                "LegendIndex": 1
+              }
+            },
+            {
+              "Name": "Willsie 2015 - mean - Sufentanil - IV - 15 µg - Plasma - agg. (n=25)-Sufentanil-Peripheral Venous Blood-Plasma-ArithmeticMean",
+              "X": "Willsie 2015 - mean - Sufentanil - IV - 15 µg - Plasma - agg. (n=25)|Time",
+              "Y": "Willsie 2015 - mean - Sufentanil - IV - 15 µg - Plasma - agg. (n=25)|ObservedData|Peripheral Venous Blood|Plasma|Sufentanil|ArithmeticMean",
+              "CurveOptions": {
+                "Color": "#008000",
+                "LegendIndex": 4,
+                "LineStyle": "None",
+                "Symbol": "Circle"
+              }
+            }
+          ],
+          "Name": "Time Profile Analysis 1",
+          "FontAndSize": {
+            "ChartWidth": 600,
+            "ChartHeight": 400,
+            "Fonts": {
+              "AxisSize": 10,
+              "LegendSize": 8,
+              "TitleSize": 16,
+              "DescriptionSize": 12,
+              "OriginSize": 8,
+              "FontFamilyName": "Microsoft Sans Serif",
+              "WatermarkSize": 32
+            }
+          },
+          "Settings": {
+            "SideMarginsEnabled": true,
+            "LegendPosition": "RightInside",
+            "BackColor": "#00FFFFFF",
+            "DiagramBackColor": "#FFFFFF"
+          },
+          "OriginText": "Sufentanil\nWillsie 2014 adults IV\n2019-06-14 13:33"
+        }
+      ]
+    },
+    {
+      "Name": "Taverne 1992",
+      "Model": "4Comp",
+      "ObservedData": [
+        "Taverne 1992 - mean - Sufentanil - iv - 150 µg - Plasma - agg. (n=10)"
+      ],
+      "Solver": {},
+      "OutputSchema": [
+        {
+          "Parameters": [
+            {
+              "Name": "Start time",
+              "Value": 0.0,
+              "Unit": "h"
+            },
+            {
+              "Name": "End time",
+              "Value": 2.0,
+              "Unit": "h"
+            },
+            {
+              "Name": "Resolution",
+              "Value": 20.0,
+              "Unit": "pts/h"
+            }
+          ]
+        },
+        {
+          "Parameters": [
+            {
+              "Name": "Start time",
+              "Value": 2.0,
+              "Unit": "h"
+            },
+            {
+              "Name": "End time",
+              "Value": 6.0,
+              "Unit": "h",
+              "ValueOrigin": {
+                "Source": "Unknown"
+              }
+            },
+            {
+              "Name": "Resolution",
+              "Value": 4.0,
+              "Unit": "pts/h"
+            }
+          ]
+        }
+      ],
+      "OutputSelections": [
+        "Organism|PeripheralVenousBlood|Sufentanil|Plasma (Peripheral Venous Blood)"
+      ],
+      "OutputMappings": [
+        {
+          "Scaling": "Log",
+          "Path": "Taverne 1992|Organism|PeripheralVenousBlood|Sufentanil|Plasma (Peripheral Venous Blood)",
+          "ObservedData": "Taverne 1992 - mean - Sufentanil - iv - 150 µg - Plasma - agg. (n=10)"
+        }
+      ],
+      "Individual": "Taverne 1992",
+      "Compounds": [
+        {
+          "Name": "Sufentanil",
+          "CalculationMethods": [
+            "Cellular partition coefficient method - Schmitt",
+            "Cellular permeability - PK-Sim Standard"
+          ],
+          "Processes": [
+            {
+              "Name": "CYP3A4-Zhou et al. 2017",
+              "MoleculeName": "CYP3A4"
+            },
+            {
+              "Name": "Glomerular Filtration-GFR",
+              "SystemicProcessType": "GFR"
+            }
+          ],
+          "Protocol": {
+            "Name": "150µg"
+          }
+        }
+      ],
+      "HasResults": true,
+      "IndividualAnalyses": [
+        {
+          "Axes": [
+            {
+              "Unit": "h",
+              "Dimension": "Time",
+              "Type": "X",
+              "GridLines": false,
+              "Visible": true,
+              "DefaultColor": "#FFFFFF",
+              "DefaultLineStyle": "None",
+              "Scaling": "Linear",
+              "NumberMode": "Normal"
+            },
+            {
+              "Unit": "µg/l",
+              "Dimension": "Concentration (molar)",
+              "Type": "Y",
+              "GridLines": false,
+              "Visible": true,
+              "DefaultColor": "#FFFFFF",
+              "DefaultLineStyle": "Solid",
+              "Scaling": "Log",
+              "NumberMode": "Normal"
+            }
+          ],
+          "Curves": [
+            {
+              "Name": "Taverne 1992-Sufentanil-Peripheral Venous Blood-Plasma-Concentration",
+              "X": "Time",
+              "Y": "Taverne 1992|Organism|PeripheralVenousBlood|Sufentanil|Plasma (Peripheral Venous Blood)",
+              "CurveOptions": {
+                "Color": "#FF0000",
+                "LegendIndex": 1
+              }
+            },
+            {
+              "Name": "Taverne 1992 - mean - Sufentanil - iv - 150 µg - Plasma - agg. (n=10)-Sufentanil-Peripheral Venous Blood-Plasma-ArithmeticMean",
+              "X": "Taverne 1992 - mean - Sufentanil - iv - 150 µg - Plasma - agg. (n=10)|Time",
+              "Y": "Taverne 1992 - mean - Sufentanil - iv - 150 µg - Plasma - agg. (n=10)|ObservedData|Peripheral Venous Blood|Plasma|Sufentanil|ArithmeticMean",
+              "CurveOptions": {
+                "Color": "#0000FF",
+                "LegendIndex": 3,
+                "LineStyle": "None",
+                "Symbol": "Circle"
+              }
+            }
+          ],
+          "Name": "Time Profile Analysis",
+          "FontAndSize": {
+            "ChartWidth": 600,
+            "ChartHeight": 400,
+            "Fonts": {
+              "AxisSize": 10,
+              "LegendSize": 8,
+              "TitleSize": 16,
+              "DescriptionSize": 12,
+              "OriginSize": 8,
+              "FontFamilyName": "Microsoft Sans Serif",
+              "WatermarkSize": 32
+            }
+          },
+          "Settings": {
+            "SideMarginsEnabled": true,
+            "LegendPosition": "RightInside",
+            "BackColor": "#00FFFFFF",
+            "DiagramBackColor": "#FFFFFF"
+          },
+          "OriginText": "Sufentanil\nTaverne 1992 (for reporting)\n2020-06-17 16:59"
+        },
+        {
+          "Axes": [
+            {
+              "Unit": "h",
+              "Dimension": "Time",
+              "Type": "X",
+              "GridLines": false,
+              "Visible": true,
+              "DefaultColor": "#FFFFFF",
+              "DefaultLineStyle": "None",
+              "Scaling": "Linear",
+              "NumberMode": "Normal"
+            },
+            {
+              "Unit": "µg/l",
+              "Dimension": "Concentration (molar)",
+              "Type": "Y",
+              "GridLines": false,
+              "Visible": true,
+              "DefaultColor": "#FFFFFF",
+              "DefaultLineStyle": "Solid",
+              "Scaling": "Linear",
+              "NumberMode": "Normal"
+            }
+          ],
+          "Curves": [
+            {
+              "Name": "Taverne 1992-Sufentanil-Peripheral Venous Blood-Plasma-Concentration",
+              "X": "Time",
+              "Y": "Taverne 1992|Organism|PeripheralVenousBlood|Sufentanil|Plasma (Peripheral Venous Blood)",
+              "CurveOptions": {
+                "Color": "#FF0000",
+                "LegendIndex": 1
+              }
+            },
+            {
+              "Name": "Taverne 1992 - mean - Sufentanil - iv - 150 µg - Plasma - agg. (n=10)-Sufentanil-Peripheral Venous Blood-Plasma-ArithmeticMean",
+              "X": "Taverne 1992 - mean - Sufentanil - iv - 150 µg - Plasma - agg. (n=10)|Time",
+              "Y": "Taverne 1992 - mean - Sufentanil - iv - 150 µg - Plasma - agg. (n=10)|ObservedData|Peripheral Venous Blood|Plasma|Sufentanil|ArithmeticMean",
+              "CurveOptions": {
+                "Color": "#0000FF",
+                "LegendIndex": 3,
+                "LineStyle": "None",
+                "Symbol": "Circle"
+              }
+            }
+          ],
+          "Name": "Time Profile Analysis 1",
+          "FontAndSize": {
+            "ChartWidth": 600,
+            "ChartHeight": 400,
+            "Fonts": {
+              "AxisSize": 10,
+              "LegendSize": 8,
+              "TitleSize": 16,
+              "DescriptionSize": 12,
+              "OriginSize": 8,
+              "FontFamilyName": "Microsoft Sans Serif",
+              "WatermarkSize": 32
+            }
+          },
+          "Settings": {
+            "SideMarginsEnabled": true,
+            "LegendPosition": "RightInside",
+            "BackColor": "#00FFFFFF",
+            "DiagramBackColor": "#FFFFFF"
+          },
+          "OriginText": "Sufentanil\nTaverne 1992 (for reporting)\n2020-06-17 16:59"
+        }
+      ]
+    }
+  ],
+  "ObservedData": [
+    {
+      "Name": "Bovill 1984 - mean - Sufentanil - IV - 5 mg/kg - Plasma - agg. (n=10)",
+      "ExtendedProperties": [
+        {
+          "Name": "DB Version",
+          "Value": "OSP DATABASE",
+          "Type": "String"
+        },
+        {
+          "Name": "ID",
+          "Value": 5127.0,
+          "Type": "Double"
+        },
+        {
+          "Name": "Study Id",
+          "Value": "Bovill 1984",
+          "Type": "String"
+        },
+        {
+          "Name": "Reference",
+          "Value": "https://www.ncbi.nlm.nih.gov/pubmed/6238552",
+          "Type": "String"
+        },
+        {
+          "Name": "Source",
+          "Value": "Fig. 1",
+          "Type": "String"
+        },
+        {
+          "Name": "Grouping",
+          "Value": "mean",
+          "Type": "String"
+        },
+        {
+          "Name": "Data type",
+          "Value": "aggregated",
+          "Type": "String"
+        },
+        {
+          "Name": "N",
+          "Value": 10.0,
+          "Type": "Double"
+        },
+        {
+          "Name": "Molecule",
+          "Value": "Sufentanil",
+          "Type": "String"
+        },
+        {
+          "Name": "Species",
+          "Value": "Human",
+          "Type": "String"
+        },
+        {
+          "Name": "Organ",
+          "Value": "Peripheral Venous Blood",
+          "Type": "String"
+        },
+        {
+          "Name": "Compartment",
+          "Value": "Plasma",
+          "Type": "String"
+        },
+        {
+          "Name": "Route",
+          "Value": "IV",
+          "Type": "String"
+        },
+        {
+          "Name": "Dose",
+          "Value": "5 mg/kg",
+          "Type": "String"
+        },
+        {
+          "Name": "Times of Administration [h]",
+          "Value": 0.0,
+          "Type": "Double"
+        },
+        {
+          "Name": "Formulation",
+          "Value": "Sufentanil citrate solution (50µg/mL)",
+          "Type": "String"
+        },
+        {
+          "Name": "Food state",
+          "Value": ".",
+          "Type": "String"
+        },
+        {
+          "Name": "Comment",
+          "Value": "Arith. SEM converted to arith. SD",
+          "Type": "String"
+        }
+      ],
+      "Columns": [
+        {
+          "Name": "Avg",
+          "RelatedColumns": [
+            {
+              "Name": "Var",
+              "QuantityInfo": {
+                "Path": "Bovill 1984 - mean - Sufentanil - IV - 5 mg/kg - Plasma - agg. (n=10)|ObservedData|Peripheral Venous Blood|Plasma|Sufentanil|ArithmeticStdDev"
+              },
+              "DataInfo": {
+                "Origin": "ObservationAuxiliary",
+                "AuxiliaryType": "ArithmeticStdDev",
+                "MolWeight": 386.6
+              },
+              "Values": [
+                1.20631318E-08,
+                0.00253525563,
+                0.00114752946,
+                0.000844322145,
+                0.000628679467,
+                0.0006461709,
+                0.000367727975,
+                0.000227974728,
+                0.0001525337,
+                0.000157262926,
+                0.000101106016,
+                0.000104819221,
+                9.217967E-05,
+                9.996023E-05
+              ],
+              "Dimension": "Concentration (mass)",
+              "Unit": "mg/l"
+            }
+          ],
+          "QuantityInfo": {
+            "Path": "Bovill 1984 - mean - Sufentanil - IV - 5 mg/kg - Plasma - agg. (n=10)|ObservedData|Peripheral Venous Blood|Plasma|Sufentanil|ArithmeticMean"
+          },
+          "DataInfo": {
+            "Origin": "Observation",
+            "AuxiliaryType": "Undefined",
+            "MolWeight": 386.6
+          },
+          "Values": [
+            36.08743,
+            8.007425,
+            4.910575,
+            3.613063,
+            2.173929,
+            1.525026,
+            1.271378,
+            0.6630678,
+            0.4437596,
+            0.3495893,
+            0.2727615,
+            0.1989966,
+            0.1597985,
+            0.1385524
+          ],
+          "Dimension": "Concentration (mass)",
+          "Unit": "µg/l"
+        }
+      ],
+      "BaseGrid": {
+        "Name": "Time",
+        "QuantityInfo": {
+          "Path": "Bovill 1984 - mean - Sufentanil - IV - 5 mg/kg - Plasma - agg. (n=10)|Time",
+          "Type": "Time"
+        },
+        "DataInfo": {
+          "Origin": "BaseGrid",
+          "AuxiliaryType": "Undefined"
+        },
+        "Values": [
+          0.0167,
+          0.083,
+          0.167,
+          0.25,
+          0.5,
+          0.75,
+          1.0,
+          2.0,
+          3.0,
+          4.0,
+          5.0,
+          6.0,
+          7.0,
+          8.0
+        ],
+        "Dimension": "Time",
+        "Unit": "h"
+      }
+    },
+    {
+      "Name": "Willsie 2015 - mean - Sufentanil - IV - 15 µg - Plasma - agg. (n=25)",
+      "ExtendedProperties": [
+        {
+          "Name": "DB Version",
+          "Value": "OSP DATABASE",
+          "Type": "String"
+        },
+        {
+          "Name": "ID",
+          "Value": 5128.0,
+          "Type": "Double"
+        },
+        {
+          "Name": "Study Id",
+          "Value": "Willsie 2015",
+          "Type": "String"
+        },
+        {
+          "Name": "Reference",
+          "Value": "https://www.ncbi.nlm.nih.gov/pubmed/25544247",
+          "Type": "String"
+        },
+        {
+          "Name": "Source",
+          "Value": "Fig. 1",
+          "Type": "String"
+        },
+        {
+          "Name": "Grouping",
+          "Value": "mean",
+          "Type": "String"
+        },
+        {
+          "Name": "Data type",
+          "Value": "aggregated",
+          "Type": "String"
+        },
+        {
+          "Name": "N",
+          "Value": 25.0,
+          "Type": "Double"
+        },
+        {
+          "Name": "Molecule",
+          "Value": "Sufentanil",
+          "Type": "String"
+        },
+        {
+          "Name": "Species",
+          "Value": "Human",
+          "Type": "String"
+        },
+        {
+          "Name": "Organ",
+          "Value": "Peripheral Venous Blood",
+          "Type": "String"
+        },
+        {
+          "Name": "Compartment",
+          "Value": "Plasma",
+          "Type": "String"
+        },
+        {
+          "Name": "Route",
+          "Value": "IV",
+          "Type": "String"
+        },
+        {
+          "Name": "Dose",
+          "Value": "15 µg",
+          "Type": "String"
+        },
+        {
+          "Name": "Times of Administration [h]",
+          "Value": 0.0,
+          "Type": "Double"
+        },
+        {
+          "Name": "Formulation",
+          "Value": "Sufenta®",
+          "Type": "String"
+        },
+        {
+          "Name": "Food state",
+          "Value": ".",
+          "Type": "String"
+        },
+        {
+          "Name": "Comment",
+          "Value": ".",
+          "Type": "String"
+        }
+      ],
+      "Columns": [
+        {
+          "Name": "Avg",
+          "QuantityInfo": {
+            "Path": "Willsie 2015 - mean - Sufentanil - IV - 15 µg - Plasma - agg. (n=25)|ObservedData|Peripheral Venous Blood|Plasma|Sufentanil|ArithmeticMean"
+          },
+          "DataInfo": {
+            "Origin": "Observation",
+            "AuxiliaryType": "Undefined",
+            "MolWeight": 386.6
+          },
+          "Values": [
+            0.3239958,
+            0.2748004,
+            0.2256015,
+            0.1827272,
+            0.1138495,
+            0.08995116,
+            0.08151227,
+            0.05831169,
+            0.0477626473,
+            0.0322854221,
+            0.02594564,
+            0.01678016,
+            0.01323637,
+            0.006150492,
+            0.003280658,
+            0.002518425,
+            0.002459857,
+            0.001699322
+          ],
+          "Dimension": "Concentration (mass)",
+          "Unit": "µg/l"
+        }
+      ],
+      "BaseGrid": {
+        "Name": "Time",
+        "QuantityInfo": {
+          "Path": "Willsie 2015 - mean - Sufentanil - IV - 15 µg - Plasma - agg. (n=25)|Time",
+          "Type": "Time"
+        },
+        "DataInfo": {
+          "Origin": "BaseGrid",
+          "AuxiliaryType": "Undefined"
+        },
+        "Values": [
+          0.0166666675,
+          0.06666667,
+          0.116666667,
+          0.166666672,
+          0.25,
+          0.333333343,
+          0.5,
+          0.75,
+          1.0,
+          1.5,
+          2.0,
+          3.0,
+          4.0,
+          6.0,
+          8.0,
+          10.0,
+          12.0,
+          14.0
+        ],
+        "Dimension": "Time",
+        "Unit": "h"
+      }
+    },
+    {
+      "Name": "Taverne 1992 - mean - Sufentanil - iv - 150 µg - Plasma - agg. (n=10)",
+      "ExtendedProperties": [
+        {
+          "Name": "DB Version",
+          "Value": "OSP DATABASE",
+          "Type": "String"
+        },
+        {
+          "Name": "ID",
+          "Value": 5452.0,
+          "Type": "Double"
+        },
+        {
+          "Name": "Study Id",
+          "Value": "Taverne 1992",
+          "Type": "String"
+        },
+        {
+          "Name": "Reference",
+          "Value": "https://pubmed.ncbi.nlm.nih.gov/1387351/",
+          "Type": "String"
+        },
+        {
+          "Name": "Source",
+          "Value": "Fig.1",
+          "Type": "String"
+        },
+        {
+          "Name": "Grouping",
+          "Value": "mean",
+          "Type": "String"
+        },
+        {
+          "Name": "Data type",
+          "Value": "aggregated",
+          "Type": "String"
+        },
+        {
+          "Name": "N",
+          "Value": 10.0,
+          "Type": "Double"
+        },
+        {
+          "Name": "Molecule",
+          "Value": "Sufentanil",
+          "Type": "String"
+        },
+        {
+          "Name": "Species",
+          "Value": "Human",
+          "Type": "String"
+        },
+        {
+          "Name": "Organ",
+          "Value": "Peripheral Venous Blood",
+          "Type": "String"
+        },
+        {
+          "Name": "Compartment",
+          "Value": "Plasma",
+          "Type": "String"
+        },
+        {
+          "Name": "Route",
+          "Value": "iv",
+          "Type": "String"
+        },
+        {
+          "Name": "Dose",
+          "Value": "150 µg",
+          "Type": "String"
+        },
+        {
+          "Name": "Times of Administration [h]",
+          "Value": 0.0,
+          "Type": "Double"
+        },
+        {
+          "Name": "Formulation",
+          "Value": "Janssen Pharmaceutica (50µg/mL)",
+          "Type": "String"
+        },
+        {
+          "Name": "Food state",
+          "Value": ".",
+          "Type": "String"
+        },
+        {
+          "Name": "Comment",
+          "Value": ".",
+          "Type": "String"
+        }
+      ],
+      "Columns": [
+        {
+          "Name": "Avg",
+          "QuantityInfo": {
+            "Path": "Taverne 1992 - mean - Sufentanil - iv - 150 µg - Plasma - agg. (n=10)|ObservedData|Peripheral Venous Blood|Plasma|Sufentanil|ArithmeticMean"
+          },
+          "DataInfo": {
+            "Origin": "Observation",
+            "AuxiliaryType": "Undefined",
+            "MolWeight": 386.6
+          },
+          "Values": [
+            0.6509583,
+            0.7741397,
+            0.3842289,
+            0.2746671,
+            0.2106011,
+            0.1508382,
+            0.1138232,
+            0.1018748,
+            0.1035668,
+            0.1028565
+          ],
+          "Dimension": "Concentration (mass)",
+          "Unit": "µg/l"
+        }
+      ],
+      "BaseGrid": {
+        "Name": "Time",
+        "QuantityInfo": {
+          "Path": "Taverne 1992 - mean - Sufentanil - iv - 150 µg - Plasma - agg. (n=10)|Time",
+          "Type": "Time"
+        },
+        "DataInfo": {
+          "Origin": "BaseGrid",
+          "AuxiliaryType": "Undefined"
+        },
+        "Values": [
+          0.25,
+          0.3,
+          0.5,
+          0.75,
+          1.0,
+          1.5,
+          2.0,
+          2.5,
+          3.0,
+          5.63932
+        ],
+        "Dimension": "Time",
+        "Unit": "h"
+      }
+    }
+  ],
+  "ObservedDataClassifications": [
+    {
+      "Name": "Adults",
+      "Classifiables": [
+        "Bovill 1984 - mean - Sufentanil - IV - 5 mg/kg - Plasma - agg. (n=10)",
+        "Willsie 2015 - mean - Sufentanil - IV - 15 µg - Plasma - agg. (n=25)",
+        "Taverne 1992 - mean - Sufentanil - iv - 150 µg - Plasma - agg. (n=10)"
+      ]
+    }
+  ],
+  "SimulationClassifications": [
+    {
+      "Name": "Individual",
+      "Classifications": [
+        {
+          "Name": "Adults",
+          "Classifiables": [
+            "Bovill 1984",
+            "Willsie 2014 adults IV",
+            "Taverne 1992"
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,621 @@
+{
+  "Version": 80,
+  "Individuals": [
+    {
+      "Name": "Monkey",
+      "Seed": 1471738078,
+      "OriginData": {
+        "CalculationMethods": [
+          "SurfaceAreaPlsInt_VAR1"
+        ],
+        "Species": "Monkey"
+      },
+      "ExpressionProfiles": []
+    }
+  ],
+  "Compounds": [
+    {
+      "Name": "MEDI524YTE",
+      "IsSmallMolecule": false,
+      "Lipophilicity": [
+        {
+          "Name": "Measurement",
+          "Parameters": [
+            {
+              "Name": "Lipophilicity",
+              "Value": -5.0,
+              "Unit": "Log Units",
+              "ValueOrigin": {
+                "Source": "Other",
+                "Description": "/Dummy value not used in the simulation"
+              }
+            }
+          ]
+        }
+      ],
+      "FractionUnbound": [
+        {
+          "Name": "Measurement",
+          "Species": "Human",
+          "Parameters": [
+            {
+              "Name": "Fraction unbound (plasma, reference value)",
+              "Value": 1.0,
+              "ValueOrigin": {
+                "Source": "Other",
+                "Description": "Assumption"
+              }
+            }
+          ]
+        }
+      ],
+      "Solubility": [
+        {
+          "Name": "Measurement",
+          "Parameters": [
+            {
+              "Name": "Solubility at reference pH",
+              "Value": 9999.0,
+              "Unit": "mg/l",
+              "ValueOrigin": {
+                "Source": "Other",
+                "Description": "/Dummy value not used in the simulation"
+              }
+            },
+            {
+              "Name": "Reference pH",
+              "Value": 7.0,
+              "ValueOrigin": {
+                "Source": "Other",
+                "Description": "/Dummy value not used in the simulation"
+              }
+            }
+          ]
+        }
+      ],
+      "CalculationMethods": [
+        "Cellular partition coefficient method - PK-Sim Standard",
+        "Cellular permeability - PK-Sim Standard"
+      ],
+      "Parameters": [
+        {
+          "Name": "Molecular weight",
+          "Value": 150000.0,
+          "Unit": "g/mol",
+          "ValueOrigin": {
+            "Source": "Publication",
+            "Description": "Lobo2004"
+          }
+        },
+        {
+          "Name": "Radius (solute)",
+          "Value": 0.00534,
+          "Unit": "µm",
+          "ValueOrigin": {
+            "Id": 26,
+            "Source": "Publication",
+            "Description": "Taylor1984"
+          }
+        },
+        {
+          "Name": "Kd (FcRn) in endosomal space",
+          "Value": 0.134,
+          "Unit": "µmol/l",
+          "ValueOrigin": {
+            "Id": 26,
+            "Source": "Publication",
+            "Description": "Dall'Acqua2006"
+          }
+        }
+      ]
+    }
+  ],
+  "Protocols": [
+    {
+      "Name": "IV30mgkg",
+      "ApplicationType": "Intravenous",
+      "DosingInterval": "Single",
+      "Parameters": [
+        {
+          "Name": "Start time",
+          "Value": 0.0,
+          "Unit": "h"
+        },
+        {
+          "Name": "InputDose",
+          "Value": 30.0,
+          "Unit": "mg/kg"
+        },
+        {
+          "Name": "Infusion time",
+          "Value": 1.0,
+          "Unit": "s"
+        }
+      ]
+    }
+  ],
+  "Simulations": [
+    {
+      "Name": "Sim_MEDI524YTE",
+      "Model": "TwoPores",
+      "ObservedData": [
+        "DallAcqua2006_Engineered_IgG_PKSimImport.MEDI524YTE.Study A",
+        "DallAcqua2006_Engineered_IgG_PKSimImport.MEDI524YTE.StudyB"
+      ],
+      "Solver": {},
+      "OutputSchema": [
+        {
+          "Parameters": [
+            {
+              "Name": "Start time",
+              "Value": 0.0,
+              "Unit": "h"
+            },
+            {
+              "Name": "End time",
+              "Value": 2.0,
+              "Unit": "h"
+            },
+            {
+              "Name": "Resolution",
+              "Value": 20.0,
+              "Unit": "pts/h"
+            }
+          ]
+        },
+        {
+          "Parameters": [
+            {
+              "Name": "Start time",
+              "Value": 2.0,
+              "Unit": "h"
+            },
+            {
+              "Name": "End time",
+              "Value": 55.0,
+              "Unit": "day(s)",
+              "ValueOrigin": {
+                "Source": "Unknown"
+              }
+            },
+            {
+              "Name": "Resolution",
+              "Value": 4.0,
+              "Unit": "pts/h"
+            }
+          ]
+        }
+      ],
+      "Parameters": [
+        {
+          "Path": "Events|IV30mgkg|Application_1|ProtocolSchemaItem|Infusion time",
+          "Value": 0.0166666667,
+          "Unit": "min"
+        }
+      ],
+      "OutputSelections": [
+        "Organism|PeripheralVenousBlood|MEDI524YTE|Plasma (Peripheral Venous Blood)"
+      ],
+      "OutputMappings": [
+        {
+          "Scaling": "Log",
+          "Path": "Sim_MEDI524YTE|Organism|PeripheralVenousBlood|MEDI524YTE|Plasma (Peripheral Venous Blood)",
+          "ObservedData": "DallAcqua2006_Engineered_IgG_PKSimImport.MEDI524YTE.Study A"
+        },
+        {
+          "Scaling": "Log",
+          "Path": "Sim_MEDI524YTE|Organism|PeripheralVenousBlood|MEDI524YTE|Plasma (Peripheral Venous Blood)",
+          "ObservedData": "DallAcqua2006_Engineered_IgG_PKSimImport.MEDI524YTE.StudyB"
+        }
+      ],
+      "Individual": "Monkey",
+      "Compounds": [
+        {
+          "Name": "MEDI524YTE",
+          "CalculationMethods": [
+            "Cellular partition coefficient method - PK-Sim Standard",
+            "Cellular permeability - PK-Sim Standard"
+          ],
+          "Protocol": {
+            "Name": "IV30mgkg"
+          }
+        }
+      ],
+      "HasResults": true,
+      "IndividualAnalyses": [
+        {
+          "Axes": [
+            {
+              "Unit": "h",
+              "Dimension": "Time",
+              "Type": "X",
+              "GridLines": false,
+              "Visible": true,
+              "DefaultColor": "#FFFFFF",
+              "DefaultLineStyle": "None",
+              "Scaling": "Linear",
+              "NumberMode": "Normal"
+            },
+            {
+              "Unit": "µmol/l",
+              "Dimension": "Concentration (molar)",
+              "Type": "Y",
+              "GridLines": false,
+              "Visible": true,
+              "DefaultColor": "#FFFFFF",
+              "DefaultLineStyle": "Solid",
+              "Scaling": "Linear",
+              "NumberMode": "Normal"
+            }
+          ],
+          "Curves": [
+            {
+              "Name": "MEDI524YTE-Peripheral Venous Blood-Plasma-Concentration",
+              "X": "Time",
+              "Y": "Sim_MEDI524YTE|Organism|PeripheralVenousBlood|MEDI524YTE|Plasma (Peripheral Venous Blood)",
+              "CurveOptions": {
+                "Color": "#FF0000",
+                "LegendIndex": 1
+              }
+            },
+            {
+              "Name": "DallAcqua2006_Study A-MEDI524YTE-Measurement",
+              "X": "DallAcqua2006_Engineered_IgG_PKSimImport.MEDI524YTE.Study A|Time",
+              "Y": "DallAcqua2006_Engineered_IgG_PKSimImport.MEDI524YTE.Study A|ObservedData|||MEDI524YTE|Measurement",
+              "CurveOptions": {
+                "Color": "#0000FF",
+                "LegendIndex": 2,
+                "LineStyle": "None",
+                "Symbol": "Circle"
+              }
+            },
+            {
+              "Name": "DallAcqua2006_StudyB-MEDI524YTE-Measurement",
+              "X": "DallAcqua2006_Engineered_IgG_PKSimImport.MEDI524YTE.StudyB|Time",
+              "Y": "DallAcqua2006_Engineered_IgG_PKSimImport.MEDI524YTE.StudyB|ObservedData|||MEDI524YTE|Measurement",
+              "CurveOptions": {
+                "Color": "#008000",
+                "LegendIndex": 3,
+                "LineStyle": "None",
+                "Symbol": "Circle"
+              }
+            }
+          ],
+          "Name": "Plasma concentration (linear scale)",
+          "FontAndSize": {
+            "Fonts": {
+              "AxisSize": 10,
+              "LegendSize": 8,
+              "TitleSize": 16,
+              "DescriptionSize": 12,
+              "OriginSize": 8,
+              "FontFamilyName": "Microsoft Sans Serif",
+              "WatermarkSize": 32
+            }
+          },
+          "Settings": {
+            "SideMarginsEnabled": true,
+            "LegendPosition": "RightInside",
+            "BackColor": "#FFFFFF",
+            "DiagramBackColor": "#FFFFFF"
+          },
+          "OriginText": "MEDI524YTE\nSim_MEDI524YTE\n2023-03-07 12:07"
+        },
+        {
+          "Axes": [
+            {
+              "Unit": "h",
+              "Dimension": "Time",
+              "Type": "X",
+              "GridLines": false,
+              "Visible": true,
+              "DefaultColor": "#FFFFFF",
+              "DefaultLineStyle": "None",
+              "Scaling": "Linear",
+              "NumberMode": "Normal"
+            },
+            {
+              "Unit": "µmol/l",
+              "Dimension": "Concentration (molar)",
+              "Type": "Y",
+              "GridLines": false,
+              "Visible": true,
+              "DefaultColor": "#FFFFFF",
+              "DefaultLineStyle": "Solid",
+              "Scaling": "Log",
+              "NumberMode": "Normal"
+            }
+          ],
+          "Curves": [
+            {
+              "Name": "MEDI524YTE-Peripheral Venous Blood-Plasma-Concentration",
+              "X": "Time",
+              "Y": "Sim_MEDI524YTE|Organism|PeripheralVenousBlood|MEDI524YTE|Plasma (Peripheral Venous Blood)",
+              "CurveOptions": {
+                "Color": "#FF0000",
+                "LegendIndex": 1
+              }
+            },
+            {
+              "Name": "DallAcqua2006_Engineered_IgG_PKSimImport.MEDI524YTE.Study A-MEDI524YTE-Measurement",
+              "X": "DallAcqua2006_Engineered_IgG_PKSimImport.MEDI524YTE.Study A|Time",
+              "Y": "DallAcqua2006_Engineered_IgG_PKSimImport.MEDI524YTE.Study A|ObservedData|||MEDI524YTE|Measurement",
+              "CurveOptions": {
+                "Color": "#0000FF",
+                "LegendIndex": 2,
+                "LineStyle": "None",
+                "Symbol": "Circle"
+              }
+            },
+            {
+              "Name": "DallAcqua2006_Engineered_IgG_PKSimImport.MEDI524YTE.StudyB-MEDI524YTE-Measurement",
+              "X": "DallAcqua2006_Engineered_IgG_PKSimImport.MEDI524YTE.StudyB|Time",
+              "Y": "DallAcqua2006_Engineered_IgG_PKSimImport.MEDI524YTE.StudyB|ObservedData|||MEDI524YTE|Measurement",
+              "CurveOptions": {
+                "Color": "#008000",
+                "LegendIndex": 3,
+                "LineStyle": "None",
+                "Symbol": "Circle"
+              }
+            }
+          ],
+          "Name": "Plasma concentration (log scale)",
+          "FontAndSize": {
+            "Fonts": {
+              "AxisSize": 10,
+              "LegendSize": 8,
+              "TitleSize": 16,
+              "DescriptionSize": 12,
+              "OriginSize": 8,
+              "FontFamilyName": "Microsoft Sans Serif",
+              "WatermarkSize": 32
+            }
+          },
+          "Settings": {
+            "SideMarginsEnabled": true,
+            "LegendPosition": "RightInside",
+            "BackColor": "#00FFFFFF",
+            "DiagramBackColor": "#FFFFFF"
+          },
+          "OriginText": "MEDI524YTE\nSim_MEDI524YTE\n2023-03-07 12:07"
+        }
+      ]
+    }
+  ],
+  "ObservedData": [
+    {
+      "Name": "DallAcqua2006_Engineered_IgG_PKSimImport.MEDI524YTE.Study A",
+      "ExtendedProperties": [
+        {
+          "Name": "Sheet",
+          "Value": "MEDI524YTE",
+          "Type": "String"
+        },
+        {
+          "Name": "Study Id",
+          "Value": "Study A",
+          "Type": "String"
+        },
+        {
+          "Name": "Molecule",
+          "Value": "MEDI524YTE",
+          "Type": "String"
+        },
+        {
+          "Name": "Organ",
+          "Value": "Peripheral Venous Blood",
+          "Type": "String"
+        },
+        {
+          "Name": "Compartment",
+          "Value": "Plasma",
+          "Type": "String"
+        },
+        {
+          "Name": "Species",
+          "Value": "Monkey",
+          "Type": "String"
+        }
+      ],
+      "Columns": [
+        {
+          "Name": "Measurement",
+          "RelatedColumns": [
+            {
+              "Name": "Error",
+              "QuantityInfo": {
+                "Path": "DallAcqua2006_Engineered_IgG_PKSimImport.MEDI524YTE.Study A|ObservedData|||MEDI524YTE|Error"
+              },
+              "DataInfo": {
+                "Origin": "ObservationAuxiliary",
+                "AuxiliaryType": "ArithmeticStdDev",
+                "MolWeight": 150000.0
+              },
+              "Values": [
+                0.0,
+                0.0,
+                39.87997,
+                20.58316,
+                20.583189,
+                20.58322,
+                21.8696613,
+                15.43741,
+                19.296751,
+                23.15613,
+                21.86969,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0
+              ],
+              "Dimension": "Concentration (mass)",
+              "Unit": "µg/ml"
+            }
+          ],
+          "QuantityInfo": {
+            "Path": "DallAcqua2006_Engineered_IgG_PKSimImport.MEDI524YTE.Study A|ObservedData|||MEDI524YTE|Measurement"
+          },
+          "DataInfo": {
+            "Origin": "Observation",
+            "AuxiliaryType": "Undefined",
+            "MolWeight": 150000.0
+          },
+          "Values": [
+            503.001678,
+            482.4185,
+            469.554016,
+            379.5026,
+            335.7633,
+            324.1852,
+            317.753,
+            281.732422,
+            254.71698,
+            261.1492,
+            237.9931,
+            235.4202,
+            200.6861,
+            192.9674,
+            144.082291,
+            109.3482,
+            63.0360222
+          ],
+          "Dimension": "Concentration (mass)",
+          "Unit": "mg/l"
+        }
+      ],
+      "BaseGrid": {
+        "Name": "Time",
+        "QuantityInfo": {
+          "Path": "DallAcqua2006_Engineered_IgG_PKSimImport.MEDI524YTE.Study A|Time",
+          "Type": "Time"
+        },
+        "DataInfo": {
+          "Origin": "BaseGrid",
+          "AuxiliaryType": "Undefined"
+        },
+        "Values": [
+          1.0,
+          4.0,
+          24.0,
+          48.0,
+          72.0,
+          96.0,
+          144.0,
+          192.0,
+          240.0,
+          288.0,
+          336.0,
+          384.0,
+          480.0,
+          576.0,
+          744.0,
+          984.0,
+          1320.0
+        ],
+        "Dimension": "Time",
+        "Unit": "h"
+      }
+    },
+    {
+      "Name": "DallAcqua2006_Engineered_IgG_PKSimImport.MEDI524YTE.StudyB",
+      "ExtendedProperties": [
+        {
+          "Name": "Sheet",
+          "Value": "MEDI524YTE",
+          "Type": "String"
+        },
+        {
+          "Name": "Study Id",
+          "Value": "StudyB",
+          "Type": "String"
+        },
+        {
+          "Name": "Molecule",
+          "Value": "MEDI524YTE",
+          "Type": "String"
+        },
+        {
+          "Name": "Organ",
+          "Value": "Peripheral Venous Blood",
+          "Type": "String"
+        },
+        {
+          "Name": "Compartment",
+          "Value": "Plasma",
+          "Type": "String"
+        },
+        {
+          "Name": "Species",
+          "Value": "Monkey",
+          "Type": "String"
+        }
+      ],
+      "Columns": [
+        {
+          "Name": "Measurement",
+          "RelatedColumns": [
+            {
+              "Name": "Error",
+              "QuantityInfo": {
+                "Path": "DallAcqua2006_Engineered_IgG_PKSimImport.MEDI524YTE.StudyB|ObservedData|||MEDI524YTE|Error"
+              },
+              "DataInfo": {
+                "Origin": "ObservationAuxiliary",
+                "AuxiliaryType": "ArithmeticStdDev",
+                "MolWeight": 150000.0
+              },
+              "Values": [
+                62.24493,
+                53.06122,
+                37.75513,
+                28.5714588,
+                31.63263
+              ],
+              "Dimension": "Concentration (mass)",
+              "Unit": "µg/ml"
+            }
+          ],
+          "QuantityInfo": {
+            "Path": "DallAcqua2006_Engineered_IgG_PKSimImport.MEDI524YTE.StudyB|ObservedData|||MEDI524YTE|Measurement"
+          },
+          "DataInfo": {
+            "Origin": "Observation",
+            "AuxiliaryType": "Undefined",
+            "MolWeight": 150000.0
+          },
+          "Values": [
+            489.795868,
+            373.4694,
+            280.6122,
+            216.3265,
+            160.2041
+          ],
+          "Dimension": "Concentration (mass)",
+          "Unit": "mg/l"
+        }
+      ],
+      "BaseGrid": {
+        "Name": "Time",
+        "QuantityInfo": {
+          "Path": "DallAcqua2006_Engineered_IgG_PKSimImport.MEDI524YTE.StudyB|Time",
+          "Type": "Time"
+        },
+        "DataInfo": {
+          "Origin": "BaseGrid",
+          "AuxiliaryType": "Undefined"
+        },
+        "Values": [
+          24.0,
+          96.0,
+          192.0,
+          336.0,
+          576.0
+        ],
+        "Dimension": "Time",
+        "Unit": "h"
+      }
+    }
+  ]
+}

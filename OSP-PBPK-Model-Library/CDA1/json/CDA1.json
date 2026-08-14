@@ -1,0 +1,1342 @@
+{
+  "Version": 80,
+  "Individuals": [
+    {
+      "Name": "Human_ICRP_male",
+      "Seed": 1822375,
+      "OriginData": {
+        "CalculationMethods": [
+          "SurfaceAreaPlsInt_VAR1",
+          "Body surface area - Mosteller"
+        ],
+        "Species": "Human",
+        "Population": "European_ICRP_2002",
+        "Gender": "MALE",
+        "Age": {
+          "Value": 30.0,
+          "Unit": "year(s)"
+        }
+      },
+      "ExpressionProfiles": []
+    }
+  ],
+  "Compounds": [
+    {
+      "Name": "CDA1",
+      "IsSmallMolecule": false,
+      "Lipophilicity": [
+        {
+          "Name": "Measurement",
+          "Parameters": [
+            {
+              "Name": "Lipophilicity",
+              "Value": -5.0,
+              "Unit": "Log Units",
+              "ValueOrigin": {
+                "Source": "Other",
+                "Description": "/Dummy value not used in the simulation"
+              }
+            }
+          ]
+        }
+      ],
+      "FractionUnbound": [
+        {
+          "Name": "Measurement",
+          "Species": "Human",
+          "Parameters": [
+            {
+              "Name": "Fraction unbound (plasma, reference value)",
+              "Value": 1.0,
+              "ValueOrigin": {
+                "Source": "Other",
+                "Description": "Assumption"
+              }
+            }
+          ]
+        }
+      ],
+      "Solubility": [
+        {
+          "Name": "Measurement",
+          "Parameters": [
+            {
+              "Name": "Solubility at reference pH",
+              "Value": 999.0,
+              "Unit": "mg/l",
+              "ValueOrigin": {
+                "Source": "Other",
+                "Description": "/Dummy value not used in the simulation"
+              }
+            },
+            {
+              "Name": "Reference pH",
+              "Value": 7.0,
+              "ValueOrigin": {
+                "Source": "Other",
+                "Description": "/Dummy value not used in the simulation"
+              }
+            }
+          ]
+        }
+      ],
+      "CalculationMethods": [
+        "Cellular partition coefficient method - PK-Sim Standard",
+        "Cellular permeability - PK-Sim Standard"
+      ],
+      "Parameters": [
+        {
+          "Name": "Molecular weight",
+          "Value": 150000.0,
+          "Unit": "g/mol",
+          "ValueOrigin": {
+            "Source": "Publication",
+            "Description": "Lobo2004"
+          }
+        },
+        {
+          "Name": "Radius (solute)",
+          "Value": 5.34,
+          "Unit": "nm",
+          "ValueOrigin": {
+            "Id": 26,
+            "Source": "Publication",
+            "Description": "Taylor1984"
+          }
+        },
+        {
+          "Name": "Kd (FcRn) in endosomal space",
+          "Value": 0.63,
+          "Unit": "µmol/l",
+          "ValueOrigin": {
+            "Id": 26,
+            "Source": "Publication",
+            "Description": "Zhou2003"
+          }
+        }
+      ]
+    }
+  ],
+  "Protocols": [
+    {
+      "Name": "20mgkg",
+      "DosingInterval": "Single",
+      "Schemas": [
+        {
+          "Name": "Schema 1",
+          "SchemaItems": [
+            {
+              "Name": "Schema Item 1",
+              "ApplicationType": "Intravenous",
+              "Parameters": [
+                {
+                  "Name": "Start time",
+                  "Value": 0.0,
+                  "Unit": "h"
+                },
+                {
+                  "Name": "InputDose",
+                  "Value": 1.2,
+                  "Unit": "mg/kg"
+                },
+                {
+                  "Name": "Infusion time",
+                  "Value": 30.0,
+                  "Unit": "min"
+                }
+              ]
+            }
+          ],
+          "Parameters": [
+            {
+              "Name": "Start time",
+              "Value": 0.0,
+              "Unit": "h"
+            },
+            {
+              "Name": "NumberOfRepetitions",
+              "Value": 1.0
+            },
+            {
+              "Name": "TimeBetweenRepetitions",
+              "Value": 0.0,
+              "Unit": "h"
+            }
+          ]
+        },
+        {
+          "Name": "Schema 2",
+          "SchemaItems": [
+            {
+              "Name": "Schema Item 1",
+              "ApplicationType": "Intravenous",
+              "Parameters": [
+                {
+                  "Name": "Start time",
+                  "Value": 0.0,
+                  "Unit": "h"
+                },
+                {
+                  "Name": "InputDose",
+                  "Value": 18.8,
+                  "Unit": "mg/kg"
+                },
+                {
+                  "Name": "Infusion time",
+                  "Value": 150.0,
+                  "Unit": "min"
+                }
+              ]
+            }
+          ],
+          "Parameters": [
+            {
+              "Name": "Start time",
+              "Value": 30.0,
+              "Unit": "min",
+              "ValueOrigin": {
+                "Source": "Unknown"
+              }
+            },
+            {
+              "Name": "NumberOfRepetitions",
+              "Value": 1.0
+            },
+            {
+              "Name": "TimeBetweenRepetitions",
+              "Value": 0.0,
+              "Unit": "h"
+            }
+          ]
+        }
+      ],
+      "TimeUnit": "h"
+    },
+    {
+      "Name": "5mgkg",
+      "ApplicationType": "Intravenous",
+      "DosingInterval": "Single",
+      "Parameters": [
+        {
+          "Name": "Start time",
+          "Value": 0.0,
+          "Unit": "h"
+        },
+        {
+          "Name": "InputDose",
+          "Value": 5.0,
+          "Unit": "mg/kg"
+        },
+        {
+          "Name": "Infusion time",
+          "Value": 120.0,
+          "Unit": "min"
+        }
+      ]
+    },
+    {
+      "Name": "10mgkg",
+      "DosingInterval": "Single",
+      "Schemas": [
+        {
+          "Name": "Schema 1",
+          "SchemaItems": [
+            {
+              "Name": "Schema Item 1",
+              "ApplicationType": "Intravenous",
+              "Parameters": [
+                {
+                  "Name": "Start time",
+                  "Value": 0.0,
+                  "Unit": "h"
+                },
+                {
+                  "Name": "InputDose",
+                  "Value": 1.2,
+                  "Unit": "mg/kg"
+                },
+                {
+                  "Name": "Infusion time",
+                  "Value": 30.0,
+                  "Unit": "min"
+                }
+              ]
+            }
+          ],
+          "Parameters": [
+            {
+              "Name": "Start time",
+              "Value": 0.0,
+              "Unit": "h"
+            },
+            {
+              "Name": "NumberOfRepetitions",
+              "Value": 1.0
+            },
+            {
+              "Name": "TimeBetweenRepetitions",
+              "Value": 0.0,
+              "Unit": "h"
+            }
+          ]
+        },
+        {
+          "Name": "Schema 2",
+          "SchemaItems": [
+            {
+              "Name": "Schema Item 1",
+              "ApplicationType": "Intravenous",
+              "Parameters": [
+                {
+                  "Name": "Start time",
+                  "Value": 0.0,
+                  "Unit": "h"
+                },
+                {
+                  "Name": "InputDose",
+                  "Value": 8.8,
+                  "Unit": "mg/kg"
+                },
+                {
+                  "Name": "Infusion time",
+                  "Value": 90.0,
+                  "Unit": "min"
+                }
+              ]
+            }
+          ],
+          "Parameters": [
+            {
+              "Name": "Start time",
+              "Value": 30.0,
+              "Unit": "min",
+              "ValueOrigin": {
+                "Source": "Unknown"
+              }
+            },
+            {
+              "Name": "NumberOfRepetitions",
+              "Value": 1.0
+            },
+            {
+              "Name": "TimeBetweenRepetitions",
+              "Value": 0.0,
+              "Unit": "h"
+            }
+          ]
+        }
+      ],
+      "TimeUnit": "h"
+    }
+  ],
+  "Simulations": [
+    {
+      "Name": "Sim_20mgkg",
+      "Model": "TwoPores",
+      "ObservedData": [
+        "Taylor2008_PK_human_mAb_PKSimImport.CDA1.Dose20"
+      ],
+      "Solver": {},
+      "OutputSchema": [
+        {
+          "Parameters": [
+            {
+              "Name": "Start time",
+              "Value": 0.0,
+              "Unit": "h"
+            },
+            {
+              "Name": "End time",
+              "Value": 2.0,
+              "Unit": "h"
+            },
+            {
+              "Name": "Resolution",
+              "Value": 20.0,
+              "Unit": "pts/h"
+            }
+          ]
+        },
+        {
+          "Parameters": [
+            {
+              "Name": "Start time",
+              "Value": 2.0,
+              "Unit": "h"
+            },
+            {
+              "Name": "End time",
+              "Value": 1344.0,
+              "Unit": "h",
+              "ValueOrigin": {
+                "Source": "Unknown"
+              }
+            },
+            {
+              "Name": "Resolution",
+              "Value": 4.0,
+              "Unit": "pts/h"
+            }
+          ]
+        }
+      ],
+      "Parameters": [
+        {
+          "Path": "Events|20mgkg|Application_1|ProtocolSchemaItem|Infusion time",
+          "Value": 30.0,
+          "Unit": "min"
+        },
+        {
+          "Path": "Events|20mgkg|Application_2|ProtocolSchemaItem|Infusion time",
+          "Value": 150.0,
+          "Unit": "min"
+        }
+      ],
+      "OutputSelections": [
+        "Organism|PeripheralVenousBlood|CDA1|Plasma (Peripheral Venous Blood)"
+      ],
+      "OutputMappings": [
+        {
+          "Scaling": "Log",
+          "Path": "Sim_20mgkg|Organism|PeripheralVenousBlood|CDA1|Plasma (Peripheral Venous Blood)",
+          "ObservedData": "Taylor2008_PK_human_mAb_PKSimImport.CDA1.Dose20"
+        }
+      ],
+      "Individual": "Human_ICRP_male",
+      "Compounds": [
+        {
+          "Name": "CDA1",
+          "CalculationMethods": [
+            "Cellular partition coefficient method - PK-Sim Standard",
+            "Cellular permeability - PK-Sim Standard"
+          ],
+          "Protocol": {
+            "Name": "20mgkg"
+          }
+        }
+      ],
+      "HasResults": true,
+      "IndividualAnalyses": [
+        {
+          "Axes": [
+            {
+              "Unit": "h",
+              "Dimension": "Time",
+              "Type": "X",
+              "GridLines": false,
+              "Visible": true,
+              "DefaultColor": "#FFFFFF",
+              "DefaultLineStyle": "None",
+              "Scaling": "Linear",
+              "NumberMode": "Normal"
+            },
+            {
+              "Unit": "µmol/l",
+              "Dimension": "Concentration (molar)",
+              "Type": "Y",
+              "GridLines": false,
+              "Visible": true,
+              "DefaultColor": "#FFFFFF",
+              "DefaultLineStyle": "Solid",
+              "Scaling": "Log",
+              "NumberMode": "Normal"
+            }
+          ],
+          "Curves": [
+            {
+              "Name": "CDA1-Peripheral Venous Blood-Plasma-Concentration",
+              "X": "Time",
+              "Y": "Sim_20mgkg|Organism|PeripheralVenousBlood|CDA1|Plasma (Peripheral Venous Blood)",
+              "CurveOptions": {
+                "Color": "#FF0000",
+                "LegendIndex": 1
+              }
+            },
+            {
+              "Name": "Dose 20 mg/kg-Measurement",
+              "X": "Taylor2008_PK_human_mAb_PKSimImport.CDA1.Dose20|Time",
+              "Y": "Taylor2008_PK_human_mAb_PKSimImport.CDA1.Dose20|ObservedData|Peripheral Venous Blood|Plasma|CDA1|Measurement",
+              "CurveOptions": {
+                "Color": "#FF0000",
+                "LegendIndex": 2,
+                "LineStyle": "None",
+                "Symbol": "Circle"
+              }
+            }
+          ],
+          "Name": "Plasma concentration - Dose 20 mg/kg (log scale)",
+          "FontAndSize": {
+            "Fonts": {
+              "AxisSize": 10,
+              "LegendSize": 8,
+              "TitleSize": 16,
+              "DescriptionSize": 12,
+              "OriginSize": 8,
+              "FontFamilyName": "Microsoft Sans Serif",
+              "WatermarkSize": 32
+            }
+          },
+          "Settings": {
+            "SideMarginsEnabled": true,
+            "LegendPosition": "RightInside",
+            "BackColor": "#00FFFFFF",
+            "DiagramBackColor": "#FFFFFF"
+          },
+          "OriginText": "CDA1\nSim_20mgkg\n2023-03-07 08:44"
+        },
+        {
+          "Axes": [
+            {
+              "Unit": "h",
+              "Dimension": "Time",
+              "Type": "X",
+              "GridLines": false,
+              "Visible": true,
+              "DefaultColor": "#FFFFFF",
+              "DefaultLineStyle": "None",
+              "Scaling": "Linear",
+              "NumberMode": "Normal"
+            },
+            {
+              "Unit": "µmol/l",
+              "Dimension": "Concentration (molar)",
+              "Type": "Y",
+              "GridLines": false,
+              "Visible": true,
+              "DefaultColor": "#FFFFFF",
+              "DefaultLineStyle": "Solid",
+              "Scaling": "Linear",
+              "NumberMode": "Normal"
+            }
+          ],
+          "Curves": [
+            {
+              "Name": "CDA1-Peripheral Venous Blood-Plasma-Concentration",
+              "X": "Time",
+              "Y": "Sim_20mgkg|Organism|PeripheralVenousBlood|CDA1|Plasma (Peripheral Venous Blood)",
+              "CurveOptions": {
+                "Color": "#FF0000",
+                "LegendIndex": 1
+              }
+            },
+            {
+              "Name": "Dose 20 mg/kg-Measurement",
+              "X": "Taylor2008_PK_human_mAb_PKSimImport.CDA1.Dose20|Time",
+              "Y": "Taylor2008_PK_human_mAb_PKSimImport.CDA1.Dose20|ObservedData|Peripheral Venous Blood|Plasma|CDA1|Measurement",
+              "CurveOptions": {
+                "Color": "#FF0000",
+                "LegendIndex": 2,
+                "LineStyle": "None",
+                "Symbol": "Circle"
+              }
+            }
+          ],
+          "Name": "Plasma concentration - Dose 20 mg/kg (linear scale)",
+          "FontAndSize": {
+            "Fonts": {
+              "AxisSize": 10,
+              "LegendSize": 8,
+              "TitleSize": 16,
+              "DescriptionSize": 12,
+              "OriginSize": 8,
+              "FontFamilyName": "Microsoft Sans Serif",
+              "WatermarkSize": 32
+            }
+          },
+          "Settings": {
+            "SideMarginsEnabled": true,
+            "LegendPosition": "RightInside",
+            "BackColor": "#00FFFFFF",
+            "DiagramBackColor": "#FFFFFF"
+          },
+          "OriginText": "CDA1\nSim_20mgkg\n2023-03-07 08:44"
+        }
+      ]
+    },
+    {
+      "Name": "Sim_5mgkg",
+      "Model": "TwoPores",
+      "ObservedData": [
+        "Taylor2008_PK_human_mAb_PKSimImport.CDA1.Dose5"
+      ],
+      "Solver": {},
+      "OutputSchema": [
+        {
+          "Parameters": [
+            {
+              "Name": "Start time",
+              "Value": 0.0,
+              "Unit": "h"
+            },
+            {
+              "Name": "End time",
+              "Value": 2.0,
+              "Unit": "h"
+            },
+            {
+              "Name": "Resolution",
+              "Value": 20.0,
+              "Unit": "pts/h"
+            }
+          ]
+        },
+        {
+          "Parameters": [
+            {
+              "Name": "Start time",
+              "Value": 2.0,
+              "Unit": "h"
+            },
+            {
+              "Name": "End time",
+              "Value": 56.0,
+              "Unit": "day(s)",
+              "ValueOrigin": {
+                "Source": "Unknown"
+              }
+            },
+            {
+              "Name": "Resolution",
+              "Value": 4.0,
+              "Unit": "pts/h"
+            }
+          ]
+        }
+      ],
+      "Parameters": [
+        {
+          "Path": "Events|5mgkg|Application_1|ProtocolSchemaItem|Infusion time",
+          "Value": 120.0,
+          "Unit": "min"
+        }
+      ],
+      "OutputSelections": [
+        "Organism|PeripheralVenousBlood|CDA1|Plasma (Peripheral Venous Blood)"
+      ],
+      "OutputMappings": [
+        {
+          "Scaling": "Log",
+          "Path": "Sim_5mgkg|Organism|PeripheralVenousBlood|CDA1|Plasma (Peripheral Venous Blood)",
+          "ObservedData": "Taylor2008_PK_human_mAb_PKSimImport.CDA1.Dose5"
+        }
+      ],
+      "Individual": "Human_ICRP_male",
+      "Compounds": [
+        {
+          "Name": "CDA1",
+          "CalculationMethods": [
+            "Cellular partition coefficient method - PK-Sim Standard",
+            "Cellular permeability - PK-Sim Standard"
+          ],
+          "Protocol": {
+            "Name": "5mgkg"
+          }
+        }
+      ],
+      "HasResults": true,
+      "IndividualAnalyses": [
+        {
+          "Axes": [
+            {
+              "Unit": "day(s)",
+              "Dimension": "Time",
+              "Type": "X",
+              "GridLines": false,
+              "Visible": true,
+              "DefaultColor": "#FFFFFF",
+              "DefaultLineStyle": "None",
+              "Scaling": "Linear",
+              "NumberMode": "Normal"
+            },
+            {
+              "Unit": "µg/ml",
+              "Dimension": "Concentration (molar)",
+              "Type": "Y",
+              "GridLines": false,
+              "Visible": true,
+              "DefaultColor": "#FFFFFF",
+              "DefaultLineStyle": "Solid",
+              "Scaling": "Log",
+              "NumberMode": "Normal"
+            }
+          ],
+          "Curves": [
+            {
+              "Name": "CDA1-Peripheral Venous Blood-Plasma-Concentration",
+              "X": "Time",
+              "Y": "Sim_5mgkg|Organism|PeripheralVenousBlood|CDA1|Plasma (Peripheral Venous Blood)",
+              "CurveOptions": {
+                "Color": "#FF0000",
+                "LegendIndex": 1
+              }
+            },
+            {
+              "Name": "Dose 5 mg/kg-Measurement",
+              "X": "Taylor2008_PK_human_mAb_PKSimImport.CDA1.Dose5|Time",
+              "Y": "Taylor2008_PK_human_mAb_PKSimImport.CDA1.Dose5|ObservedData|Peripheral Venous Blood|Plasma|CDA1|Measurement",
+              "CurveOptions": {
+                "Color": "#FF0000",
+                "LegendIndex": 2,
+                "LineStyle": "None",
+                "Symbol": "Circle"
+              }
+            }
+          ],
+          "Name": "Plasma concentration - Dose 5 mg/kg (log scale)",
+          "FontAndSize": {
+            "Fonts": {
+              "AxisSize": 10,
+              "LegendSize": 8,
+              "TitleSize": 16,
+              "DescriptionSize": 12,
+              "OriginSize": 8,
+              "FontFamilyName": "Microsoft Sans Serif",
+              "WatermarkSize": 32
+            }
+          },
+          "Settings": {
+            "SideMarginsEnabled": true,
+            "LegendPosition": "RightInside",
+            "BackColor": "#00FFFFFF",
+            "DiagramBackColor": "#FFFFFF"
+          },
+          "OriginText": "CDA1\nSim_5mgkg\n2023-03-07 08:45"
+        },
+        {
+          "Axes": [
+            {
+              "Unit": "day(s)",
+              "Dimension": "Time",
+              "Type": "X",
+              "GridLines": false,
+              "Visible": true,
+              "DefaultColor": "#FFFFFF",
+              "DefaultLineStyle": "None",
+              "Scaling": "Linear",
+              "NumberMode": "Normal"
+            },
+            {
+              "Unit": "µg/ml",
+              "Dimension": "Concentration (molar)",
+              "Type": "Y",
+              "GridLines": false,
+              "Visible": true,
+              "DefaultColor": "#FFFFFF",
+              "DefaultLineStyle": "Solid",
+              "Scaling": "Linear",
+              "NumberMode": "Normal"
+            }
+          ],
+          "Curves": [
+            {
+              "Name": "CDA1-Peripheral Venous Blood-Plasma-Concentration",
+              "X": "Time",
+              "Y": "Sim_5mgkg|Organism|PeripheralVenousBlood|CDA1|Plasma (Peripheral Venous Blood)",
+              "CurveOptions": {
+                "Color": "#FF0000",
+                "LegendIndex": 1
+              }
+            },
+            {
+              "Name": "Dose 5 mg/kg-Measurement",
+              "X": "Taylor2008_PK_human_mAb_PKSimImport.CDA1.Dose5|Time",
+              "Y": "Taylor2008_PK_human_mAb_PKSimImport.CDA1.Dose5|ObservedData|Peripheral Venous Blood|Plasma|CDA1|Measurement",
+              "CurveOptions": {
+                "Color": "#FF0000",
+                "LegendIndex": 2,
+                "LineStyle": "None",
+                "Symbol": "Circle"
+              }
+            }
+          ],
+          "Name": "Plasma concentration - Dose 5 mg/kg (linear scale)",
+          "FontAndSize": {
+            "Fonts": {
+              "AxisSize": 10,
+              "LegendSize": 8,
+              "TitleSize": 16,
+              "DescriptionSize": 12,
+              "OriginSize": 8,
+              "FontFamilyName": "Microsoft Sans Serif",
+              "WatermarkSize": 32
+            }
+          },
+          "Settings": {
+            "SideMarginsEnabled": true,
+            "LegendPosition": "RightInside",
+            "BackColor": "#00FFFFFF",
+            "DiagramBackColor": "#FFFFFF"
+          },
+          "OriginText": "CDA1\nSim_5mgkg\n2023-03-07 08:45"
+        }
+      ]
+    },
+    {
+      "Name": "Sim_10mgkg",
+      "Model": "TwoPores",
+      "ObservedData": [
+        "Taylor2008_PK_human_mAb_PKSimImport.CDA1.Dose10"
+      ],
+      "Solver": {},
+      "OutputSchema": [
+        {
+          "Parameters": [
+            {
+              "Name": "Start time",
+              "Value": 0.0,
+              "Unit": "h"
+            },
+            {
+              "Name": "End time",
+              "Value": 2.0,
+              "Unit": "h"
+            },
+            {
+              "Name": "Resolution",
+              "Value": 20.0,
+              "Unit": "pts/h"
+            }
+          ]
+        },
+        {
+          "Parameters": [
+            {
+              "Name": "Start time",
+              "Value": 2.0,
+              "Unit": "h"
+            },
+            {
+              "Name": "End time",
+              "Value": 1344.0,
+              "Unit": "h",
+              "ValueOrigin": {
+                "Source": "Unknown"
+              }
+            },
+            {
+              "Name": "Resolution",
+              "Value": 4.0,
+              "Unit": "pts/h"
+            }
+          ]
+        }
+      ],
+      "Parameters": [
+        {
+          "Path": "Events|10mgkg|Application_1|ProtocolSchemaItem|Infusion time",
+          "Value": 30.0,
+          "Unit": "min"
+        },
+        {
+          "Path": "Events|10mgkg|Application_2|ProtocolSchemaItem|Infusion time",
+          "Value": 90.0,
+          "Unit": "min"
+        }
+      ],
+      "OutputSelections": [
+        "Organism|PeripheralVenousBlood|CDA1|Plasma (Peripheral Venous Blood)"
+      ],
+      "OutputMappings": [
+        {
+          "Scaling": "Log",
+          "Path": "Sim_10mgkg|Organism|PeripheralVenousBlood|CDA1|Plasma (Peripheral Venous Blood)",
+          "ObservedData": "Taylor2008_PK_human_mAb_PKSimImport.CDA1.Dose10"
+        }
+      ],
+      "Individual": "Human_ICRP_male",
+      "Compounds": [
+        {
+          "Name": "CDA1",
+          "CalculationMethods": [
+            "Cellular partition coefficient method - PK-Sim Standard",
+            "Cellular permeability - PK-Sim Standard"
+          ],
+          "Protocol": {
+            "Name": "10mgkg"
+          }
+        }
+      ],
+      "HasResults": true,
+      "IndividualAnalyses": [
+        {
+          "Axes": [
+            {
+              "Unit": "day(s)",
+              "Dimension": "Time",
+              "Type": "X",
+              "GridLines": false,
+              "Visible": true,
+              "DefaultColor": "#FFFFFF",
+              "DefaultLineStyle": "None",
+              "Scaling": "Linear",
+              "NumberMode": "Normal"
+            },
+            {
+              "Unit": "µmol/l",
+              "Dimension": "Concentration (molar)",
+              "Type": "Y",
+              "GridLines": false,
+              "Visible": true,
+              "DefaultColor": "#FFFFFF",
+              "DefaultLineStyle": "Solid",
+              "Scaling": "Log",
+              "NumberMode": "Normal"
+            }
+          ],
+          "Curves": [
+            {
+              "Name": "CDA1-Peripheral Venous Blood-Plasma-Concentration",
+              "X": "Time",
+              "Y": "Sim_10mgkg|Organism|PeripheralVenousBlood|CDA1|Plasma (Peripheral Venous Blood)",
+              "CurveOptions": {
+                "Color": "#FF0000",
+                "LegendIndex": 1
+              }
+            },
+            {
+              "Name": "Dose 10 mg/kg-Measurement",
+              "X": "Taylor2008_PK_human_mAb_PKSimImport.CDA1.Dose10|Time",
+              "Y": "Taylor2008_PK_human_mAb_PKSimImport.CDA1.Dose10|ObservedData|Peripheral Venous Blood|Plasma|CDA1|Measurement",
+              "CurveOptions": {
+                "Color": "#FF0000",
+                "LegendIndex": 2,
+                "LineStyle": "None",
+                "Symbol": "Circle"
+              }
+            }
+          ],
+          "Name": "Plasma concentration - Dose 10 mg/kg (log scale)",
+          "FontAndSize": {
+            "Fonts": {
+              "AxisSize": 10,
+              "LegendSize": 8,
+              "TitleSize": 16,
+              "DescriptionSize": 12,
+              "OriginSize": 8,
+              "FontFamilyName": "Microsoft Sans Serif",
+              "WatermarkSize": 32
+            }
+          },
+          "Settings": {
+            "SideMarginsEnabled": true,
+            "LegendPosition": "RightInside",
+            "BackColor": "#00FFFFFF",
+            "DiagramBackColor": "#FFFFFF"
+          },
+          "OriginText": "CDA1\nSim_10mgkg\n2023-03-07 08:44"
+        },
+        {
+          "Axes": [
+            {
+              "Unit": "h",
+              "Dimension": "Time",
+              "Type": "X",
+              "GridLines": false,
+              "Visible": true,
+              "DefaultColor": "#FFFFFF",
+              "DefaultLineStyle": "None",
+              "Scaling": "Linear",
+              "NumberMode": "Normal"
+            },
+            {
+              "Unit": "µmol/l",
+              "Dimension": "Concentration (molar)",
+              "Type": "Y",
+              "GridLines": false,
+              "Visible": true,
+              "DefaultColor": "#FFFFFF",
+              "DefaultLineStyle": "Solid",
+              "Scaling": "Linear",
+              "NumberMode": "Normal"
+            }
+          ],
+          "Curves": [
+            {
+              "Name": "CDA1-Peripheral Venous Blood-Plasma-Concentration",
+              "X": "Time",
+              "Y": "Sim_10mgkg|Organism|PeripheralVenousBlood|CDA1|Plasma (Peripheral Venous Blood)",
+              "CurveOptions": {
+                "Color": "#FF0000",
+                "LegendIndex": 1
+              }
+            },
+            {
+              "Name": "Dose 10 mg/kg-Measurement",
+              "X": "Taylor2008_PK_human_mAb_PKSimImport.CDA1.Dose10|Time",
+              "Y": "Taylor2008_PK_human_mAb_PKSimImport.CDA1.Dose10|ObservedData|Peripheral Venous Blood|Plasma|CDA1|Measurement",
+              "CurveOptions": {
+                "Color": "#FF0000",
+                "LegendIndex": 2,
+                "LineStyle": "None",
+                "Symbol": "Circle"
+              }
+            }
+          ],
+          "Name": "Plasma concentration - Dose 10 mg/kg (linear scale)",
+          "FontAndSize": {
+            "Fonts": {
+              "AxisSize": 10,
+              "LegendSize": 8,
+              "TitleSize": 16,
+              "DescriptionSize": 12,
+              "OriginSize": 8,
+              "FontFamilyName": "Microsoft Sans Serif",
+              "WatermarkSize": 32
+            }
+          },
+          "Settings": {
+            "SideMarginsEnabled": true,
+            "LegendPosition": "RightInside",
+            "BackColor": "#00FFFFFF",
+            "DiagramBackColor": "#FFFFFF"
+          },
+          "OriginText": "CDA1\nSim_10mgkg\n2023-03-07 08:44"
+        }
+      ]
+    }
+  ],
+  "ObservedData": [
+    {
+      "Name": "Taylor2008_PK_human_mAb_PKSimImport.CDA1.Dose5",
+      "ExtendedProperties": [
+        {
+          "Name": "Sheet",
+          "Value": "Data",
+          "Type": "String"
+        },
+        {
+          "Name": "Molecule",
+          "Value": "CDA1",
+          "Type": "String"
+        },
+        {
+          "Name": "Species",
+          "Value": "Human",
+          "Type": "String"
+        },
+        {
+          "Name": "Organ",
+          "Value": "Peripheral Venous Blood",
+          "Type": "String"
+        },
+        {
+          "Name": "Compartment",
+          "Value": "Plasma",
+          "Type": "String"
+        },
+        {
+          "Name": "Dose [mg/kg]",
+          "Value": 5.0,
+          "Type": "Double"
+        }
+      ],
+      "Columns": [
+        {
+          "Name": "Measurement",
+          "RelatedColumns": [
+            {
+              "Name": "Error",
+              "QuantityInfo": {
+                "Path": "Taylor2008_PK_human_mAb_PKSimImport.CDA1.Dose5|ObservedData|Peripheral Venous Blood|Plasma|CDA1|Error"
+              },
+              "DataInfo": {
+                "Origin": "ObservationAuxiliary",
+                "AuxiliaryType": "ArithmeticStdDev",
+                "MolWeight": 150000.0
+              },
+              "Values": [
+                10.78865,
+                7.847496,
+                5.886742,
+                2.94560218,
+                2.94561,
+                0.0,
+                0.0,
+                0.0
+              ],
+              "Dimension": "Concentration (mass)",
+              "Unit": "µg/ml"
+            }
+          ],
+          "QuantityInfo": {
+            "Path": "Taylor2008_PK_human_mAb_PKSimImport.CDA1.Dose5|ObservedData|Peripheral Venous Blood|Plasma|CDA1|Measurement"
+          },
+          "DataInfo": {
+            "Origin": "Observation",
+            "AuxiliaryType": "Undefined",
+            "MolWeight": 150000.0
+          },
+          "Values": [
+            103.92,
+            84.37514,
+            70.72148,
+            61.9697075,
+            51.45415,
+            43.10527,
+            30.32455,
+            13.57308
+          ],
+          "Dimension": "Concentration (mass)",
+          "Unit": "µg/ml"
+        }
+      ],
+      "BaseGrid": {
+        "Name": "Time",
+        "QuantityInfo": {
+          "Path": "Taylor2008_PK_human_mAb_PKSimImport.CDA1.Dose5|Time",
+          "Type": "Time"
+        },
+        "DataInfo": {
+          "Origin": "BaseGrid",
+          "AuxiliaryType": "Undefined"
+        },
+        "Values": [
+          0.104166664,
+          1.0,
+          2.0,
+          3.0,
+          7.0,
+          14.0,
+          28.0,
+          56.0
+        ],
+        "Dimension": "Time",
+        "Unit": "day(s)"
+      }
+    },
+    {
+      "Name": "Taylor2008_PK_human_mAb_PKSimImport.CDA1.Dose20",
+      "ExtendedProperties": [
+        {
+          "Name": "Sheet",
+          "Value": "Data",
+          "Type": "String"
+        },
+        {
+          "Name": "Molecule",
+          "Value": "CDA1",
+          "Type": "String"
+        },
+        {
+          "Name": "Species",
+          "Value": "Human",
+          "Type": "String"
+        },
+        {
+          "Name": "Organ",
+          "Value": "Peripheral Venous Blood",
+          "Type": "String"
+        },
+        {
+          "Name": "Compartment",
+          "Value": "Plasma",
+          "Type": "String"
+        },
+        {
+          "Name": "Dose [mg/kg]",
+          "Value": 20.0,
+          "Type": "Double"
+        }
+      ],
+      "Columns": [
+        {
+          "Name": "Measurement",
+          "RelatedColumns": [
+            {
+              "Name": "Error",
+              "QuantityInfo": {
+                "Path": "Taylor2008_PK_human_mAb_PKSimImport.CDA1.Dose20|ObservedData|Peripheral Venous Blood|Plasma|CDA1|Error"
+              },
+              "DataInfo": {
+                "Origin": "ObservationAuxiliary",
+                "AuxiliaryType": "ArithmeticStdDev",
+                "MolWeight": 150000.0
+              },
+              "Values": [
+                37.24982,
+                33.3284,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                23.52911,
+                26.470211,
+                27.45056,
+                17.646841,
+                12.7449007,
+                13.7342405,
+                8.827873
+              ],
+              "Dimension": "Concentration (mass)",
+              "Unit": "µg/ml"
+            }
+          ],
+          "QuantityInfo": {
+            "Path": "Taylor2008_PK_human_mAb_PKSimImport.CDA1.Dose20|ObservedData|Peripheral Venous Blood|Plasma|CDA1|Measurement"
+          },
+          "DataInfo": {
+            "Origin": "Observation",
+            "AuxiliaryType": "Undefined",
+            "MolWeight": 150000.0
+          },
+          "Values": [
+            504.907928,
+            500.010376,
+            477.461823,
+            439.231476,
+            420.6043,
+            404.927216,
+            407.9131,
+            346.2165,
+            297.2648,
+            208.319,
+            163.6962,
+            106.794006,
+            52.79266
+          ],
+          "Dimension": "Concentration (mass)",
+          "Unit": "mg/l"
+        }
+      ],
+      "BaseGrid": {
+        "Name": "Time",
+        "QuantityInfo": {
+          "Path": "Taylor2008_PK_human_mAb_PKSimImport.CDA1.Dose20|Time",
+          "Type": "Time"
+        },
+        "DataInfo": {
+          "Origin": "BaseGrid",
+          "AuxiliaryType": "Undefined"
+        },
+        "Values": [
+          3.5,
+          4.0,
+          5.0,
+          7.0,
+          9.0,
+          11.0,
+          24.0,
+          48.0,
+          72.0,
+          168.0,
+          336.0,
+          672.0,
+          1344.0
+        ],
+        "Dimension": "Time",
+        "Unit": "h"
+      }
+    },
+    {
+      "Name": "Taylor2008_PK_human_mAb_PKSimImport.CDA1.Dose10",
+      "ExtendedProperties": [
+        {
+          "Name": "Sheet",
+          "Value": "Data",
+          "Type": "String"
+        },
+        {
+          "Name": "Molecule",
+          "Value": "CDA1",
+          "Type": "String"
+        },
+        {
+          "Name": "Species",
+          "Value": "Human",
+          "Type": "String"
+        },
+        {
+          "Name": "Organ",
+          "Value": "Peripheral Venous Blood",
+          "Type": "String"
+        },
+        {
+          "Name": "Compartment",
+          "Value": "Plasma",
+          "Type": "String"
+        },
+        {
+          "Name": "Dose [mg/kg]",
+          "Value": 10.0,
+          "Type": "Double"
+        }
+      ],
+      "Columns": [
+        {
+          "Name": "Measurement",
+          "RelatedColumns": [
+            {
+              "Name": "Error",
+              "QuantityInfo": {
+                "Path": "Taylor2008_PK_human_mAb_PKSimImport.CDA1.Dose10|ObservedData|Peripheral Venous Blood|Plasma|CDA1|Error"
+              },
+              "DataInfo": {
+                "Origin": "ObservationAuxiliary",
+                "AuxiliaryType": "ArithmeticStdDev",
+                "MolWeight": 150000.0
+              },
+              "Values": [
+                9.803772,
+                0.0,
+                6.867065,
+                5.882248,
+                3.917,
+                0.0,
+                0.0,
+                0.0,
+                0.0
+              ],
+              "Dimension": "Concentration (mass)",
+              "Unit": "µg/ml"
+            }
+          ],
+          "QuantityInfo": {
+            "Path": "Taylor2008_PK_human_mAb_PKSimImport.CDA1.Dose10|ObservedData|Peripheral Venous Blood|Plasma|CDA1|Measurement"
+          },
+          "DataInfo": {
+            "Origin": "Observation",
+            "AuxiliaryType": "Undefined",
+            "MolWeight": 150000.0
+          },
+          "Values": [
+            221.569809,
+            183.353,
+            174.574387,
+            148.1758,
+            120.7924,
+            99.49265,
+            78.39886,
+            51.89286,
+            29.2636
+          ],
+          "Dimension": "Concentration (mass)",
+          "Unit": "mg/l"
+        }
+      ],
+      "BaseGrid": {
+        "Name": "Time",
+        "QuantityInfo": {
+          "Path": "Taylor2008_PK_human_mAb_PKSimImport.CDA1.Dose10|Time",
+          "Type": "Time"
+        },
+        "DataInfo": {
+          "Origin": "BaseGrid",
+          "AuxiliaryType": "Undefined"
+        },
+        "Values": [
+          2.5,
+          10.0,
+          24.0,
+          48.0,
+          72.0,
+          168.0,
+          336.0,
+          672.0,
+          1344.0
+        ],
+        "Dimension": "Time",
+        "Unit": "h"
+      }
+    }
+  ]
+}
