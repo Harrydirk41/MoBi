@@ -75,6 +75,13 @@ def _system_prompt(target: float) -> str:
         "identifiable parameters, then finish with a summary: the structure, "
         "which parameters you estimated vs fixed, their fitted values, and the "
         "GMFE.\n\n"
+        "ENGINE ERRORS ARE HARD FAILURES, NOT RESULTS. If a tool returns an error "
+        "(e.g. 'PK-Sim run failed', 'optimization failed', 'no .pksim5 produced') "
+        "the model did NOT run - do not accept it and do not route around it by "
+        "abandoning optimization. Read the error, REVISE the offending edit (a "
+        "wrong parameter/method/process name, an illegal structure), and RE-RUN. "
+        "Your deliverable is a model whose parameters were fitted by a SUCCESSFUL "
+        "osp_optimize; do not finish on an un-optimized or failed run.\n\n"
         "Do NOT hand-tune parameter values - that is the optimizer's job. Your "
         "job is the modeling decisions: structure, and what to estimate vs fix."
     )

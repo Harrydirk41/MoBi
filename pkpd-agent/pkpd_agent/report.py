@@ -65,6 +65,55 @@ def _trajectory(session) -> list[dict[str, Any]]:
     return steps
 
 
+def _diagnostics(session, best_edits, fit) -> dict[str, Any]:
+    """Honest self-assessment of the run, so the report cannot silently present
+    an un-fitted or failed model as a finished result. Reads the transcript for
+    what actually happened (did an optimize succeed? did the engine error?)."""
+    from .state import Observation
+    opt_ok = False
+    engine_errors = 0
+    for ev in getattr(session, "transcript", []):
+        if not isinstance(ev, Observation):
+            continue
+        if not ev.ok:
+            engine_errors += 1
+            continue
+        if getattr(ev, "tool", None) == "osp_optimize" and \
+                isinstance(ev.content, dict) and ev.content.get("optimized"):
+            opt_ok = True
+    params_fitted = bool((best_edits or {}).get("parameters"))
+    g = fit.get("gmfe")
+    if g is None:
+        verdict = "no runnable model was produced"
+    elif g <= 1.5:
+        verdict = "good"
+    elif g <= 2.0:
+        verdict = "acceptable"
+    else:
+        verdict = "poor"
+    return {"optimization_succeeded": opt_ok, "engine_errors": engine_errors,
+            "params_fitted": params_fitted, "gmfe": g, "fit_verdict": verdict}
+
+
+def _status_banner(diag: dict) -> str:
+    """A one-line, prominent status shown at the top of the report."""
+    g = diag.get("gmfe")
+    if g is None:
+        return ("⚠ NO RUNNABLE MODEL — the loop did not produce a scored model; "
+                "results below are incomplete.")
+    if not diag.get("optimization_succeeded"):
+        why = (f" ({diag['engine_errors']} engine error(s) during the run)"
+               if diag.get("engine_errors") else "")
+        return ("⚠ NOT OPTIMIZED — the numerical optimizer did not complete, so "
+                "parameters below were NOT fitted to the data; the reported "
+                f"GMFE {g} reflects an un-fitted / hand-set model{why}.")
+    if diag.get("fit_verdict") == "poor":
+        return (f"⚠ POOR FIT — overall GMFE {g} (>2-fold typical error). The "
+                "model is not yet an adequate description of the data.")
+    return (f"Fit is {diag['fit_verdict']} (overall GMFE {g}); parameters were "
+            "fitted by the numerical optimizer.")
+
+
 def assemble(session, config, cli, input_dict, snapshot_path, best_edits,
              ref_snapshot_path=None, answer_edits=None, run_models=True):
     """Build ReportData from a finished run (re-runs the best + reference models
@@ -112,6 +161,7 @@ def assemble(session, config, cli, input_dict, snapshot_path, best_edits,
                        "plausible_range": cat.get("range"),
                        "reference": ref_params.get(name)})
 
+    diag = _diagnostics(session, best_edits, fit)
     bg = input_dict.get("background") or {}
     d = ReportData(
         title=f"PBPK evaluation report — {input_dict.get('compound','compound')}",
@@ -122,7 +172,8 @@ def assemble(session, config, cli, input_dict, snapshot_path, best_edits,
                        "routes": sorted({o.get("route") for o in observed if o.get("route")})},
         nca_rows=[_nca(o) for o in observed],
         structure=structure, parameters=params, fit=fit, reference=ref,
-        profiles=profiles, narrative={}, trajectory=_trajectory(session))
+        profiles=profiles, narrative={}, trajectory=_trajectory(session),
+        diagnostics=diag, status=_status_banner(diag))
     d.narrative = (llm_narrative(d, config) if config and config.anthropic_key_present()
                    else deterministic_narrative(d))
     return d
@@ -147,6 +198,8 @@ class ReportData:
     profiles: list[dict[str, Any]]         # per study: observed + predicted (+ref)
     narrative: dict[str, str]              # model_choice, parameter_rationale, conclusion
     trajectory: list[dict[str, Any]]       # steps: reason, action, result
+    diagnostics: dict[str, Any] = field(default_factory=dict)  # honest run self-assessment
+    status: str = ""                       # one-line banner shown at the top
 
 
 # --------------------------------------------------------------------------- #
@@ -182,11 +235,28 @@ def deterministic_narrative(d: "ReportData") -> dict[str, str]:
           + "\n".join(lines))
     # blind conclusion: judged on the model's own fit + plausibility, not the
     # reference (the ground-truth comparison is a separate, factual section).
+    # Tone MUST match the fit - do not call a poor fit adequate.
     g = d.fit.get("gmfe")
-    concl = (f"The model reproduces the observed plasma concentrations with an "
-             f"overall GMFE of {g}. The fit and the parameter values are "
-             "consistent with the drug's known disposition, supporting the model "
-             "as an adequate description of the pharmacokinetics.")
+    diag = d.diagnostics or {}
+    verdict = diag.get("fit_verdict")
+    if not diag.get("optimization_succeeded", True):
+        concl = (f"The numerical optimizer did not complete for this run, so the "
+                 f"parameters were not fitted to the data. The resulting model "
+                 f"gives an overall GMFE of {g}, which should be read as a "
+                 "starting point, not a fitted result. Re-running the parameter "
+                 "identification is required before drawing PK conclusions.")
+    elif verdict == "poor":
+        concl = (f"The model does NOT yet adequately reproduce the observed plasma "
+                 f"concentrations: overall GMFE is {g} (beyond the ~2-fold typical "
+                 "error). This indicates a structural or parameter problem to "
+                 "resolve (check per-route bias and any parameters pinned to a "
+                 "bound) before the model can be considered fit for purpose.")
+    else:
+        concl = (f"The model reproduces the observed plasma concentrations with an "
+                 f"overall GMFE of {g} ({verdict}). The fit and the parameter "
+                 "values are consistent with the drug's known disposition, "
+                 "supporting the model as an adequate description of the "
+                 "pharmacokinetics.")
     return {"model_choice": mc, "parameter_rationale": pr, "conclusion": concl}
 
 
@@ -201,10 +271,18 @@ def llm_narrative(d: "ReportData", config) -> dict[str, str]:
     # reference". The reference stays only in the factual comparison section.
     blind_params = [{k: v for k, v in p.items() if k != "reference"}
                     for p in d.parameters]
+    diag = d.diagnostics or {}
     payload = {
         "objective": d.objective, "known_biology": d.known_biology,
         "structure": d.structure, "parameters": blind_params,
         "fit": {k: v for k, v in d.fit.items() if k != "reference"},
+        # honest facts the narrative MUST respect - do not describe fitting that
+        # did not happen, and match the tone to the fit quality.
+        "run_facts": {
+            "optimization_completed": diag.get("optimization_succeeded", True),
+            "parameters_were_fitted": diag.get("params_fitted", True),
+            "engine_errors": diag.get("engine_errors", 0),
+            "fit_verdict": diag.get("fit_verdict")},
     }
     tool = {"name": "write_sections", "description": "Write the report narrative.",
             "input_schema": {"type": "object", "properties": {
@@ -222,7 +300,13 @@ def llm_narrative(d: "ReportData", config) -> dict[str, str]:
                     "model choice and why each estimated parameter is "
                     "pharmacologically reasonable (relate to lipophilicity, "
                     "protein binding, clearance vs organ blood flow, permeability/"
-                    "absorption). Call write_sections."),
+                    "absorption). Describe ONLY what actually happened: honor "
+                    "run_facts - if optimization_completed is false or "
+                    "parameters_were_fitted is false, do NOT claim parameters were "
+                    "calibrated/fitted; say they were un-fitted/hand-set and the "
+                    "result is preliminary. Match the tone to fit_verdict - never "
+                    "call a 'poor' fit adequate or fit-for-purpose. Call "
+                    "write_sections."),
             tools=[tool],
             messages=[{"role": "user", "content": _json.dumps(payload, default=str)}])
         for b in msg.content:
@@ -327,9 +411,13 @@ def write_html(d: ReportData, path: str) -> None:
  .sh{{font-weight:600}} .reason{{color:#333;white-space:pre-wrap;margin:4px 0}}
  pre.res{{background:#f0f0f0;padding:6px;overflow-x:auto;font-size:12px;white-space:pre-wrap}}
  ul{{margin:6px 0}}
+ .banner{{padding:10px 14px;margin:12px 0;border-radius:5px;font-weight:600}}
+ .banner.warn{{background:#fdecea;border:1px solid #e74c3c;color:#922}}
+ .banner.ok{{background:#eafaf1;border:1px solid #27ae60;color:#1a6b3c}}
  @media print{{.step{{break-inside:avoid}} .plot{{break-inside:avoid}}}}
 </style></head><body>
 <h1>{esc(d.title)}</h1>
+{f'<div class="banner {"warn" if d.status.startswith(chr(0x26A0)) else "ok"}">{esc(d.status)}</div>' if d.status else ''}
 
 <h2>1. Objective</h2><p>{esc(d.objective)}</p>
 <p><b>Background.</b> {esc(d.background)}</p>
@@ -406,13 +494,23 @@ def write_pdf(d: ReportData, path: str) -> bool:
         # title + summary
         fig = plt.figure(figsize=(8.27, 11.69))
         fig.text(0.08, 0.92, d.title, fontsize=18, fontweight="bold")
+        y = 0.87
+        if d.status:
+            warn = d.status.startswith("⚠")
+            fig.text(0.08, y, "\n".join(textwrap.wrap(d.status, 90)), fontsize=10,
+                     va="top", fontweight="bold",
+                     color=("#b03030" if warn else "#1a6b3c"),
+                     bbox=dict(boxstyle="round", facecolor=("#fdecea" if warn
+                               else "#eafaf1"), edgecolor=("#e74c3c" if warn
+                               else "#27ae60")))
+            y -= 0.07
         summ = (f"Objective:\n{d.objective}\n\n"
                 f"Overall GMFE {d.fit.get('gmfe')} "
                 f"(reference {d.reference.get('gmfe')}); "
                 f"within-2-fold {d.fit.get('within_2fold_pct')}%.\n\n"
                 f"Structure: {', '.join(d.structure.get('calculation_methods') or [])}; "
                 f"processes {', '.join(d.structure.get('processes') or [])}.")
-        fig.text(0.08, 0.82, "\n".join(textwrap.wrap(summ, 95)), fontsize=10, va="top")
+        fig.text(0.08, y, "\n".join(textwrap.wrap(summ, 95)), fontsize=10, va="top")
         pdf.savefig(fig); plt.close(fig)
 
         # narrative + parameters

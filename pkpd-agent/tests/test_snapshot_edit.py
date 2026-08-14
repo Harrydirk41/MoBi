@@ -100,5 +100,92 @@ class TestAddProcess(unittest.TestCase):
         self.assertEqual(rep["processes"]["add:CYP3A4"], "already_present")
 
 
+class TestSimulationProcessMirroring(unittest.TestCase):
+    """A process lives on the compound AND on every simulation that uses it;
+    editing one without the other leaves a dangling reference that makes
+    PK-Sim's snapshot mapper fail. These lock in that the two stay in sync."""
+
+    def setUp(self):
+        # two simulations, each mirroring the compound's two processes
+        self.snap = {
+            "ExpressionProfiles": [
+                {"Type": "Enzyme", "Molecule": "CYP3A4"},
+                {"Type": "Transporter", "Molecule": "ABCB1"}],
+            "Compounds": [{"Name": "Drug", "Processes": [
+                {"InternalName": "MetabolizationIntrinsic_FirstOrder",
+                 "DataSource": "1st order CL", "Molecule": "CYP3A4"},
+                {"InternalName": "GlomerularFiltration", "DataSource": "GFR",
+                 "Molecule": None}]}],
+            "Simulations": [
+                {"Name": "sim1", "Compounds": [{"Name": "Drug", "Processes": [
+                    {"Name": "CYP3A4-1st order CL", "MoleculeName": "CYP3A4"},
+                    {"Name": "Glomerular Filtration-GFR",
+                     "SystemicProcessType": "GFR"}]}]},
+                {"Name": "sim2", "Compounds": [{"Name": "Drug", "Processes": [
+                    {"Name": "CYP3A4-1st order CL", "MoleculeName": "CYP3A4"},
+                    {"Name": "Glomerular Filtration-GFR",
+                     "SystemicProcessType": "GFR"}]}]},
+            ],
+        }
+
+    def _dangling(self, snap):
+        comp = snap["Compounds"][0]
+        mols = {p.get("Molecule") for p in comp["Processes"]}
+        ds = {(p.get("DataSource") or "").lower() for p in comp["Processes"]}
+        bad = []
+        for sim in snap["Simulations"]:
+            for sc in sim.get("Compounds") or []:
+                for p in sc.get("Processes") or []:
+                    mn = p.get("MoleculeName")
+                    spt = (p.get("SystemicProcessType") or "").lower()
+                    if mn is not None and mn not in mols:
+                        bad.append(p.get("Name"))
+                    elif mn is None and spt and spt not in ds:
+                        bad.append(p.get("Name"))
+        return bad
+
+    def test_original_has_no_dangling(self):
+        self.assertEqual(self._dangling(self.snap), [])
+
+    def test_disable_systemic_removes_sim_refs(self):
+        out, rep = apply_edits(self.snap, {"processes": {"GFR": False}})
+        # compound lost GFR
+        self.assertNotIn("GlomerularFiltration",
+                         [p["InternalName"] for p in out["Compounds"][0]["Processes"]])
+        # both simulations lost their GFR reference -> no dangling
+        self.assertEqual(self._dangling(out), [])
+        self.assertEqual(rep["processes"]["GFR"], "disabled")
+        self.assertEqual(rep["processes"]["_simulation_refs_removed"], 2)
+
+    def test_disable_enzyme_removes_sim_refs(self):
+        out, _ = apply_edits(self.snap, {"processes": {"CYP3A4": False}})
+        self.assertEqual(self._dangling(out), [])
+        names = [p.get("Name") for sim in out["Simulations"]
+                 for sc in sim["Compounds"] for p in sc["Processes"]]
+        self.assertNotIn("CYP3A4-1st order CL", names)
+
+    def test_re_add_systemic_restores_sim_refs(self):
+        disabled, _ = apply_edits(self.snap, {"processes": {"GFR": False}})
+        out, rep = apply_edits(disabled, {"add_processes": [
+            {"type": "glomerular_filtration", "parameters": {"GFR fraction": 0.3}}]})
+        self.assertEqual(rep["processes"]["add:glomerular_filtration"], "added")
+        self.assertEqual(self._dangling(out), [])
+        # mirrored to BOTH simulations
+        gfr_refs = [p for sim in out["Simulations"] for sc in sim["Compounds"]
+                    for p in sc["Processes"]
+                    if p.get("SystemicProcessType") == "GFR"]
+        self.assertEqual(len(gfr_refs), 2)
+
+    def test_add_enzyme_mirrors_to_sims(self):
+        out, rep = apply_edits(self.snap, {"add_processes": [
+            {"type": "active_transport_mm", "molecule": "ABCB1"}]})
+        self.assertEqual(rep["processes"]["add:ABCB1"], "added")
+        self.assertEqual(self._dangling(out), [])
+        refs = [p.get("Name") for sim in out["Simulations"]
+                for sc in sim["Compounds"] for p in sc["Processes"]
+                if p.get("MoleculeName") == "ABCB1"]
+        self.assertEqual(len(refs), 2)
+
+
 if __name__ == "__main__":
     unittest.main()

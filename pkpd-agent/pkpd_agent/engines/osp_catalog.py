@@ -150,12 +150,16 @@ PROCESS_TYPES: dict[str, dict[str, Any]] = {
     "glomerular_filtration": {
         "internal_name": "GlomerularFiltration", "data_source": "GFR",
         "applies_to": "system", "validated": True,
+        # simulation-level mirror: {"Name": "<label>-<data_source>",
+        #                           "SystemicProcessType": <systemic_type>}
+        "systemic_label": "Glomerular Filtration", "systemic_type": "GFR",
         "parameters": [{"name": "GFR fraction", "unit": "", "default": 1.0}],
         "description": "renal clearance by glomerular filtration of unbound drug.",
     },
     "liver_clearance": {
         "internal_name": "LiverClearance", "data_source": "plasma clearance",
         "applies_to": "system", "validated": False,
+        "systemic_label": "Liver Plasma Clearance", "systemic_type": "LiverClearance",
         "parameters": [{"name": "Plasma clearance", "unit": "ml/min/kg",
                         "default": 1.0}],
         "description": "lumped whole-liver (hepatic) plasma clearance - a simpler "
@@ -165,6 +169,7 @@ PROCESS_TYPES: dict[str, dict[str, Any]] = {
     "kidney_clearance": {
         "internal_name": "KidneyClearance", "data_source": "plasma clearance",
         "applies_to": "system", "validated": False,
+        "systemic_label": "Kidney Plasma Clearance", "systemic_type": "KidneyClearance",
         "parameters": [{"name": "Plasma clearance", "unit": "ml/min/kg",
                         "default": 1.0}],
         "description": "lumped renal plasma clearance (beyond passive GFR).",
