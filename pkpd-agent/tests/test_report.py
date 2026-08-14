@@ -144,5 +144,33 @@ class TestLiteratureAnchoredRationale(unittest.TestCase):
         self.assertIn("well constrained", pr.lower())
 
 
+class TestNarrativeScaffoldSanitizer(unittest.TestCase):
+    """A model that echoes the write_sections tool-call format as text (dumping
+    all three sections + tags into model_choice) must be recovered, not shipped
+    with raw <parameter name="..."></invoke> tags in the report."""
+
+    def test_recovers_leaked_sections(self):
+        from pkpd_agent.report import _sanitize_sections
+        leaked = {"model_choice": (
+            "Structure rationale here.</model_choice>\n"
+            "<parameter name=\"parameter_rationale\">Param rationale here.\n"
+            "<parameter name=\"conclusion\">Conclusion here.</conclusion>\n</invoke>"),
+            "parameter_rationale": "", "conclusion": ""}
+        out = _sanitize_sections(leaked)
+        self.assertIn("Structure rationale", out["model_choice"])
+        self.assertIn("Param rationale", out["parameter_rationale"])
+        self.assertIn("Conclusion here", out["conclusion"])
+        for v in out.values():
+            for tag in ("<parameter", "</invoke>", "</model_choice>", "</conclusion>"):
+                self.assertNotIn(tag, v)
+
+    def test_clean_input_untouched(self):
+        from pkpd_agent.report import _sanitize_sections
+        clean = {"model_choice": "A.", "parameter_rationale": "B.", "conclusion": "C."}
+        self.assertEqual(_sanitize_sections(clean),
+                         {"model_choice": "A.", "parameter_rationale": "B.",
+                          "conclusion": "C."})
+
+
 if __name__ == "__main__":
     unittest.main()

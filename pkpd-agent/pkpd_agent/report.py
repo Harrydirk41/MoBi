@@ -450,6 +450,49 @@ def deterministic_narrative(d: "ReportData") -> dict[str, str]:
     return {"model_choice": mc, "parameter_rationale": pr, "conclusion": concl}
 
 
+_SECTIONS = ("model_choice", "parameter_rationale", "conclusion")
+
+
+def _strip_scaffold(s: str) -> str:
+    """Remove any tool-call / XML scaffolding a model may have echoed as text
+    (</model_choice>, <parameter name="...">, </invoke>, </function...>, etc.)."""
+    import re
+    s = str(s or "")
+    s = re.sub(r"</?(?:antml:)?(?:invoke|parameter|function[^>]*)>", "", s)
+    s = re.sub(r"<parameter\s+name=[\"'][^\"']*[\"']\s*>", "", s)
+    s = re.sub(r"</?(?:model_choice|parameter_rationale|conclusion)\s*>", "", s)
+    return s.strip()
+
+
+def _sanitize_sections(out: dict) -> dict:
+    """Recover the three sections even when a model dumped the whole write_sections
+    call (with tool-call tags) into a single field, then strip stray scaffolding.
+
+    Some models echo the tool invocation format as text - the entire response,
+    including <parameter name="..."> markers, lands in model_choice while the
+    other fields come back empty. Detect that and split it back out."""
+    import re
+    blob = "\n".join(str(out.get(k) or "") for k in _SECTIONS)
+    leaked = ("<parameter name=" in blob or "</invoke>" in blob
+              or "</model_choice>" in blob or "</conclusion>" in blob)
+    if leaked:
+        def between(name, stops):
+            m = re.search(
+                rf"<parameter\s+name=[\"']{name}[\"']\s*>(.*?)"
+                rf"(?=" + "|".join(stops) + r"|$)", blob, re.S)
+            return m.group(1) if m else ""
+        mc = re.split(r"</model_choice>|<parameter\s+name=", blob, maxsplit=1)[0]
+        rationale = between("parameter_rationale",
+                            [r"<parameter\s+name=", r"</parameter>", r"</invoke>"])
+        concl = between("conclusion",
+                        [r"</conclusion>", r"</parameter>", r"</invoke>",
+                         r"<parameter\s+name="])
+        out = {"model_choice": mc,
+               "parameter_rationale": rationale or out.get("parameter_rationale"),
+               "conclusion": concl or out.get("conclusion")}
+    return {k: _strip_scaffold(out.get(k)) for k in _SECTIONS}
+
+
 def llm_narrative(d: "ReportData", config) -> dict[str, str]:
     """Optional Claude synthesis of the scientific narrative sections."""
     try:
@@ -525,11 +568,12 @@ def llm_narrative(d: "ReportData", config) -> dict[str, str]:
             messages=[{"role": "user", "content": _json.dumps(payload, default=str)}])
         for b in msg.content:
             if getattr(b, "type", None) == "tool_use":
-                out = dict(b.input)
-                # never ship an empty section (e.g. a long rationale starving the
-                # conclusion): fill any blank from the deterministic write-up.
+                # recover sections + strip any tool-call scaffolding the model may
+                # have echoed as text, then never ship an empty section (fill any
+                # blank from the deterministic write-up).
+                out = _sanitize_sections(dict(b.input))
                 det = None
-                for key in ("model_choice", "parameter_rationale", "conclusion"):
+                for key in _SECTIONS:
                     if not str(out.get(key) or "").strip():
                         det = det or deterministic_narrative(d)
                         out[key] = det[key]
