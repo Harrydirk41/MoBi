@@ -227,12 +227,123 @@ PROCESS_TYPES: dict[str, dict[str, Any]] = {
     "metabolization_specific_first_order": {
         "internal_name": "MetabolizationSpecific_FirstOrder",
         "data_source": "specific CL", "applies_to": "enzyme", "validated": False,
+        "provenance": "OSP library snapshots",
         "parameters": [{"name": "Specific clearance", "unit": "1/min",
                         "default": 0.1}],
         "description": "first-order metabolism scaled by the enzyme's tissue "
                        "concentration (specific clearance).",
     },
+    # --- additional kinetic variants (PK-Sim naming convention; VERIFY the exact
+    #     parameter names/units once on your PK-Sim before benchmark use) --------
+    "metabolization_hepatocytes_mm": {
+        "internal_name": "MetabolizationHepatocytes_MM",
+        "data_source": "hepatocytes", "applies_to": "enzyme", "validated": False,
+        "provenance": "PK-Sim convention (parallels liver-microsomes MM); verify",
+        "parameters": [
+            {"name": "In vitro Vmax for hepatocytes",
+             "unit": "pmol/min/10^6cells", "default": 100.0},
+            {"name": "Km", "unit": "µmol/l", "default": 1.0},
+            {"name": "kcat", "unit": "1/min", "default": 1.0}],
+        "description": "saturable (Michaelis-Menten) metabolism scaled from an "
+                       "in-vitro hepatocyte assay.",
+    },
+    "metabolization_specific_mm": {
+        "internal_name": "MetabolizationSpecific_MM",
+        "data_source": "specific MM", "applies_to": "enzyme", "validated": False,
+        "provenance": "PK-Sim convention (specific MM); verify",
+        "parameters": [
+            {"name": "Vmax", "unit": "µmol/l/min", "default": 1.0},
+            {"name": "Km", "unit": "µmol/l", "default": 1.0},
+            {"name": "kcat", "unit": "1/min", "default": 1.0}],
+        "description": "saturable metabolism scaled by the enzyme's tissue "
+                       "concentration (specific Michaelis-Menten).",
+    },
+    "active_transport_first_order": {
+        "internal_name": "ActiveTransportSpecific_FirstOrder",
+        "data_source": "active transport 1st order", "applies_to": "transporter",
+        "validated": False,
+        "provenance": "PK-Sim convention (parallels active-transport MM); verify",
+        "parameters": [{"name": "Transporter concentration", "unit": "µmol/l",
+                        "default": 1.0},
+                       {"name": "kcat", "unit": "1/min", "default": 1.0}],
+        "description": "linear (non-saturable) active transport by a transporter - "
+                       "use when the transporter is far from saturation.",
+    },
+    "biliary_clearance": {
+        "internal_name": "BiliaryClearance", "data_source": "plasma clearance",
+        "applies_to": "system", "validated": False,
+        "systemic_label": "Biliary Clearance", "systemic_type": "BiliaryClearance",
+        "provenance": "PK-Sim systemic process; verify InternalName/params",
+        "parameters": [{"name": "Plasma clearance", "unit": "ml/min/kg",
+                        "default": 1.0}],
+        "description": "lumped biliary (hepatobiliary) plasma clearance into bile.",
+    },
 }
+
+
+# --------------------------------------------------------------------------- #
+# DDI / interaction mechanisms (perpetrator acting on a victim's enzyme).
+# --------------------------------------------------------------------------- #
+# These are part of PK-Sim's full process library, but they are NOT single-
+# compound processes: an interaction links a PERPETRATOR compound to the enzyme
+# of a VICTIM via the snapshot's ``Interactions`` block (a multi-compound DDI
+# simulation). They are therefore DOCUMENTED here for completeness but are NOT
+# offered through ``add_processes`` (which builds single-compound mechanisms);
+# adding them requires a DDI setup with >1 Compound. ``validated`` marks the
+# InternalNames confirmed against the Rifampicin-Digoxin-DDI library snapshot.
+INTERACTION_PROCESS_TYPES: dict[str, dict[str, Any]] = {
+    "competitive_inhibition": {
+        "internal_name": "CompetitiveInhibition", "validated": True,
+        "provenance": "Rifampicin-Digoxin-DDI snapshot",
+        "parameters": [{"name": "Ki", "unit": "µmol/l"}],
+        "description": "reversible competitive enzyme/transporter inhibition (Ki).",
+    },
+    "uncompetitive_inhibition": {
+        "internal_name": "UncompetitiveInhibition", "validated": False,
+        "provenance": "PK-Sim standard; verify InternalName",
+        "parameters": [{"name": "Ki", "unit": "µmol/l"}],
+        "description": "reversible uncompetitive inhibition (Ki).",
+    },
+    "noncompetitive_inhibition": {
+        "internal_name": "NonCompetitiveInhibition", "validated": False,
+        "provenance": "PK-Sim standard; verify InternalName",
+        "parameters": [{"name": "Ki", "unit": "µmol/l"}],
+        "description": "reversible noncompetitive inhibition (Ki).",
+    },
+    "mixed_inhibition": {
+        "internal_name": "MixedInhibition", "validated": False,
+        "provenance": "PK-Sim standard; verify InternalName/params",
+        "parameters": [{"name": "Ki_c", "unit": "µmol/l"},
+                       {"name": "Ki_u", "unit": "µmol/l"}],
+        "description": "mixed competitive/uncompetitive inhibition (Ki_c, Ki_u).",
+    },
+    "mechanism_based_inhibition": {
+        "internal_name": "IrreversibleInhibition", "validated": True,
+        "provenance": "Rifampicin-Digoxin-DDI snapshot",
+        "parameters": [{"name": "kinact", "unit": "1/min"},
+                       {"name": "Ki", "unit": "µmol/l"}],
+        "description": "irreversible / mechanism-based (time-dependent) inhibition "
+                       "(kinact, Ki) - enzyme is inactivated.",
+    },
+    "induction": {
+        "internal_name": "Induction", "validated": True,
+        "provenance": "Rifampicin-Digoxin-DDI snapshot",
+        "parameters": [{"name": "EC50", "unit": "µmol/l"},
+                       {"name": "Emax", "unit": ""}],
+        "description": "enzyme induction (EC50, Emax) - perpetrator up-regulates "
+                       "the victim's enzyme, increasing its clearance.",
+    },
+}
+
+
+def interaction_process_types() -> list[dict[str, Any]]:
+    """The DDI/interaction mechanisms in PK-Sim's library. Documented for the
+    full action space, but NOT addable to a single-compound model (they need a
+    multi-compound DDI setup with an Interactions block)."""
+    return [{"type": k, "internal_name": s["internal_name"],
+             "description": s["description"], "validated": s.get("validated", False),
+             "provenance": s.get("provenance"), "parameters": s["parameters"]}
+            for k, s in INTERACTION_PROCESS_TYPES.items()]
 
 
 def addable_process_types(expressed_molecules: list[dict]) -> list[dict[str, Any]]:
@@ -257,5 +368,6 @@ def addable_process_types(expressed_molecules: list[dict]) -> list[dict[str, Any
             attach = ["(system - no molecule needed)"]
         out.append({"type": key, "description": spec["description"],
                     "validated": spec.get("validated", False),
+                    "provenance": spec.get("provenance", "OSP library snapshots"),
                     "parameters": spec["parameters"], "can_attach_to": attach})
     return out

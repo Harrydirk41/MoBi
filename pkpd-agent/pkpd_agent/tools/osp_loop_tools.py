@@ -207,6 +207,15 @@ def register_osp_loop_tools(registry: ToolRegistry, config, ctx: dict) -> None:
             processes_present=model["processes"],
             expressed_molecules=expressed,
             addable_process_types=osp_catalog.addable_process_types(expressed),
+            interaction_process_types=osp_catalog.interaction_process_types(),
+            process_catalog_notes=(
+                "addable_process_types are single-compound mechanisms you can add "
+                "via add_processes. interaction_process_types (DDI: inhibition / "
+                "induction) are part of PK-Sim's library but are NOT addable here - "
+                "they link a perpetrator to a victim's enzyme and require a multi-"
+                "compound DDI setup. Each entry has 'validated' (confirmed to run "
+                "through PKSim.CLI) and 'provenance'; prefer validated mechanisms, "
+                "and treat validated=false as needing a confirmation run."),
             edit_spec_help={
                 "parameters": "{name: value} - names above",
                 "calculation_methods": "{partition: <opt>, permeability: <opt>}",
