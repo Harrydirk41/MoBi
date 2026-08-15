@@ -24,6 +24,7 @@ import re
 from typing import Any
 
 from .osp_cli import OSPCli
+from . import osp_catalog
 from .osp_catalog import INTERACTION_PROCESS_TYPES
 
 # InternalNames that mark a compound as a perpetrator (inhibition / induction)
@@ -128,6 +129,52 @@ def analyze_ddi(snapshot: dict) -> dict[str, Any]:
 # AUC_control (and analogously Cmax ratio). A good DDI model reproduces that
 # ratio - e.g. erythromycin roughly quadruples midazolam AUC.
 
+def ddi_identifiability(ddi: dict, n_observed_ratios: int | None = None) -> list[dict]:
+    """A priori identifiability actions for the DDI interaction parameters.
+
+    A single observed interaction ratio (AUCR) constrains ONE number - the net
+    interaction magnitude at the studied exposure - so a mechanism with two
+    tunable parameters (MBI kinact/K_kinact_half, induction EC50/Emax, mixed
+    Ki_c/Ki_u) is structurally underdetermined: the two trade off and only their
+    identifiable combination is pinned. This is the DDI analogue of the single-
+    compound collinearity recommendation, but it is known FROM THE MECHANISM
+    before any run - so we surface it up front. Returns a list of
+    {perpetrator, target, mechanism, issue, action, severity}.
+
+    n_observed_ratios (if given) sizes the constraint budget: with arms spanning
+    several distinct perpetrator exposures the two parameters may separate, so we
+    only raise the flag when there are fewer independent ratios than free
+    parameters across the perpetrator's multi-parameter mechanisms.
+    """
+    acts: list[dict] = []
+    for p in ddi.get("perpetrators") or []:
+        free_multi = 0
+        multi_mechs = []
+        for m in p.get("mechanisms") or []:
+            entry = osp_catalog.interaction_by_internal_name(m.get("internal_name"))
+            idf = entry.get("identifiability")
+            if idf and len(idf.get("tradeoff_pair", [])) >= 2:
+                multi_mechs.append((m, idf))
+                free_multi += len(idf["tradeoff_pair"])
+        # if the arms clearly out-number the free parameters, both may separate
+        if n_observed_ratios is not None and n_observed_ratios >= free_multi and free_multi:
+            continue
+        for m, idf in multi_mechs:
+            pair = idf["tradeoff_pair"]
+            acts.append({
+                "perpetrator": p.get("name"),
+                "target": m.get("target"),
+                "mechanism": m.get("internal_name"),
+                "issue": (f"{pair[0]} and {pair[1]} trade off - a single interaction "
+                          f"ratio pins only {idf['identifiable_combination']}, not "
+                          "their individual values"),
+                "action": idf["note"] + (f" (fix {idf['fix_first']} first)"
+                                         if idf.get("fix_first") else ""),
+                "severity": "high",
+            })
+    return acts
+
+
 def _auc(time_h: list, conc: list) -> float:
     pts = sorted((t, c) for t, c in zip(time_h, conc)
                  if isinstance(t, (int, float)) and isinstance(c, (int, float))
@@ -216,4 +263,9 @@ def run_ddi_prediction(cli, snapshot_path: str, ddi: dict, victim: str,
            "n_pairs": len(pairs), "n_ran": len(profiles_by_sim)}
     if observed_ratios:
         out["score"] = score_ddi(predicted, observed_ratios)
+    # a priori identifiability guidance for tuning the interaction parameters
+    n_ratios = len(observed_ratios) if observed_ratios else len(predicted)
+    recs = ddi_identifiability(ddi, n_observed_ratios=n_ratios)
+    if recs:
+        out["recommendations"] = recs
     return out

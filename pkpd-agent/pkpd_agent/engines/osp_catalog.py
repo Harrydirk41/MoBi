@@ -325,6 +325,17 @@ INTERACTION_PROCESS_TYPES: dict[str, dict[str, Any]] = {
         "parameters": [{"name": "Ki_c", "unit": "µmol/l"},
                        {"name": "Ki_u", "unit": "µmol/l"}],
         "description": "mixed competitive/uncompetitive inhibition (Ki_c, Ki_u).",
+        # a single AUCR at one victim/inhibitor level cannot separate the
+        # competitive (Ki_c) from the uncompetitive (Ki_u) component.
+        "identifiability": {
+            "tradeoff_pair": ["Ki_c", "Ki_u"],
+            "identifiable_combination": "the net inhibition at the studied "
+                "victim/inhibitor concentration",
+            "fix_first": "Ki_u",
+            "note": "Ki_c and Ki_u trade off; from one AUCR fit Ki_c and fix "
+                    "Ki_u to its in-vitro value (or set it high to reduce to "
+                    "competitive inhibition).",
+        },
     },
     "mechanism_based_inhibition": {
         "internal_name": "IrreversibleInhibition", "validated": False,
@@ -334,6 +345,18 @@ INTERACTION_PROCESS_TYPES: dict[str, dict[str, Any]] = {
                        {"name": "K_kinact_half", "unit": "µmol/l"}],
         "description": "irreversible / mechanism-based (time-dependent) inhibition "
                        "(kinact, K_kinact_half) - the enzyme is inactivated.",
+        # from a single AUCR only the inactivation EFFICIENCY kinact/K_kinact_half
+        # (the first-order inactivation rate when [I] << K_half) is identified;
+        # the two parameters individually trade off.
+        "identifiability": {
+            "tradeoff_pair": ["kinact", "K_kinact_half"],
+            "identifiable_combination": "kinact / K_kinact_half (inactivation "
+                "efficiency)",
+            "fix_first": "K_kinact_half",
+            "note": "kinact and K_kinact_half trade off; a single AUCR pins only "
+                    "their ratio. Fix K_kinact_half to its in-vitro value and fit "
+                    "kinact (or report the ratio, not the split).",
+        },
     },
     "induction": {
         "internal_name": "Induction", "validated": False,
@@ -343,8 +366,29 @@ INTERACTION_PROCESS_TYPES: dict[str, dict[str, Any]] = {
                        {"name": "Emax", "unit": ""}],
         "description": "enzyme induction (EC50, Emax) - perpetrator up-regulates "
                        "the target enzyme, increasing its clearance.",
+        # from one AUCR only the induction magnitude at the studied [I],
+        # Emax*[I]/(EC50+[I]), is identified; EC50 and Emax individually trade off
+        # unless arms span [I] both well below and well above EC50.
+        "identifiability": {
+            "tradeoff_pair": ["EC50", "Emax"],
+            "identifiable_combination": "Emax*[I]/(EC50+[I]) at the studied "
+                "perpetrator exposure",
+            "fix_first": "EC50",
+            "note": "EC50 and Emax trade off from a single perpetrator dose. Fix "
+                    "EC50 to its in-vitro value and fit Emax; only arms spanning "
+                    "[I] far below and far above EC50 identify both.",
+        },
     },
 }
+
+
+def interaction_by_internal_name(name: str) -> dict[str, Any]:
+    """Look up a DDI mechanism's catalog entry by its PK-Sim InternalName
+    (e.g. 'IrreversibleInhibition'). Returns {} if unknown."""
+    for entry in INTERACTION_PROCESS_TYPES.values():
+        if entry.get("internal_name") == name:
+            return entry
+    return {}
 
 
 def interaction_process_types() -> list[dict[str, Any]]:
@@ -354,7 +398,11 @@ def interaction_process_types() -> list[dict[str, Any]]:
     return [{"type": k, "internal_name": s["internal_name"],
              "description": s["description"], "validated": s.get("validated", False),
              "internal_name_verified": s.get("internal_name_verified", False),
-             "provenance": s.get("provenance"), "parameters": s["parameters"]}
+             "provenance": s.get("provenance"), "parameters": s["parameters"],
+             # a 2-parameter mechanism trades off from a single interaction ratio;
+             # tell the agent up front which to fix and what is identifiable
+             **({"identifiability": s["identifiability"]}
+                if s.get("identifiability") else {})}
             for k, s in INTERACTION_PROCESS_TYPES.items()]
 
 

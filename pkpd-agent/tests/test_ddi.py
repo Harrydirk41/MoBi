@@ -53,6 +53,24 @@ class TestAnalyzeDDI(unittest.TestCase):
                                   "Treatment_Olkkola1993_Oral"})
         self.assertGreater(len(self.r["unpaired_treatments"]), 10)
 
+    def test_identifiability_flags_mbi_pair_not_single_ki(self):
+        # MBI (kinact/K_kinact_half) is a 2-parameter trade-off -> flagged from a
+        # single ratio; the P-gp competitive Ki (1 parameter) is identifiable ->
+        # never flagged.
+        acts = osp_ddi.ddi_identifiability(self.r, n_observed_ratios=1)
+        mechs = {a["mechanism"] for a in acts}
+        self.assertIn("IrreversibleInhibition", mechs)
+        self.assertNotIn("CompetitiveInhibition", mechs)
+        mbi = next(a for a in acts if a["mechanism"] == "IrreversibleInhibition")
+        self.assertEqual(mbi["severity"], "high")
+        self.assertIn("K_kinact_half", mbi["action"])
+
+    def test_identifiability_relaxes_with_more_arms(self):
+        # given enough independent ratios to separate both parameters, do not flag
+        acts = osp_ddi.ddi_identifiability(self.r, n_observed_ratios=5)
+        self.assertFalse(any(a["mechanism"] == "IrreversibleInhibition"
+                             for a in acts))
+
     def test_single_compound_is_not_ddi(self):
         if os.path.exists(ALF):
             with open(ALF, encoding="utf-8") as fh:

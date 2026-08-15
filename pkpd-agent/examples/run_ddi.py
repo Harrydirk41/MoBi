@@ -51,6 +51,11 @@ def main() -> None:
             print(f"    {p['name']}: {m['internal_name']} on {m['target']} "
                   f"({m['data_source']}) {m['parameters']}")
     print(f"victim: {victim}")
+    idf = osp_ddi.ddi_identifiability(ddi)
+    if idf:
+        print("identifiability (tuning the interaction parameters):")
+        for a in idf:
+            print(f"    [{a['severity']}] {a['mechanism']} on {a['target']}: {a['action']}")
     print(f"control/treatment pairs: {len(ddi['pairs'])}")
     for pr in ddi["pairs"]:
         print(f"    {pr['control']}  ->  {pr['treatment']}  [{pr['route']}]")
