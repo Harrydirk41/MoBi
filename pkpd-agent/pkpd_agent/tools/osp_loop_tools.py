@@ -36,6 +36,29 @@ def _expressed_molecules(snapshot_path: str) -> list[dict]:
     return out
 
 
+_GIVEN_SOURCES = {"Publication", "In Vitro", "In vitro", "Database", "Internet"}
+
+
+def _value_status(value_origin) -> str:
+    """Classify a parameter's CURRENT value by its provenance, so the agent knows
+    which starting numbers to trust. A measured/published value is a real input;
+    a blanked benchmark placeholder is only a naive starting default the agent
+    must DETERMINE (from the data or established physchem knowledge) - not trust.
+    Everything else is a structural value present in the model as-is (e.g. a
+    physical constant like molecular weight, which is correct and trustworthy).
+    This is problem-setup information (which inputs are given vs unknown), not the
+    answer: it never reveals the target value."""
+    vo = value_origin or {}
+    src = vo.get("Source")
+    if src in _GIVEN_SOURCES:
+        return "given"          # measured / published - trust it
+    desc = str(vo.get("Description") or "").lower()
+    if src == "Unknown" and ("blanked" in desc or "naive prior" in desc):
+        return "placeholder"    # a benchmark unknown - determine it, do not trust
+    # untagged / structural value present in the model as-is (constants, defaults)
+    return "structural"
+
+
 def _current_model(snapshot_path: str) -> dict[str, Any]:
     with open(snapshot_path, encoding="utf-8") as fh:
         comp = (json.load(fh).get("Compounds") or [{}])[0]
@@ -50,7 +73,8 @@ def _current_model(snapshot_path: str) -> dict[str, Any]:
                     and nm not in seen:
                 seen.add(nm)
                 params.append({"name": nm, "value": o["Value"],
-                               "unit": o.get("Unit", "")})
+                               "unit": o.get("Unit", ""),
+                               "value_status": _value_status(o.get("ValueOrigin"))})
             for v in o.values():
                 walk(v)
         elif isinstance(o, list):
@@ -79,16 +103,18 @@ def _current_model(snapshot_path: str) -> dict[str, Any]:
             if nm in skip:
                 continue
             if isinstance(nm, str) and isinstance(par.get("Value"), (int, float)):
-                occ[nm].append((mol, par["Value"], par.get("Unit", "")))
+                occ[nm].append((mol, par["Value"], par.get("Unit", ""),
+                                _value_status(par.get("ValueOrigin"))))
     for nm, os_ in occ.items():
         if len(os_) == 1:
             if nm not in seen:
                 seen.add(nm)
-                params.append({"name": nm, "value": os_[0][1], "unit": os_[0][2]})
+                params.append({"name": nm, "value": os_[0][1], "unit": os_[0][2],
+                               "value_status": os_[0][3]})
         else:                                   # collision -> qualify by molecule
-            for mol, val, unit in os_:
+            for mol, val, unit, status in os_:
                 params.append({"name": f"{nm}@{mol}", "value": val, "unit": unit,
-                               "on_process": mol})
+                               "on_process": mol, "value_status": status})
 
     return {
         "parameters": params,
@@ -126,6 +152,13 @@ def register_osp_loop_tools(registry: ToolRegistry, config, ctx: dict) -> None:
     def inspect(args: dict, session) -> ToolResult:
         gd = inp.get("given_data", {}) or {}
         bg = inp.get("background") or {}
+        model = _current_model(snapshot_path)
+        # up-front: which starting values are real inputs vs placeholders to
+        # determine, so the agent does not trust a naive default as if measured.
+        to_determine = [p["name"] for p in model["parameters"]
+                        if p.get("value_status") == "placeholder"]
+        given_in_model = [p["name"] for p in model["parameters"]
+                          if p.get("value_status") == "given"]
         return ToolResult.success(
             "task description: objective, known biology, literature priors, "
             "current model, and the observed clinical data",
@@ -136,8 +169,17 @@ def register_osp_loop_tools(registry: ToolRegistry, config, ctx: dict) -> None:
             literature_physicochemical=gd.get("literature_physicochemical")
             or inp.get("literature_physicochemical"),
             unknowns_guidance=inp.get("unknowns_guidance"),
+            parameters_to_determine=to_determine,
+            given_input_parameters=given_in_model,
+            value_status_note=(
+                "current_model values carry a 'value_status': 'given' = a "
+                "measured/published input (trust it); 'placeholder' = a naive "
+                "benchmark default that is NOT a measurement - determine it from "
+                "the data or from established physchem knowledge, do not trust the "
+                "number shown. The starting value of a placeholder carries no "
+                "information about the answer."),
             evaluation_rubric=inp.get("evaluation_rubric"),
-            current_model=_current_model(snapshot_path),
+            current_model=model,
             observed_overview=_observed_overview(observed),
             valid_partition_methods=PARTITION_METHODS,
             valid_permeability_methods=PERMEABILITY_METHODS,
@@ -214,6 +256,16 @@ def register_osp_loop_tools(registry: ToolRegistry, config, ctx: dict) -> None:
             if "@" in p["name"]:
                 entry["note"] = ("per-process parameter - estimate/set it with this "
                                  "exact qualified name to target only this process")
+            # the CURRENT value's trust status: a placeholder is a naive default,
+            # NOT a measurement - the shown number carries no information.
+            if p.get("value_status") == "placeholder":
+                entry["value_note"] = ("the shown value is a PLACEHOLDER default "
+                                       "(not measured); DETERMINE this parameter - "
+                                       "do not trust the starting number. If you "
+                                       "have a literature/textbook value, fix it "
+                                       "there; otherwise estimate it from the data.")
+            elif p.get("value_status") == "given":
+                entry["value_note"] = "the shown value is a measured/given input - trust it"
             if tier == "constant":
                 entry["rule"] = "measured constant - cannot be estimated; fix it"
             elif tier == "measured_soft":
