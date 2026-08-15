@@ -274,19 +274,34 @@ def _comparison_analysis(agent_structure, ref_structure, parameters,
         fold = a / r
         mag = fold if fold >= 1 else 1.0 / fold
         weak = isinstance(sens, (int, float)) and sens < 0.2
-        if p.get("role") == "fixed":
-            # a FIXED parameter was not estimated, so a difference from the
-            # reference is a prior/choice, not a fitting error - never a "miss".
+        coll = p.get("collinearity")
+        partner = p.get("collinear_with")
+        collinear = isinstance(coll, (int, float)) and coll >= 0.8 and partner
+        if p.get("role") in ("fixed", "held-at-default", "given"):
+            # NOT estimated, so a difference from the reference is a prior/choice,
+            # not a fitting error - never a "miss".
+            held = "held at a default" if p.get("role") == "held-at-default" \
+                else ("a given/literature value" if p.get("role") == "given" else "fixed")
             if mag <= 1.5:
-                verdict, grade = (f"fixed, matches the reference value ({fold:.2g}x)",
+                verdict, grade = (f"{held}, matches the reference value ({fold:.2g}x)",
                                   "good"); n_good += 1
             else:
-                verdict, grade = (f"fixed at a different value ({fold:.2g}x vs "
-                                  "reference); it was held, not estimated - a prior "
-                                  "choice, and the good fit shows it is not critical",
-                                  "soft"); n_soft += 1
+                verdict, grade = (f"{held} that differs from the reference ({fold:.2g}x); "
+                                  "it was not estimated, so this is a prior choice rather "
+                                  "than a fitting error", "soft"); n_soft += 1
         elif mag <= 1.5:
             verdict, grade = f"recovered well ({fold:.2g}x)", "good"; n_good += 1
+        elif collinear:
+            # far from truth AND one-at-a-time-influential, but collinear with
+            # another fitted parameter: the pair trades off, so only their
+            # COMBINATION is identifiable from this data - the individual value
+            # (the split) is not a real, independent error.
+            verdict, grade = (f"off {fold:.2g}x, but collinear with {partner} "
+                              f"(trade-off {coll:.2g}): only their combination is "
+                              "identifiable from plasma parent data, so the split "
+                              "between them is not an independent fitting error - "
+                              "an in-vitro anchor (CLint, fraction metabolized) is "
+                              "needed to apportion it", "soft"); n_soft += 1
         elif mag <= 3.0:
             if weak:
                 verdict, grade = (f"off {fold:.2g}x but weakly identified "
@@ -303,6 +318,7 @@ def _comparison_analysis(agent_structure, ref_structure, parameters,
                                   "bad"); n_bad += 1
         prows.append({"name": p["name"], "agent": a, "reference": r,
                       "fold": round(fold, 3), "sensitivity": sens,
+                      "collinearity": coll, "collinear_with": partner,
                       "verdict": verdict, "grade": grade})
 
     # --- summary ---
@@ -325,9 +341,75 @@ def _comparison_analysis(agent_structure, ref_structure, parameters,
                     f"{n_soft} differ but are weakly identified / minor, and "
                     f"{n_bad} are off despite being influential"
                     + (" (a genuine miss)" if n_bad else "") + ".")
+    n_coll = sum(1 for pr in prows
+                 if isinstance(pr.get("collinearity"), (int, float))
+                 and pr["collinearity"] >= 0.8 and pr.get("collinear_with"))
+    if n_coll:
+        bits.append(f"{n_coll} of the fitted parameters are collinear (trade off "
+                    "against a partner), so the data constrain their combination "
+                    "but not their individual values - the split needs an in-vitro "
+                    "anchor rather than more plasma data.")
     return {"structure": struct, "parameters": prows,
             "fit": {"agent_gmfe": ag, "reference_gmfe": rg},
             "summary": " ".join(bits)}
+
+
+_GIVEN_ORIGINS = {"Publication", "In Vitro", "In vitro", "Database", "Internet",
+                  "Other", "ParameterIdentification"}
+
+
+def _estimable_leftovers(comp, listed_names, ref_params):
+    """Estimate-tier parameters present in the FINAL model but neither fitted nor
+    shown as a fixed row - i.e. sitting at a value that still shaped the curves
+    yet is invisible in the parameter table. Lipophilicity and permeabilities can
+    end up here when the winning model came from a manual osp_try_model that only
+    re-set clearances, leaving distribution/absorption at a default. Surfacing
+    them keeps the table honest: nothing that moved the fit is hidden."""
+    listed = set(listed_names)
+    rows, seen = [], set()
+
+    def consider(name, val, origin, molecule=None):
+        # a per-process parameter may be fitted under a QUALIFIED key
+        # (Name@Molecule); a plain-named block parameter under its bare name.
+        # Treat the parameter as already-shown if EITHER form is in the listed
+        # (estimated/fixed) set, so a fitted clearance is not re-listed as unfitted.
+        qual = f"{name}@{molecule}" if molecule else name
+        if not name or qual in seen:
+            return
+        if name in listed or qual in listed:
+            return
+        if not isinstance(val, (int, float)):
+            return
+        if osp_catalog.param_tier(name) != "estimate":
+            return
+        seen.add(qual)
+        src = (origin or {}).get("Source") if isinstance(origin, dict) else None
+        if src in _GIVEN_ORIGINS:
+            role, note = "given", f"literature/given value ({src}), not fitted"
+        else:
+            role, note = "held-at-default", ("not fitted and carries no literature "
+                                             "origin - an unvalidated default that "
+                                             "still shaped the fit")
+        cat = osp_catalog.describe_parameter(name)
+        rows.append({"name": qual, "value": val, "unit": cat.get("unit", ""),
+                     "role": role, "note": note,
+                     "plausible_range": cat.get("range"),
+                     "reference": ref_params.get(qual, ref_params.get(name))})
+
+    for blk in ("Lipophilicity", "FractionUnbound", "Solubility", "Permeability",
+                "Parameters"):
+        for e in comp.get(blk, []) or []:
+            plist = e.get("Parameters") if isinstance(e, dict) and "Parameters" in e \
+                else [e]
+            for p in plist or []:
+                if isinstance(p, dict) and "Name" in p:
+                    consider(p.get("Name"), p.get("Value"), p.get("ValueOrigin"))
+    for proc in comp.get("Processes", []) or []:
+        mol = proc.get("Molecule")
+        for p in proc.get("Parameters", []) or []:
+            if isinstance(p, dict):
+                consider(p.get("Name"), p.get("Value"), p.get("ValueOrigin"), mol)
+    return rows
 
 
 def assemble(session, config, cli, input_dict, snapshot_path, best_edits,
@@ -396,10 +478,13 @@ def assemble(session, config, cli, input_dict, snapshot_path, best_edits,
         # optimized set was estimated, even if the catalog's default role is
         # "measured" (e.g. fraction unbound moved into the fit). Do not let the
         # static catalog label contradict the trajectory.
+        sen = sensitivity.get(name) or {}
         params.append({"name": name, "value": val, "unit": cat.get("unit", ""),
                        "role": "estimated",
                        "plausible_range": cat.get("range"),
-                       "sensitivity": (sensitivity.get(name) or {}).get("relative"),
+                       "sensitivity": sen.get("relative"),
+                       "collinearity": sen.get("collinearity"),
+                       "collinear_with": sen.get("collinear_with"),
                        "reference": ref_params.get(name)})
     # fixed parameters (held at literature values, e.g. GFR fraction = 0) shown
     # as their own rows so the table is complete and unambiguous.
@@ -413,6 +498,13 @@ def assemble(session, config, cli, input_dict, snapshot_path, best_edits,
                            "plausible_range": cat.get("range"),
                            "reference": ref_params.get(name)})
 
+    # estimate-tier parameters left at a default by the winning model (e.g. a
+    # try_model that only re-set clearances) - shown so the table hides nothing
+    # that shaped the curves.
+    listed = set(estimated) | set(fixed)
+    leftover_rows = _estimable_leftovers(comp, listed, ref_params)
+    all_param_rows = params + fixed_rows + leftover_rows
+
     diag = _diagnostics(session, best_edits, fit)
     bg = input_dict.get("background") or {}
     d = ReportData(
@@ -423,12 +515,12 @@ def assemble(session, config, cli, input_dict, snapshot_path, best_edits,
         data_overview={"n_datasets": len(observed),
                        "routes": sorted({o.get("route") for o in observed if o.get("route")})},
         nca_rows=[_nca(o) for o in observed],
-        structure=structure, parameters=params + fixed_rows, fit=fit, reference=ref,
+        structure=structure, parameters=all_param_rows, fit=fit, reference=ref,
         profiles=profiles, narrative={}, trajectory=_trajectory(session),
         diagnostics=diag, status=_status_banner(diag),
         odes=_ode_section(structure, params, fixed),
         comparison=_comparison_analysis(structure, ref_structure,
-                                        params + fixed_rows, fit, ref),
+                                        all_param_rows, fit, ref),
         literature=(input_dict.get("given_data", {}) or {}).get(
             "literature_physicochemical", []) or [])
     d.narrative = (llm_narrative(d, config) if config and config.anthropic_key_present()
@@ -503,8 +595,9 @@ def deterministic_narrative(d: "ReportData") -> dict[str, str]:
     for p in d.parameters:
         rng = p.get("plausible_range")
         v = p.get("value")
-        if p.get("role") == "fixed":
-            continue   # rationale is about the estimated parameters
+        if p.get("role") != "estimated":
+            continue   # rationale is about the estimated parameters only
+            # (fixed / given / held-at-default are shown in the table, not here)
         msg = f"- {p['name']} = {v:.4g} {p.get('unit','')}".rstrip()
         # compare against the independent literature anchor when one exists
         anchor = _lit_anchor(p["name"], d.literature) if v is not None else None
@@ -671,13 +764,23 @@ def llm_narrative(d: "ReportData", config) -> dict[str, str]:
                 "not be over-interpreted, regardless of how plausible it looks; a "
                 "high sensitivity means the value is well determined. A good fit "
                 "with a low-sensitivity parameter far from its expected value is a "
-                "caution, not a success.\n"
+                "caution, not a success. A parameter may also carry a "
+                "'collinearity' in [0,1] with a named 'collinear_with' partner: a "
+                "high value means the two trade off, so ONLY their combination is "
+                "identifiable - individually high one-at-a-time sensitivity is "
+                "then MISLEADING, and you must say the split between them is not "
+                "pinned by the data (needs an in-vitro anchor), not that each is "
+                "well determined.\n"
                 "Describe ONLY what happened: honor run_facts - if "
                 "optimization_completed or parameters_were_fitted is false, do NOT "
                 "claim parameters were fitted; call them un-fitted/preliminary. "
                 "Match the tone to fit_verdict - never call a 'poor' fit adequate. "
-                "Each parameter is labelled role=estimated or role=fixed - describe "
-                "it as such (never call an estimated parameter 'measured'). Keep "
+                "Each parameter carries a role: estimated (fitted), fixed / given "
+                "(held at a literature value), or held-at-default (left at an "
+                "unvalidated default - NOT fitted and NOT literature-backed, flag "
+                "it as an assumption the reader should check). Describe each by its "
+                "role; never call an estimated parameter 'measured' nor a "
+                "held-at-default value 'fitted'. Keep "
                 "each section focused: 1-2 tight paragraphs; ALWAYS fill the "
                 "conclusion. Call write_sections."),
             tools=[tool],
@@ -767,9 +870,16 @@ def write_html(d: ReportData, path: str) -> None:
         if not isinstance(s, (int, float)):
             return "-"
         tag = "weak" if s < 0.1 else ("moderate" if s < 0.4 else "strong")
-        return f"{s:.2g} ({tag})"
+        c = p.get("collinearity")
+        ctag = (f", collinear ~{p.get('collinear_with')}"
+                if isinstance(c, (int, float)) and c >= 0.8
+                and p.get("collinear_with") else "")
+        return f"{s:.2g} ({tag}{ctag})"
+    def _role_cell(p):
+        role = p.get("role", "")
+        return f"{role} — {p['note']}" if p.get("note") else role
     param_rows = [[p["name"], f"{p.get('value'):.4g}" if isinstance(p.get("value"), (int, float)) else p.get("value"),
-                   p.get("unit", ""), p.get("role", ""),
+                   p.get("unit", ""), _role_cell(p),
                    p.get("plausible_range", ""), _sens_cell(p),
                    f"{p.get('reference'):.4g}" if isinstance(p.get("reference"), (int, float)) else "-"]
                   for p in d.parameters]
@@ -967,8 +1077,14 @@ def write_pdf(d: ReportData, path: str) -> bool:
         for p in d.parameters:
             s = p.get("sensitivity")
             stag = (f" sens={s:.2g}" if isinstance(s, (int, float)) else "")
+            c = p.get("collinearity")
+            ctag = (f" collinear~{p.get('collinear_with')}({c:.2g})"
+                    if isinstance(c, (int, float)) and c >= 0.8
+                    and p.get("collinear_with") else "")
             pr.append(f"  {p['name']} = {p.get('value')} {p.get('unit','')}  "
-                      f"[{p.get('role','')}]{stag} ref={p.get('reference','-')}")
+                      f"[{p.get('role','')}]{stag}{ctag} ref={p.get('reference','-')}")
+            if p.get("note"):
+                pr.append(f"      ^ {p['note']}")
         pr += ["", "PHARMACOLOGICAL RATIONALE", d.narrative.get("parameter_rationale", "")]
         text_page(pdf, "Model, parameters & rationale", pr)
 

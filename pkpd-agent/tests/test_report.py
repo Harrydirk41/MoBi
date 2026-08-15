@@ -224,7 +224,27 @@ class TestGroundTruthComparison(unittest.TestCase):
         c = self._cmp([{"name": "Permeability", "value": 0.0015, "reference": 0.0069,
                         "sensitivity": None, "role": "fixed"}])
         self.assertEqual(c["parameters"][0]["grade"], "soft")
-        self.assertIn("not critical", c["parameters"][0]["verdict"])
+        self.assertIn("prior choice", c["parameters"][0]["verdict"])
+
+    def test_collinear_far_off_is_not_a_miss(self):
+        # two influential clearances that trade off: far from truth AND high
+        # one-at-a-time sensitivity, but collinear -> only the combination is
+        # identifiable, so the split is NOT graded a real miss.
+        c = self._cmp([{"name": "CLspec/[Enzyme]@UGT2B7", "value": 0.08,
+                        "reference": 0.0066, "sensitivity": 1.0,
+                        "collinearity": 0.94, "collinear_with": "CLspec/[Enzyme]@UGT1A9",
+                        "role": "estimated"}])
+        self.assertEqual(c["parameters"][0]["grade"], "soft")
+        self.assertIn("collinear", c["parameters"][0]["verdict"].lower())
+        self.assertIn("collinear", c["summary"].lower())
+
+    def test_held_at_default_far_off_is_not_a_miss(self):
+        # an estimate-tier parameter left at a bare default is a prior choice,
+        # not a fitting error (it was never estimated).
+        c = self._cmp([{"name": "Lipophilicity", "value": 2.1, "reference": 0.7,
+                        "sensitivity": None, "role": "held-at-default"}])
+        self.assertEqual(c["parameters"][0]["grade"], "soft")
+        self.assertIn("not estimated", c["parameters"][0]["verdict"])
 
     def test_no_reference_yields_empty(self):
         from pkpd_agent.report import _comparison_analysis

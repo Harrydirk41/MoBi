@@ -93,8 +93,16 @@ def run_optimization(cli: OSPCli, snapshot_path: str, observed: list[dict],
     names = list(estimate.keys())
     los = np.array([float(estimate[n][0]) for n in names], float)
     his = np.array([float(estimate[n][1]) for n in names], float)
-    if np.any(los <= 0):
-        return {"ok": False, "message": "bounds must be positive (log-space fit)"}
+    # the fit runs in log10 space, so bounds must be strictly positive with hi>lo.
+    # A non-positive UPPER bound (or hi<=lo) is genuinely broken -> fail. But a
+    # lower bound of 0 is a common, benign ">= 0" intent; clamp it to a small
+    # fraction of the upper bound rather than failing the whole call and forcing
+    # the agent to burn a retry.
+    if np.any(his <= 0) or np.any(his <= los):
+        return {"ok": False, "message": "each parameter needs bounds [lo, hi] with "
+                "0 <= lo < hi and hi > 0 (the fit is in log space)"}
+    clamped = [names[i] for i in range(len(los)) if los[i] <= 0]
+    los = np.where(los <= 0, his * 1e-6, los)
 
     # subset of simulations to fit against
     all_sims = cli.simulation_names(snapshot_path)
@@ -179,6 +187,7 @@ def run_optimization(cli: OSPCli, snapshot_path: str, observed: list[dict],
                             "gmfe": d["gmfe"], "bias": d["bias"]}
                            for d in score["per_dataset"][:3]],
         "params_at_bound": at_bound,
+        "bounds_clamped": clamped or None,
         "sensitivity": sensitivity,
         "n_evals": len(history),
         "fit_simulations": subset,
@@ -214,6 +223,61 @@ def _local_sensitivity(eval_at, log_sse, observed_sub, subset, optimized, names,
             deltas.append(abs(log_sse(observed_sub, pred)[0] - base))
         raw[n] = (sum(deltas) / len(deltas)) if deltas else 0.0
     top = max(raw.values()) if raw else 0.0
-    return {n: {"obj_change": round(v, 5),
-                "relative": round(v / top, 3) if top > 0 else 0.0}
-            for n, v in raw.items()}
+    coll = _collinearity(eval_at, log_sse, observed_sub, subset, optimized,
+                         names, best, lx, hx, base, step)
+    out = {}
+    for n, v in raw.items():
+        partner, c = coll.get(n, (None, 0.0))
+        out[n] = {"obj_change": round(v, 5),
+                  "relative": round(v / top, 3) if top > 0 else 0.0,
+                  "collinearity": c, "collinear_with": partner}
+    return out
+
+
+def _collinearity(eval_at, log_sse, observed_sub, subset, optimized, names,
+                  best, lx, hx, base, step: float = 0.15) -> dict:
+    """Pairwise collinearity (trade-off) around the fitted optimum.
+
+    One-at-a-time sensitivity is blind to *correlated* parameters: two clearances
+    acting on the same parent can each look influential while only their sum is
+    identifiable (their split trades off freely). At the optimum the gradient is
+    ~0, so a perturbation's effect is curvature-driven. For a pair (i, j) we
+    compare the two joint diagonal moves - both-up (i+, j+) and opposed (i+, j-).
+    If one direction is much flatter than the other, there is a near-flat
+    trade-off direction: the pair is collinear and their individual values are
+    not separately identifiable (only their combination is constrained).
+
+    collinearity = 1 - min(d_up, d_opp) / max(d_up, d_opp), in [0, 1]; ~1 means a
+    flat trade-off exists. Returns {param: (strongest_partner, collinearity)}.
+    Capped at 8 fitted parameters to bound the O(n^2) extra evaluations."""
+    import numpy as np
+    n = len(names)
+    best_pair = {nm: (None, 0.0) for nm in names}
+    if n < 2 or n > 8:
+        return best_pair
+
+    def joint_obj(i, dj_i, j, dj_j):
+        pert = dict(optimized)
+        for k, dk in ((i, dj_i), (j, dj_j)):
+            xp = float(np.clip(best[k] + dk, lx[k], hx[k]))
+            pert[names[k]] = float(10 ** xp)
+        pred, _ = eval_at(pert, subset)
+        if pred is None:
+            return None
+        return abs(log_sse(observed_sub, pred)[0] - base)
+
+    for i in range(n):
+        for j in range(i + 1, n):
+            d_up = joint_obj(i, +step, j, +step)
+            d_opp = joint_obj(i, +step, j, -step)
+            if d_up is None or d_opp is None:
+                continue
+            hi, lo = max(d_up, d_opp), min(d_up, d_opp)
+            if hi <= 1e-9:
+                continue
+            c = round(1.0 - lo / hi, 3)
+            if c > best_pair[names[i]][1]:
+                best_pair[names[i]] = (names[j], c)
+            if c > best_pair[names[j]][1]:
+                best_pair[names[j]] = (names[i], c)
+    return best_pair
