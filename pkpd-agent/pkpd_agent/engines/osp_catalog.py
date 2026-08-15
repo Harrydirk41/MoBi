@@ -72,6 +72,57 @@ PARAM_CATALOG: dict[str, dict[str, Any]] = {
                          "not attributed to a specific enzyme",
                          "range": [1e-3, 100.0], "unit": "ml/min/kg", "role": "estimate",
                          "tier": "estimate"},
+    # --- specific-clearance (enzyme-kinetic) family ----------------------
+    # On a MetabolizationSpecific process the INPUT you fit is CLspec/[Enzyme];
+    # 'Specific clearance' and 'Enzyme concentration' are its derived/structural
+    # siblings, not independent knobs - fit CLspec/[Enzyme], not those.
+    "CLspec/[Enzyme]": {
+        "description": "specific intrinsic clearance normalised to enzyme "
+        "concentration (CLint per unit enzyme) for a specific-clearance "
+        "metabolization process; THIS is the fittable clearance for such a "
+        "process. With several enzymes on one compound each is targeted by the "
+        "qualified name 'CLspec/[Enzyme]@<Molecule>'. Plasma parent data pin only "
+        "total clearance, so the split across enzymes is weakly identifiable "
+        "without in-vitro CLint",
+        "range": [1e-3, 100.0], "unit": "1/min", "role": "estimate", "tier": "estimate"},
+    "Specific clearance": {
+        "description": "DERIVED product CLspec/[Enzyme] x enzyme concentration - a "
+        "structural output of the specific-clearance process, NOT an independent "
+        "knob; fit CLspec/[Enzyme] instead (this usually reads 0 until built)",
+        "range": [0.0, 1e3], "unit": "1/min", "role": "derived", "tier": "estimate"},
+    "Enzyme concentration": {
+        "description": "enzyme abundance the specific clearance is scaled by; a "
+        "structural input set by the expression profile, not a free fitting knob - "
+        "fit CLspec/[Enzyme] instead",
+        "range": [1e-6, 1e3], "unit": "µmol/l", "role": "derived", "tier": "estimate"},
+    # --- DDI interaction-mechanism parameters (perpetrator on victim enzyme) ---
+    "Ki": {"description": "reversible inhibition constant - perpetrator "
+           "concentration for half-maximal enzyme/transporter inhibition (lower = "
+           "stronger inhibitor)",
+           "range": [1e-4, 1e3], "unit": "µmol/l", "role": "estimate", "tier": "estimate"},
+    "Ki_c": {"description": "competitive component of mixed inhibition (Ki for the "
+             "competitive term); trades off with Ki_u from a single ratio",
+             "range": [1e-4, 1e3], "unit": "µmol/l", "role": "estimate", "tier": "estimate"},
+    "Ki_u": {"description": "uncompetitive component of mixed inhibition; trades off "
+             "with Ki_c - fix one, fit the other from a single interaction ratio",
+             "range": [1e-4, 1e3], "unit": "µmol/l", "role": "estimate", "tier": "estimate"},
+    "kinact": {"description": "maximal inactivation rate of mechanism-based "
+               "(irreversible) inhibition; with K_kinact_half only their ratio "
+               "(kinact/K_kinact_half, the inactivation efficiency) is identified "
+               "from a single interaction ratio",
+               "range": [1e-4, 10.0], "unit": "1/min", "role": "estimate", "tier": "estimate"},
+    "K_kinact_half": {"description": "perpetrator concentration for half-maximal "
+                      "inactivation in mechanism-based inhibition; trades off with "
+                      "kinact - fix to its in-vitro value and fit kinact",
+                      "range": [1e-3, 1e3], "unit": "µmol/l", "role": "estimate", "tier": "estimate"},
+    "EC50": {"description": "perpetrator concentration for half-maximal enzyme "
+             "induction; trades off with Emax unless arms span [I] far below and "
+             "above it - usually fixed to its in-vitro value",
+             "range": [1e-3, 1e3], "unit": "µmol/l", "role": "estimate", "tier": "estimate"},
+    "Emax": {"description": "maximal fold-induction of the target enzyme by the "
+             "perpetrator (dimensionless, added to baseline 1); trades off with "
+             "EC50 from a single perpetrator dose",
+             "range": [0.0, 50.0], "unit": "", "role": "estimate", "tier": "estimate"},
     # --- large molecules (proteins / monoclonal antibodies) --------------
     "Radius (solute)": {"description": "hydrodynamic radius of a large molecule "
                         "(protein/mAb); governs size-limited tissue permeation",
