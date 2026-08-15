@@ -7,7 +7,8 @@ a parameter the objective responds to strongly must come out near 1.
 import math
 import unittest
 
-from pkpd_agent.engines.osp_optimize import _local_sensitivity, run_optimization
+from pkpd_agent.engines.osp_optimize import (_local_sensitivity, run_optimization,
+                                             _identifiability_actions)
 
 
 class TestLocalSensitivity(unittest.TestCase):
@@ -114,6 +115,46 @@ class TestEarlyAbortOnBrokenModel(unittest.TestCase):
         # the failure reason reached the progress callback, not just "FAILED"
         self.assertTrue(any(len(a) >= 4 and a[3] and "MapToModel" in a[3]
                             for a in seen))
+
+
+class TestIdentifiabilityActions(unittest.TestCase):
+    """The optimizer must turn identifiability evidence into concrete actions so
+    the agent fixes unidentifiable parameters instead of re-floating them."""
+
+    def test_weak_parameter_gets_fix_action(self):
+        sens = {"Lipophilicity": {"relative": 0.0, "collinearity": 0.0,
+                                  "collinear_with": None},
+                "CL": {"relative": 1.0, "collinearity": 0.0, "collinear_with": None}}
+        acts = _identifiability_actions(["Lipophilicity", "CL"], sens, [])
+        lip = [a for a in acts if a["parameter"] == "Lipophilicity"]
+        self.assertEqual(len(lip), 1)
+        self.assertEqual(lip[0]["severity"], "high")
+        self.assertIn("FIX", lip[0]["action"])
+        # a well-identified parameter gets no action
+        self.assertFalse(any(a["parameter"] == "CL" for a in acts))
+
+    def test_collinear_pair_gets_one_action(self):
+        sens = {"A": {"relative": 0.5, "collinearity": 0.9, "collinear_with": "B"},
+                "B": {"relative": 0.5, "collinearity": 0.9, "collinear_with": "A"}}
+        acts = _identifiability_actions(["A", "B"], sens, [])
+        coll = [a for a in acts if "collinear" in a["issue"]]
+        self.assertEqual(len(coll), 1)                     # one per pair, not two
+
+    def test_weak_member_suppresses_redundant_collinear_note(self):
+        # A is weak (fix it) AND collinear with B -> only the fix action, since
+        # fixing A resolves the trade-off.
+        sens = {"A": {"relative": 0.0, "collinearity": 0.9, "collinear_with": "B"},
+                "B": {"relative": 0.5, "collinearity": 0.9, "collinear_with": "A"}}
+        acts = _identifiability_actions(["A", "B"], sens, [])
+        self.assertTrue(any(a["parameter"] == "A" and a["severity"] == "high"
+                            for a in acts))
+        self.assertFalse(any("collinear" in a["issue"] for a in acts))
+
+    def test_at_bound_gets_action(self):
+        sens = {"P": {"relative": 0.5, "collinearity": 0.0, "collinear_with": None}}
+        acts = _identifiability_actions(
+            ["P"], sens, [{"parameter": "P", "value": 1e-5, "bound": "lower"}])
+        self.assertTrue(any("bound" in a["issue"] for a in acts))
 
 
 if __name__ == "__main__":

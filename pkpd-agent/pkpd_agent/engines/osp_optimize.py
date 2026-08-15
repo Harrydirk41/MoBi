@@ -206,6 +206,12 @@ def run_optimization(cli: OSPCli, snapshot_path: str, observed: list[dict],
     sensitivity = _local_sensitivity(eval_at, _log_sse, observed_sub, subset,
                                      optimized, names, best, lx, hx)
 
+    # turn the identifiability EVIDENCE into concrete next-step ACTIONS so the
+    # agent stops floating parameters the data cannot pin (the lipophilicity->0
+    # failure mode): fix them to a known/literature value and refit a smaller,
+    # better-conditioned set.
+    actions = _identifiability_actions(names, sensitivity, at_bound)
+
     # final fit on the FULL observed set
     predicted_full, res_full = eval_at(optimized, None)
     if predicted_full is None:
@@ -223,6 +229,7 @@ def run_optimization(cli: OSPCli, snapshot_path: str, observed: list[dict],
         "params_at_bound": at_bound,
         "bounds_clamped": clamped or None,
         "sensitivity": sensitivity,
+        "recommendations": actions,
         "n_evals": len(history),
         "fit_simulations": subset,
     }
@@ -315,3 +322,71 @@ def _collinearity(eval_at, log_sse, observed_sub, subset, optimized, names,
             if c > best_pair[names[j]][1]:
                 best_pair[names[j]] = (names[i], c)
     return best_pair
+
+
+# thresholds for turning identifiability evidence into next-step actions
+_WEAK_SENS = 0.1        # relative sensitivity below this = data barely constrain it
+_HIGH_COLL = 0.8        # collinearity at/above this = a real trade-off partner
+
+
+def _identifiability_actions(names, sensitivity, at_bound) -> list[dict]:
+    """Turn identifiability EVIDENCE (sensitivity, collinearity, bounds) into
+    concrete next-step ACTIONS, so the agent stops re-fitting parameters the data
+    cannot pin. Each action names the parameter, the problem, and what to do -
+    the agent still decides, but it is told the productive move rather than being
+    left to re-discover it. Returns a list of {parameter, issue, action, severity}."""
+    acts: list[dict] = []
+    bound_names = {b["parameter"] for b in (at_bound or [])}
+
+    # 1. weakly-identified parameters -> fix to a known/literature value, refit
+    weak = [n for n in names
+            if (sensitivity.get(n) or {}).get("relative", 1.0) < _WEAK_SENS]
+    for n in weak:
+        acts.append({
+            "parameter": n,
+            "issue": "near-zero sensitivity - the observed data do not constrain "
+                     "this parameter, so its fitted value is an optimizer artifact",
+            "action": f"FIX '{n}' to a known/literature value (use the given "
+                      "literature anchor, or your own pharmacological knowledge, "
+                      "e.g. a measured logP/logD for lipophilicity, a reported pKa) "
+                      "instead of estimating it, then refit only the parameters the "
+                      "data actually constrain",
+            "severity": "high"})
+
+    # 2. collinear pairs -> fix one member (prefer one with an anchor), fit the rest.
+    # skip a pair where a member is already flagged weak: fixing that member (rec 1)
+    # resolves the trade-off, so a separate collinearity note would be redundant.
+    weak_set = set(weak)
+    seen_pairs = set()
+    for n in names:
+        s = sensitivity.get(n) or {}
+        partner = s.get("collinear_with")
+        c = s.get("collinearity") or 0.0
+        if partner and c >= _HIGH_COLL and n not in weak_set and partner not in weak_set:
+            key = tuple(sorted((n, partner)))
+            if key in seen_pairs:
+                continue
+            seen_pairs.add(key)
+            acts.append({
+                "parameter": n,
+                "issue": f"collinear with '{partner}' (trade-off {c:.2g}) - only "
+                         "their combination is identifiable from this data, not "
+                         "their individual values",
+                "action": f"FIX one of ('{n}', '{partner}') - prefer the one with a "
+                          "literature anchor - and estimate only the other, so the "
+                          "fit is well-conditioned instead of trading the two off",
+                "severity": "medium"})
+
+    # 3. parameters pinned to a bound -> the bound is doing the fitting
+    for b in at_bound or []:
+        if b["parameter"] in weak:
+            continue                       # already covered by the stronger note
+        acts.append({
+            "parameter": b["parameter"],
+            "issue": f"hit its {b['bound']} bound ({b['value']:.3g}) - the bound, "
+                     "not the data, is setting this value",
+            "action": "either widen the bound if the value is physically plausible, "
+                      "or fix the parameter to a literature value if it is being "
+                      "pushed to an implausible extreme",
+            "severity": "medium"})
+    return acts

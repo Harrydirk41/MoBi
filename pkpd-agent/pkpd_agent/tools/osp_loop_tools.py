@@ -365,20 +365,35 @@ def register_osp_loop_tools(registry: ToolRegistry, config, ctx: dict) -> None:
                         {"parameters": r["optimized"], "fix": args.get("fix") or {},
                          **(args.get("structure") or {})})
             session.put("osp_best_sensitivity", r.get("sensitivity") or {})
+        recs = r.get("recommendations") or []
+        # surface the actionable identifiability findings first in the message so
+        # the agent acts on them (fix unidentifiable params, refit) rather than
+        # re-floating the same parameters next round.
+        rec_line = ""
+        if recs:
+            hi = [a for a in recs if a.get("severity") == "high"]
+            lead = hi[0] if hi else recs[0]
+            rec_line = (f" | NEXT: {lead['action']}"
+                        + (f" (+{len(recs)-1} more identifiability note(s))"
+                           if len(recs) > 1 else ""))
         return ToolResult.success(
             f"optimized {list(r['optimized'])} on {len(r['fit_simulations'])} "
             f"study(ies) -> GMFE {gmfe} "
-            f"(best so far {session.get('osp_best_gmfe')})",
+            f"(best so far {session.get('osp_best_gmfe')}){rec_line}",
             optimized=r["optimized"], fit=r["fit"], by_route=r["by_route"],
             worst_datasets=r["worst_datasets"],
             params_at_bound=r["params_at_bound"],
             sensitivity=r.get("sensitivity"),
+            recommendations=recs,
             sensitivity_hint=("'relative' is each parameter's local influence on "
                               "the fit, normalised to the most influential (1.0). "
                               "A parameter with a small 'relative' is weakly "
                               "constrained by the data - its fitted value is "
-                              "uncertain; consider fixing it or not over-"
-                              "interpreting it."),
+                              "uncertain. ACT on 'recommendations': fix a weakly-"
+                              "identified or collinear parameter to a known/"
+                              "literature value and refit the identifiable set - "
+                              "do not keep floating a parameter the data cannot "
+                              "pin (it lands on an artifact)."),
             parameter_flags=flags,
             measured_constraints=constraint_notes or None,
             n_evals=r["n_evals"], fit_simulations=r["fit_simulations"],
