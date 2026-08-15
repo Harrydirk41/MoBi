@@ -22,6 +22,19 @@ from typing import Any
 from . import osp_score
 from .osp_cli import OSPCli
 
+# abort an optimization this many failed evals in if the model has never once
+# built/run - the failure is structural, so more evals cannot help.
+_ABORT_AFTER = 3
+
+
+class _ModelNeverRan(Exception):
+    """Raised inside the objective when the model fails to build/run repeatedly
+    before any successful evaluation - a structural error, not a fitting one."""
+
+    def __init__(self, detail):
+        self.detail = detail or "no error detail from PK-Sim"
+        super().__init__(self.detail)
+
 
 # --------------------------------------------------------------------------- #
 # choose a representative subset of simulations to fit against (for speed)
@@ -133,16 +146,26 @@ def run_optimization(cli: OSPCli, snapshot_path: str, observed: list[dict],
             observed_sub if sims is subset else observed)
         return predicted, res
 
+    state = {"n_ok": 0}                       # did the model ever run at all?
+
     def objective(x):
         xc = np.clip(x, lx, hx)
         penalty = float(np.sum((x - xc) ** 2)) * 10.0
         values = {n: float(10 ** xc[i]) for i, n in enumerate(names)}
         predicted, res = eval_at(values, subset)
         if predicted is None:
-            history.append({"values": values, "obj": None, "error": res.get("message")})
+            err = res.get("message")
+            history.append({"values": values, "obj": None, "error": err})
             if on_eval:
-                on_eval(len(history), values, None)
+                on_eval(len(history), values, None, err)
+            # if the model has NEVER run and keeps failing to build/run, the
+            # problem is the model configuration (structure/methods/process), not
+            # the parameter values - every future eval will fail identically.
+            # Abort early with the real error instead of burning the whole budget.
+            if state["n_ok"] == 0 and len(history) >= _ABORT_AFTER:
+                raise _ModelNeverRan(err)
             return 1e6 + penalty
+        state["n_ok"] += 1
         sse, npts = _log_sse(observed_sub, predicted)
         history.append({"values": values, "log_sse": round(sse, 5), "n": npts})
         if on_eval:
@@ -150,8 +173,19 @@ def run_optimization(cli: OSPCli, snapshot_path: str, observed: list[dict],
         return sse + penalty
 
     x0 = (lx + hx) / 2.0
-    res = minimize(objective, x0, method="Nelder-Mead",
-                   options={"maxfev": max_evals, "xatol": 0.02, "fatol": 1e-3})
+    try:
+        res = minimize(objective, x0, method="Nelder-Mead",
+                       options={"maxfev": max_evals, "xatol": 0.02, "fatol": 1e-3})
+    except _ModelNeverRan as exc:
+        return {"ok": False, "run_never_succeeded": True,
+                "message": (f"the model failed to build/run on all {len(history)} "
+                            f"attempts before any parameter could be fitted: "
+                            f"{exc.detail}. This is a STRUCTURE/configuration "
+                            "problem (calculation methods, processes, or a "
+                            "parameter key that does not exist), NOT a parameter-"
+                            "value or bounds problem - fix the model setup, not the "
+                            "bounds."),
+                "n_evals": len(history)}
     best = np.clip(res.x, lx, hx)
     optimized = {n: float(10 ** best[i]) for i, n in enumerate(names)}
 

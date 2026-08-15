@@ -329,10 +329,13 @@ def register_osp_loop_tools(registry: ToolRegistry, config, ctx: dict) -> None:
                             f"its measured range [{mr[0]:.3g}, {mr[1]:.3g}] "
                             f"(requested [{lo:.3g}, {hi:.3g}]).")
 
-        def _progress(i, values, sse):
+        def _progress(i, values, sse, error=None):
             vs = ", ".join(f"{k}={v:.3g}" for k, v in values.items())
-            msg = (f"       eval {i}: log_sse={sse} [{vs}]" if sse is not None
-                   else f"       eval {i}: run FAILED [{vs}]")
+            if sse is not None:
+                msg = f"       eval {i}: log_sse={sse} [{vs}]"
+            else:
+                why = f" — {error}" if error else ""
+                msg = f"       eval {i}: run FAILED{why} [{vs}]"
             print(msg, flush=True)
 
         r = OO.run_optimization(

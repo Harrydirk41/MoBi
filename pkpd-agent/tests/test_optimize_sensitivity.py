@@ -7,7 +7,7 @@ a parameter the objective responds to strongly must come out near 1.
 import math
 import unittest
 
-from pkpd_agent.engines.osp_optimize import _local_sensitivity
+from pkpd_agent.engines.osp_optimize import _local_sensitivity, run_optimization
 
 
 class TestLocalSensitivity(unittest.TestCase):
@@ -77,6 +77,43 @@ class TestCollinearity(unittest.TestCase):
                                self.optimized, self.names, self.best,
                                self.lx, self.hx)
         self.assertLess(s["a"]["collinearity"], 0.5)
+
+
+class TestEarlyAbortOnBrokenModel(unittest.TestCase):
+    """When the model fails to build/run on every attempt (a structural error),
+    the optimizer must abort early with the real reason instead of burning the
+    whole eval budget wiggling parameters against a model that never runs."""
+
+    class _FailCli:
+        def __init__(self, msg):
+            self.msg = msg
+            self.calls = 0
+
+        def simulation_names(self, p):
+            return ["StudyA - PO - 10 mg"]
+
+        def build_and_run(self, path, edits=None, simulations=None,
+                          prune_simulations=False):
+            self.calls += 1
+            return {"ok": False, "message": self.msg}
+
+    def test_aborts_early_and_surfaces_error(self):
+        cli = self._FailCli("MapToModel: unknown process reference")
+        obs = [{"dataset": "StudyA - PO - 10 mg", "study": "StudyA", "route": "PO",
+                "dose": "10 mg", "time_h": [1, 2, 4], "conc_mg_L": [0.1, 0.08, 0.05]}]
+        seen = []
+        r = run_optimization(cli, "snap.json", obs,
+                             estimate={"Lipophilicity": [0.1, 5.0],
+                                       "Permeability": [1e-6, 1.0]},
+                             max_evals=30, on_eval=lambda *a: seen.append(a))
+        self.assertFalse(r["ok"])
+        self.assertTrue(r.get("run_never_succeeded"))
+        self.assertEqual(r["n_evals"], 3)                 # not 30
+        self.assertIn("MapToModel", r["message"])
+        self.assertIn("STRUCTURE", r["message"])
+        # the failure reason reached the progress callback, not just "FAILED"
+        self.assertTrue(any(len(a) >= 4 and a[3] and "MapToModel" in a[3]
+                            for a in seen))
 
 
 if __name__ == "__main__":
