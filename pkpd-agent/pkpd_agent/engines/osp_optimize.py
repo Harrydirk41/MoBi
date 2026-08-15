@@ -346,11 +346,13 @@ def _identifiability_actions(names, sensitivity, at_bound) -> list[dict]:
             "parameter": n,
             "issue": "near-zero sensitivity - the observed data do not constrain "
                      "this parameter, so its fitted value is an optimizer artifact",
-            "action": f"FIX '{n}' to a known/literature value (use the given "
-                      "literature anchor, or your own pharmacological knowledge, "
-                      "e.g. a measured logP/logD for lipophilicity, a reported pKa) "
-                      "instead of estimating it, then refit only the parameters the "
-                      "data actually constrain",
+            "action": f"FIX '{n}' to a known value (the given literature anchor, or "
+                      "your own pharmacological knowledge, e.g. a measured logP for "
+                      "lipophilicity). If you have NO value for it, do NOT fix it at "
+                      "an arbitrary number (that just moves the artifact) - instead "
+                      "fit only the identifiable combination it belongs to, or "
+                      "reconsider whether the structure needs it. Then refit the "
+                      "parameters the data actually constrain",
             "severity": "high"})
 
     # 2. collinear pairs -> fix one member (prefer one with an anchor), fit the rest.
@@ -372,9 +374,13 @@ def _identifiability_actions(names, sensitivity, at_bound) -> list[dict]:
                 "issue": f"collinear with '{partner}' (trade-off {c:.2g}) - only "
                          "their combination is identifiable from this data, not "
                          "their individual values",
-                "action": f"FIX one of ('{n}', '{partner}') - prefer the one with a "
-                          "literature anchor - and estimate only the other, so the "
-                          "fit is well-conditioned instead of trading the two off",
+                "action": f"If ONE of ('{n}', '{partner}') has a literature/in-vitro "
+                          "anchor, fix that one and estimate only the other. If "
+                          "NEITHER has an anchor (e.g. two per-enzyme clearances), "
+                          "do NOT fix one at an arbitrary value - that creates a "
+                          "spurious mis-split. Instead estimate only their "
+                          "identifiable combination (their sum / total) and report "
+                          "the individual split as unresolved",
                 "severity": "medium"})
 
     # 3. parameters pinned to a bound -> the bound is doing the fitting
@@ -385,8 +391,10 @@ def _identifiability_actions(names, sensitivity, at_bound) -> list[dict]:
             "parameter": b["parameter"],
             "issue": f"hit its {b['bound']} bound ({b['value']:.3g}) - the bound, "
                      "not the data, is setting this value",
-            "action": "either widen the bound if the value is physically plausible, "
-                      "or fix the parameter to a literature value if it is being "
-                      "pushed to an implausible extreme",
+            "action": "do NOT freeze it AT the bound (the bound value is the least-"
+                      "supported guess). Widen the bound and refit if the value is "
+                      "physically plausible, or fix it to a plausible literature "
+                      "value if the optimizer is pushing it to an implausible "
+                      "extreme - but never leave it fixed at the bound it hit",
             "severity": "medium"})
     return acts
