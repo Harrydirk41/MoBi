@@ -388,8 +388,8 @@ def _estimable_leftovers(comp, listed_names, ref_params):
             role, note = "given", f"literature/given value ({src}), not fitted"
         else:
             role, note = "held-at-default", ("not fitted and carries no literature "
-                                             "origin - an unvalidated default that "
-                                             "still shaped the fit")
+                                             "origin - an unvalidated default the "
+                                             "agent could have fitted but did not")
         cat = osp_catalog.describe_parameter(name)
         rows.append({"name": qual, "value": val, "unit": cat.get("unit", ""),
                      "role": role, "note": note,
@@ -406,8 +406,16 @@ def _estimable_leftovers(comp, listed_names, ref_params):
                     consider(p.get("Name"), p.get("Value"), p.get("ValueOrigin"))
     for proc in comp.get("Processes", []) or []:
         mol = proc.get("Molecule")
+        pnames = {par.get("Name") for par in proc.get("Parameters") or []}
+        # on a specific-clearance process, 'CLspec/[Enzyme]' is THE input clearance;
+        # 'Specific clearance' (its derived product) and 'Enzyme concentration' are
+        # coupled siblings, not independent knobs - hide them exactly as the agent's
+        # model view does, so the table does not report a derived value as an
+        # "unfitted default that shaped the fit".
+        skip = {"Specific clearance", "Enzyme concentration"} \
+            if "CLspec/[Enzyme]" in pnames else set()
         for p in proc.get("Parameters", []) or []:
-            if isinstance(p, dict):
+            if isinstance(p, dict) and p.get("Name") not in skip:
                 consider(p.get("Name"), p.get("Value"), p.get("ValueOrigin"), mol)
     return rows
 

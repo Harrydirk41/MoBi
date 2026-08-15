@@ -8,7 +8,8 @@ rows, and no narrative section is ever shipped empty.
 import os
 import unittest
 
-from pkpd_agent.report import assemble, llm_narrative, deterministic_narrative, ReportData
+from pkpd_agent.report import (assemble, llm_narrative, deterministic_narrative,
+                               ReportData, _estimable_leftovers)
 from pkpd_agent.config import AgentConfig
 from pkpd_agent.state import ModelingSession, Observation
 
@@ -62,6 +63,40 @@ class TestReportAssembly(unittest.TestCase):
         kidney = [f for n, f, _ in ode["equations"] if "Kidney" in n]
         note = [nt for n, _, nt in ode["equations"] if "Kidney" in n][0]
         self.assertIn("ZERO", note)   # GFR fraction = 0 -> renal sink off
+
+
+class TestEstimableLeftovers(unittest.TestCase):
+    """The parameter table must surface estimate-tier knobs left at a default
+    (e.g. lipophilicity) WITHOUT re-listing derived siblings of a fitted
+    specific-clearance (Specific clearance / Enzyme concentration), which are
+    coupled outputs, not independent unfitted knobs."""
+
+    COMP = {
+        "Lipophilicity": [{"Parameters": [{"Name": "Lipophilicity", "Value": 0.016}]}],
+        "Parameters": [{"Name": "Cl", "Value": 1.0},
+                       {"Name": "Molecular weight", "Value": 408.9,
+                        "ValueOrigin": {"Source": "Publication"}}],
+        "Processes": [{"Molecule": "Hepatic-CYP", "Parameters": [
+            {"Name": "Enzyme concentration", "Value": 1.0},
+            {"Name": "Specific clearance", "Value": 0.0},
+            {"Name": "CLspec/[Enzyme]", "Value": 0.223}]}],
+    }
+
+    def test_derived_siblings_hidden_real_knob_surfaced(self):
+        rows = _estimable_leftovers(
+            self.COMP,
+            listed_names={"CLspec/[Enzyme]@Hepatic-CYP", "Lipophilicity"},
+            ref_params={})
+        names = {r["name"] for r in rows}
+        # derived siblings of the fitted CLspec must NOT appear
+        self.assertNotIn("Specific clearance@Hepatic-CYP", names)
+        self.assertNotIn("Enzyme concentration@Hepatic-CYP", names)
+        # a genuine unfitted knob (compound-level Cl) is surfaced
+        self.assertIn("Cl", names)
+        self.assertEqual(next(r["role"] for r in rows if r["name"] == "Cl"),
+                         "held-at-default")
+        # a literature constant (MW) is NOT surfaced (tier=constant, not estimate)
+        self.assertNotIn("Molecular weight", names)
 
 
 class TestNarrativeNeverEmpty(unittest.TestCase):
