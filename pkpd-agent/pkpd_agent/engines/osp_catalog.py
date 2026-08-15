@@ -67,6 +67,69 @@ PARAM_CATALOG: dict[str, dict[str, Any]] = {
              "range": [1e-3, 1e3], "role": "estimate", "tier": "estimate"},
     "Km": {"description": "Michaelis constant (half-saturation concentration)",
            "range": [1e-4, 1e3], "role": "estimate", "tier": "estimate"},
+    # --- in-vitro enzyme-kinetic inputs (Michaelis-Menten / recombinant) -----
+    # measured in vitro but IVIVE (in-vitro->in-vivo) transfer is unreliable, so
+    # the effective in-vivo value is usually refined against the clinical data.
+    "In vitro Vmax for liver microsomes": {
+        "description": "in-vitro maximal metabolic rate measured in liver "
+        "microsomes (Vmax) for a Michaelis-Menten enzyme; scaled to the whole "
+        "liver in vivo. IVIVE is unreliable, so often refined",
+        "range": [1e-4, 1e4], "role": "estimate", "tier": "estimate"},
+    "In vitro Vmax/recombinant enzyme": {
+        "description": "in-vitro maximal metabolic rate per recombinant enzyme "
+        "(Vmax) for a Michaelis-Menten pathway; scaled by enzyme abundance in "
+        "vivo. Often refined against the clinical data",
+        "range": [1e-4, 1e4], "role": "estimate", "tier": "estimate"},
+    "In vitro CL/recombinant enzyme": {
+        "description": "in-vitro intrinsic clearance per recombinant enzyme "
+        "(first-order CLint) for a specific enzyme; scaled by enzyme abundance in "
+        "vivo. IVIVE unreliable, so usually refined",
+        "range": [1e-4, 1e4], "role": "estimate", "tier": "estimate"},
+    "kcat": {"description": "catalytic turnover number of an enzyme (Vmax per unit "
+             "enzyme) for a Michaelis-Menten pathway; the enzyme-normalised rate, "
+             "scaled by enzyme abundance in vivo. Usually refined",
+             "range": [1e-4, 1e6], "unit": "1/min", "role": "estimate", "tier": "estimate"},
+    "Content of CYP proteins in liver microsomes": {
+        "description": "measured enzyme abundance (pmol enzyme per mg microsomal "
+        "protein) used to scale in-vitro kinetics to the whole liver; a measured "
+        "scaling input, not normally fitted",
+        "range": [1e-2, 1e3], "role": "measured", "tier": "measured_soft"},
+    "Transporter concentration": {
+        "description": "relative abundance of a membrane transporter driving active "
+        "uptake/efflux; scales the transport rate. A structural/measured input",
+        "range": [1e-3, 1e3], "role": "measured", "tier": "measured_soft"},
+    # --- binding kinetics (specific/target binding) --------------------------
+    "koff": {"description": "dissociation rate constant of specific (target/tissue) "
+             "binding; with Kd sets the on-rate. Governs slow-binding kinetics "
+             "(e.g. digoxin tissue binding). Often refined",
+             "range": [1e-6, 1e3], "unit": "1/min", "role": "estimate", "tier": "estimate"},
+    "Kd": {"description": "equilibrium dissociation constant of specific (target/"
+           "tissue) binding - binding affinity (lower = tighter). Often refined "
+           "against the data",
+           "range": [1e-6, 1e3], "unit": "µmol/l", "role": "estimate", "tier": "estimate"},
+    # --- experimental physicochemical variants -------------------------------
+    "Lipophilicity (experiment)": {
+        "description": "experimentally measured lipophilicity (logP/logD) as an "
+        "input; the effective in-vivo value used for partitioning may differ and "
+        "is sometimes refined",
+        "range": [-2.0, 7.0], "role": "measured", "tier": "measured_soft"},
+    "Fraction unbound (experiment)": {
+        "description": "experimentally measured unbound fraction (plasma or the "
+        "stated matrix); scales distribution and clearance. Measured, small errors "
+        "have large effect",
+        "range": [1e-4, 1.0], "role": "measured", "tier": "measured_soft"},
+    "F": {"description": "bioavailable fraction of an oral dose that reaches the "
+          "systemic circulation; usually an OUTCOME of absorption + first-pass "
+          "rather than a free knob - set only if the model uses it directly",
+          "range": [0.0, 1.0], "role": "estimate", "tier": "estimate"},
+    "Cl": {"description": "generic first-order clearance parameter on a process; "
+           "prefer the process-specific clearance (Intrinsic clearance, "
+           "CLspec/[Enzyme], Plasma clearance) when present",
+           "range": [1e-4, 1e3], "role": "estimate", "tier": "estimate"},
+    "Solubility table": {
+        "description": "tabulated aqueous solubility versus pH (a measured "
+        "solubility profile) rather than a single reference value; a given input",
+        "range": None, "role": "measured", "tier": "measured_soft"},
     "Plasma clearance": {"description": "lumped plasma clearance for a whole-organ "
                          "(hepatic/renal) clearance process - use when clearance is "
                          "not attributed to a specific enzyme",
