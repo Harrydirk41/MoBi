@@ -64,6 +64,52 @@ class TestAnalyzeMetabolites(unittest.TestCase):
                 self.assertEqual(M.analyze_metabolites(json.load(fh)), {})
 
 
+_OME = os.path.join(os.path.dirname(__file__), "..", "..",
+                    "OSP-PBPK-Model-Library", "Omeprazole", "json",
+                    "Omeprazole-Model.json")
+_CIM = os.path.join(os.path.dirname(__file__), "..", "..",
+                    "OSP-PBPK-Model-Library", "Cimetidine", "json",
+                    "Cimetidine-Model.json")
+
+
+class TestMulticompound(unittest.TestCase):
+    @unittest.skipUnless(os.path.exists(_OME), "Omeprazole snapshot not present")
+    def test_parallel_enantiomers_detected(self):
+        # Omeprazole = R/S enantiomers + racemate, each with plasma + its own
+        # clearance, NO metabolite cascade edge -> a PARALLEL multicompound task.
+        with open(_OME, encoding="utf-8") as fh:
+            snap = json.load(fh)
+        mc = M.analyze_multicompound(snap)
+        self.assertEqual(mc["kind"], "parallel")
+        self.assertFalse(mc["edges"])            # no cascade
+        self.assertGreaterEqual(len(mc["scorable_molecules"]), 2)
+        # the cascade-only analyzer must NOT claim it
+        self.assertEqual(M.analyze_metabolites(snap), {})
+
+    @unittest.skipUnless(os.path.exists(_CIM), "Cimetidine snapshot not present")
+    def test_victim_ddi_excluded_from_multicompound(self):
+        # a perpetrator->victim DDI is the DDI task, not a joint parallel fit
+        with open(_CIM, encoding="utf-8") as fh:
+            self.assertEqual(M.analyze_multicompound(json.load(fh)), {})
+
+    @unittest.skipUnless(os.path.exists(ITRA), "Itraconazole snapshot not present")
+    def test_cascade_still_detected_by_multicompound(self):
+        with open(ITRA, encoding="utf-8") as fh:
+            mc = M.analyze_multicompound(json.load(fh))
+        self.assertEqual(mc["kind"], "cascade")
+        self.assertTrue(mc["edges"])
+
+    @unittest.skipUnless(os.path.exists(_OME), "Omeprazole snapshot not present")
+    def test_parallel_benchmark_has_no_hard_mode(self):
+        import examples.build_metabolite_benchmark as G
+        res = G.build(_OME)
+        self.assertFalse(res.get("skip"))
+        self.assertEqual(res["kind"], "parallel")
+        self.assertFalse(res["is_cascade"])
+        self.assertIsNone(res["hard_input"])          # no cascade to strip
+        self.assertIn("modelled_compounds", res["input"])
+
+
 class TestMetaboliteScoring(unittest.TestCase):
     def _prof(self, name, decline, scale=1.0):
         class P:

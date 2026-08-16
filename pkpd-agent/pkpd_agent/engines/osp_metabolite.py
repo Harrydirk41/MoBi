@@ -134,6 +134,60 @@ def analyze_metabolites(snapshot: dict) -> dict[str, Any]:
     }
 
 
+def analyze_multicompound(snapshot: dict) -> dict[str, Any]:
+    """Superset of analyze_metabolites: any small-molecule model with >=2
+    co-modelled compounds that each carry measured plasma - whether linked by a
+    metabolization CASCADE (process.Metabolite edges, e.g. Itraconazole) or run in
+    PARALLEL with no cascade edge (e.g. Omeprazole's R/S enantiomers, each with its
+    own clearance). Both are scored the same way (per-molecule GMFE + roll-up); the
+    only difference is the structure, reported as ``kind``.
+
+    Returns {} for a single-compound model (that is the single-compound task)."""
+    compounds = [c for c in snapshot.get("Compounds") or []
+                 if c.get("IsSmallMolecule") is not False]
+    names = [c.get("Name") for c in compounds]
+    if len(names) < 2:
+        return {}
+    obs_mols = observed_molecules(snapshot)
+    scorable = [n for n in names if n in obs_mols]
+    if len(scorable) < 2:
+        return {}
+    edges = metabolite_edges(snapshot)
+    root = names[0]
+    if edges:
+        chain = _order_chain(root, edges)
+        # keep only compounds actually present (edges may name the same set)
+        chain = [m for m in chain if m in names] or names
+        kind = "cascade"
+        metabolites = [m for m in chain if m != root]
+    else:
+        # no cascade edge. A parallel multi-compound fit (e.g. R/S enantiomers) is a
+        # metabolite-style task ONLY when it is not really a victim DDI. A
+        # perpetrator->victim model (distinct compounds, control/treatment pairs) is
+        # the DDI task. Auto-inhibition (every compound inhibits an enzyme that
+        # clears itself, e.g. omeprazole on CYP2C19) has no victim and stays here.
+        from . import osp_ddi
+        d = osp_ddi.analyze_ddi(snapshot)
+        if d.get("victims") and d.get("pairs"):
+            return {}
+        chain = list(names)
+        kind = "parallel"
+        metabolites = []
+    return {
+        "is_metabolite": bool(edges),
+        "is_multicompound": True,
+        "kind": kind,
+        "root": root,
+        "compounds": names,
+        "metabolites": metabolites,
+        "edges": edges,
+        "chain": chain,
+        "observed_molecules": obs_mols,
+        "scorable_molecules": [m for m in chain if m in obs_mols],
+        "unscorable_metabolites": [m for m in metabolites if m not in obs_mols],
+    }
+
+
 def metabolite_identifiability(mstruct: dict) -> list[dict]:
     """A priori identifiability notes for a cascade, known before any run.
 

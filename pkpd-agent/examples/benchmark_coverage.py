@@ -52,9 +52,10 @@ def classify_coverage(path: str) -> dict:
     tasks = []
     if _single_ok(snap):
         tasks.append("single")
-    m = osp_metabolite.analyze_metabolites(snap)
+    m = osp_metabolite.analyze_multicompound(snap)
     if m and (m.get("scorable_molecules")):
-        tasks.append(f"metabolite({len(m['scorable_molecules'])})")
+        label = "metabolite" if m["kind"] == "cascade" else "multicompound"
+        tasks.append(f"{label}({len(m['scorable_molecules'])})")
     d = osp_ddi.analyze_ddi(snap)
     if d and d.get("victims") and d.get("pairs"):
         r = DDI.build(path)

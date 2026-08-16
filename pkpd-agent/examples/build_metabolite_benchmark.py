@@ -157,10 +157,11 @@ def build(path: str) -> dict:
     with open(path, encoding="utf-8") as fh:
         snap = json.load(fh)
     stem = os.path.splitext(os.path.basename(path))[0]
-    mstruct = M.analyze_metabolites(snap)
+    mstruct = M.analyze_multicompound(snap)
     if not mstruct:
-        return {"skip": True, "stem": stem, "reason": "not a metabolite cascade "
-                "(no process names a product Metabolite)"}
+        return {"skip": True, "stem": stem, "reason": "not a multi-compound model "
+                "(need >=2 co-modelled compounds each with measured plasma)"}
+    is_cascade = bool(mstruct.get("edges"))
     specs = fitted_cascade_params(snap)
     if not specs:
         return {"skip": True, "stem": stem,
@@ -172,62 +173,88 @@ def build(path: str) -> dict:
 
     obs_by_mol = {m: M.plasma_observed(snap, m) for m in scorable}
     blanked = _blank_values(snap)
-    hard_blanked, removed = _strip_cascade_structure(blanked)
 
     root = mstruct["root"]
-    agent_input = {
-        "schema": "osp-metabolite-task/v1",
-        "task_id": stem, "source_snapshot": os.path.basename(path),
-        "objective": (
+    if is_cascade:
+        objective = (
             f"Build a PBPK model for {root} AND its metabolite cascade that "
             f"reproduces the observed plasma of {root} and its measured "
             "metabolites. Decide the disposition parameters you cannot read from "
             "the data and justify them. The model must fit the whole cascade, not "
-            "just the parent."),
-        "cascade_structure": {
-            "parent": root,
-            "chain": mstruct["chain"],
-            "metabolites": mstruct["metabolites"],
-            "metabolic_steps": [{"parent": e["parent"], "enzyme": e["enzyme"],
-                                 "metabolite": e["metabolite"]}
-                                for e in mstruct["edges"]],
-            "scorable_molecules": scorable,
-        },
-        "background": {"metabolic_pathway": cascade_biology_facts(mstruct)},
-        "given_data": {"plasma_by_molecule": obs_by_mol},
-        "unknowns_guidance": (
+            "just the parent.")
+        guidance = (
             "The metabolization kinetics and each compound's disposition are the "
             "unknowns. Fit them so the model reproduces the parent AND metabolite "
             "plasma. A metabolite with sparse/absent data is structurally weak - "
             "hold its disposition at literature values rather than fitting both "
-            "its formation and its clearance."),
-        "how_scored": ("Per-molecule GMFE on plasma (parent and each measured "
-                       "metabolite) and a cascade GMFE across all molecules."),
+            "its formation and its clearance.")
+        how = ("Per-molecule GMFE on plasma (parent and each measured metabolite) "
+               "and a cascade GMFE across all molecules.")
+    else:      # parallel: co-modelled compounds (e.g. R/S enantiomers)
+        objective = (
+            f"Build a PBPK model for the co-modelled compounds ({', '.join(scorable)}) "
+            "that reproduces EACH one's observed plasma. They share the same enzyme "
+            "system but have their own disposition; fit each compound's parameters "
+            "and justify them.")
+        guidance = (
+            "These compounds are modelled together (e.g. enantiomers dosed as a "
+            "racemate) but each has its own clearance. Fit each compound's "
+            "disposition so the model reproduces all measured plasma; the enzymes "
+            "are shared, the per-compound kinetics are the unknowns.")
+        how = "Per-compound GMFE on plasma and an overall GMFE across all compounds."
+
+    agent_input = {
+        "schema": "osp-metabolite-task/v1",
+        "task_id": stem, "source_snapshot": os.path.basename(path),
+        "kind": mstruct["kind"],
+        "objective": objective,
+        "given_data": {"plasma_by_molecule": obs_by_mol},
+        "unknowns_guidance": guidance,
+        "how_scored": how,
     }
+    if is_cascade:
+        agent_input["cascade_structure"] = {
+            "parent": root, "chain": mstruct["chain"],
+            "metabolites": mstruct["metabolites"],
+            "metabolic_steps": [{"parent": e["parent"], "enzyme": e["enzyme"],
+                                 "metabolite": e["metabolite"]}
+                                for e in mstruct["edges"]],
+            "scorable_molecules": scorable}
+        agent_input["background"] = {"metabolic_pathway": cascade_biology_facts(mstruct)}
+    else:
+        agent_input["modelled_compounds"] = scorable
+
     answer_edits = {"cascade_parameters": specs}
     answer_key = {
         "schema": "osp-metabolite-answer-key/v1",
         "warning": "REFERENCE ANSWERS - grading only, never shown to the agent.",
-        "parent": root,
+        "kind": mstruct["kind"], "parent": root,
         "cascade_structure": [{"parent": e["parent"], "type": e["internal_name"],
                                "enzyme": e["enzyme"], "metabolite": e["metabolite"]}
                               for e in mstruct["edges"]],
         "estimated_parameters": specs,
     }
-    hard_input = copy.deepcopy(agent_input)
-    hard_input["mode"] = "hard"
-    hard_input["unknowns_guidance"] = (
-        "HARD mode - the cascade STRUCTURE is NOT in the snapshot: the "
-        "metabolization processes that turn each compound into the next have been "
-        "removed. Using the metabolic pathway in the background, ADD the "
-        "metabolization processes (each producing the correct metabolite) on the "
-        "expressed enzymes, then fit the kinetics so the model reproduces the "
-        "parent and metabolite plasma.")
-    # in hard mode the cascade topology is the answer, so it must not be echoed
-    # back as a given structure - only the biology facts remain.
-    hard_input.pop("cascade_structure", None)
+
+    # HARD mode only applies to a CASCADE (there is a topology to rebuild); a
+    # parallel enantiomer model has no cascade structure to strip.
+    hard_input = hard_blanked = None
+    removed = []
+    if is_cascade:
+        hard_blanked, removed = _strip_cascade_structure(blanked)
+        hard_input = copy.deepcopy(agent_input)
+        hard_input["mode"] = "hard"
+        hard_input["unknowns_guidance"] = (
+            "HARD mode - the cascade STRUCTURE is NOT in the snapshot: the "
+            "metabolization processes that turn each compound into the next have "
+            "been removed. Using the metabolic pathway in the background, ADD the "
+            "metabolization processes (each producing the correct metabolite) on "
+            "the expressed enzymes, then fit the kinetics so the model reproduces "
+            "the parent and metabolite plasma.")
+        # the cascade topology is the answer - do not echo it back
+        hard_input.pop("cascade_structure", None)
 
     return {"skip": False, "stem": stem, "input": agent_input, "blanked": blanked,
+            "kind": mstruct["kind"], "is_cascade": is_cascade,
             "hard_input": hard_input, "hard_blanked": hard_blanked,
             "removed_processes": removed,
             "answer_edits": answer_edits, "answer_key": answer_key,
@@ -240,6 +267,8 @@ def _write(base_dir: str, stem: str, res: dict, hard: bool) -> None:
     for sub in subs:
         os.makedirs(os.path.join(base_dir, sub), exist_ok=True)
     if hard:
+        if not res.get("hard_input"):
+            return       # parallel model: no cascade structure to strip
         files = {
             os.path.join(base_dir, "json_input", f"{stem}.metab.hard.input.json"): res["hard_input"],
             os.path.join(base_dir, "benchmark", f"{stem}.metab.hard_blanked.json"): res["hard_blanked"],
@@ -275,9 +304,15 @@ def main() -> None:
             if args.audit or os.path.isfile(args.target):
                 print(f"SKIP {stem}: {res['reason']}")
             continue
+        if args.hard and not res.get("is_cascade"):
+            if args.audit or os.path.isfile(args.target):
+                print(f"SKIP {stem}: parallel model (no cascade structure to strip "
+                      "for hard mode)")
+            continue
         tag = "[HARD]" if args.hard else ""
+        joiner = " -> " if res.get("is_cascade") else " + "
         print(f"{'WROTE' if (args.write and not args.audit) else 'METAB'} {stem} {tag}: "
-              f"cascade {' -> '.join(res['chain'])}; {res['n_molecules']} scorable "
+              f"{res['kind']} {joiner.join(res['chain'])}; {res['n_molecules']} scorable "
               f"molecule(s), {sum(len(s['parameters']) for s in res['specs'])} params")
         if args.hard:
             for r in res["removed_processes"]:
