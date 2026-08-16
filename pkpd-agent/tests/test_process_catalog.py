@@ -5,9 +5,14 @@ flag + provenance, and that DDI/interaction mechanisms are documented but NOT
 offered as single-compound additions (they need a multi-compound setup).
 """
 
+import glob
+import json
+import os
 import unittest
 
 from pkpd_agent.engines import osp_catalog as C
+
+_LIB = os.path.join(os.path.dirname(__file__), "..", "..", "OSP-PBPK-Model-Library")
 
 
 class TestProcessCatalog(unittest.TestCase):
@@ -43,6 +48,34 @@ class TestProcessCatalog(unittest.TestCase):
         self.assertIn("ionised", C.describe_parameter("pKa")["description"])
         self.assertEqual(C.param_tier("pKa"), "constant")     # never fitted
         self.assertTrue(C.describe_parameter("Compound type").get("description"))
+
+    def test_recombinant_cyp_types_verified(self):
+        # rCYP450_MM is sildenafil's exact metabolism type - must be present AND
+        # its InternalName verified from real snapshots (not inferred).
+        by = {s["internal_name"]: s for s in C.PROCESS_TYPES.values()}
+        self.assertIn("rCYP450_MM", by)
+        self.assertIn("rCYP450_FirstOrder", by)
+        self.assertTrue(by["rCYP450_MM"]["internal_name_verified"])
+
+    @unittest.skipUnless(os.path.isdir(_LIB), "OSP library not present")
+    def test_every_library_process_is_catalogued(self):
+        # ground-truth coverage: every process InternalName that appears in any
+        # real library snapshot is in our catalog (DDI mechanisms live in the
+        # separate interaction catalog).
+        known = {s.get("internal_name") for s in C.PROCESS_TYPES.values()}
+        ddi = {s.get("internal_name") for s in C.INTERACTION_PROCESS_TYPES.values()}
+        missing = set()
+        for f in glob.glob(os.path.join(_LIB, "*", "json", "*.json")):
+            try:
+                d = json.load(open(f, encoding="utf-8"))
+            except Exception:
+                continue
+            for comp in d.get("Compounds") or []:
+                for p in comp.get("Processes") or []:
+                    inm = p.get("InternalName")
+                    if inm and inm not in known and inm not in ddi:
+                        missing.add(inm)
+        self.assertEqual(missing, set(), f"uncatalogued library processes: {missing}")
 
     def test_every_type_has_validation_and_provenance(self):
         for k, spec in C.PROCESS_TYPES.items():

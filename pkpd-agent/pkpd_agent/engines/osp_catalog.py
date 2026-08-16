@@ -138,6 +138,16 @@ PARAM_CATALOG: dict[str, dict[str, Any]] = {
         "(first-order CLint) for a specific enzyme; scaled by enzyme abundance in "
         "vivo. IVIVE unreliable, so usually refined",
         "range": [1e-4, 1e4], "role": "estimate", "tier": "estimate"},
+    "In vitro CL for liver microsomes": {
+        "description": "in-vitro intrinsic clearance measured in liver microsomes "
+        "(first-order CLint); scaled to the whole liver in vivo, usually refined",
+        "range": [1e-4, 1e4], "unit": "µl/min/mg mic. protein",
+        "role": "estimate", "tier": "estimate"},
+    "Vmax (liver tissue)": {
+        "description": "maximal metabolic rate expressed per whole-liver tissue "
+        "mass (intrinsic Michaelis-Menten Vmax); usually refined",
+        "range": [1e-4, 1e4], "unit": "µmol/min/kg tissue",
+        "role": "estimate", "tier": "estimate"},
     "kcat": {"description": "catalytic turnover number of an enzyme (Vmax per unit "
              "enzyme) for a Michaelis-Menten pathway; the enzyme-normalised rate, "
              "scaled by enzyme abundance in vivo. Usually refined",
@@ -346,6 +356,57 @@ PROCESS_TYPES: dict[str, dict[str, Any]] = {
             {"name": "kcat", "unit": "1/min", "default": 1.0}],
         "description": "saturable (Michaelis-Menten) metabolism by an enzyme - "
                        "use for nonlinear/dose-dependent clearance.",
+    },
+    # --- recombinant-CYP and intrinsic/microsomal variants VERIFIED against the
+    #     OSP library snapshots (exact InternalName + parameter names read from
+    #     real models) -------------------------------------------------------- #
+    "metabolization_recombinant_mm": {
+        "internal_name": "rCYP450_MM", "data_source": "recombinant enzyme",
+        "applies_to": "enzyme", "validated": False, "internal_name_verified": True,
+        "provenance": "verified: Sildenafil/Efavirenz/Felodipine/Fluvoxamine/"
+                      "Itraconazole/Erythromycin snapshots",
+        "parameters": [
+            {"name": "In vitro Vmax/recombinant enzyme",
+             "unit": "pmol/min/pmol rec. enzyme", "default": 1.0},
+            {"name": "Km", "unit": "µmol/l", "default": 1.0},
+            {"name": "kcat", "unit": "1/min", "default": 1.0}],
+        "description": "saturable (Michaelis-Menten) metabolism from a RECOMBINANT-"
+                       "enzyme (rCYP) assay, scaled by enzyme abundance - the "
+                       "standard CYP metabolism form in the library (e.g. "
+                       "sildenafil's CYP3A4/2C9/2C19).",
+    },
+    "metabolization_recombinant_first_order": {
+        "internal_name": "rCYP450_FirstOrder", "data_source": "recombinant enzyme",
+        "applies_to": "enzyme", "validated": False, "internal_name_verified": True,
+        "provenance": "verified: Montelukast/Ethinylestradiol snapshots",
+        "parameters": [
+            {"name": "In vitro CL/recombinant enzyme",
+             "unit": "µl/min/pmol rec. enzyme", "default": 1.0}],
+        "description": "first-order (linear) metabolism from a RECOMBINANT-enzyme "
+                       "(rCYP) intrinsic-clearance assay, scaled by enzyme abundance.",
+    },
+    "metabolization_intrinsic_mm": {
+        "internal_name": "MetabolizationIntrinsic_MM", "data_source": "intrinsic MM",
+        "applies_to": "enzyme", "validated": False, "internal_name_verified": True,
+        "provenance": "verified: Moclobemide snapshot",
+        "parameters": [
+            {"name": "Vmax (liver tissue)", "unit": "µmol/min/kg tissue", "default": 1.0},
+            {"name": "Km", "unit": "µmol/l", "default": 1.0}],
+        "description": "saturable (Michaelis-Menten) metabolism expressed as a "
+                       "whole-liver-tissue Vmax (intrinsic), not scaled per enzyme.",
+    },
+    "metabolization_microsomes_first_order": {
+        "internal_name": "MetabolizationLiverMicrosomes_FirstOrder",
+        "data_source": "liver microsomes", "applies_to": "enzyme",
+        "validated": False, "internal_name_verified": True,
+        "provenance": "verified: S-Mephenytoin snapshot",
+        "parameters": [
+            {"name": "In vitro CL for liver microsomes",
+             "unit": "µl/min/mg mic. protein", "default": 1.0},
+            {"name": "Content of CYP proteins in liver microsomes",
+             "unit": "pmol/mg mic. protein", "default": 1.0}],
+        "description": "first-order (linear) metabolism from a liver-microsome "
+                       "intrinsic-clearance assay, scaled to the whole liver.",
     },
     "active_transport_mm": {
         "internal_name": "ActiveTransportSpecific_MM",
