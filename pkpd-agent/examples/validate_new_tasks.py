@@ -65,16 +65,30 @@ def val_metabolite(cli, lib, keep):
     m = osp_metabolite.analyze_multicompound(snap)
     print(f"metabolite: {path}\n   cascade {' -> '.join(m['chain'])}, "
           f"scorable {m['scorable_molecules']}")
-    out = osp_metabolite.run_metabolite_prediction(cli, path, m, snapshot=snap)
+    # this check confirms the parent + each daughter COLUMN resolves from one run;
+    # a full cascade model has many simulations, so run a small subset (running
+    # ALL of them can take many minutes and is unnecessary for a column check).
+    sims = cli.simulation_names(path)
+    subset = sims[:2]
+    print(f"   running {len(subset)} of {len(sims)} simulations (column-match "
+          f"check, subset for speed)...", flush=True)
+    out = osp_metabolite.run_metabolite_prediction(cli, path, m, snapshot=snap,
+                                                   simulations=subset)
     if not out["ok"]:
         print(f"   FAILED: {out['message']}")
         if keep:
-            _dump_header(cli, path, None)
+            _dump_header(cli, path, subset)
         return
-    for mol, v in out["score"]["per_molecule"].items():
-        print(f"   {mol:28} GMFE {v['overall'].get('gmfe')} "
-              f"(matched {v['n_matched']}/{v['n_datasets']} datasets)")
-    print(f"   cascade GMFE: {(out['score'].get('cascade') or {}).get('gmfe')}")
+    print(f"   per-molecule columns resolved (profiles pulled from the run):")
+    for mol in m["scorable_molecules"]:
+        n_ext = out["n_extracted"].get(mol, 0)
+        v = out["score"]["per_molecule"].get(mol, {})
+        gmfe = (v.get("overall") or {}).get("gmfe")
+        flag = "OK" if n_ext else "NO COLUMN"
+        print(f"   {mol:28} {flag:10} extracted={n_ext}  "
+              f"GMFE={gmfe} (matched {v.get('n_matched', 0)}/{v.get('n_datasets', 0)})")
+    print(f"   cascade GMFE (subset): {(out['score'].get('cascade') or {}).get('gmfe')}")
+    print("   NOTE: GMFE here is a 2-simulation subset, not the full-model score.")
 
 
 def val_biologic(cli, lib, keep):

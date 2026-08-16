@@ -321,6 +321,10 @@ def run_metabolite_prediction(cli, snapshot_path: str, mstruct: dict,
     score = score_metabolites(observed_by_mol, profiles_by_mol)
     out = {"ok": True, "root": mstruct.get("root"),
            "scored_molecules": molecules,
+           # per-molecule column resolution: how many profiles were pulled for
+           # each molecule (confirms the parent + each daughter column resolved,
+           # independent of whether an observed dataset matched by study/dose)
+           "n_extracted": {m: len(profiles_by_mol.get(m) or []) for m in molecules},
            "n_ran": sum(len(v) for v in profiles_by_mol.values()),
            "score": score}
     recs = metabolite_identifiability(mstruct)
