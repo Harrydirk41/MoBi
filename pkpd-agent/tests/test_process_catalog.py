@@ -58,6 +58,30 @@ class TestProcessCatalog(unittest.TestCase):
         self.assertTrue(by["rCYP450_MM"]["internal_name_verified"])
 
     @unittest.skipUnless(os.path.isdir(_LIB), "OSP library not present")
+    def test_ddi_mechanism_params_match_library(self):
+        # ground truth: for every inhibition/induction mechanism in the library,
+        # our catalogued parameter set matches the real snapshot exactly.
+        ours = {s["internal_name"]: {p["name"] for p in s["parameters"]}
+                for s in C.INTERACTION_PROCESS_TYPES.values()}
+        real = {}
+        for f in glob.glob(os.path.join(_LIB, "*", "json", "*.json")):
+            try:
+                d = json.load(open(f, encoding="utf-8"))
+            except Exception:
+                continue
+            for comp in d.get("Compounds") or []:
+                for p in comp.get("Processes") or []:
+                    inm = p.get("InternalName") or ""
+                    if "Inhibition" in inm or "Induction" in inm:
+                        real.setdefault(inm, set()).update(
+                            q.get("Name") for q in p.get("Parameters") or [] if q.get("Name"))
+        self.assertTrue(real)                                 # library has DDI models
+        for inm, rp in real.items():
+            self.assertIn(inm, ours, f"library DDI mechanism {inm} not catalogued")
+            self.assertEqual(ours[inm], rp,
+                             f"{inm}: catalog params {ours[inm]} != library {rp}")
+
+    @unittest.skipUnless(os.path.isdir(_LIB), "OSP library not present")
     def test_every_library_process_is_catalogued(self):
         # ground-truth coverage: every process InternalName that appears in any
         # real library snapshot is in our catalog (DDI mechanisms live in the
