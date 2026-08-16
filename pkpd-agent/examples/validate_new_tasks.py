@@ -84,8 +84,11 @@ def val_biologic(cli, lib, keep):
     with open(path, encoding="utf-8") as fh:
         snap = json.load(fh)
     b = osp_biologic.analyze_biologic(snap)
+    n_specs = len(osp_biologic.matrix_specs(
+        osp_biologic.biologic_observed(snap, b["molecule"]), b["molecule"]))
     print(f"biologic: {path}\n   {b['molecule']}, "
-          f"{len(b['observed_matrices'])} matrices, recover "
+          f"{len(b['observed_matrices'])} organ/compartment matrices "
+          f"({n_specs} study-split), recover "
           f"{[p['name'] for p in b['disposition_parameters']]}")
     out = osp_biologic.run_biologic_prediction(cli, path, b, snapshot=snap)
     if not out["ok"]:
