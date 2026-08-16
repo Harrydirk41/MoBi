@@ -507,11 +507,12 @@ PROCESS_TYPES: dict[str, dict[str, Any]] = {
                        "transport shows sigmoidal, cooperative saturation.",
     },
     "active_transport_vesicular_mm": {
-        "internal_name": "ActiveTransportVesicular_MM",
+        "internal_name": "ActiveTransport_InVitro_VesicularAssay_MM",
         "data_source": "vesicular assay", "applies_to": "transporter",
-        "validated": False, "internal_name_verified": False,
-        "provenance": "PK-Sim v12 docs (In vitro active transport, vesicular assay - "
-                      "MM); InternalName inferred - validate before use",
+        "validated": False, "internal_name_verified": True,
+        "provenance": "InternalName confirmed from a real OSP library snapshot "
+                      "(vesicular-assay active transport, MM); parameters from PK-Sim "
+                      "v12 docs - validate the parameter set before use",
         "parameters": [
             {"name": "In vitro Vmax", "unit": "pmol/min/mg protein", "default": 1.0},
             {"name": "Km", "unit": "µmol/l", "default": 1.0}],
