@@ -36,7 +36,8 @@ PARTITION_METHODS = [
     "PK-Sim Standard", "Rodgers and Rowland", "Schmitt",
     "Poulin and Theil", "Berezhkovskiy",
 ]
-PERMEABILITY_METHODS = ["PK-Sim Standard", "Charge dependent Schmitt"]
+PERMEABILITY_METHODS = ["PK-Sim Standard", "Charge dependent Schmitt",
+                        "Charge dependent Schmitt normalized to PK-Sim"]
 
 _PARTITION_PREFIX = "Cellular partition coefficient method - "
 _PERMEABILITY_PREFIX = "Cellular permeability - "

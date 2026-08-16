@@ -37,6 +37,23 @@ PARAM_CATALOG: dict[str, dict[str, Any]] = {
     "Reference pH": {
         "description": "pH at which the solubility is defined", "role": "measured",
         "tier": "constant"},
+    # --- ionisation: compound type + pKa drive the charge-based partition methods
+    # (Rodgers & Rowland, Schmitt) and the charged-fraction absorption penalty. A
+    # compound is Neutral / Base / Acid with up to three pKa values. Measured
+    # constants - never fitted - but the agent MUST see them to justify a
+    # charge-aware method choice.
+    "pKa": {
+        "description": "acid/base dissociation constant. With the compound type "
+        "(Neutral/Base/Acid; up to 3 pKa) it sets the ionised fraction at each pH - "
+        "which drives the electrostatic terms in Rodgers & Rowland / Schmitt "
+        "partitioning and the charged-fraction absorption penalty. Choose a "
+        "charge-aware partition method when the drug is appreciably ionised",
+        "range": [0.0, 14.0], "role": "measured", "tier": "constant"},
+    "Compound type": {
+        "description": "protonation class: Neutral / Base / Acid (may be zwitterion "
+        "with multiple pKa). Determines the sign of the electrostatic tissue-binding "
+        "term - bases bind acidic phospholipids (favours Rodgers & Rowland)",
+        "role": "measured", "tier": "constant"},
     "Lipophilicity": {
         "description": "effective lipophilicity / membrane affinity (logP-like) "
         "driving tissue partitioning; the model value often differs from measured "
@@ -44,8 +61,40 @@ PARAM_CATALOG: dict[str, dict[str, Any]] = {
         "range": [-2.0, 7.0], "role": "estimate", "tier": "estimate"},
     "Fraction unbound (plasma, reference value)": {
         "description": "unbound fraction in plasma; scales distribution and "
-        "clearance. Measured, but small errors have large effect - sometimes refined",
+        "clearance. Measured, but small errors have large effect - sometimes "
+        "refined. The binding partner (albumin / alpha-1-acid glycoprotein / "
+        "unknown) sets how fu scales with age (ontogeny)",
         "range": [0.001, 1.0], "role": "measured", "tier": "measured_soft"},
+    "Specific intestinal permeability (paracellular)": {
+        "description": "paracellular (between-cell) intestinal permeability - a "
+        "second absorption route beside the transcellular one, relevant for small "
+        "hydrophilic/charged molecules",
+        "range": [1e-9, 1e-3], "unit": "cm/min", "role": "estimate", "tier": "estimate"},
+    "Hill coefficient": {
+        "description": "cooperativity exponent of a Hill (sigmoidal saturable) "
+        "process; n=1 reduces to Michaelis-Menten, n>1 = positive cooperativity",
+        "range": [0.5, 4.0], "role": "estimate", "tier": "estimate"},
+    "In vitro half-life (hepatocytes)": {
+        "description": "in-vitro depletion half-life in a hepatocyte assay; scaled "
+        "to whole-liver clearance. IVIVE unreliable, so usually refined",
+        "range": [0.1, 1e4], "unit": "min", "role": "estimate", "tier": "estimate"},
+    "In vitro half-life (microsomes)": {
+        "description": "in-vitro depletion half-life in a liver-microsome assay; "
+        "scaled to whole-liver clearance. Usually refined",
+        "range": [0.1, 1e4], "unit": "min", "role": "estimate", "tier": "estimate"},
+    "Cell concentration": {
+        "description": "hepatocyte density used to scale an in-vitro half-life to "
+        "the whole liver; a measured assay condition, not normally fitted",
+        "range": [1e-3, 1e3], "unit": "10^6cells/ml", "role": "measured",
+        "tier": "measured_soft"},
+    "Microsomal protein content": {
+        "description": "microsomal protein concentration used to scale in-vitro "
+        "kinetics to the liver; a measured scaling input, not normally fitted",
+        "range": [1e-3, 1e3], "unit": "mg/ml", "role": "measured", "tier": "measured_soft"},
+    "In vitro Vmax": {
+        "description": "in-vitro maximal transport/metabolic rate (e.g. from a "
+        "vesicular assay); scaled in vivo, usually refined",
+        "range": [1e-4, 1e4], "role": "estimate", "tier": "estimate"},
     "Specific intestinal permeability (transcellular)": {
         "description": "transcellular intestinal permeability governing the rate "
         "and extent of oral absorption; in-vitro->in-vivo transfer is weak, so "
@@ -74,6 +123,10 @@ PARAM_CATALOG: dict[str, dict[str, Any]] = {
         "description": "in-vitro maximal metabolic rate measured in liver "
         "microsomes (Vmax) for a Michaelis-Menten enzyme; scaled to the whole "
         "liver in vivo. IVIVE is unreliable, so often refined",
+        "range": [1e-4, 1e4], "role": "estimate", "tier": "estimate"},
+    "In vitro Vmax for hepatocytes": {
+        "description": "in-vitro maximal metabolic rate measured in a hepatocyte "
+        "assay (Vmax); scaled to the whole liver in vivo, usually refined",
         "range": [1e-4, 1e4], "role": "estimate", "tier": "estimate"},
     "In vitro Vmax/recombinant enzyme": {
         "description": "in-vitro maximal metabolic rate per recombinant enzyme "
@@ -258,7 +311,10 @@ PARTITION_METHOD_INFO = {
 }
 PERMEABILITY_METHOD_INFO = {
     "PK-Sim Standard": "default cellular permeability model.",
-    "Charge dependent Schmitt": "charge-dependent permeability (Schmitt).",
+    "Charge dependent Schmitt": "charge-dependent permeability (Schmitt) - "
+                                "penalises permeation of the ionised fraction.",
+    "Charge dependent Schmitt normalized to PK-Sim": "charge-dependent Schmitt "
+                                "rescaled to the PK-Sim Standard baseline.",
 }
 
 
@@ -372,16 +428,103 @@ PROCESS_TYPES: dict[str, dict[str, Any]] = {
         "description": "saturable metabolism scaled by the enzyme's tissue "
                        "concentration (specific Michaelis-Menten).",
     },
-    "active_transport_first_order": {
-        "internal_name": "ActiveTransportSpecific_FirstOrder",
-        "data_source": "active transport 1st order", "applies_to": "transporter",
-        "validated": False,
-        "provenance": "PK-Sim convention (parallels active-transport MM); verify",
+    # NOTE: PK-Sim has NO first-order/linear transporter process - transporters
+    # are Michaelis-Menten or Hill only (verified against the PK-Sim v12 docs), so
+    # a linear active-transport type was removed as spurious.
+    "active_transport_hill": {
+        "internal_name": "ActiveTransportSpecific_Hill",
+        "data_source": "active transport Hill", "applies_to": "transporter",
+        "validated": False, "internal_name_verified": False,
+        "provenance": "PK-Sim v12 docs (Specific active transport - Hill); "
+                      "InternalName inferred - run validate_processes.py to confirm",
+        "parameters": [
+            {"name": "Transporter concentration", "unit": "µmol/l", "default": 1.0},
+            {"name": "Vmax", "unit": "µmol/l/min", "default": 1.0},
+            {"name": "Km", "unit": "µmol/l", "default": 1.0},
+            {"name": "Hill coefficient", "unit": "", "default": 1.0}],
+        "description": "cooperative (Hill) saturable active transport - use when "
+                       "transport shows sigmoidal, cooperative saturation.",
+    },
+    "active_transport_vesicular_mm": {
+        "internal_name": "ActiveTransportVesicular_MM",
+        "data_source": "vesicular assay", "applies_to": "transporter",
+        "validated": False, "internal_name_verified": False,
+        "provenance": "PK-Sim v12 docs (In vitro active transport, vesicular assay - "
+                      "MM); InternalName inferred - validate before use",
+        "parameters": [
+            {"name": "In vitro Vmax", "unit": "pmol/min/mg protein", "default": 1.0},
+            {"name": "Km", "unit": "µmol/l", "default": 1.0}],
+        "description": "saturable active transport scaled from an in-vitro vesicular "
+                       "(membrane-vesicle) transport assay.",
+    },
+    "metabolization_hill": {
+        "internal_name": "MetabolizationSpecific_Hill",
+        "data_source": "specific Hill", "applies_to": "enzyme",
+        "validated": False, "internal_name_verified": False,
+        "provenance": "PK-Sim v12 docs (In vitro clearance - Hill); InternalName "
+                      "inferred - run validate_processes.py to confirm",
+        "parameters": [
+            {"name": "Vmax", "unit": "µmol/l/min", "default": 1.0},
+            {"name": "Km", "unit": "µmol/l", "default": 1.0},
+            {"name": "Hill coefficient", "unit": "", "default": 1.0}],
+        "description": "cooperative (Hill) saturable metabolism - sigmoidal "
+                       "concentration dependence, use over MM when cooperativity "
+                       "is evident.",
+    },
+    "tubular_secretion_first_order": {
+        "internal_name": "TubularSecretion_FirstOrder",
+        "data_source": "tubular secretion", "applies_to": "transporter",
+        "validated": False, "internal_name_verified": False,
+        "provenance": "PK-Sim v12 docs (Tubular Secretion - First Order); "
+                      "InternalName inferred - validate before use",
         "parameters": [{"name": "Transporter concentration", "unit": "µmol/l",
                         "default": 1.0},
-                       {"name": "kcat", "unit": "1/min", "default": 1.0}],
-        "description": "linear (non-saturable) active transport by a transporter - "
-                       "use when the transporter is far from saturation.",
+                       {"name": "Specific clearance", "unit": "1/min", "default": 0.1}],
+        "description": "active renal TUBULAR SECRETION (first order) by a kidney "
+                       "transporter - renal clearance BEYOND passive GFR. Use when "
+                       "CL_renal exceeds fu x GFR.",
+    },
+    "tubular_secretion_mm": {
+        "internal_name": "TubularSecretion_MM",
+        "data_source": "tubular secretion MM", "applies_to": "transporter",
+        "validated": False, "internal_name_verified": False,
+        "provenance": "PK-Sim v12 docs (Tubular Secretion - Michaelis-Menten); "
+                      "InternalName inferred - validate before use",
+        "parameters": [
+            {"name": "Transporter concentration", "unit": "µmol/l", "default": 1.0},
+            {"name": "Vmax", "unit": "µmol/l/min", "default": 1.0},
+            {"name": "Km", "unit": "µmol/l", "default": 1.0}],
+        "description": "saturable (Michaelis-Menten) active renal tubular secretion "
+                       "beyond passive GFR.",
+    },
+    "hepatic_clearance_hepatocytes_thalf": {
+        "internal_name": "MetabolizationHepatocytes_tHalf",
+        "data_source": "hepatocytes t1/2", "applies_to": "system",
+        "validated": False, "internal_name_verified": False,
+        "systemic_label": "Total Hepatic Clearance", "systemic_type": "LiverClearance",
+        "provenance": "PK-Sim v12 docs (In vitro hepatocytes - t1/2, Total Hepatic "
+                      "Clearance); InternalName inferred - validate before use",
+        "parameters": [{"name": "In vitro half-life (hepatocytes)", "unit": "min",
+                        "default": 30.0},
+                       {"name": "Cell concentration", "unit": "10^6cells/ml",
+                        "default": 1.0}],
+        "description": "whole-liver clearance scaled from an in-vitro hepatocyte "
+                       "depletion HALF-LIFE - a systemic hepatic clearance you use "
+                       "when you have a t1/2, not enzyme kinetics.",
+    },
+    "hepatic_clearance_microsomes_thalf": {
+        "internal_name": "MetabolizationLiverMicrosomes_tHalf",
+        "data_source": "microsomes t1/2", "applies_to": "system",
+        "validated": False, "internal_name_verified": False,
+        "systemic_label": "Total Hepatic Clearance", "systemic_type": "LiverClearance",
+        "provenance": "PK-Sim v12 docs (In vitro liver microsomes - t1/2, Total "
+                      "Hepatic Clearance); InternalName inferred - validate first",
+        "parameters": [{"name": "In vitro half-life (microsomes)", "unit": "min",
+                        "default": 30.0},
+                       {"name": "Microsomal protein content", "unit": "mg/ml",
+                        "default": 1.0}],
+        "description": "whole-liver clearance scaled from an in-vitro liver-"
+                       "microsome depletion HALF-LIFE.",
     },
     "biliary_clearance": {
         "internal_name": "BiliaryClearance", "data_source": "plasma clearance",

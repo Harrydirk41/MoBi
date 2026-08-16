@@ -12,8 +12,37 @@ from pkpd_agent.engines import osp_catalog as C
 
 class TestProcessCatalog(unittest.TestCase):
     def test_single_compound_types_expanded(self):
-        # was 8; expanded with kinetic variants + biliary clearance
-        self.assertGreaterEqual(len(C.PROCESS_TYPES), 12)
+        # was 8; expanded with kinetic variants + biliary clearance + Hill /
+        # tubular secretion / hepatic-t1/2 forms from the PK-Sim v12 docs
+        self.assertGreaterEqual(len(C.PROCESS_TYPES), 18)
+
+    def test_no_first_order_active_transport(self):
+        # PK-Sim's general membrane transport is MM/Hill only - the spurious
+        # linear active-transport type was removed. (Renal tubular secretion is a
+        # separate, legitimately first-order renal process and is NOT this.)
+        self.assertNotIn("active_transport_first_order", C.PROCESS_TYPES)
+        internals = {s.get("internal_name") for s in C.PROCESS_TYPES.values()}
+        self.assertNotIn("ActiveTransportSpecific_FirstOrder", internals)
+
+    def test_docs_derived_forms_present_and_flagged(self):
+        # Hill, tubular secretion, in-vitro hepatic-t1/2 added from the docs;
+        # their inferred InternalNames must be flagged unverified.
+        for k in ("metabolization_hill", "active_transport_hill",
+                  "tubular_secretion_first_order", "tubular_secretion_mm",
+                  "hepatic_clearance_hepatocytes_thalf"):
+            self.assertIn(k, C.PROCESS_TYPES)
+            self.assertFalse(C.PROCESS_TYPES[k].get("internal_name_verified", False), k)
+            self.assertIn("provenance", C.PROCESS_TYPES[k])
+
+    def test_third_permeability_method(self):
+        from pkpd_agent.engines.snapshot_edit import PERMEABILITY_METHODS
+        self.assertEqual(len(PERMEABILITY_METHODS), 3)
+        self.assertTrue(any("normalized" in m for m in PERMEABILITY_METHODS))
+
+    def test_pka_and_compound_type_described(self):
+        self.assertIn("ionised", C.describe_parameter("pKa")["description"])
+        self.assertEqual(C.param_tier("pKa"), "constant")     # never fitted
+        self.assertTrue(C.describe_parameter("Compound type").get("description"))
 
     def test_every_type_has_validation_and_provenance(self):
         for k, spec in C.PROCESS_TYPES.items():
