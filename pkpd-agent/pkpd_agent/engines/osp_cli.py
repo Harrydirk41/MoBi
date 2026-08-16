@@ -39,7 +39,10 @@ from typing import Any
 # --------------------------------------------------------------------------- #
 
 _MASS_PER_L = {"mg/l": 1.0, "µg/l": 1e-3, "ug/l": 1e-3, "ng/ml": 1e-3,
-               "ng/l": 1e-6, "g/l": 1e3}
+               "ng/l": 1e-6, "g/l": 1e3,
+               # volume-based concentration units seen in biologic biodistribution
+               "µg/ml": 1.0, "ug/ml": 1.0, "mg/ml": 1e3, "µg/dl": 1e-2,
+               "ug/dl": 1e-2}
 
 
 def _unit_in_brackets(header: str) -> str:
@@ -104,7 +107,8 @@ class OSPCli:
                       workdir: str | None = None,
                       prune_simulations: bool = False,
                       target_molecule: str | None = None,
-                      target_molecules: list[str] | None = None) -> dict[str, Any]:
+                      target_molecules: list[str] | None = None,
+                      target_matrices: list[dict] | None = None) -> dict[str, Any]:
         """snapshot (optionally edited) -> .pksim5 -> run -> predicted profiles.
 
         ``edits`` is the structured spec from ``snapshot_edit`` (parameters,
@@ -122,6 +126,12 @@ class OSPCli:
         its own molecular weight. When given, the result carries an extra
         ``profiles_by_molecule`` = {molecule: [PredictedProfile...]} so a single
         snap+export scores the whole cascade, not one molecule at a time.
+
+        ``target_matrices`` (biologics / biodistribution): pull a molecule's
+        concentration in SEVERAL matrices (whole blood, and per-organ tissue) from
+        one run. Each entry is {key, molecule, tokens:[...]} where tokens are the
+        header substrings that identify the column (organ + compartment). The
+        result carries ``profiles_by_matrix`` = {key: [PredictedProfile...]}.
 
         Returns {ok, message, profiles:[PredictedProfile...], project, logs}.
         """
@@ -183,6 +193,11 @@ class OSPCli:
             mw_by_name = self._mol_weight_by_name(snap)
             by_molecule = self._parse_results_multi(out_dir, mw_by_name,
                                                     target_molecules, mol_weight)
+        by_matrix = None
+        if target_matrices:
+            mw_by_name = self._mol_weight_by_name(snap)
+            by_matrix = self._parse_results_matrices(out_dir, mw_by_name,
+                                                     target_matrices, mol_weight)
         if not self.keep_workdir and not workdir:
             shutil.rmtree(wd, ignore_errors=True)
 
@@ -200,6 +215,9 @@ class OSPCli:
             result["profiles_by_molecule"] = by_molecule
             # a cascade run "ok" if at least one requested molecule was parsed
             result["ok"] = result["ok"] or any(by_molecule.values())
+        if by_matrix is not None:
+            result["profiles_by_matrix"] = by_matrix
+            result["ok"] = result["ok"] or any(by_matrix.values())
         return result
 
     # -- snapshot helpers ------------------------------------------------ #
@@ -281,6 +299,88 @@ class OSPCli:
                 if prof:
                     by_mol[m].append(prof)
         return by_mol
+
+    def _parse_results_matrices(self, out_dir: str,
+                                mw_by_name: dict[str, float | None],
+                                matrices: list[dict],
+                                default_mw: float | None = None) \
+            -> dict[str, list[PredictedProfile]]:
+        """{key: [PredictedProfile...]} - one column per (molecule, organ,
+        compartment) matrix per simulation CSV. A biologic's biodistribution is
+        scored across whole blood and every measured tissue this way."""
+        by_key: dict[str, list[PredictedProfile]] = {m["key"]: [] for m in matrices}
+        for csv_path in sorted(glob.glob(os.path.join(out_dir, "*", "*-Results.csv"))):
+            sim_name = os.path.basename(os.path.dirname(csv_path))
+            with open(csv_path, encoding="utf-8", errors="replace", newline="") as fh:
+                rows = list(csv.reader(fh))
+            if len(rows) < 2:
+                continue
+            header = rows[0]
+            for spec in matrices:
+                mw = mw_by_name.get(spec.get("molecule"), default_mw)
+                if mw is None:
+                    mw = default_mw
+                c_idx = self._pick_column_by_tokens(header, spec.get("tokens") or [])
+                if c_idx is None:
+                    continue
+                prof = self._parse_column(rows, header, c_idx, sim_name, mw)
+                if prof:
+                    by_key[spec["key"]].append(prof)
+        return by_key
+
+    @staticmethod
+    def _pick_column_by_tokens(header: list[str], tokens: list[str]) -> int | None:
+        """Concentration column whose header contains ALL tokens (case-insensitive,
+        space-insensitive substring - so observed 'Peripheral Venous Blood'
+        matches the CSV's 'PeripheralVenousBlood'). Used to select a specific
+        (molecule, organ, compartment) matrix. Ties break toward the fewest '|'
+        segments (the most specific / least aggregated match)."""
+        def norm(s: str) -> str:
+            return str(s).lower().replace(" ", "")
+        want = [norm(t) for t in tokens if t]
+        if not want:
+            return None
+        best, best_extra = None, 1 << 30
+        for i, h in enumerate(header):
+            u = _unit_in_brackets(h)
+            if not (u in _MASS_PER_L or "mol/l" in u):
+                continue
+            hn = norm(h)
+            if all(t in hn for t in want):
+                extra = h.lower().count("|")
+                if extra < best_extra:
+                    best, best_extra = i, extra
+        return best
+
+    def _parse_column(self, rows: list, header: list[str], c_idx: int,
+                      sim_name: str, mol_weight: float | None) -> PredictedProfile | None:
+        """Parse one already-selected concentration column into a profile."""
+        t_idx = next((i for i, h in enumerate(header)
+                      if h.lower().startswith("time")), None)
+        if t_idx is None or c_idx is None:
+            return None
+        t_unit = _unit_in_brackets(header[t_idx])
+        c_unit = _unit_in_brackets(header[c_idx])
+        acc: dict[float, list[float]] = {}
+        for row in rows[1:]:
+            if len(row) <= max(t_idx, c_idx):
+                continue
+            try:
+                t = float(row[t_idx]); c = float(row[c_idx])
+            except ValueError:
+                continue
+            acc.setdefault(t, []).append(c)
+        time_h, conc_mg_L = [], []
+        for t in sorted(acc):
+            mg = _conc_to_mg_L(sum(acc[t]) / len(acc[t]), c_unit, mol_weight)
+            if mg is None:
+                continue
+            time_h.append(round(_time_to_h(t, t_unit), 6))
+            conc_mg_L.append(round(mg, 10))
+        if not time_h:
+            return None
+        study, route, dose = self._parse_sim_name(sim_name)
+        return PredictedProfile(sim_name, study, route, dose, time_h, conc_mg_L)
 
     def _parse_one(self, csv_path: str, sim_name: str,
                    mol_weight: float | None,
