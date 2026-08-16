@@ -35,6 +35,23 @@ def _fmt(v):
     return f"{v:.4g}" if isinstance(v, (int, float)) else "n/a"
 
 
+def _interp(times, vals, t):
+    pts = [(a, b) for a, b in zip(times, vals)
+           if isinstance(a, (int, float)) and isinstance(b, (int, float))]
+    if not pts:
+        return None
+    if t <= pts[0][0]:
+        return pts[0][1]
+    if t >= pts[-1][0]:
+        return pts[-1][1]
+    for i in range(1, len(pts)):
+        x0, y0 = pts[i - 1]
+        x1, y1 = pts[i]
+        if x0 <= t <= x1:
+            return y0 if x1 == x0 else y0 + (t - x0) / (x1 - x0) * (y1 - y0)
+    return pts[-1][1]
+
+
 def _endpoint(res: dict, name: str):
     col = (res.get("columns") or {}).get(name) or []
     for v in reversed(col):
@@ -110,31 +127,44 @@ def main() -> None:
         log(f"   (baseline logged {base.get('n_columns')} columns, "
             f"dosed logged {dosed.get('n_columns')} columns)")
 
-        # clinical readouts: endpoint + on-treatment min/max (the effect may wash
-        # out by the end of the simulation, so min/max over time matters)
-        log("\nclinical readouts (endpoint | min..max over time):")
-        for name in _CLINICAL:
-            be, bmin, bmax = _stats(base, name)
-            de, dmin, dmax = _stats(dosed, name)
-            if be is None and de is None:
-                continue
-            log(f"   {name:12} baseline end={_fmt(be)} [{_fmt(bmin)}..{_fmt(bmax)}]   "
-                f"dosed end={_fmt(de)} [{_fmt(dmin)}..{_fmt(dmax)}]")
+        # sample key states over a shared time grid (baseline vs dosed at MATCHED
+        # times) - the states start at 0 and ramp to disease steady state, so we
+        # need the trajectory, not min/max. Confirms (a) the drug reaches the
+        # synovium (dosing works) and (b) whether it bends IL-6 / DAS28.
+        tmax = max((base["time"] or [0])[-1], (dosed["time"] or [0])[-1])
+        grid = [round(tmax * f, 3) for f in (0, .05, .1, .15, .2, .3, .5, .75, 1.0)]
+        key = [s for s in ("DAS28_CRP", "IL6", "TNFa", "ACR_Perc",
+                           "TCZDrug_Synovium", "TCZDrug_Central") if s in species]
+        log(f"\ntrajectory at matched times (base -> dosed), tmax={tmax:g}:")
+        log("   " + "state".ljust(18) + "  " + "  ".join(f"t={t:g}".rjust(11) for t in grid))
+        for name in key:
+            cells = []
+            for t in grid:
+                b = _interp(base["time"], base["columns"].get(name, []), t)
+                d = _interp(dosed["time"], dosed["columns"].get(name, []), t)
+                cells.append(f"{_fmt(b)}->{_fmt(d)}".rjust(11))
+            log(f"   {name:18}  " + "  ".join(cells))
 
-        # biggest movers by on-treatment extreme vs baseline (catches transient effect)
-        log("\nlargest on-treatment changes (dosed min/max vs baseline endpoint):")
+        # biggest movers: dosed vs baseline at the SAME sample times (t>0)
+        log("\nlargest dosed-vs-baseline changes at matched times (excludes t=0):")
         rows = []
         for name in species:
-            be = _endpoint(base, name)
-            de, dmin, dmax = _stats(dosed, name)
-            if not isinstance(be, (int, float)) or be == 0 or dmin is None:
-                continue
-            # the dosed extreme furthest from baseline
-            far = dmin if abs(dmin - be) > abs(dmax - be) else dmax
-            rows.append((name, be, far, far / be))
-        rows.sort(key=lambda r: abs((r[3] or 1) - 1), reverse=True)
-        for name, be, far, fold in rows[:15]:
-            log(f"   {name:36} base={be:.4g}  dosed_extreme={far:.4g}  ({fold:.3f}x)")
+            best = None
+            for t in grid[1:]:
+                b = _interp(base["time"], base["columns"].get(name, []), t)
+                d = _interp(dosed["time"], dosed["columns"].get(name, []), t)
+                if isinstance(b, (int, float)) and isinstance(d, (int, float)) and b not in (0, None):
+                    fold = d / b
+                    if best is None or abs(fold - 1) > abs(best[2] - 1):
+                        best = (t, b, fold, d)
+            if best and abs(best[2] - 1) > 1e-3:
+                rows.append((name, best[0], best[1], best[3], best[2]))
+        rows.sort(key=lambda r: abs(r[4] - 1), reverse=True)
+        for name, t, b, d, fold in rows[:12]:
+            log(f"   {name:36} @t={t:g}: {b:.4g} -> {d:.4g}  ({fold:.3f}x)")
+        if not rows:
+            log("   (no state differs between baseline and dosed - the dose may need "
+                "a scenario: a variant, an MTX background, or a different readout time)")
 
         log("\n=== RUN END (reached the end cleanly) ===")
     except Exception as exc:                            # noqa: BLE001
