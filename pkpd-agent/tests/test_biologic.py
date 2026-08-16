@@ -49,12 +49,13 @@ class TestAnalyzeBiologic(unittest.TestCase):
         self.assertTrue(any("Tissue" in m for m in matrices))
         self.assertTrue(any("WholeBlood" in m for m in matrices))
 
-    def test_matrix_specs_tokens(self):
+    def test_matrix_specs_carry_organ_compartment(self):
         obs = B.biologic_observed(self.snap, "BAY794620")
         specs = B.matrix_specs(obs, "BAY794620")
         blood = next(s for s in specs if s["key"] == "Blood|WholeBlood")
-        self.assertIn("BAY794620", blood["tokens"])
-        self.assertIn("Blood", blood["tokens"])
+        self.assertEqual(blood["molecule"], "BAY794620")
+        self.assertEqual(blood["organ"], "Blood")
+        self.assertEqual(blood["compartment"], "WholeBlood")
 
     def test_single_molecule_is_not_biologic(self):
         if os.path.exists(ALF):
@@ -88,6 +89,35 @@ class TestBiologicColumnAndScoring(unittest.TestCase):
                   "Organism|Liver|mAb|Tissue [µg/ml]"]
         self.assertEqual(OSPCli._pick_column_by_tokens(header, ["mAb", "Liver"]), 2)
         self.assertIsNone(OSPCli._pick_column_by_tokens(header, ["mAb", "Spleen"]))
+
+    # -- the segment matcher, against the REAL PK-Sim mAb column format --
+    _REAL = ["﻿\"IndividualId\"", "Time [min]",
+             "Organism|PeripheralVenousBlood|BAY794620|Plasma (Peripheral Venous Blood) [µmol/l]",
+             "Organism|VenousBlood|BAY794620|Whole Blood [µmol/l]",
+             "Organism|Fat|BAY794620|Whole Organ incl. FcRn_Complex-BAY794620 [µmol/l]",
+             "Organism|Gonads|BAY794620|Whole Organ incl. FcRn_Complex-BAY794620 [µmol/l]",
+             "Organism|SmallIntestine|BAY794620|Whole Organ (Small Intestine) incl. FcRn_Complex-BAY794620 [µmol/l]"]
+
+    def test_segment_match_real_tissue(self):
+        self.assertEqual(OSPCli._pick_matrix_column(self._REAL, "BAY794620", "Fat"), 4)
+
+    def test_ovaries_aliases_to_gonads(self):
+        # observed 'Ovaries' must map to the model's 'Gonads' column
+        self.assertEqual(OSPCli._pick_matrix_column(self._REAL, "BAY794620", "Ovaries"), 5)
+
+    def test_intestine_does_not_match_smallintestine(self):
+        # the substring 'Intestine' must NOT hijack the 'SmallIntestine' column
+        self.assertIsNone(OSPCli._pick_matrix_column(self._REAL, "BAY794620", "Intestine"))
+        self.assertEqual(
+            OSPCli._pick_matrix_column(self._REAL, "BAY794620", "SmallIntestine"), 6)
+
+    def test_whole_blood_vs_plasma_disambiguated_by_compartment(self):
+        # 'Blood'+'WholeBlood' -> the Whole Blood column, not the plasma one
+        self.assertEqual(OSPCli._pick_matrix_column(
+            self._REAL, "BAY794620", "Blood", "WholeBlood"), 3)
+
+    def test_tumor_has_no_model_column(self):
+        self.assertIsNone(OSPCli._pick_matrix_column(self._REAL, "BAY794620", "Tumor"))
 
     def _obs(self, matrix, scale=1.0):
         t = [0, 24, 72, 168]

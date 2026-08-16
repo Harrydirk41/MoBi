@@ -190,20 +190,17 @@ def biologic_observed(snapshot: dict, molecule: str) -> list[dict]:
 
 def matrix_specs(observed: list[dict], molecule: str) -> list[dict]:
     """Column selectors for build_and_run(target_matrices=...): one per distinct
-    matrix, tokens = molecule + organ + compartment so the CSV column is picked
-    unambiguously."""
+    matrix. Carries molecule + organ + compartment so the CLI matches the organ as
+    an exact pipe segment (with aliases) - a substring organ name cannot match a
+    different organ's column."""
     specs, seen = [], set()
     for o in observed:
         key = o["matrix"]
         if key in seen:
             continue
         seen.add(key)
-        tokens = [molecule]
-        if o.get("organ"):
-            tokens.append(o["organ"])
-        if o.get("compartment") and o["compartment"].lower() not in ("", "tissue"):
-            tokens.append(o["compartment"])
-        specs.append({"key": key, "molecule": molecule, "tokens": tokens})
+        specs.append({"key": key, "molecule": molecule,
+                      "organ": o.get("organ"), "compartment": o.get("compartment")})
     return specs
 
 

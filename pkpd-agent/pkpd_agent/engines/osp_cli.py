@@ -307,7 +307,10 @@ class OSPCli:
             -> dict[str, list[PredictedProfile]]:
         """{key: [PredictedProfile...]} - one column per (molecule, organ,
         compartment) matrix per simulation CSV. A biologic's biodistribution is
-        scored across whole blood and every measured tissue this way."""
+        scored across whole blood and every measured tissue this way. Each spec
+        carries {key, molecule, organ, compartment}; the organ is matched as a
+        pipe-delimited SEGMENT (with aliases) so a substring organ name cannot
+        match a different organ's column (e.g. Intestine vs SmallIntestine)."""
         by_key: dict[str, list[PredictedProfile]] = {m["key"]: [] for m in matrices}
         for csv_path in sorted(glob.glob(os.path.join(out_dir, "*", "*-Results.csv"))):
             sim_name = os.path.basename(os.path.dirname(csv_path))
@@ -320,13 +323,62 @@ class OSPCli:
                 mw = mw_by_name.get(spec.get("molecule"), default_mw)
                 if mw is None:
                     mw = default_mw
-                c_idx = self._pick_column_by_tokens(header, spec.get("tokens") or [])
+                if spec.get("organ"):
+                    c_idx = self._pick_matrix_column(
+                        header, spec.get("molecule"), spec["organ"],
+                        spec.get("compartment"))
+                else:                                  # legacy token spec
+                    c_idx = self._pick_column_by_tokens(header, spec.get("tokens") or [])
                 if c_idx is None:
                     continue
                 prof = self._parse_column(rows, header, c_idx, sim_name, mw)
                 if prof:
                     by_key[spec["key"]].append(prof)
         return by_key
+
+    # PK-Sim physiology organ names vs the labels used in observed biodistribution
+    # data (observed label -> the model's segment name).
+    _ORGAN_ALIASES = {
+        "ovaries": ["gonads"], "ovary": ["gonads"], "testes": ["gonads"],
+        "testis": ["gonads"],
+        "blood": ["venousblood", "arterialblood", "peripheralvenousblood"],
+        "wholeblood": ["venousblood"],
+        "peripheralvenousblood": ["venousblood"],
+        "git": ["smallintestine", "largeintestine"],
+    }
+
+    @staticmethod
+    def _pick_matrix_column(header: list[str], molecule: str, organ: str,
+                            compartment: str | None = None) -> int | None:
+        """Concentration column for a (molecule, organ, compartment) matrix. The
+        ORGAN must equal a pipe-delimited segment (normalised, with aliases) - a
+        loose substring is NOT enough, so 'Intestine' does not match the
+        'SmallIntestine' column. The molecule must appear in a segment; the
+        compartment, when given and not a generic 'tissue', must appear in the
+        header (disambiguates whole blood vs plasma). Ties break to the fewest
+        '|' segments."""
+        def norm(s: str) -> str:
+            return str(s).lower().replace(" ", "")
+        moln = norm(molecule)
+        on = norm(organ)
+        organ_candidates = {on} | set(OSPCli._ORGAN_ALIASES.get(on, []))
+        compn = norm(compartment) if compartment and norm(compartment) != "tissue" else None
+        best, best_extra = None, 1 << 30
+        for i, h in enumerate(header):
+            u = _unit_in_brackets(h)
+            if not (u in _MASS_PER_L or "mol/l" in u):
+                continue
+            segs = [norm(s) for s in h.split("|")]
+            if not any(moln in s for s in segs):
+                continue
+            if not any(seg in organ_candidates for seg in segs):
+                continue
+            if compn and compn not in norm(h):
+                continue
+            extra = h.count("|")
+            if extra < best_extra:
+                best, best_extra = i, extra
+        return best
 
     @staticmethod
     def _pick_column_by_tokens(header: list[str], tokens: list[str]) -> int | None:
