@@ -114,6 +114,25 @@ class SimBiologyEngine:
         finally:
             _quiet_rm(out)
 
+    def run_vpop(self, vpop_xlsx: str, dose: str = "", readout_time: float = 0.0,
+                 limit: int = 0) -> dict[str, Any]:
+        """Run the whole virtual population (an .xlsx of patient parameter sets),
+        optionally under a named dose, and return per-patient clinical readouts
+        (DAS28_CRP, ACR20/50/70, Remission, Response). ``limit`` runs only the
+        first N patients (test fast before all 300). MATLAB reads the Excel and
+        writes the results CSV; only paths cross the boundary."""
+        import io
+        out = _tmp(".csv")
+        so = io.StringIO()
+        try:
+            self.eng.sb_run_vpop(vpop_xlsx, dose or "", float(readout_time),
+                                 out, float(limit), nargout=0, stdout=so, stderr=so)
+            res = _read_csv(out)
+            res["matlab_log"] = so.getvalue()
+            return res
+        finally:
+            _quiet_rm(out)
+
 
 def _quiet_rm(path: str) -> None:
     try:
