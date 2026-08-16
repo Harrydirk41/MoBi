@@ -31,12 +31,30 @@ def log(msg: str) -> None:
             pass
 
 
+def _fmt(v):
+    return f"{v:.4g}" if isinstance(v, (int, float)) else "n/a"
+
+
 def _endpoint(res: dict, name: str):
     col = (res.get("columns") or {}).get(name) or []
     for v in reversed(col):
         if v is not None:
             return v
     return None
+
+
+def _stats(res: dict, name: str):
+    """(endpoint, min, max) of a state over the whole trajectory."""
+    col = [v for v in ((res.get("columns") or {}).get(name) or [])
+           if isinstance(v, (int, float))]
+    if not col:
+        return None, None, None
+    return col[-1], min(col), max(col)
+
+
+# the model's built-in clinical readouts (disease activity + ACR responses)
+_CLINICAL = ["DAS28_CRP", "DAS28_BL", "ACR_Perc", "ACR20", "ACR50", "ACR70",
+             "Remission", "Response", "Response_2"]
 
 
 def main() -> None:
@@ -89,18 +107,34 @@ def main() -> None:
         dosed = sb.simulate(dose=dose or "", stop_time=args.stop_time)
         log(f"<- dosed: {len(dosed['time'])} timepoints")
 
-        # report endpoint baseline vs dosed for each state, sorted by |log fold|
-        log("\nendpoint (last timepoint) baseline vs dosed, largest change first:")
+        log(f"   (baseline logged {base.get('n_columns')} columns, "
+            f"dosed logged {dosed.get('n_columns')} columns)")
+
+        # clinical readouts: endpoint + on-treatment min/max (the effect may wash
+        # out by the end of the simulation, so min/max over time matters)
+        log("\nclinical readouts (endpoint | min..max over time):")
+        for name in _CLINICAL:
+            be, bmin, bmax = _stats(base, name)
+            de, dmin, dmax = _stats(dosed, name)
+            if be is None and de is None:
+                continue
+            log(f"   {name:12} baseline end={_fmt(be)} [{_fmt(bmin)}..{_fmt(bmax)}]   "
+                f"dosed end={_fmt(de)} [{_fmt(dmin)}..{_fmt(dmax)}]")
+
+        # biggest movers by on-treatment extreme vs baseline (catches transient effect)
+        log("\nlargest on-treatment changes (dosed min/max vs baseline endpoint):")
         rows = []
         for name in species:
-            b, d = _endpoint(base, name), _endpoint(dosed, name)
-            if isinstance(b, (int, float)) and isinstance(d, (int, float)) and b not in (0, None):
-                fold = (d / b) if b else None
-                rows.append((name, b, d, fold))
+            be = _endpoint(base, name)
+            de, dmin, dmax = _stats(dosed, name)
+            if not isinstance(be, (int, float)) or be == 0 or dmin is None:
+                continue
+            # the dosed extreme furthest from baseline
+            far = dmin if abs(dmin - be) > abs(dmax - be) else dmax
+            rows.append((name, be, far, far / be))
         rows.sort(key=lambda r: abs((r[3] or 1) - 1), reverse=True)
-        for name, b, d, fold in rows[:15]:
-            fs = f"{fold:.3f}x" if isinstance(fold, (int, float)) else "n/a"
-            log(f"   {name:36} base={b:.4g}  dosed={d:.4g}  ({fs})")
+        for name, be, far, fold in rows[:15]:
+            log(f"   {name:36} base={be:.4g}  dosed_extreme={far:.4g}  ({fold:.3f}x)")
 
         log("\n=== RUN END (reached the end cleanly) ===")
     except Exception as exc:                            # noqa: BLE001

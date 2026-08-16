@@ -10,6 +10,12 @@ function nCols = sb_simulate_csv(doseName, variantName, stopTime, outCsv)
     if stopTime > 0
         cs.StopTime = stopTime;
     end
+    % the project may have been saved logging only a few states; log ALL so every
+    % species (cytokines, ACR/DAS28 clinical endpoints) is returned.
+    try
+        cs.RuntimeOptions.StatesToLog = 'all';
+    catch
+    end
 
     v = [];
     if ~isempty(variantName)
