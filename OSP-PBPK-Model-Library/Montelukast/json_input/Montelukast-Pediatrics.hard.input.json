@@ -1,0 +1,309 @@
+{
+  "schema": "osp-agent-task/v2",
+  "task_id": "Montelukast-Pediatrics",
+  "source_snapshot": "Montelukast-Pediatrics.json",
+  "compound": "Montelukast",
+  "objective": "Build a whole-body PBPK model for Montelukast that reproduces the observed plasma concentration-time data. Decide the model structure and any parameters you cannot obtain from the given data, and justify them. No modeling strategy and no reference results are provided.",
+  "background": {
+    "description": "Montelukast PBPK modeling task.",
+    "literature_facts": [
+      "Metabolized by: CYP2C8, CYP2C9, CYP3A4, CYP3A5.",
+      "Renal clearance via glomerular filtration is present.",
+      "Reference distribution/permeability methods exist but are withheld; choose your own."
+    ]
+  },
+  "given_data": {
+    "compound_identity": {
+      "name": "Montelukast",
+      "is_small_molecule": true
+    },
+    "literature_physicochemical": [
+      {
+        "parameter": "Fraction unbound (plasma, reference value)",
+        "value": 0.0018,
+        "unit": "",
+        "source": "Marzolini 2017"
+      },
+      {
+        "parameter": "Solubility at reference pH",
+        "value": 8.2e-06,
+        "unit": "mg/ml",
+        "source": "source: Drugbank (ALOGPS)"
+      },
+      {
+        "parameter": "Reference pH",
+        "value": 7.0,
+        "unit": "",
+        "source": "source: Drugbank (ALOGPS)"
+      },
+      {
+        "parameter": "In vitro CL/recombinant enzyme",
+        "value": 3.6,
+        "unit": "µl/min/pmol rec. enzyme",
+        "source": "Marzolini 2017"
+      },
+      {
+        "parameter": "GFR fraction",
+        "value": 1.0,
+        "unit": "",
+        "source": "Marzolini 2017"
+      },
+      {
+        "parameter": "Cl",
+        "value": 1.0,
+        "unit": "",
+        "source": "Marzolini 2017"
+      },
+      {
+        "parameter": "Molecular weight",
+        "value": 586.2,
+        "unit": "g/mol",
+        "source": "Marzolini 2017"
+      }
+    ],
+    "clinical_observed_data": [
+      {
+        "dataset": "Friesen 2004 - 7-16.8y - Montelukast - PO - 10 mg - Plasma - agg. (n=25)",
+        "study": "Friesen 2004",
+        "molecule": "Montelukast",
+        "route": "PO",
+        "dose": "10 mg",
+        "n_points": 6,
+        "time_unit": "h",
+        "conc_unit": "mg/L",
+        "time_h": [
+          1.5,
+          3.0,
+          5.5,
+          6.0,
+          8.0,
+          12.0
+        ],
+        "conc_mg_L": [
+          0.45471302,
+          0.5345761,
+          0.3784889,
+          0.4538255,
+          0.2695472,
+          0.1084479
+        ]
+      },
+      {
+        "dataset": "Friesen 2004 - min - Montelukast - po - 10 mg - Plasma - agg. (n=23)",
+        "study": "Friesen 2004",
+        "molecule": "Montelukast",
+        "route": "po",
+        "dose": "10 mg",
+        "n_points": 6,
+        "time_unit": "h",
+        "conc_unit": "mg/L",
+        "time_h": [
+          1.5,
+          3.0,
+          5.5,
+          6.0,
+          8.0,
+          12.0
+        ],
+        "conc_mg_L": [
+          0.13879949,
+          0.2445959,
+          0.1450872,
+          0.1850715,
+          0.09980538,
+          0.04007859
+        ]
+      },
+      {
+        "dataset": "Friesen 2004 - max - Montelukast - PO - 10 mg - Plasma - agg. (n=23)",
+        "study": "Friesen 2004",
+        "molecule": "Montelukast",
+        "route": "PO",
+        "dose": "10 mg",
+        "n_points": 6,
+        "time_unit": "h",
+        "conc_unit": "mg/L",
+        "time_h": [
+          1.5,
+          3.0,
+          5.5,
+          6.0,
+          8.0,
+          12.0
+        ],
+        "conc_mg_L": [
+          0.9427316,
+          1.083889,
+          0.7957749,
+          0.72730845,
+          0.4039311,
+          0.1815324
+        ]
+      }
+    ],
+    "study_designs": [
+      {
+        "name": "Zhao 1997 PO MD 10mg",
+        "application_type": "Oral"
+      },
+      {
+        "name": "Cheng 1996 IV 3mg",
+        "application_type": "Intravenous"
+      },
+      {
+        "name": "Cheng 1996 IV 18mg",
+        "application_type": "Intravenous"
+      },
+      {
+        "name": "Cheng 1996 IV 9mg",
+        "application_type": "Intravenous"
+      },
+      {
+        "name": "PO 10mg",
+        "application_type": "Oral"
+      },
+      {
+        "name": "PO 5mg",
+        "application_type": "Oral"
+      },
+      {
+        "name": "PO 2mg",
+        "application_type": "Oral"
+      },
+      {
+        "name": "4 mg po",
+        "application_type": "Oral"
+      },
+      {
+        "name": "1 mg/kg",
+        "application_type": "Oral"
+      },
+      {
+        "name": "PO 6mg",
+        "application_type": "Oral"
+      }
+    ],
+    "demographics": [
+      {
+        "name": "Kearns 2008 1month",
+        "species": "Human"
+      },
+      {
+        "name": "Kearns 2008 2months",
+        "species": "Human"
+      },
+      {
+        "name": "Kearns 2008 3months",
+        "species": "Human"
+      },
+      {
+        "name": "Kearns 2008 4months",
+        "species": "Human"
+      },
+      {
+        "name": "Kearns 2008 5months",
+        "species": "Human"
+      },
+      {
+        "name": "Kearns 2008 6months",
+        "species": "Human"
+      },
+      {
+        "name": "Kearns 2008 7months",
+        "species": "Human"
+      },
+      {
+        "name": "Kearns 2008 8months",
+        "species": "Human"
+      },
+      {
+        "name": "Kearns 2008 9months",
+        "species": "Human"
+      },
+      {
+        "name": "Kearns 200810months",
+        "species": "Human"
+      },
+      {
+        "name": "Kearns 200811months",
+        "species": "Human"
+      },
+      {
+        "name": "Kearns 200812months",
+        "species": "Human"
+      },
+      {
+        "name": "Kearns 200814months",
+        "species": "Human"
+      },
+      {
+        "name": "Kearns 200813months",
+        "species": "Human"
+      },
+      {
+        "name": "Kearns 200815months",
+        "species": "Human"
+      },
+      {
+        "name": "Kearns 200816months",
+        "species": "Human"
+      },
+      {
+        "name": "Kearns 200817months",
+        "species": "Human"
+      },
+      {
+        "name": "Kearns 200818months",
+        "species": "Human"
+      },
+      {
+        "name": "Kearns 200819months",
+        "species": "Human"
+      },
+      {
+        "name": "Kearns 2008 20months",
+        "species": "Human"
+      },
+      {
+        "name": "Kearns 2008 21months",
+        "species": "Human"
+      },
+      {
+        "name": "Friesen 2004 11.9y female",
+        "species": "Human"
+      },
+      {
+        "name": "Knorr 2006 7y",
+        "species": "Human"
+      },
+      {
+        "name": "Knorr 2001 4y",
+        "species": "Human"
+      },
+      {
+        "name": "Knorr 2006 4m",
+        "species": "Human"
+      },
+      {
+        "name": "Miyoga 2004 18m",
+        "species": "Human"
+      },
+      {
+        "name": "Miyoga 2004 9m",
+        "species": "Human"
+      }
+    ]
+  },
+  "data_overview": {
+    "n_observed_datasets": 3,
+    "routes": [
+      "PO",
+      "po"
+    ],
+    "studies": [
+      "Friesen 2004"
+    ]
+  },
+  "unknowns_guidance": "HARD mode - the model STRUCTURE is NOT given. The snapshot has NO elimination processes and its distribution/permeability methods are at neutral PK-Sim Standard defaults. Using the known biology (which enzymes / transporters clear this drug, and the renal route), ADD the elimination processes (add_processes on the expressed molecules) and CHOOSE the distribution and permeability calculation methods appropriate to the compound's physicochemistry - then decide which parameters to fix at literature values and which to estimate, and fit them to the data. Justify every structural choice from the biology and physchem.",
+  "mode": "hard"
+}

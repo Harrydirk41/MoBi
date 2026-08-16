@@ -1,0 +1,239 @@
+{
+  "schema": "osp-agent-task/v2",
+  "task_id": "Sufentanil",
+  "source_snapshot": "Sufentanil.json",
+  "compound": "Sufentanil",
+  "objective": "Build a whole-body PBPK model for Sufentanil that reproduces the observed plasma concentration-time data. Decide the model structure and any parameters you cannot obtain from the given data, and justify them. No modeling strategy and no reference results are provided.",
+  "background": {
+    "description": "Sufentanil PBPK modeling task.",
+    "literature_facts": [
+      "Metabolized by: CYP3A4.",
+      "Renal clearance via glomerular filtration is present.",
+      "Reference distribution/permeability methods exist but are withheld; choose your own."
+    ]
+  },
+  "given_data": {
+    "compound_identity": {
+      "name": "Sufentanil",
+      "is_small_molecule": true
+    },
+    "literature_physicochemical": [
+      {
+        "parameter": "Fraction unbound (plasma, reference value)",
+        "value": 0.075,
+        "unit": "",
+        "source": "Zhou et al. 2017"
+      },
+      {
+        "parameter": "Solubility at reference pH",
+        "value": 0.076,
+        "unit": "mg/l",
+        "source": "ROY,SD & FLYNN,GL (1988)"
+      },
+      {
+        "parameter": "Reference pH",
+        "value": 7.0,
+        "unit": "",
+        "source": "ROY,SD & FLYNN,GL (1988)"
+      },
+      {
+        "parameter": "GFR fraction",
+        "value": 1.0,
+        "unit": "",
+        "source": "Zhou et al. 2017"
+      },
+      {
+        "parameter": "Molecular weight",
+        "value": 386.6,
+        "unit": "g/mol",
+        "source": "Zhou et al. 2017"
+      }
+    ],
+    "clinical_observed_data": [
+      {
+        "dataset": "Bovill 1984 - mean - Sufentanil - IV - 5 mg/kg - Plasma - agg. (n=10)",
+        "study": "Bovill 1984",
+        "molecule": "Sufentanil",
+        "route": "IV",
+        "dose": "5 mg/kg",
+        "n_points": 14,
+        "time_unit": "h",
+        "conc_unit": "mg/L",
+        "time_h": [
+          0.0167,
+          0.083,
+          0.167,
+          0.25,
+          0.5,
+          0.75,
+          1.0,
+          2.0,
+          3.0,
+          4.0,
+          5.0,
+          6.0,
+          7.0,
+          8.0
+        ],
+        "conc_mg_L": [
+          0.03608743,
+          0.00800743,
+          0.00491057,
+          0.00361306,
+          0.00217393,
+          0.00152503,
+          0.00127138,
+          0.00066307,
+          0.00044376,
+          0.00034959,
+          0.00027276,
+          0.000199,
+          0.0001598,
+          0.00013855
+        ],
+        "sd_mg_L": [
+          1e-08,
+          0.00253526,
+          0.00114753,
+          0.00084432,
+          0.00062868,
+          0.00064617,
+          0.00036773,
+          0.00022797,
+          0.00015253,
+          0.00015726,
+          0.00010111,
+          0.00010482,
+          9.218e-05,
+          9.996e-05
+        ]
+      },
+      {
+        "dataset": "Willsie 2015 - mean - Sufentanil - IV - 15 µg - Plasma - agg. (n=25)",
+        "study": "Willsie 2015",
+        "molecule": "Sufentanil",
+        "route": "IV",
+        "dose": "15 µg",
+        "n_points": 18,
+        "time_unit": "h",
+        "conc_unit": "mg/L",
+        "time_h": [
+          0.01667,
+          0.06667,
+          0.11667,
+          0.16667,
+          0.25,
+          0.33333,
+          0.5,
+          0.75,
+          1.0,
+          1.5,
+          2.0,
+          3.0,
+          4.0,
+          6.0,
+          8.0,
+          10.0,
+          12.0,
+          14.0
+        ],
+        "conc_mg_L": [
+          0.000324,
+          0.0002748,
+          0.0002256,
+          0.00018273,
+          0.00011385,
+          8.995e-05,
+          8.151e-05,
+          5.831e-05,
+          4.776e-05,
+          3.229e-05,
+          2.595e-05,
+          1.678e-05,
+          1.324e-05,
+          6.15e-06,
+          3.28e-06,
+          2.52e-06,
+          2.46e-06,
+          1.7e-06
+        ]
+      },
+      {
+        "dataset": "Taverne 1992 - mean - Sufentanil - iv - 150 µg - Plasma - agg. (n=10)",
+        "study": "Taverne 1992",
+        "molecule": "Sufentanil",
+        "route": "iv",
+        "dose": "150 µg",
+        "n_points": 10,
+        "time_unit": "h",
+        "conc_unit": "mg/L",
+        "time_h": [
+          0.25,
+          0.3,
+          0.5,
+          0.75,
+          1.0,
+          1.5,
+          2.0,
+          2.5,
+          3.0,
+          5.63932
+        ],
+        "conc_mg_L": [
+          0.00065096,
+          0.00077414,
+          0.00038423,
+          0.00027467,
+          0.0002106,
+          0.00015084,
+          0.00011382,
+          0.00010187,
+          0.00010357,
+          0.00010286
+        ]
+      }
+    ],
+    "study_designs": [
+      {
+        "name": "15µg dose IV",
+        "application_type": "IntravenousBolus"
+      },
+      {
+        "name": "150µg",
+        "application_type": "IntravenousBolus"
+      },
+      {
+        "name": "5µg/kg dose IV",
+        "application_type": "IntravenousBolus"
+      }
+    ],
+    "demographics": [
+      {
+        "name": "Bovill 1984",
+        "species": "Human"
+      },
+      {
+        "name": "Taverne 1992",
+        "species": "Human"
+      },
+      {
+        "name": "Willsie 2014",
+        "species": "Human"
+      }
+    ]
+  },
+  "data_overview": {
+    "n_observed_datasets": 3,
+    "routes": [
+      "IV",
+      "iv"
+    ],
+    "studies": [
+      "Bovill 1984",
+      "Taverne 1992",
+      "Willsie 2015"
+    ]
+  },
+  "unknowns_guidance": "HARD mode - the model STRUCTURE is NOT given. The snapshot has NO elimination processes and its distribution/permeability methods are at neutral PK-Sim Standard defaults. Using the known biology (which enzymes / transporters clear this drug, and the renal route), ADD the elimination processes (add_processes on the expressed molecules) and CHOOSE the distribution and permeability calculation methods appropriate to the compound's physicochemistry - then decide which parameters to fix at literature values and which to estimate, and fit them to the data. Justify every structural choice from the biology and physchem.",
+  "mode": "hard"
+}

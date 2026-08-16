@@ -1,0 +1,342 @@
+{
+  "schema": "osp-agent-task/v2",
+  "task_id": "Sufentanil-Pediatrics",
+  "source_snapshot": "Sufentanil-Pediatrics.json",
+  "compound": "Sufentanil",
+  "objective": "Build a whole-body PBPK model for Sufentanil that reproduces the observed plasma concentration-time data. Decide the model structure and any parameters you cannot obtain from the given data, and justify them. No modeling strategy and no reference results are provided.",
+  "background": {
+    "description": "Sufentanil PBPK modeling task.",
+    "literature_facts": [
+      "Metabolized by: CYP3A4.",
+      "Renal clearance via glomerular filtration is present.",
+      "Reference distribution/permeability methods exist but are withheld; choose your own."
+    ]
+  },
+  "given_data": {
+    "compound_identity": {
+      "name": "Sufentanil",
+      "is_small_molecule": true
+    },
+    "literature_physicochemical": [
+      {
+        "parameter": "Fraction unbound (plasma, reference value)",
+        "value": 0.075,
+        "unit": "",
+        "source": "Zhou et al. 2017"
+      },
+      {
+        "parameter": "Solubility at reference pH",
+        "value": 0.076,
+        "unit": "mg/l",
+        "source": "ROY,SD & FLYNN,GL (1988)"
+      },
+      {
+        "parameter": "Reference pH",
+        "value": 7.0,
+        "unit": "",
+        "source": "ROY,SD & FLYNN,GL (1988)"
+      },
+      {
+        "parameter": "GFR fraction",
+        "value": 1.0,
+        "unit": "",
+        "source": "Zhou et al. 2017"
+      },
+      {
+        "parameter": "Molecular weight",
+        "value": 386.6,
+        "unit": "g/mol",
+        "source": "Zhou et al. 2017"
+      }
+    ],
+    "clinical_observed_data": [
+      {
+        "dataset": "Guay 1991 - ID3 - Sufentanil - IV - 3.54 µg/kg - Plasma - indiv.",
+        "study": "Guay 1991",
+        "molecule": "Sufentanil",
+        "route": "IV",
+        "dose": "3.54 µg/kg",
+        "n_points": 9,
+        "time_unit": "h",
+        "conc_unit": "mg/L",
+        "time_h": [
+          0.0413,
+          0.18584,
+          0.26844,
+          0.55752,
+          0.76401,
+          0.99115,
+          1.9823,
+          2.97345,
+          4.0472
+        ],
+        "conc_mg_L": [
+          0.00524808,
+          0.0020893,
+          0.00131826,
+          0.00083176,
+          0.00061188,
+          0.00036308,
+          0.00017378,
+          8.066e-05,
+          9.12e-05
+        ]
+      },
+      {
+        "dataset": "Guay 1991 - ID8 - Sufentanil - IV - 3.14 µg/kg - Plasma - indiv.",
+        "study": "Guay 1991",
+        "molecule": "Sufentanil",
+        "route": "IV",
+        "dose": "3.14 µg/kg",
+        "n_points": 8,
+        "time_unit": "h",
+        "conc_unit": "mg/L",
+        "time_h": [
+          0.02065,
+          0.26844,
+          0.53687,
+          0.74336,
+          1.03245,
+          1.9823,
+          2.9941,
+          4.02655
+        ],
+        "conc_mg_L": [
+          0.00190546,
+          0.00075858,
+          0.00052481,
+          0.0003744,
+          0.00025119,
+          0.00013183,
+          0.00010312,
+          5.58e-05
+        ]
+      },
+      {
+        "dataset": "Guay 1991 - ID11 - Sufentanil - IV - 3.13 µg/kg - Plasma - indiv.",
+        "study": "Guay 1991",
+        "molecule": "Sufentanil",
+        "route": "IV",
+        "dose": "3.13 µg/kg",
+        "n_points": 12,
+        "time_unit": "h",
+        "conc_unit": "mg/L",
+        "time_h": [
+          0.02065,
+          0.18584,
+          0.28909,
+          0.49558,
+          0.78466,
+          0.99115,
+          2.00295,
+          3.01475,
+          4.0059,
+          5.0177,
+          6.00885,
+          7.0
+        ],
+        "conc_mg_L": [
+          0.0050894,
+          0.00190546,
+          0.00135936,
+          0.00080662,
+          0.00061188,
+          0.00057544,
+          0.00028401,
+          0.00019055,
+          0.00019055,
+          0.00014017,
+          8.577e-05,
+          6.709e-05
+        ]
+      }
+    ],
+    "study_designs": [
+      {
+        "name": "Davis 1987 15µg/kg dose IV",
+        "application_type": "Intravenous"
+      },
+      {
+        "name": "Guay 1991 patient 10",
+        "application_type": "IntravenousBolus"
+      },
+      {
+        "name": "Guay 1991 patient 11",
+        "application_type": "IntravenousBolus"
+      },
+      {
+        "name": "Guay 1991 patient 12",
+        "application_type": "IntravenousBolus"
+      },
+      {
+        "name": "Guay 1991 patient 13",
+        "application_type": "IntravenousBolus"
+      },
+      {
+        "name": "Guay 1991 patient 1",
+        "application_type": "IntravenousBolus"
+      },
+      {
+        "name": "Guay 1991 patient 14",
+        "application_type": "IntravenousBolus"
+      },
+      {
+        "name": "Guay 1991 patient 15",
+        "application_type": "IntravenousBolus"
+      },
+      {
+        "name": "Guay 1991 patient 16",
+        "application_type": "IntravenousBolus"
+      },
+      {
+        "name": "Guay 1991 patient 17",
+        "application_type": "IntravenousBolus"
+      },
+      {
+        "name": "Guay 1991 patient 18",
+        "application_type": "IntravenousBolus"
+      },
+      {
+        "name": "Guay 1991 patient 19",
+        "application_type": "IntravenousBolus"
+      },
+      {
+        "name": "Guay 1991 patient 20",
+        "application_type": "IntravenousBolus"
+      },
+      {
+        "name": "Guay 1991 patient 2",
+        "application_type": "IntravenousBolus"
+      },
+      {
+        "name": "Guay 1991 patient 3",
+        "application_type": "IntravenousBolus"
+      },
+      {
+        "name": "Guay 1991 patient 4",
+        "application_type": "IntravenousBolus"
+      },
+      {
+        "name": "Guay 1991 patient 5",
+        "application_type": "IntravenousBolus"
+      },
+      {
+        "name": "Guay 1991 patient 6",
+        "application_type": "IntravenousBolus"
+      },
+      {
+        "name": "Guay 1991 patient 7",
+        "application_type": "IntravenousBolus"
+      },
+      {
+        "name": "Guay 1991 patient 8",
+        "application_type": "IntravenousBolus"
+      },
+      {
+        "name": "Guay 1991 patient 9",
+        "application_type": "IntravenousBolus"
+      }
+    ],
+    "demographics": [
+      {
+        "name": "Davis 1987 15.5 months",
+        "species": "Human"
+      },
+      {
+        "name": "Davis 1987 5.2 months",
+        "species": "Human"
+      },
+      {
+        "name": "Guay 1991 patient 1",
+        "species": "Human"
+      },
+      {
+        "name": "Guay 1991 patient 10",
+        "species": "Human"
+      },
+      {
+        "name": "Guay 1991 patient 11",
+        "species": "Human"
+      },
+      {
+        "name": "Guay 1991 patient 12",
+        "species": "Human"
+      },
+      {
+        "name": "Guay 1991 patient 13",
+        "species": "Human"
+      },
+      {
+        "name": "Guay 1991 patient 14",
+        "species": "Human"
+      },
+      {
+        "name": "Guay 1991 patient 15",
+        "species": "Human"
+      },
+      {
+        "name": "Guay 1991 patient 16",
+        "species": "Human"
+      },
+      {
+        "name": "Guay 1991 patient 17",
+        "species": "Human"
+      },
+      {
+        "name": "Guay 1991 patient 18",
+        "species": "Human"
+      },
+      {
+        "name": "Guay 1991 patient 19",
+        "species": "Human"
+      },
+      {
+        "name": "Guay 1991 patient 2",
+        "species": "Human"
+      },
+      {
+        "name": "Guay 1991 patient 20",
+        "species": "Human"
+      },
+      {
+        "name": "Guay 1991 patient 3",
+        "species": "Human"
+      },
+      {
+        "name": "Guay 1991 patient 4",
+        "species": "Human"
+      },
+      {
+        "name": "Guay 1991 patient 5",
+        "species": "Human"
+      },
+      {
+        "name": "Guay 1991 patient 6",
+        "species": "Human"
+      },
+      {
+        "name": "Guay 1991 patient 7",
+        "species": "Human"
+      },
+      {
+        "name": "Guay 1991 patient 8",
+        "species": "Human"
+      },
+      {
+        "name": "Guay 1991 patient 9",
+        "species": "Human"
+      }
+    ]
+  },
+  "data_overview": {
+    "n_observed_datasets": 3,
+    "routes": [
+      "IV"
+    ],
+    "studies": [
+      "Guay 1991"
+    ]
+  },
+  "unknowns_guidance": "HARD mode - the model STRUCTURE is NOT given. The snapshot has NO elimination processes and its distribution/permeability methods are at neutral PK-Sim Standard defaults. Using the known biology (which enzymes / transporters clear this drug, and the renal route), ADD the elimination processes (add_processes on the expressed molecules) and CHOOSE the distribution and permeability calculation methods appropriate to the compound's physicochemistry - then decide which parameters to fix at literature values and which to estimate, and fit them to the data. Justify every structural choice from the biology and physchem.",
+  "mode": "hard"
+}

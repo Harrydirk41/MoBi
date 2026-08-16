@@ -275,14 +275,40 @@ def fitted_parameters(comp: dict) -> list[dict]:
     return [{"parameter": k, "value": v} for k, v in fitted_answer(comp).items()]
 
 
-def known_biology(comp: dict) -> list[str]:
-    """Factual structure notes derived from the model itself."""
-    facts = []
+_ENZYME_PREFIXES = ("CYP", "UGT", "SULT", "NAT", "AADAC", "FMO", "ADH", "ALDH",
+                    "CES", "GST", "MAO", "DPYD", "TPMT", "XO", "AO")
+
+
+def known_biology(comp: dict, expression_profiles: list | None = None) -> list[str]:
+    """Factual ADME notes derived from the model - which enzymes/transporters
+    clear the drug, and the renal route. In HARD mode these facts are the ONLY
+    source of the structure, so enzyme detection must be robust to the exact
+    process InternalName (e.g. 'rCYP450_MM', 'MetabolizationSpecific_FirstOrder').
+    We classify a process's target molecule by its TYPE in the physiological
+    expression system (Enzyme vs Transporter), falling back to name patterns."""
     procs = comp.get("Processes") or []
+    mtype = {ep.get("Molecule"): (ep.get("Type") or "").lower()
+             for ep in (expression_profiles or []) if ep.get("Molecule")}
+
+    def is_enzyme(mol, iname):
+        t = mtype.get(mol)
+        if t:
+            return t == "enzyme"
+        return bool(mol) and (
+            any(k in (iname or "") for k in ("Metaboli", "CYP", "UGT", "Kinetic", "MM"))
+            or mol.upper().startswith(_ENZYME_PREFIXES))
+
+    def is_transporter(mol, iname):
+        t = mtype.get(mol)
+        if t:
+            return t == "transporter"
+        return bool(mol) and "Transport" in (iname or "")
+
+    facts = []
     enz = sorted({p.get("Molecule") for p in procs
-                  if p.get("Molecule") and "Metaboli" in (p.get("InternalName") or "")})
+                  if p.get("Molecule") and is_enzyme(p.get("Molecule"), p.get("InternalName"))})
     trans = sorted({p.get("Molecule") for p in procs
-                    if p.get("Molecule") and "Transport" in (p.get("InternalName") or "")})
+                    if p.get("Molecule") and is_transporter(p.get("Molecule"), p.get("InternalName"))})
     if enz:
         facts.append(f"Metabolized by: {', '.join(enz)}.")
     if trans:
@@ -370,6 +396,70 @@ def _blank(data: dict) -> tuple[dict, list[dict], list[str]]:
     return snap, answer, warns
 
 
+_NEUTRAL_PARTITION = "Cellular partition coefficient method - PK-Sim Standard"
+_NEUTRAL_PERMEABILITY = "Cellular permeability - PK-Sim Standard"
+
+
+def _blank_hard(data: dict) -> tuple[dict, list[dict]]:
+    """HARD mode: value-blank (as ``_blank``) AND remove the model STRUCTURE, so
+    the agent must BUILD the model, not fill in a given skeleton. Strips every
+    elimination process from each compound (and its mirrored reference in the
+    Simulations, or the snapshot mapper fails), and resets the distribution /
+    permeability calculation methods to the neutral PK-Sim Standard defaults.
+
+    What STAYS (a real modeler has it): the physiological enzyme system
+    (ExpressionProfiles - which enzymes the body expresses), the compound
+    identity and physchem, the observed data, and the ADME biology facts (which
+    enzymes clear THIS drug) - those are in the task input, not the snapshot.
+    The agent reads the biology and ADDS the processes + picks the methods.
+    Returns (hard_blanked_snapshot, removed_processes)."""
+    snap, _answer, _warns = _blank(data)          # _blank deep-copies internally
+    removed: list[dict] = []
+    for comp in snap.get("Compounds") or []:
+        for p in comp.get("Processes") or []:
+            removed.append({"molecule": p.get("Molecule"),
+                            "internal": p.get("InternalName"),
+                            "data_source": p.get("DataSource")})
+        comp["Processes"] = []                     # agent must add these back
+        # neutralise ONLY the partition + permeability methods; keep any others
+        cms, new = comp.get("CalculationMethods") or [], []
+        for m in cms:
+            ml = str(m).lower()
+            if "partition" in ml:
+                new.append(_NEUTRAL_PARTITION)
+            elif "permeability" in ml:
+                new.append(_NEUTRAL_PERMEABILITY)
+            else:
+                new.append(m)
+        if cms:
+            comp["CalculationMethods"] = new
+    # drop the mirrored process references from every simulation (no dangling refs)
+    for sim in snap.get("Simulations") or []:
+        for sc in sim.get("Compounds") or []:
+            sc["Processes"] = []
+    return snap, removed
+
+
+def _hard_input(agent_input: dict) -> dict:
+    """The task input for HARD mode: same givens (biology, physchem, data), but
+    the guidance makes explicit that the STRUCTURE is not provided and must be
+    constructed from the biology."""
+    import copy
+    inp = copy.deepcopy(agent_input)
+    inp["mode"] = "hard"
+    inp["unknowns_guidance"] = (
+        "HARD mode - the model STRUCTURE is NOT given. The snapshot has NO "
+        "elimination processes and its distribution/permeability methods are at "
+        "neutral PK-Sim Standard defaults. Using the known biology (which enzymes "
+        "/ transporters clear this drug, and the renal route), ADD the elimination "
+        "processes (add_processes on the expressed molecules) and CHOOSE the "
+        "distribution and permeability calculation methods appropriate to the "
+        "compound's physicochemistry - then decide which parameters to fix at "
+        "literature values and which to estimate, and fit them to the data. "
+        "Justify every structural choice from the biology and physchem.")
+    return inp
+
+
 def build_files(path: str) -> dict:
     with open(path, encoding="utf-8") as fh:
         data = json.load(fh)
@@ -401,7 +491,8 @@ def build_files(path: str) -> dict:
                       "obtain from the given data, and justify them. No modeling "
                       "strategy and no reference results are provided."),
         "background": {"description": f"{comp.get('Name')} PBPK modeling task.",
-                       "literature_facts": known_biology(comp)},
+                       "literature_facts": known_biology(
+                           comp, data.get("ExpressionProfiles"))},
         "given_data": {
             "compound_identity": {"name": comp.get("Name"),
                                   "is_small_molecule": comp.get("IsSmallMolecule")},
@@ -437,8 +528,13 @@ def build_files(path: str) -> dict:
                                        if p.get("Molecule")]},
         "estimated_parameters": fitted,
     }
+    hard_blanked, removed_processes = _blank_hard(data)
     return {"skip": False, "stem": stem, "input": agent_input,
             "blanked": blanked,
+            # HARD mode: structure removed too - the agent must build the model.
+            "hard_blanked": hard_blanked,
+            "hard_input": _hard_input(agent_input),
+            "removed_processes": removed_processes,
             # qualified answer (<Name>@<Molecule> where a param name is fitted on
             # more than one process) so per-enzyme values are not collapsed.
             "answer_edits": {"parameters": fitted_answer(comp)},
@@ -462,6 +558,21 @@ def _write(base_dir: str, stem: str, res: dict) -> None:
         json.dump(res["answer_key"], fh, indent=2, ensure_ascii=False)
 
 
+def _write_hard(base_dir: str, stem: str, res: dict) -> None:
+    """Write ONLY the HARD-mode artifacts (structure-blanked snapshot + hard
+    input), leaving the normal fill-in-the-blank files untouched. The answer_key
+    is shared - it already records the structural_choices the agent must now
+    recover, so HARD-mode grading is meaningful with no new answer file."""
+    for sub in ("json_input", "benchmark"):
+        os.makedirs(os.path.join(base_dir, sub), exist_ok=True)
+    with open(os.path.join(base_dir, "json_input", f"{stem}.hard.input.json"), "w",
+              encoding="utf-8") as fh:
+        json.dump(res["hard_input"], fh, indent=2, ensure_ascii=False)
+    with open(os.path.join(base_dir, "benchmark", f"{stem}.hard_blanked.json"), "w",
+              encoding="utf-8") as fh:
+        json.dump(res["hard_blanked"], fh, indent=2, ensure_ascii=False)
+
+
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -471,6 +582,10 @@ def main() -> None:
                     help="classify snapshots and flag exceptions; write nothing")
     ap.add_argument("--write", action="store_true",
                     help="actually write the files (default is a dry preview)")
+    ap.add_argument("--hard", action="store_true",
+                    help="write ONLY the HARD-mode artifacts (structure removed - "
+                         "the agent must build the model), leaving the normal "
+                         "fill-in-the-blank files untouched")
     ap.add_argument("--selftest", action="store_true",
                     help="verify the generator reproduces the Alfentanil gold files "
                          "and leaks nothing")
@@ -515,10 +630,17 @@ def main() -> None:
         n_obs = res["info"]["n_observed"]
         n_fit = res["info"]["n_fitted"]
         warn = (" WARN no-default: " + ",".join(res["warnings"])) if res["warnings"] else ""
-        print(f"{'WROTE' if args.write else 'DRY  '} {stem}: "
-              f"{n_fit} fitted, {n_obs} observed datasets{warn}")
-        if args.write:
-            _write(base, stem, res)
+        if args.hard:
+            nrm = len(res["removed_processes"])
+            print(f"{'WROTE' if args.write else 'DRY  '} {stem} [HARD]: "
+                  f"structure removed ({nrm} process(es)), {n_fit} fitted params{warn}")
+            if args.write:
+                _write_hard(base, stem, res)
+        else:
+            print(f"{'WROTE' if args.write else 'DRY  '} {stem}: "
+                  f"{n_fit} fitted, {n_obs} observed datasets{warn}")
+            if args.write:
+                _write(base, stem, res)
 
 
 def _selftest() -> None:
@@ -552,7 +674,21 @@ def _selftest() -> None:
     # literature (given) must not include any fitted parameter
     lit = {l["parameter"] for l in res["input"]["given_data"]["literature_physicochemical"]}
     assert not (lit & set(gen_p)), lit & set(gen_p)
-    print("selftest OK: Alfentanil reproduced (5 fitted, blanked no-leak, no input leak)")
+
+    # HARD-mode invariants: structure removed, mirrored refs cleared, no leak,
+    # and the biology facts still name the enzymes the agent must rebuild from.
+    hcomp = res["hard_blanked"]["Compounds"][0]
+    assert hcomp.get("Processes") == [], "hard mode must strip compound processes"
+    for sim in res["hard_blanked"].get("Simulations") or []:
+        for sc in sim.get("Compounds") or []:
+            assert not sc.get("Processes"), "hard mode must clear sim process refs"
+    for k, v in gen_p.items():
+        assert abs((find(hcomp, k.split("@")[0]) or 0) - v) > 1e-9, f"{k} leak (hard)"
+    facts = " ".join(res["hard_input"]["background"]["literature_facts"]).lower()
+    assert "cyp3a4" in facts, "hard mode biology must name the metabolizing enzyme"
+    assert res["hard_input"].get("mode") == "hard"
+    print("selftest OK: Alfentanil reproduced (5 fitted, blanked no-leak, no input "
+          "leak); HARD mode strips structure, keeps biology, no leak")
 
 
 if __name__ == "__main__":

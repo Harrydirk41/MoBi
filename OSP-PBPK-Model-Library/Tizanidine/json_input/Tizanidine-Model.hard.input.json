@@ -1,0 +1,803 @@
+{
+  "schema": "osp-agent-task/v2",
+  "task_id": "Tizanidine-Model",
+  "source_snapshot": "Tizanidine-Model.json",
+  "compound": "Tizanidine",
+  "objective": "Build a whole-body PBPK model for Tizanidine that reproduces the observed plasma concentration-time data. Decide the model structure and any parameters you cannot obtain from the given data, and justify them. No modeling strategy and no reference results are provided.",
+  "background": {
+    "description": "Tizanidine PBPK modeling task.",
+    "literature_facts": [
+      "Metabolized by: CYP1A2.",
+      "Renal clearance via glomerular filtration is present.",
+      "Reference distribution/permeability methods exist but are withheld; choose your own."
+    ]
+  },
+  "given_data": {
+    "compound_identity": {
+      "name": "Tizanidine",
+      "is_small_molecule": true
+    },
+    "literature_physicochemical": [
+      {
+        "parameter": "Lipophilicity",
+        "value": 1.4,
+        "unit": "Log Units",
+        "source": "DrugBank DB00697"
+      },
+      {
+        "parameter": "Solubility at reference pH",
+        "value": 0.133,
+        "unit": "mg/ml",
+        "source": "DrugBank DB00697"
+      },
+      {
+        "parameter": "Reference pH",
+        "value": 7.4,
+        "unit": "",
+        "source": "DrugBank DB00697"
+      },
+      {
+        "parameter": "Cl",
+        "value": 1.0,
+        "unit": "",
+        "source": "DrugBank DB00697"
+      },
+      {
+        "parameter": "Molecular weight",
+        "value": 253.711,
+        "unit": "g/mol",
+        "source": "DrugBank DB00697"
+      }
+    ],
+    "clinical_observed_data": [
+      {
+        "dataset": "Schellenberger1999.Tizanidine.4mg.po.tid.Day3",
+        "study": "Schellenberger1999",
+        "molecule": "Tizanidine",
+        "route": null,
+        "dose": 4.0,
+        "n_points": 13,
+        "time_unit": "h",
+        "conc_unit": "mg/L",
+        "time_h": [
+          48.0,
+          48.24171,
+          48.49763,
+          48.72512,
+          49.00948,
+          49.35071,
+          49.66351,
+          50.04739,
+          50.48815,
+          50.98578,
+          52.00948,
+          53.98578,
+          55.99052
+        ],
+        "conc_mg_L": [
+          0.00012689,
+          0.00065417,
+          0.00132834,
+          0.00192909,
+          0.00218253,
+          0.00202856,
+          0.00192805,
+          0.00160041,
+          0.00127938,
+          0.00092491,
+          0.00054313,
+          0.00014027,
+          4.455e-05
+        ],
+        "sd_mg_L": [
+          0.00022035,
+          0.0010217,
+          0.00099499,
+          0.00119529,
+          0.00109516,
+          0.00112187,
+          0.0011018,
+          0.00105517,
+          0.00084137,
+          0.00063436,
+          0.00040735,
+          0.00020704,
+          5.344e-05
+        ]
+      },
+      {
+        "dataset": "Shah2006.Tizanidine.8mg.po.sd.Tab_Fed",
+        "study": "Shah2006",
+        "molecule": "Tizanidine",
+        "route": "po",
+        "dose": 8.0,
+        "n_points": 11,
+        "time_unit": "h",
+        "conc_unit": "mg/L",
+        "time_h": [
+          0.21918,
+          0.41096,
+          0.71233,
+          0.9863,
+          1.47945,
+          2.05479,
+          2.87671,
+          4.0274,
+          5.9726,
+          7.9726,
+          10.0274
+        ],
+        "conc_mg_L": [
+          0.00149515,
+          0.00391262,
+          0.00486408,
+          0.00533981,
+          0.00528155,
+          0.00435922,
+          0.00334951,
+          0.00232039,
+          0.00093204,
+          0.00030097,
+          0.00015534
+        ]
+      },
+      {
+        "dataset": "Shah2006.Tizanidine.8mg.po.sd.Tab_Fasted",
+        "study": "Shah2006",
+        "molecule": "Tizanidine",
+        "route": "po",
+        "dose": 8.0,
+        "n_points": 10,
+        "time_unit": "h",
+        "conc_unit": "mg/L",
+        "time_h": [
+          0.24658,
+          0.46575,
+          0.68493,
+          0.9863,
+          1.47945,
+          2.0,
+          3.91781,
+          5.9726,
+          7.9726,
+          12.0
+        ],
+        "conc_mg_L": [
+          0.00045631,
+          0.00266019,
+          0.00432039,
+          0.00469903,
+          0.00418447,
+          0.0033301,
+          0.00157282,
+          0.00056311,
+          0.0002233,
+          0.00015534
+        ]
+      },
+      {
+        "dataset": "Shah2006.Tizanidine.8mg.po.sd.Cap_Fed",
+        "study": "Shah2006",
+        "molecule": "Tizanidine",
+        "route": "po",
+        "dose": 8.0,
+        "n_points": 11,
+        "time_unit": "h",
+        "conc_unit": "mg/L",
+        "time_h": [
+          0.27397,
+          0.49315,
+          0.73973,
+          0.93151,
+          1.50685,
+          1.9726,
+          2.9863,
+          3.89041,
+          6.0,
+          8.0,
+          10.05479
+        ],
+        "conc_mg_L": [
+          8.738e-05,
+          0.00042718,
+          0.0008932,
+          0.00161165,
+          0.00247573,
+          0.00367961,
+          0.004,
+          0.00329126,
+          0.00129126,
+          0.00043689,
+          0.00015534
+        ]
+      },
+      {
+        "dataset": "Shah2006.Tizanidine.8mg.po.sd.Cap_Fasted",
+        "study": "Shah2006",
+        "molecule": "Tizanidine",
+        "route": "po",
+        "dose": 8.0,
+        "n_points": 11,
+        "time_unit": "h",
+        "conc_unit": "mg/L",
+        "time_h": [
+          0.27397,
+          0.49315,
+          0.73973,
+          0.9589,
+          1.47945,
+          1.9726,
+          2.9863,
+          3.91781,
+          5.9726,
+          8.0,
+          10.0274
+        ],
+        "conc_mg_L": [
+          0.00013592,
+          0.00202913,
+          0.0036699,
+          0.0045534,
+          0.00439806,
+          0.00358252,
+          0.00242718,
+          0.00176699,
+          0.00075728,
+          0.00033981,
+          0.00016505
+        ]
+      },
+      {
+        "dataset": "Henney2007.Tizanidine.4mg.po.sd.Tab_fed",
+        "study": "Henney2007",
+        "molecule": "Tizanidine",
+        "route": "po",
+        "dose": 4.0,
+        "n_points": 11,
+        "time_unit": "h",
+        "conc_unit": "mg/L",
+        "time_h": [
+          0.20363,
+          0.46998,
+          0.69675,
+          0.90632,
+          1.50945,
+          1.90539,
+          2.92837,
+          3.9503,
+          5.96952,
+          7.93778,
+          9.97471
+        ],
+        "conc_mg_L": [
+          0.00090647,
+          0.0031187,
+          0.00402518,
+          0.00377698,
+          0.00350719,
+          0.00302158,
+          0.00211511,
+          0.00141367,
+          0.00030216,
+          9.712e-05,
+          4.317e-05
+        ]
+      },
+      {
+        "dataset": "Henney2007.Tizanidine.4mg.po.sd.Cap_fed",
+        "study": "Henney2007",
+        "molecule": "Tizanidine",
+        "route": "po",
+        "dose": 4.0,
+        "n_points": 11,
+        "time_unit": "h",
+        "conc_unit": "mg/L",
+        "time_h": [
+          0.16201,
+          0.46237,
+          0.6927,
+          0.96843,
+          1.45078,
+          1.88574,
+          2.92548,
+          3.92355,
+          5.92084,
+          7.95993,
+          9.97432
+        ],
+        "conc_mg_L": [
+          0.0,
+          9.712e-05,
+          0.00031295,
+          0.00070144,
+          0.00141367,
+          0.00234173,
+          0.00267626,
+          0.00211511,
+          0.00076619,
+          0.00029137,
+          0.00011871
+        ]
+      },
+      {
+        "dataset": "Henney2008.Tizanidine.6mg.po.sd.Cap_Fasted",
+        "study": "Henney2008",
+        "molecule": "Tizanidine",
+        "route": "po",
+        "dose": 6.0,
+        "n_points": 12,
+        "time_unit": "h",
+        "conc_unit": "mg/L",
+        "time_h": [
+          0.31217,
+          0.56191,
+          0.83663,
+          1.08637,
+          1.56087,
+          2.04787,
+          3.05931,
+          4.0333,
+          6.06868,
+          8.02914,
+          10.02705,
+          12.0
+        ],
+        "conc_mg_L": [
+          6.285e-05,
+          0.002855,
+          0.00491428,
+          0.00520463,
+          0.00477453,
+          0.00409171,
+          0.00271339,
+          0.00162572,
+          0.00046112,
+          9.263e-05,
+          1.471e-05,
+          1.264e-05
+        ]
+      },
+      {
+        "dataset": "Backman2008.Tizanidine.4mg.po.sd.Tab_fasted.male-nonsmokers",
+        "study": "Backman2008",
+        "molecule": "Tizanidine",
+        "route": null,
+        "dose": 4.0,
+        "n_points": 10,
+        "time_unit": "h",
+        "conc_unit": "mg/L",
+        "time_h": [
+          0.37113,
+          0.68523,
+          1.03047,
+          1.50387,
+          2.01649,
+          3.00492,
+          3.99341,
+          4.99927,
+          6.99056,
+          8.9809
+        ],
+        "conc_mg_L": [
+          0.0003299,
+          0.00107216,
+          0.00131959,
+          0.00127448,
+          0.00110549,
+          0.00080271,
+          0.00049289,
+          0.00028165,
+          0.00010561,
+          3.52e-05
+        ],
+        "sd_mg_L": [
+          0.00032286,
+          0.00073419,
+          0.00075629,
+          0.00080976,
+          0.00071118,
+          0.00057739,
+          0.00038023,
+          0.00022532,
+          8.45e-05,
+          3.52e-05
+        ]
+      },
+      {
+        "dataset": "Backman2008.Tizanidine.4mg.po.sd.Tab_fasted.female-nonsmokers",
+        "study": "Backman2008",
+        "molecule": "Tizanidine",
+        "route": null,
+        "dose": 4.0,
+        "n_points": 10,
+        "time_unit": "h",
+        "conc_unit": "mg/L",
+        "time_h": [
+          0.34381,
+          0.6808,
+          1.04343,
+          1.48097,
+          1.99429,
+          3.0206,
+          4.01035,
+          4.99846,
+          6.97193,
+          8.9809
+        ],
+        "conc_mg_L": [
+          0.00035206,
+          0.00145756,
+          0.00173217,
+          0.00179554,
+          0.0015491,
+          0.00109141,
+          0.00064076,
+          0.00037319,
+          0.00014786,
+          3.52e-05
+        ],
+        "sd_mg_L": [
+          0.00035206,
+          0.00145756,
+          0.00173217,
+          0.00179554,
+          0.0015491,
+          0.00109141,
+          0.00064076,
+          0.00037319,
+          0.00014786,
+          3.52e-05
+        ]
+      },
+      {
+        "dataset": "Backman2006.Tizanidine.4mg.po.Tab_fasted.Control",
+        "study": "Beckman2006",
+        "molecule": "Tizanidine",
+        "route": "po",
+        "dose": 4.0,
+        "n_points": 11,
+        "time_unit": "h",
+        "conc_unit": "mg/L",
+        "time_h": [
+          0.0,
+          0.34784,
+          0.67459,
+          0.99092,
+          1.49886,
+          2.00393,
+          3.0103,
+          4.00258,
+          4.99801,
+          6.97795,
+          8.98939
+        ],
+        "conc_mg_L": [
+          0.0,
+          0.00032695,
+          0.00124665,
+          0.00146719,
+          0.00154102,
+          0.00142299,
+          0.00093328,
+          0.00049888,
+          0.00027585,
+          9.648e-05,
+          3.088e-05
+        ],
+        "sd_mg_L": [
+          null,
+          0.00028821,
+          0.00081249,
+          0.00084325,
+          0.00115176,
+          0.00115185,
+          0.00079192,
+          0.00045257,
+          0.00024689,
+          0.00010275,
+          6.161e-05
+        ]
+      },
+      {
+        "dataset": "Tse1987.Tizanidine.4mg.po.tid.TAB_fasted",
+        "study": "Tse1987",
+        "molecule": "Tizanidine",
+        "route": null,
+        "dose": 4.0,
+        "n_points": 17,
+        "time_unit": "h",
+        "conc_unit": "mg/L",
+        "time_h": [
+          0.0,
+          8.0,
+          16.0,
+          24.0,
+          32.0,
+          40.0,
+          48.0,
+          72.0,
+          96.0,
+          96.5,
+          97.0,
+          98.0,
+          99.0,
+          100.0,
+          102.0,
+          104.0,
+          108.0
+        ],
+        "conc_mg_L": [
+          0.0,
+          0.00026563,
+          0.0001875,
+          0.00032813,
+          0.00021875,
+          0.00020313,
+          0.000375,
+          0.00042187,
+          0.0003125,
+          0.00289062,
+          0.00564062,
+          0.00264063,
+          0.00171875,
+          0.00107813,
+          0.00065625,
+          0.00023437,
+          0.00014063
+        ],
+        "sd_mg_L": [
+          0.0,
+          0.00014062,
+          0.00021875,
+          0.00020312,
+          0.00017187,
+          0.00015625,
+          0.00014062,
+          0.00025,
+          0.00020312,
+          0.00164062,
+          null,
+          0.00207813,
+          0.00121875,
+          0.00059375,
+          0.0003125,
+          0.00015625,
+          0.000125
+        ]
+      },
+      {
+        "dataset": "Al-Ghazawi2013.Tizanidine.4mg.po.sd.Tab_fasted",
+        "study": "Al-Ghazawi2013",
+        "molecule": "Tizanidine",
+        "route": "po",
+        "dose": 4.0,
+        "n_points": 13,
+        "time_unit": "h",
+        "conc_unit": "mg/L",
+        "time_h": [
+          0.24122,
+          0.4905,
+          0.73414,
+          0.99877,
+          1.24943,
+          1.50044,
+          1.74453,
+          1.98854,
+          2.49688,
+          2.99854,
+          4.00138,
+          5.98628,
+          7.99141
+        ],
+        "conc_mg_L": [
+          0.0004734,
+          0.00097433,
+          0.00105676,
+          0.00089138,
+          0.00088019,
+          0.00074235,
+          0.00065959,
+          0.00060435,
+          0.00049387,
+          0.00035035,
+          0.00023953,
+          0.00018861,
+          0.00017071
+        ],
+        "sd_mg_L": [
+          0.00063326,
+          0.00117291,
+          0.00110682,
+          0.00078194,
+          0.00071034,
+          0.00048459,
+          0.0005011,
+          0.00044052,
+          0.00038546,
+          0.00027533,
+          0.00019274,
+          7.708e-05,
+          5.506e-05
+        ]
+      },
+      {
+        "dataset": "Granfors2004.Tizanidine.4mg.po.sd.Tab_fasted.control",
+        "study": "Granfors2004",
+        "molecule": "Tizanidine",
+        "route": "po",
+        "dose": 4.0,
+        "n_points": 10,
+        "time_unit": "h",
+        "conc_unit": "mg/L",
+        "time_h": [
+          0.3575,
+          0.64495,
+          0.99828,
+          1.55933,
+          2.00206,
+          3.00651,
+          4.04072,
+          5.01776,
+          6.99973,
+          9.01184
+        ],
+        "conc_mg_L": [
+          0.00057012,
+          0.00180989,
+          0.0019494,
+          0.00170677,
+          0.0015854,
+          0.00116241,
+          0.00081526,
+          0.00043155,
+          0.00015554,
+          5.054e-05
+        ],
+        "sd_mg_L": [
+          0.00060766,
+          0.00122912,
+          0.0008734,
+          0.00076456,
+          0.00067661,
+          0.00054588,
+          0.00036524,
+          0.0001751,
+          6.638e-05,
+          2.264e-05
+        ]
+      },
+      {
+        "dataset": "Momo2010.Tizanedine.2mg.po.sd.Tab_fed.control",
+        "study": "Momo2010",
+        "molecule": "Tizanidine",
+        "route": "po",
+        "dose": 2.0,
+        "n_points": 6,
+        "time_unit": "h",
+        "conc_unit": "mg/L",
+        "time_h": [
+          0.0,
+          0.48339,
+          0.98213,
+          1.96935,
+          2.97353,
+          4.95563
+        ],
+        "conc_mg_L": [
+          0.0,
+          0.00115873,
+          0.00141409,
+          0.00147235,
+          0.00088405,
+          0.00032174
+        ],
+        "sd_mg_L": [
+          0.0,
+          0.00095358,
+          0.00090504,
+          0.0009373,
+          0.0004849,
+          0.00024242
+        ]
+      },
+      {
+        "dataset": "Granfors2004.Tizanidine.4mg.po.sd.Tab_fasted.control.DAY4",
+        "study": null,
+        "molecule": "Tizanidine",
+        "route": null,
+        "dose": null,
+        "n_points": 10,
+        "time_unit": "h",
+        "conc_unit": "mg/L",
+        "time_h": [
+          73.35751,
+          73.64494,
+          73.99828,
+          74.55933,
+          75.00206,
+          76.0065,
+          77.04072,
+          78.01777,
+          79.99973,
+          82.01184
+        ],
+        "conc_mg_L": [
+          0.00057012,
+          0.00180989,
+          0.0019494,
+          0.00170677,
+          0.0015854,
+          0.00116241,
+          0.00081526,
+          0.00043155,
+          0.00015554,
+          5.054e-05
+        ],
+        "sd_mg_L": [
+          0.00060766,
+          0.00122912,
+          0.0008734,
+          0.00076456,
+          0.00067661,
+          0.00054588,
+          0.00036524,
+          0.0001751,
+          6.638e-05,
+          2.264e-05
+        ]
+      }
+    ],
+    "study_designs": [
+      {
+        "name": "PO_4mg_SD",
+        "application_type": "Oral"
+      },
+      {
+        "name": "PO_8mg_SD",
+        "application_type": "Oral"
+      },
+      {
+        "name": "PO_6mg_SD",
+        "application_type": "Oral"
+      },
+      {
+        "name": "PO_4mg_tid",
+        "application_type": "Oral"
+      },
+      {
+        "name": "PO_2mg_SD",
+        "application_type": "Oral"
+      },
+      {
+        "name": "PO_4mg_day4",
+        "application_type": null
+      }
+    ],
+    "demographics": [
+      {
+        "name": "Standard European Male for DDI",
+        "species": "Human"
+      }
+    ]
+  },
+  "data_overview": {
+    "n_observed_datasets": 16,
+    "routes": [
+      "po"
+    ],
+    "studies": [
+      "Al-Ghazawi2013",
+      "Backman2008",
+      "Beckman2006",
+      "Granfors2004",
+      "Henney2007",
+      "Henney2008",
+      "Momo2010",
+      "Schellenberger1999",
+      "Shah2006",
+      "Tse1987"
+    ]
+  },
+  "unknowns_guidance": "HARD mode - the model STRUCTURE is NOT given. The snapshot has NO elimination processes and its distribution/permeability methods are at neutral PK-Sim Standard defaults. Using the known biology (which enzymes / transporters clear this drug, and the renal route), ADD the elimination processes (add_processes on the expressed molecules) and CHOOSE the distribution and permeability calculation methods appropriate to the compound's physicochemistry - then decide which parameters to fix at literature values and which to estimate, and fit them to the data. Justify every structural choice from the biology and physchem.",
+  "mode": "hard"
+}

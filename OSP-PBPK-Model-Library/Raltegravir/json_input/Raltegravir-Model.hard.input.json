@@ -1,0 +1,859 @@
+{
+  "schema": "osp-agent-task/v2",
+  "task_id": "Raltegravir-Model",
+  "source_snapshot": "Raltegravir-Model.json",
+  "compound": "Raltegravir",
+  "objective": "Build a whole-body PBPK model for Raltegravir that reproduces the observed plasma concentration-time data. Decide the model structure and any parameters you cannot obtain from the given data, and justify them. No modeling strategy and no reference results are provided.",
+  "background": {
+    "description": "Raltegravir PBPK modeling task.",
+    "literature_facts": [
+      "Metabolized by: UGT1A1, UGT1A9.",
+      "Renal clearance via glomerular filtration is present.",
+      "Reference distribution/permeability methods exist but are withheld; choose your own."
+    ]
+  },
+  "given_data": {
+    "compound_identity": {
+      "name": "Raltegravir",
+      "is_small_molecule": true
+    },
+    "literature_physicochemical": [
+      {
+        "parameter": "Lipophilicity",
+        "value": 0.58,
+        "unit": "Log Units",
+        "source": "Moss 2012"
+      },
+      {
+        "parameter": "Fraction unbound (plasma, reference value)",
+        "value": 0.17,
+        "unit": "",
+        "source": "Laufer 2009"
+      },
+      {
+        "parameter": "Solubility table",
+        "value": 40.0,
+        "unit": "mg/l",
+        "source": "Moss 2013 Table 2"
+      },
+      {
+        "parameter": "GFR fraction",
+        "value": 1.0,
+        "unit": "",
+        "source": "Kassahun 2007"
+      },
+      {
+        "parameter": "Km",
+        "value": 99.0,
+        "unit": "µM",
+        "source": "Kassahun 2007"
+      },
+      {
+        "parameter": "F",
+        "value": 1.0,
+        "unit": "",
+        "source": "Drugbank.ca"
+      },
+      {
+        "parameter": "Molecular weight",
+        "value": 444.4163,
+        "unit": "g/mol",
+        "source": "Drugbank.ca"
+      }
+    ],
+    "clinical_observed_data": [
+      {
+        "dataset": "Markowitz 2006 - 100mg FCT MD - Raltegravir - PO - 100 mg - Plasma - agg. (n=7)",
+        "study": "Markowitz 2006",
+        "molecule": "Raltegravir",
+        "route": "PO",
+        "dose": "100 mg",
+        "n_points": 10,
+        "time_unit": "h",
+        "conc_unit": "mg/L",
+        "time_h": [
+          216.0,
+          216.5,
+          217.0,
+          217.5,
+          218.0,
+          219.0,
+          220.0,
+          222.0,
+          224.0,
+          228.0
+        ],
+        "conc_mg_L": [
+          0.06406001,
+          0.39236758,
+          0.59255508,
+          0.7767276,
+          0.84879517,
+          0.43240508,
+          0.26424753,
+          0.09609001,
+          0.05605251,
+          0.0240225
+        ]
+      },
+      {
+        "dataset": "Markowitz 2006 - 200mg FCT MD - Raltegravir - PO - 200 mg - Plasma - agg. (n=7)",
+        "study": "Markowitz 2006",
+        "molecule": "Raltegravir",
+        "route": "PO",
+        "dose": "200 mg",
+        "n_points": 10,
+        "time_unit": "h",
+        "conc_unit": "mg/L",
+        "time_h": [
+          216.0,
+          216.5,
+          217.0,
+          217.5,
+          218.0,
+          219.0,
+          220.0,
+          222.0,
+          224.0,
+          228.0
+        ],
+        "conc_mg_L": [
+          0.19218003,
+          0.54451005,
+          1.15308019,
+          0.94488518,
+          1.12905759,
+          0.83278015,
+          0.4564276,
+          0.20018754,
+          0.12011253,
+          0.06406001
+        ]
+      },
+      {
+        "dataset": "Markowitz 2006 - 400mg FCT MD - Raltegravir - PO - 400 mg - Plasma - agg. (n=6)",
+        "study": "Markowitz 2006",
+        "molecule": "Raltegravir",
+        "route": "PO",
+        "dose": "400 mg",
+        "n_points": 10,
+        "time_unit": "h",
+        "conc_unit": "mg/L",
+        "time_h": [
+          216.0,
+          216.5,
+          217.0,
+          217.5,
+          218.0,
+          219.0,
+          220.0,
+          222.0,
+          224.0,
+          228.0
+        ],
+        "conc_mg_L": [
+          0.16015003,
+          1.60950778,
+          2.2421004,
+          1.99386795,
+          1.84172538,
+          1.14507269,
+          0.90484759,
+          0.28026256,
+          0.13612751,
+          0.07206751
+        ]
+      },
+      {
+        "dataset": "Kassahun 2007 - 200mg FCT SD - Raltegravir - PO - 200 mg - Plasma - agg. (n=8)",
+        "study": "Kassahun 2007",
+        "molecule": "Raltegravir",
+        "route": "PO",
+        "dose": "200 mg",
+        "n_points": 10,
+        "time_unit": "h",
+        "conc_unit": "mg/L",
+        "time_h": [
+          0.5,
+          1.0,
+          2.0,
+          3.0,
+          4.0,
+          5.0,
+          6.0,
+          8.0,
+          10.0,
+          12.0
+        ],
+        "conc_mg_L": [
+          1.36045805,
+          1.93729242,
+          1.27338875,
+          0.67478717,
+          0.35916094,
+          0.17413863,
+          0.07618565,
+          0.04353466,
+          0.03265099,
+          0.04353466
+        ]
+      },
+      {
+        "dataset": "Rhee 2014 - Chewable tablet fasted - Raltegravir - po - 400 mg - Plasma - agg. (n=12)",
+        "study": "Rhee 2014",
+        "molecule": "Raltegravir",
+        "route": "po",
+        "dose": "400 mg",
+        "n_points": 13,
+        "time_unit": "h",
+        "conc_unit": "mg/L",
+        "time_h": [
+          0.5,
+          1.0,
+          1.5,
+          2.0,
+          3.0,
+          4.0,
+          5.0,
+          6.0,
+          8.0,
+          10.0,
+          12.0,
+          16.0,
+          24.0
+        ],
+        "conc_mg_L": [
+          7.12542698,
+          5.46698894,
+          3.90215599,
+          2.85312895,
+          1.63959134,
+          0.94221464,
+          0.54145711,
+          0.32651172,
+          0.13719229,
+          0.08474707,
+          0.06660736,
+          0.04016585,
+          0.03081727
+        ]
+      },
+      {
+        "dataset": "Rhee 2014 - Chewable tablet fed - Raltegravir - po - 400 mg - Plasma - agg. (n=12)",
+        "study": "Rhee 2014",
+        "molecule": "Raltegravir",
+        "route": "po",
+        "dose": "400 mg",
+        "n_points": 13,
+        "time_unit": "h",
+        "conc_unit": "mg/L",
+        "time_h": [
+          0.5,
+          1.0,
+          1.5,
+          2.0,
+          3.0,
+          4.0,
+          5.0,
+          6.0,
+          8.0,
+          10.0,
+          12.0,
+          16.0,
+          24.0
+        ],
+        "conc_mg_L": [
+          2.46922052,
+          2.65424258,
+          2.41045846,
+          2.29709574,
+          1.84942554,
+          1.72050579,
+          1.22804017,
+          0.77708372,
+          0.40554686,
+          0.34262519,
+          0.24455456,
+          0.12162656,
+          0.03156853
+        ]
+      },
+      {
+        "dataset": "Rhee 2014 - granules suspension - Raltegravir - po - 400 mg - Plasma - agg. (n=12)",
+        "study": "Rhee 2014",
+        "molecule": "Raltegravir",
+        "route": "po",
+        "dose": "400 mg",
+        "n_points": 13,
+        "time_unit": "h",
+        "conc_unit": "mg/L",
+        "time_h": [
+          0.5,
+          1.0,
+          1.5,
+          2.0,
+          3.0,
+          4.0,
+          5.0,
+          6.0,
+          8.0,
+          10.0,
+          12.0,
+          16.0,
+          24.0
+        ],
+        "conc_mg_L": [
+          8.43398193,
+          8.63958704,
+          7.47706977,
+          4.96486162,
+          2.65424258,
+          1.41897286,
+          0.72291474,
+          0.4574486,
+          0.19220879,
+          0.11590655,
+          0.07883952,
+          0.04641073,
+          0.03081727
+        ]
+      },
+      {
+        "dataset": "Rhee 2014 - filmcoated tablet - Raltegravir - po - 400 mg - Plasma - agg. (n=12)",
+        "study": "Rhee 2014",
+        "molecule": "Raltegravir",
+        "route": "po",
+        "dose": "400 mg",
+        "n_points": 13,
+        "time_unit": "h",
+        "conc_unit": "mg/L",
+        "time_h": [
+          0.5,
+          1.0,
+          1.5,
+          2.0,
+          3.0,
+          4.0,
+          5.0,
+          6.0,
+          8.0,
+          10.0,
+          12.0,
+          16.0,
+          24.0
+        ],
+        "conc_mg_L": [
+          0.52857156,
+          1.28864446,
+          1.56248222,
+          1.80541303,
+          1.32005907,
+          1.28864446,
+          1.06279892,
+          0.6408934,
+          0.22750712,
+          0.11045553,
+          0.07159833,
+          0.04422807,
+          0.03156853
+        ]
+      },
+      {
+        "dataset": "Iwamoto 2008 - 10mg - Raltegravir - PO - 10 mg - Plasma - agg. (n=24)",
+        "study": "Iwamoto 2008",
+        "molecule": "Raltegravir",
+        "route": "PO",
+        "dose": "10 mg",
+        "n_points": 10,
+        "time_unit": "h",
+        "conc_unit": "mg/L",
+        "time_h": [
+          0.25,
+          0.5,
+          1.0,
+          1.5,
+          2.0,
+          3.0,
+          4.0,
+          6.0,
+          8.0,
+          12.0
+        ],
+        "conc_mg_L": [
+          0.03823913,
+          0.2259548,
+          0.15838674,
+          0.09169169,
+          0.06254002,
+          0.03245574,
+          0.02680435,
+          0.00923203,
+          0.0042949,
+          0.00194419
+        ]
+      },
+      {
+        "dataset": "Iwamoto 2008 - 25mg - Raltegravir - PO - 25 mg - Plasma - agg. (n=24)",
+        "study": "Iwamoto 2008",
+        "molecule": "Raltegravir",
+        "route": "PO",
+        "dose": "25 mg",
+        "n_points": 9,
+        "time_unit": "h",
+        "conc_unit": "mg/L",
+        "time_h": [
+          0.5,
+          1.0,
+          1.5,
+          2.0,
+          3.0,
+          4.0,
+          6.0,
+          8.0,
+          12.0
+        ],
+        "conc_mg_L": [
+          0.17668374,
+          0.32234733,
+          0.20255539,
+          0.14591855,
+          0.06788383,
+          0.03522895,
+          0.0111785,
+          0.00665065,
+          0.00292942
+        ]
+      },
+      {
+        "dataset": "Iwamoto 2008 - 50mg - Raltegravir - PO - 50 mg - Plasma - agg. (n=24)",
+        "study": "Iwamoto 2008",
+        "molecule": "Raltegravir",
+        "route": "PO",
+        "dose": "50 mg",
+        "n_points": 11,
+        "time_unit": "h",
+        "conc_unit": "mg/L",
+        "time_h": [
+          0.5,
+          1.0,
+          1.5,
+          2.0,
+          4.0,
+          6.0,
+          8.0,
+          12.0,
+          15.0,
+          24.0,
+          32.0
+        ],
+        "conc_mg_L": [
+          0.63237101,
+          0.77289794,
+          0.52697585,
+          0.38644897,
+          0.12728092,
+          0.04265656,
+          0.02275039,
+          0.0111785,
+          0.00665065,
+          0.00564479,
+          0.003094
+        ]
+      },
+      {
+        "dataset": "Iwamoto 2008 - 100mg - Raltegravir - PO - 100 mg - Plasma - agg. (n=24)",
+        "study": "Iwamoto 2008",
+        "molecule": "Raltegravir",
+        "route": "PO",
+        "dose": "100 mg",
+        "n_points": 12,
+        "time_unit": "h",
+        "conc_unit": "mg/L",
+        "time_h": [
+          0.5,
+          1.0,
+          1.5,
+          2.0,
+          3.0,
+          4.0,
+          6.0,
+          8.0,
+          12.0,
+          15.0,
+          24.0,
+          32.0
+        ],
+        "conc_mg_L": [
+          1.08908347,
+          0.94855659,
+          0.7026345,
+          0.52697585,
+          0.34045755,
+          0.1917807,
+          0.05761688,
+          0.03245574,
+          0.01180653,
+          0.00783575,
+          0.00506023,
+          0.003094
+        ]
+      },
+      {
+        "dataset": "Iwamoto 2008 - 200mg - Raltegravir - PO - 200 mg - Plasma - agg. (n=24)",
+        "study": "Iwamoto 2008",
+        "molecule": "Raltegravir",
+        "route": "PO",
+        "dose": "200 mg",
+        "n_points": 13,
+        "time_unit": "h",
+        "conc_unit": "mg/L",
+        "time_h": [
+          0.5,
+          1.0,
+          1.5,
+          2.0,
+          3.0,
+          4.0,
+          6.0,
+          8.0,
+          12.0,
+          15.0,
+          24.0,
+          32.0,
+          48.0
+        ],
+        "conc_mg_L": [
+          2.3186936,
+          2.52948403,
+          2.1079034,
+          1.58092755,
+          1.01882003,
+          0.52697585,
+          0.18661025,
+          0.09684314,
+          0.04383846,
+          0.02831028,
+          0.02095948,
+          0.01828241,
+          0.00466188
+        ]
+      },
+      {
+        "dataset": "Iwamoto 2008 - 400mg - Raltegravir - PO - 400 mg - Plasma - agg. (n=24)",
+        "study": "Iwamoto 2008",
+        "molecule": "Raltegravir",
+        "route": "PO",
+        "dose": "400 mg",
+        "n_points": 14,
+        "time_unit": "h",
+        "conc_unit": "mg/L",
+        "time_h": [
+          0.25,
+          0.5,
+          1.0,
+          1.5,
+          2.0,
+          3.0,
+          4.0,
+          6.0,
+          8.0,
+          12.0,
+          15.0,
+          24.0,
+          32.0,
+          48.0
+        ],
+        "conc_mg_L": [
+          0.73776622,
+          2.49435248,
+          3.75909438,
+          3.61856728,
+          3.02132822,
+          1.68632266,
+          0.91342482,
+          0.23864943,
+          0.13443184,
+          0.03929864,
+          0.01930955,
+          0.01509897,
+          0.0076245,
+          0.0042949
+        ]
+      },
+      {
+        "dataset": "Iwamoto 2008 - 800mg - Raltegravir - PO - 800 mg - Plasma - agg. (n=24)",
+        "study": "Iwamoto 2008",
+        "molecule": "Raltegravir",
+        "route": "PO",
+        "dose": "800 mg",
+        "n_points": 14,
+        "time_unit": "h",
+        "conc_unit": "mg/L",
+        "time_h": [
+          0.25,
+          0.5,
+          1.0,
+          1.5,
+          2.0,
+          3.0,
+          4.0,
+          6.0,
+          8.0,
+          12.0,
+          15.0,
+          24.0,
+          32.0,
+          48.0
+        ],
+        "conc_mg_L": [
+          0.94855659,
+          5.37515337,
+          8.9937211,
+          10.22333208,
+          7.41279367,
+          4.04014814,
+          2.3538256,
+          0.65603886,
+          0.23221538,
+          0.09169169,
+          0.05761688,
+          0.05025769,
+          0.0372082,
+          0.01828241
+        ]
+      },
+      {
+        "dataset": "Iwamoto 2008 - 1200mg - Raltegravir - PO - 1200 mg - Plasma - agg. (n=24)",
+        "study": "Iwamoto 2008",
+        "molecule": "Raltegravir",
+        "route": "PO",
+        "dose": "1200 mg",
+        "n_points": 14,
+        "time_unit": "h",
+        "conc_unit": "mg/L",
+        "time_h": [
+          0.25,
+          0.5,
+          1.0,
+          1.5,
+          2.0,
+          3.0,
+          4.0,
+          6.0,
+          8.0,
+          15.0,
+          24.0,
+          32.0,
+          48.0,
+          72.0
+        ],
+        "conc_mg_L": [
+          1.26474202,
+          5.55081247,
+          12.15557687,
+          12.43663018,
+          10.71517564,
+          6.25344664,
+          3.58343573,
+          0.93590562,
+          0.32234733,
+          0.06605366,
+          0.04890272,
+          0.03335499,
+          0.01058387,
+          0.00229064
+        ]
+      },
+      {
+        "dataset": "Iwamoto 2008 - 1600mg - Raltegravir - PO - 1600 mg - Plasma - agg. (n=24)",
+        "study": "Iwamoto 2008",
+        "molecule": "Raltegravir",
+        "route": "PO",
+        "dose": "1600 mg",
+        "n_points": 15,
+        "time_unit": "h",
+        "conc_unit": "mg/L",
+        "time_h": [
+          0.25,
+          0.5,
+          1.0,
+          1.5,
+          2.0,
+          3.0,
+          4.0,
+          6.0,
+          8.0,
+          12.0,
+          15.0,
+          24.0,
+          32.0,
+          48.0,
+          72.0
+        ],
+        "conc_mg_L": [
+          4.7076512,
+          12.22583908,
+          15.66874994,
+          13.98242646,
+          10.68004449,
+          6.00752488,
+          3.26725042,
+          0.81636631,
+          0.26621849,
+          0.11726137,
+          0.08447377,
+          0.05455202,
+          0.04265656,
+          0.02537854,
+          0.00406644
+        ]
+      },
+      {
+        "dataset": "Wenning 2009 - 400mg - Raltegravir - PO - 400 mg - Plasma - agg. (n=10)",
+        "study": "Wenning 2009",
+        "molecule": "Raltegravir",
+        "route": "PO",
+        "dose": "400 mg",
+        "n_points": 11,
+        "time_unit": "h",
+        "conc_unit": "mg/L",
+        "time_h": [
+          0.5,
+          1.0,
+          1.5,
+          2.0,
+          3.0,
+          4.0,
+          5.0,
+          6.0,
+          8.0,
+          10.0,
+          12.0
+        ],
+        "conc_mg_L": [
+          2.36090713,
+          3.31784277,
+          3.59724019,
+          3.35276754,
+          2.13738909,
+          1.28522755,
+          0.64261378,
+          0.37718634,
+          0.12572878,
+          0.07683425,
+          0.06286439
+        ]
+      },
+      {
+        "dataset": "Iwamoto 2008 - 400mg FCT - Raltegravir - PO - 400 mg - Plasma - agg. (n=14)",
+        "study": "Iwamoto 2008",
+        "molecule": "Raltegravir",
+        "route": "PO",
+        "dose": "400 mg",
+        "n_points": 12,
+        "time_unit": "h",
+        "conc_unit": "mg/L",
+        "time_h": [
+          0.5,
+          1.0,
+          1.5,
+          2.0,
+          3.0,
+          4.0,
+          5.0,
+          6.0,
+          8.0,
+          12.0,
+          16.0,
+          24.0
+        ],
+        "conc_mg_L": [
+          1.0416007,
+          1.34713691,
+          1.6248971,
+          1.55545705,
+          1.09715274,
+          0.81939255,
+          0.52774436,
+          0.2916482,
+          0.08332806,
+          0.04166403,
+          0.01388801,
+          0.01388801
+        ]
+      }
+    ],
+    "study_designs": [
+      {
+        "name": "Iwamoto 2008 400mg PO (Figure 1) omeprazole study",
+        "application_type": "Oral"
+      },
+      {
+        "name": "Iwamoto 2008 10mg PO (Figure 2) Safety-Tolerability-PK study",
+        "application_type": "Oral"
+      },
+      {
+        "name": "Iwamoto 2008 25mg PO (Figure 2) Safety-Tolerability-PK study",
+        "application_type": "Oral"
+      },
+      {
+        "name": "Iwamoto 2008 50mg PO (Figure 2) Safety-Tolerability-PK study",
+        "application_type": "Oral"
+      },
+      {
+        "name": "Iwamoto 2008 100mg PO (Figure 2) Safety-Tolerability-PK study",
+        "application_type": "Oral"
+      },
+      {
+        "name": "Iwamoto 2008 200mg PO (Figure 2) Safety-Tolerability-PK study",
+        "application_type": "Oral"
+      },
+      {
+        "name": "Iwamoto 2008 800mg PO (Figure 2) Safety-Tolerability-PK study",
+        "application_type": "Oral"
+      },
+      {
+        "name": "Iwamoto 2008 1200mg PO (Figure 2) Safety-Tolerability-PK study",
+        "application_type": "Oral"
+      },
+      {
+        "name": "Iwamoto 2008 1600mg PO (Figure 2) Safety-Tolerability-PK study",
+        "application_type": "Oral"
+      },
+      {
+        "name": "Markowitz 2006 100mg bid 10d",
+        "application_type": "Oral"
+      },
+      {
+        "name": "Markowitz 2006 200mg bid 10d",
+        "application_type": "Oral"
+      },
+      {
+        "name": "Markowitz 2006 400mg bid 10d",
+        "application_type": "Oral"
+      }
+    ],
+    "demographics": [
+      {
+        "name": "Standard European Male for PEQ",
+        "species": "Human"
+      }
+    ]
+  },
+  "data_overview": {
+    "n_observed_datasets": 19,
+    "routes": [
+      "PO",
+      "po"
+    ],
+    "studies": [
+      "Iwamoto 2008",
+      "Kassahun 2007",
+      "Markowitz 2006",
+      "Rhee 2014",
+      "Wenning 2009"
+    ]
+  },
+  "unknowns_guidance": "HARD mode - the model STRUCTURE is NOT given. The snapshot has NO elimination processes and its distribution/permeability methods are at neutral PK-Sim Standard defaults. Using the known biology (which enzymes / transporters clear this drug, and the renal route), ADD the elimination processes (add_processes on the expressed molecules) and CHOOSE the distribution and permeability calculation methods appropriate to the compound's physicochemistry - then decide which parameters to fix at literature values and which to estimate, and fit them to the data. Justify every structural choice from the biology and physchem.",
+  "mode": "hard"
+}

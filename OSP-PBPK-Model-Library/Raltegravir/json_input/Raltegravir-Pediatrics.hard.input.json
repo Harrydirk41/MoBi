@@ -1,0 +1,182 @@
+{
+  "schema": "osp-agent-task/v2",
+  "task_id": "Raltegravir-Pediatrics",
+  "source_snapshot": "Raltegravir-Pediatrics.json",
+  "compound": "Raltegravir",
+  "objective": "Build a whole-body PBPK model for Raltegravir that reproduces the observed plasma concentration-time data. Decide the model structure and any parameters you cannot obtain from the given data, and justify them. No modeling strategy and no reference results are provided.",
+  "background": {
+    "description": "Raltegravir PBPK modeling task.",
+    "literature_facts": [
+      "Metabolized by: UGT1A1, UGT1A9.",
+      "Renal clearance via glomerular filtration is present.",
+      "Reference distribution/permeability methods exist but are withheld; choose your own."
+    ]
+  },
+  "given_data": {
+    "compound_identity": {
+      "name": "Raltegravir",
+      "is_small_molecule": true
+    },
+    "literature_physicochemical": [
+      {
+        "parameter": "Lipophilicity",
+        "value": 0.58,
+        "unit": "Log Units",
+        "source": "Moss 2012"
+      },
+      {
+        "parameter": "Fraction unbound (plasma, reference value)",
+        "value": 0.17,
+        "unit": "",
+        "source": "Laufer 2009"
+      },
+      {
+        "parameter": "Solubility table",
+        "value": 40.0,
+        "unit": "mg/l",
+        "source": "Moss 2013 Table 2"
+      },
+      {
+        "parameter": "GFR fraction",
+        "value": 1.0,
+        "unit": "",
+        "source": "Kassahun 2007"
+      },
+      {
+        "parameter": "Km",
+        "value": 99.0,
+        "unit": "µM",
+        "source": "Kassahun 2007"
+      },
+      {
+        "parameter": "F",
+        "value": 1.0,
+        "unit": "",
+        "source": "Drugbank.ca"
+      },
+      {
+        "parameter": "Molecular weight",
+        "value": 444.4163,
+        "unit": "g/mol",
+        "source": "Drugbank.ca"
+      }
+    ],
+    "clinical_observed_data": [
+      {
+        "dataset": "Larson 2013 - 8-18y - Raltegravir - PO - 400 mg - Plasma - agg. (n=21)",
+        "study": "Larson 2013",
+        "molecule": "Raltegravir",
+        "route": "PO",
+        "dose": "400 mg",
+        "n_points": 9,
+        "time_unit": "h",
+        "conc_unit": "mg/L",
+        "time_h": [
+          0.0,
+          0.5,
+          1.0,
+          2.0,
+          3.0,
+          4.0,
+          6.0,
+          8.0,
+          12.0
+        ],
+        "conc_mg_L": [
+          0.2236047,
+          0.6555547,
+          0.88382596,
+          0.7936957,
+          0.738775,
+          0.6029438,
+          0.2580861,
+          0.1719072,
+          0.1230171
+        ]
+      }
+    ],
+    "study_designs": [
+      {
+        "name": "Larson 400mg",
+        "application_type": "Oral"
+      },
+      {
+        "name": "Larson 100mg",
+        "application_type": "Oral"
+      },
+      {
+        "name": "6 mg/kg",
+        "application_type": "Oral"
+      },
+      {
+        "name": "400 mg",
+        "application_type": "Oral"
+      },
+      {
+        "name": "Rizk 2015 5.7mgkg",
+        "application_type": "Oral"
+      },
+      {
+        "name": "Rizk 2015 15m 8.5kg 5.9 mg/kg",
+        "application_type": "Oral"
+      },
+      {
+        "name": "Larson 2013 200mg",
+        "application_type": "Oral"
+      }
+    ],
+    "demographics": [
+      {
+        "name": "Nachmann 2013 15.2",
+        "species": "Human"
+      },
+      {
+        "name": "Nachmann 2013 cohort 2a 10y",
+        "species": "Human"
+      },
+      {
+        "name": "Nachmann 2013 cohort 3.2 y",
+        "species": "Human"
+      },
+      {
+        "name": "Nachmann 2013 cohort 2b 8.8y",
+        "species": "Human"
+      },
+      {
+        "name": "Rizk 2015 15m 8.5kg",
+        "species": "Human"
+      },
+      {
+        "name": "Rizk 2015 3.5m 5.5kg",
+        "species": "Human"
+      },
+      {
+        "name": "Larson 2013 3y (cohort III)",
+        "species": "Human"
+      },
+      {
+        "name": "Larson 2013 9y (cohort IIB)",
+        "species": "Human"
+      },
+      {
+        "name": "Larson 2013 10.5y (cohort IIA)",
+        "species": "Human"
+      },
+      {
+        "name": "Larson 2013 15y (cohort I)",
+        "species": "Human"
+      }
+    ]
+  },
+  "data_overview": {
+    "n_observed_datasets": 1,
+    "routes": [
+      "PO"
+    ],
+    "studies": [
+      "Larson 2013"
+    ]
+  },
+  "unknowns_guidance": "HARD mode - the model STRUCTURE is NOT given. The snapshot has NO elimination processes and its distribution/permeability methods are at neutral PK-Sim Standard defaults. Using the known biology (which enzymes / transporters clear this drug, and the renal route), ADD the elimination processes (add_processes on the expressed molecules) and CHOOSE the distribution and permeability calculation methods appropriate to the compound's physicochemistry - then decide which parameters to fix at literature values and which to estimate, and fit them to the data. Justify every structural choice from the biology and physchem.",
+  "mode": "hard"
+}
