@@ -96,17 +96,46 @@ def run(args) -> None:
         eng.addpath(mldir, nargout=0)
         log("<- addpath done")
 
-        log("-> eng.sb_smoke (build + simulate a 1-cmt model)")
+        # engine sanity: a trivial non-SimBiology call after addpath
+        log("-> eng.eval '1+1' (engine sanity)")
+        log(f"<- 1+1 = {eng.eval('1+1', nargout=1)}")
+
+        # build the 1-cmt model INCREMENTALLY from Python so a hard engine crash
+        # pinpoints the exact SimBiology call (the last '->' with no '<-').
+        steps = [
+            ("create model",    "m = sbiomodel('smoke');"),
+            ("add compartment", "cc = addcompartment(m,'central',1.0);"),
+            ("add species",     "ss = addspecies(cc,'drug',10.0);"),
+            ("add parameter",   "pp = addparameter(m,'ke',0.5);"),
+            ("add reaction",    "rr = addreaction(m,'drug -> null');"),
+            ("add kinetic law", "kl = addkineticlaw(rr,'MassAction'); kl.ParameterVariableNames = {'ke'};"),
+            ("configset",       "cs = getconfigset(m); cs.StopTime = 24;"),
+            ("simulate",        "sd = sbiosimulate(m);"),
+            ("select drug",     "dd = selectbyname(sd,'drug');"),
+        ]
+        crashed = False
+        for label, code in steps:
+            log(f"-> {label}: {code}")
+            try:
+                eng.eval(code, nargout=0)
+                log(f"<- {label} ok")
+            except Exception as exc:                   # noqa: BLE001
+                log(f"[FAIL] {label}: {exc}")
+                log(traceback.format_exc())
+                crashed = True
+                break
+        if crashed:
+            return
         try:
-            t, c = eng.sb_smoke(nargout=2)
-            tv, cv = _flat(t), _flat(c)
+            tv = _flat(eng.eval("sd.Time", nargout=1))
+            cv = _flat(eng.eval("dd.Data", nargout=1))
             log(f"[ok] built + simulated a 1-cmt model: {len(tv)} timepoints, "
                 f"C(0)={cv[0]:.3f} -> C(end)={cv[-1]:.3f} over t=0..{tv[-1]:g}h")
         except Exception as exc:                       # noqa: BLE001
-            log(f"[FAIL] sb_smoke build/simulate failed: {exc}")
+            log(f"[FAIL] extract results: {exc}")
             log(traceback.format_exc())
             return
-        log("<- sb_smoke done")
+        log("<- model build/simulate done")
 
         if args.sbproj:
             if not os.path.exists(args.sbproj):
