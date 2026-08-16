@@ -131,7 +131,8 @@ def run(args) -> None:
         # MATLAB and read those. (The real engine will move arrays via files.)
         log("-> reduce results to scalars in MATLAB")
         try:
-            eng.eval("smoke_n = numel(smoke_t); smoke_c0 = smoke_c(1); "
+            eng.eval("smoke_t = sd.Time; smoke_c = dd.Data; "
+                     "smoke_n = numel(smoke_t); smoke_c0 = smoke_c(1); "
                      "smoke_cend = smoke_c(end); smoke_tend = smoke_t(end);",
                      nargout=0)
             log("<- reduced")
