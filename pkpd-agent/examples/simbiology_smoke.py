@@ -126,21 +126,27 @@ def run(args) -> None:
                 break
         if crashed:
             return
-        # extract via base-workspace variables (assign with nargout=0, then read
-        # with eng.workspace) - a bare `eng.eval("sd.Time", nargout=1)` can crash
-        # the engine, so never marshal a bare expression.
-        log("-> assign results to workspace (smoke_t, smoke_c)")
+        # Returning ARRAYS to Python (bare-expr eval OR eng.workspace) crashes this
+        # engine build; scalars/strings marshal fine. So reduce to SCALARS in
+        # MATLAB and read those. (The real engine will move arrays via files.)
+        log("-> reduce results to scalars in MATLAB")
         try:
-            eng.eval("smoke_t = sd.Time; smoke_c = dd.Data;", nargout=0)
-            log("<- assigned")
-            tv = _flat(eng.workspace["smoke_t"])
-            cv = _flat(eng.workspace["smoke_c"])
-            log(f"[ok] built + simulated a 1-cmt model: {len(tv)} timepoints, "
-                f"C(0)={cv[0]:.3f} -> C(end)={cv[-1]:.3f} over t=0..{tv[-1]:g}h")
+            eng.eval("smoke_n = numel(smoke_t); smoke_c0 = smoke_c(1); "
+                     "smoke_cend = smoke_c(end); smoke_tend = smoke_t(end);",
+                     nargout=0)
+            log("<- reduced")
         except Exception as exc:                       # noqa: BLE001
-            log(f"[FAIL] extract results: {exc}")
+            log(f"[FAIL] reduce: {exc}")
             log(traceback.format_exc())
             return
+        log("-> read smoke_n via workspace (scalar)")
+        n = eng.workspace["smoke_n"]
+        log(f"<- smoke_n = {n}")
+        c0 = eng.workspace["smoke_c0"]
+        cend = eng.workspace["smoke_cend"]
+        tend = eng.workspace["smoke_tend"]
+        log(f"[ok] built + simulated a 1-cmt model: {int(n)} timepoints, "
+            f"C(0)={float(c0):.3f} -> C(end)={float(cend):.3f} over t=0..{float(tend):g}h")
         log("<- model build/simulate done")
 
         if args.sbproj:
