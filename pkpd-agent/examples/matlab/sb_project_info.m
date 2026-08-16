@@ -48,6 +48,8 @@ function info = sb_project_info(projPath)
     fprintf('  species: %d  parameters: %d  reactions: %d\n', ...
             info.nSpecies, info.nParameters, info.nReactions);
     fprintf('  variants: %d  doses: %d\n', info.nVariants, info.nDoses);
+    local_print_names('  doses', info.doseNames, 20);
+    local_print_names('  variants (first 8)', info.variantNames, 8);
 
     % baseline simulation smoke (no dose/variant) - just confirm it integrates
     try
@@ -71,4 +73,13 @@ function names = local_names(objs)
         catch
         end
     end
+end
+
+function local_print_names(label, names, maxn)
+    if isempty(names)
+        fprintf('%s: (none)\n', label);
+        return;
+    end
+    n = min(numel(names), maxn);
+    fprintf('%s: %s\n', label, strjoin(names(1:n), ' | '));
 end

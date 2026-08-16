@@ -126,9 +126,15 @@ def run(args) -> None:
                 break
         if crashed:
             return
+        # extract via base-workspace variables (assign with nargout=0, then read
+        # with eng.workspace) - a bare `eng.eval("sd.Time", nargout=1)` can crash
+        # the engine, so never marshal a bare expression.
+        log("-> assign results to workspace (smoke_t, smoke_c)")
         try:
-            tv = _flat(eng.eval("sd.Time", nargout=1))
-            cv = _flat(eng.eval("dd.Data", nargout=1))
+            eng.eval("smoke_t = sd.Time; smoke_c = dd.Data;", nargout=0)
+            log("<- assigned")
+            tv = _flat(eng.workspace["smoke_t"])
+            cv = _flat(eng.workspace["smoke_c"])
             log(f"[ok] built + simulated a 1-cmt model: {len(tv)} timepoints, "
                 f"C(0)={cv[0]:.3f} -> C(end)={cv[-1]:.3f} over t=0..{tv[-1]:g}h")
         except Exception as exc:                       # noqa: BLE001
@@ -142,23 +148,28 @@ def run(args) -> None:
                 log(f"[FAIL] --sbproj not found: {args.sbproj}")
             else:
                 log(f"-> eng.sb_project_info {args.sbproj}")
+                # let the .m do the reporting via fprintf and CAPTURE MATLAB's
+                # stdout in Python (no struct marshaled back - another spot the
+                # engine could choke on).
+                import io
+                out, err = io.StringIO(), io.StringIO()
                 try:
-                    info = eng.sb_project_info(args.sbproj, nargout=1)
-                    log(f"[ok] loaded project '{info.get('name')}': "
-                        f"{int(info.get('nSpecies', 0))} species, "
-                        f"{int(info.get('nParameters', 0))} params, "
-                        f"{int(info.get('nReactions', 0))} reactions, "
-                        f"{int(info.get('nVariants', 0))} variants, "
-                        f"{int(info.get('nDoses', 0))} doses; "
-                        f"baseline sim ok={info.get('baselineOk')}")
-                    vn = info.get("variantNames") or []
-                    dn = info.get("doseNames") or []
-                    if vn:
-                        log(f"     first variants: {list(vn)[:5]}")
-                    if dn:
-                        log(f"     doses: {list(dn)}")
+                    eng.sb_project_info(args.sbproj, nargout=0,
+                                        stdout=out, stderr=err)
+                    txt = out.getvalue().strip()
+                    log(txt if txt else "(no output captured from MATLAB)")
+                    etxt = err.getvalue().strip()
+                    if etxt:
+                        log("   MATLAB stderr: " + etxt)
+                    log("[ok] project loaded + baseline simulated")
                 except Exception as exc:               # noqa: BLE001
-                    log(f"[FAIL] sb_project_info failed: {exc}")
+                    log(f"[FAIL] sb_project_info: {exc}")
+                    so = out.getvalue().strip()
+                    se = err.getvalue().strip()
+                    if so:
+                        log("   stdout so far: " + so)
+                    if se:
+                        log("   stderr: " + se)
                     log(traceback.format_exc())
                 log("<- sb_project_info done")
 
