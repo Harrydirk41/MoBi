@@ -23,6 +23,7 @@ Kd(FcRn)), dAb2 (recovers GFR fraction), and Tefibazumab (plasma, recovers Kd).
 from __future__ import annotations
 
 import math
+import re
 from typing import Any
 
 from . import osp_score
@@ -155,11 +156,26 @@ def biologic_identifiability(bstruct: dict) -> list[dict]:
 # observed extraction (per matrix: whole blood + each tissue)
 # --------------------------------------------------------------------------- #
 
+def _study_token(dataset_name: str | None, molecule: str) -> str:
+    """A short study descriptor from an observed dataset name, so a matrix from
+    one study/dose is not mixed with the same organ from another. E.g.
+    'BAY794620_Autoradiography_PKSimImport.Blood.1' -> 'autoradiography'. Used to
+    map each observed curve to the SIMULATION run at its dose (a mAb dataset often
+    has several studies at different doses, each its own simulation)."""
+    base = (dataset_name or "").split(".")[0]
+    base = re.sub(r"(?i)" + re.escape(molecule), " ", base)
+    base = re.sub(r"(?i)(pksimimport|import)", " ", base)
+    toks = [t for t in re.split(r"[^A-Za-z0-9]+", base) if t]
+    return "".join(toks).lower()
+
+
 def biologic_observed(snapshot: dict, molecule: str) -> list[dict]:
     """Concentration-time datasets for the biologic across ALL matrices - whole
-    blood, plasma, and each tissue - keyed by (organ, compartment). Unlike the
-    small-molecule extractor (plasma only), tissue matrices are kept: a mAb model
-    is graded on its biodistribution."""
+    blood, plasma, and each tissue - keyed by (study, organ, compartment). Unlike
+    the small-molecule extractor (plasma only), tissue matrices are kept: a mAb
+    model is graded on its biodistribution. The study is part of the key so the
+    same organ measured in two studies (at two doses) stays two curves, each
+    scored against the simulation run at its dose."""
     out = []
     for od in snapshot.get("ObservedData") or []:
         ep = {e.get("Name"): e.get("Value") for e in od.get("ExtendedProperties") or []}
@@ -178,10 +194,11 @@ def biologic_observed(snapshot: dict, molecule: str) -> list[dict]:
         n = min(len(time_h), len(conc))
         if n < 2:
             continue
-        key = f"{organ}|{compartment}"
+        study = _study_token(od.get("Name"), molecule)
+        key = f"{study}|{organ}|{compartment}" if study else f"{organ}|{compartment}"
         out.append({"dataset": od.get("Name") or key, "matrix": key,
                     "organ": organ, "compartment": compartment,
-                    "molecule": molecule, "study": ep.get("Study Id"),
+                    "molecule": molecule, "study": study,
                     "n_points": n,
                     "time_h": [None if t is None else round(t, 5) for t in time_h[:n]],
                     "conc_mg_L": [None if c is None else round(c, 8) for c in conc[:n]]})
@@ -200,13 +217,34 @@ def matrix_specs(observed: list[dict], molecule: str) -> list[dict]:
             continue
         seen.add(key)
         specs.append({"key": key, "molecule": molecule,
-                      "organ": o.get("organ"), "compartment": o.get("compartment")})
+                      "organ": o.get("organ"), "compartment": o.get("compartment"),
+                      "study": o.get("study")})
     return specs
 
 
 # --------------------------------------------------------------------------- #
 # scoring: per matrix, then an overall biodistribution GMFE
 # --------------------------------------------------------------------------- #
+
+def _pick_profile_for_study(profiles: list, study: str):
+    """From the profiles found for a matrix (one per simulation that has the
+    column), pick the one whose simulation was run at THIS study's dose - matched
+    by the study token appearing in the simulation name. Falls back to the sole
+    profile when there is only one (single-simulation model)."""
+    profs = [p for p in profiles if p is not None]
+    if not profs:
+        return None
+    if len(profs) == 1 or not study:
+        return profs[0]
+    def norm(s):
+        return re.sub(r"[^a-z0-9]+", "", (s or "").lower())
+    st = norm(study)
+    for p in profs:
+        sim = norm(getattr(p, "simulation", ""))
+        if st and (st in sim or sim in st):
+            return p
+    return profs[0]
+
 
 def score_biologic(observed: list[dict],
                    profiles_by_matrix: dict[str, list]) -> dict[str, Any]:
@@ -220,7 +258,8 @@ def score_biologic(observed: list[dict],
     per_matrix, all_fe = {}, []
     for key, obs_list in obs_by_matrix.items():
         profs = profiles_by_matrix.get(key) or []
-        pred = profs[0] if profs else None
+        study = (obs_list[0].get("study") or "") if obs_list else ""
+        pred = _pick_profile_for_study(profs, study)
         fe = []
         if pred is not None:
             for o in obs_list:

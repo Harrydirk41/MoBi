@@ -52,10 +52,23 @@ class TestAnalyzeBiologic(unittest.TestCase):
     def test_matrix_specs_carry_organ_compartment(self):
         obs = B.biologic_observed(self.snap, "BAY794620")
         specs = B.matrix_specs(obs, "BAY794620")
-        blood = next(s for s in specs if s["key"] == "Blood|WholeBlood")
+        blood = next(s for s in specs
+                     if s["organ"] == "Blood" and s["compartment"] == "WholeBlood")
         self.assertEqual(blood["molecule"], "BAY794620")
         self.assertEqual(blood["organ"], "Blood")
         self.assertEqual(blood["compartment"], "WholeBlood")
+
+    def test_two_studies_are_separate_matrices(self):
+        # BAY794620 has Autoradiography (500 ng) and TissueDissection (1.25 mg/kg)
+        # studies; the same organ in each must be a SEPARATE matrix, so it is
+        # scored against the simulation run at its own dose.
+        obs = B.biologic_observed(self.snap, "BAY794620")
+        blood_studies = {o["study"] for o in obs if o["organ"] == "Blood"}
+        self.assertIn("autoradiography", blood_studies)
+        self.assertIn("tissuedissection", blood_studies)
+        # and the matrix keys differ by study
+        keys = {o["matrix"] for o in obs if o["organ"] == "Blood"}
+        self.assertGreaterEqual(len(keys), 2)
 
     def test_single_molecule_is_not_biologic(self):
         if os.path.exists(ALF):
@@ -145,6 +158,29 @@ class TestBiologicColumnAndScoring(unittest.TestCase):
         s = B.score_biologic(obs, pbm)
         self.assertFalse(s["per_matrix"]["Spleen|Tissue"]["matched"])
         self.assertEqual(s["n_matched"], 1)
+
+    def test_scores_each_study_against_its_own_simulation(self):
+        # two studies at two doses -> two simulations. The low-dose observed must
+        # be scored against the LOW-dose sim, not whichever sorts first, else a
+        # dose mismatch shows up as a systematic bias.
+        class P:
+            def __init__(s, sim, scale):
+                s.simulation = sim
+                s.time_h = [0, 24, 72, 168]
+                s.conc_mg_L = [scale * math.exp(-0.01 * x) for x in s.time_h]
+        lo = {"dataset": "d", "matrix": "lo|Blood|WholeBlood", "molecule": "mAb",
+              "study": "lo", "time_h": [0, 24, 72, 168],
+              "conc_mg_L": [1.0 * math.exp(-0.01 * x) for x in [0, 24, 72, 168]]}
+        hi = {"dataset": "d", "matrix": "hi|Blood|WholeBlood", "molecule": "mAb",
+              "study": "hi", "time_h": [0, 24, 72, 168],
+              "conc_mg_L": [50.0 * math.exp(-0.01 * x) for x in [0, 24, 72, 168]]}
+        # each matrix carries BOTH sims' profiles; the scorer must pick by study
+        pbm = {"lo|Blood|WholeBlood": [P("mAb_hi", 50.0), P("mAb_lo", 1.0)],
+               "hi|Blood|WholeBlood": [P("mAb_hi", 50.0), P("mAb_lo", 1.0)]}
+        s = B.score_biologic([lo, hi], pbm)
+        # both match their OWN dose sim -> GMFE ~1, not ~50
+        self.assertAlmostEqual(s["per_matrix"]["lo|Blood|WholeBlood"]["gmfe"], 1.0, places=1)
+        self.assertAlmostEqual(s["per_matrix"]["hi|Blood|WholeBlood"]["gmfe"], 1.0, places=1)
 
 
 class TestBiologicOrchestration(unittest.TestCase):
