@@ -344,10 +344,24 @@ def register_osp_loop_tools(registry: ToolRegistry, config, ctx: dict) -> None:
     def optimize(args: dict, session) -> ToolResult:
         from ..engines import osp_optimize as OO
         estimate = dict(args.get("estimate") or {})
-        if not estimate:
+        # link_scale: fit ONE shared multiplier over a group of collinear params
+        # (per-enzyme clearances) so the identifiable TOTAL is fit while the split
+        # (their ratio) is held - resolve each member's current value as its base.
+        link_scale = []
+        cur = None
+        for g in (args.get("link_scale") or []):
+            members = g.get("members") or []
+            if cur is None:
+                cur = {p["name"]: p["value"] for p in _current_model(snapshot_path)["parameters"]}
+            based = {m: float(cur.get(m, 1.0)) for m in members}
+            link_scale.append({"members": based,
+                               "bounds": g.get("bounds", [0.1, 10.0]),
+                               "name": g.get("name") or ("total:" + "+".join(members))})
+        if not estimate and not link_scale:
             return ToolResult.error(
-                "provide 'estimate': {parameter: [lo, hi]} - the parameters to "
-                "fit numerically (choose 2-4 identifiable, uncertain ones)")
+                "provide 'estimate': {parameter: [lo, hi]} - the parameters to fit "
+                "numerically (choose 2-4 identifiable, uncertain ones); or "
+                "'link_scale' to fit the shared magnitude of a collinear group.")
 
         # --- the measured-quantity principle (enforced, not just advised) --- #
         #  * a measured physical CONSTANT (MW, pKa, reference pH) can never be
@@ -395,7 +409,8 @@ def register_osp_loop_tools(registry: ToolRegistry, config, ctx: dict) -> None:
             fix=args.get("fix"), structure=args.get("structure"),
             fit_simulations=args.get("fit_simulations"),
             max_evals=int(args.get("max_evals") or 30),
-            on_eval=_progress if getattr(config, "stream_optimizer", True) else None)
+            on_eval=_progress if getattr(config, "stream_optimizer", True) else None,
+            link_scale=link_scale or None)
         if not r.get("ok"):
             return ToolResult.error(f"optimization failed: {r.get('message')}")
 
@@ -436,6 +451,7 @@ def register_osp_loop_tools(registry: ToolRegistry, config, ctx: dict) -> None:
             worst_datasets=r["worst_datasets"],
             params_at_bound=r["params_at_bound"],
             sensitivity=r.get("sensitivity"),
+            link_scales=r.get("link_scales"),
             recommendations=recs,
             sensitivity_hint=("'relative' is each parameter's local influence on "
                               "the fit, normalised to the most influential (1.0). "
@@ -462,7 +478,13 @@ def register_osp_loop_tools(registry: ToolRegistry, config, ctx: dict) -> None:
             "not everything). fix={parameter:value} pins parameters at literature "
             "values. structure={calculation_methods:.., processes:.., "
             "add_processes:[{type,molecule,parameters}]} sets the model structure "
-            "(not optimized; see osp_options for legal choices). Returns the "
+            "(not optimized; see osp_options for legal choices). "
+            "link_scale=[{members:[p1,p2,..], bounds:[lo,hi]}] fits ONE shared "
+            "multiplier over a collinear group (e.g. per-enzyme clearances the "
+            "plasma data cannot split): it recovers their identifiable TOTAL while "
+            "holding their RATIO fixed at the members' current values - use it "
+            "instead of fixing one member at a guess, which corrupts the total. "
+            "Returns the "
             "optimized values, the "
             "full-set GMFE + per-route bias, and params_at_bound (a parameter "
             "pinned to a bound = unidentifiable or wrong structure - reason about "
@@ -476,6 +498,10 @@ def register_osp_loop_tools(registry: ToolRegistry, config, ctx: dict) -> None:
                         "description": "{parameter: value} pinned at literature"},
                 "structure": {"type": "object",
                               "description": "calculation_methods / processes"},
+                "link_scale": {"type": "array", "items": {"type": "object"},
+                               "description": "[{members:[p1,p2,..], bounds:[lo,hi]}] "
+                               "- fit ONE shared multiplier over a collinear group, "
+                               "recovering their total while holding their ratio"},
                 "fit_simulations": {"type": "array", "items": {"type": "string"},
                                     "description": "optional exact simulation names"},
                 "max_evals": {"type": "integer",

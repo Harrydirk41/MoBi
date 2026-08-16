@@ -277,6 +277,20 @@ def _comparison_analysis(agent_structure, ref_structure, parameters,
         coll = p.get("collinearity")
         partner = p.get("collinear_with")
         collinear = isinstance(coll, (int, float)) and coll >= 0.8 and partner
+        linked = p.get("linked_group")
+        if linked and mag > 1.5:
+            # fit as part of a linked group: only the group's TOTAL was estimated,
+            # the member's ratio was held - so an individual difference is a held
+            # prior (the split), not an independent fitting error.
+            verdict, grade = (f"off {fold:.2g}x, but fit as part of linked group "
+                              f"'{linked}' - only the group total was estimated, the "
+                              "split (ratio) was held, so the individual value is a "
+                              "prior, not an independent error", "soft"); n_soft += 1
+            prows.append({"name": p["name"], "agent": a, "reference": r,
+                          "fold": round(fold, 3), "sensitivity": sens,
+                          "collinearity": coll, "collinear_with": partner,
+                          "verdict": verdict, "grade": grade})
+            continue
         if p.get("role") in ("fixed", "held-at-default", "given"):
             # NOT estimated, so a difference from the reference is a prior/choice,
             # not a fitting error - never a "miss".
@@ -493,6 +507,7 @@ def assemble(session, config, cli, input_dict, snapshot_path, best_edits,
                        "sensitivity": sen.get("relative"),
                        "collinearity": sen.get("collinearity"),
                        "collinear_with": sen.get("collinear_with"),
+                       "linked_group": sen.get("linked_group"),
                        "reference": ref_params.get(name)})
     # fixed parameters (held at literature values, e.g. GFR fraction = 0) shown
     # as their own rows so the table is complete and unambiguous.

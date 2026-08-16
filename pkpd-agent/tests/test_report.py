@@ -273,6 +273,16 @@ class TestGroundTruthComparison(unittest.TestCase):
         self.assertIn("collinear", c["parameters"][0]["verdict"].lower())
         self.assertIn("collinear", c["summary"].lower())
 
+    def test_linked_group_member_off_is_not_a_miss(self):
+        # a member fit only via a shared group scale (ratio held) that differs
+        # from the reference is a held prior (the split), not a real fitting error.
+        c = self._cmp([{"name": "CLspec/[Enzyme]@UGT2B7", "value": 0.08,
+                        "reference": 0.0066, "sensitivity": 0.9,
+                        "linked_group": "total:UGT1A9+UGT2B7+Hepatic-CYP",
+                        "role": "estimated"}])
+        self.assertEqual(c["parameters"][0]["grade"], "soft")
+        self.assertIn("linked group", c["parameters"][0]["verdict"])
+
     def test_held_at_default_far_off_is_not_a_miss(self):
         # an estimate-tier parameter left at a bare default is a prior choice,
         # not a fitting error (it was never estimated).

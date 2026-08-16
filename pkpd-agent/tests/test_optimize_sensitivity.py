@@ -80,6 +80,54 @@ class TestCollinearity(unittest.TestCase):
         self.assertLess(s["a"]["collinearity"], 0.5)
 
 
+class TestLinkedScaleFit(unittest.TestCase):
+    """A linked group fits ONE shared scale over collinear parameters, so the
+    identifiable AGGREGATE (total clearance) is recovered while the RATIO (the
+    unidentifiable split) is held - the fix for the underdetermination failure."""
+
+    class _CLCli:
+        """Toy model: plasma conc = dose / total_CL, total_CL = CLa + CLb.
+        Only the SUM is identifiable; the split is free."""
+        def simulation_names(self, p):
+            return ["S"]
+
+        def build_and_run(self, path, edits=None, simulations=None,
+                          prune_simulations=False):
+            from pkpd_agent.engines.osp_cli import PredictedProfile
+            pr = (edits or {}).get("parameters", {})
+            total = pr.get("CLa", 0.0) + pr.get("CLb", 0.0)
+            conc = 10.0 / total if total > 0 else 1e9
+            prof = PredictedProfile(simulation="S", study="S", route="IV",
+                                    dose="10 mg", time_h=[1.0, 2.0],
+                                    conc_mg_L=[conc, conc])
+            return {"ok": True, "profiles": [prof]}
+
+    def _obs(self):
+        # observed conc 0.25 => total_CL should converge to 10/0.25 = 40
+        return [{"dataset": "S", "study": "S", "route": "IV", "dose": "10 mg",
+                 "time_h": [1.0, 2.0], "conc_mg_L": [0.25, 0.25]}]
+
+    def test_linked_scale_recovers_total_preserves_ratio(self):
+        r = run_optimization(
+            self._CLCli(), "snap.json", self._obs(),
+            estimate={}, fit_simulations=["S"], max_evals=80,
+            link_scale=[{"members": {"CLa": 1.0, "CLb": 3.0}, "bounds": [0.01, 100]}])
+        self.assertTrue(r["ok"], r.get("message"))
+        opt = r["optimized"]
+        # members appear expanded (group name does not leak into the param dict)
+        self.assertIn("CLa", opt)
+        self.assertIn("CLb", opt)
+        self.assertFalse(any(k.startswith("total:") for k in opt))
+        # RATIO preserved exactly (base 1:3)
+        self.assertAlmostEqual(opt["CLb"] / opt["CLa"], 3.0, places=6)
+        # AGGREGATE recovered: CLa + CLb ~ 40
+        self.assertAlmostEqual(opt["CLa"] + opt["CLb"], 40.0, delta=1.0)
+        # both members carry the shared (linked) identifiability
+        self.assertEqual(r["sensitivity"]["CLa"].get("linked_group"),
+                         r["sensitivity"]["CLb"].get("linked_group"))
+        self.assertTrue(r.get("link_scales"))
+
+
 class TestEarlyAbortOnBrokenModel(unittest.TestCase):
     """When the model fails to build/run on every attempt (a structural error),
     the optimizer must abort early with the real reason instead of burning the

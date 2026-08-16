@@ -91,7 +91,8 @@ def run_optimization(cli: OSPCli, snapshot_path: str, observed: list[dict],
                      estimate: dict[str, list], fix: dict | None = None,
                      structure: dict | None = None,
                      fit_simulations: list[str] | None = None,
-                     max_evals: int = 30, on_eval=None) -> dict[str, Any]:
+                     max_evals: int = 30, on_eval=None,
+                     link_scale: list | None = None) -> dict[str, Any]:
     """Fit ``estimate`` (name -> [lo, hi]) to the observed data.
 
     ``on_eval(i, values, log_sse)`` (optional) is called after each objective
@@ -103,9 +104,33 @@ def run_optimization(cli: OSPCli, snapshot_path: str, observed: list[dict],
     import numpy as np
     from scipy.optimize import minimize
 
-    names = list(estimate.keys())
-    los = np.array([float(estimate[n][0]) for n in names], float)
-    his = np.array([float(estimate[n][1]) for n in names], float)
+    # A LINKED group fits ONE shared scale that multiplies all its members,
+    # preserving their RATIO (the split) while the data identify their aggregate
+    # magnitude (the total). This is the fix for the underdetermination failure:
+    # collinear per-enzyme clearances can't be split from plasma data, so fixing
+    # them individually corrupts the total. Scaling them together keeps the total
+    # identifiable and leaves the split at whatever prior the members carry.
+    ind_names = list(estimate.keys())
+    groups = []
+    for g in (link_scale or []):
+        members = g.get("members")
+        if isinstance(members, (list, tuple)):
+            members = {m: 1.0 for m in members}
+        if not members:
+            continue
+        gname = g.get("name") or ("total:" + "+".join(members))
+        groups.append({"name": gname,
+                       "members": {k: float(v) for k, v in members.items()},
+                       "bounds": g.get("bounds", [0.1, 10.0])})
+    group_names = [g["name"] for g in groups]
+    gmap = {g["name"]: g["members"] for g in groups}
+    names = ind_names + group_names
+    los = np.array([float(estimate[n][0]) for n in ind_names]
+                   + [float(g["bounds"][0]) for g in groups], float)
+    his = np.array([float(estimate[n][1]) for n in ind_names]
+                   + [float(g["bounds"][1]) for g in groups], float)
+    if len(names) == 0:
+        return {"ok": False, "message": "nothing to estimate"}
     # the fit runs in log10 space, so bounds must be strictly positive with hi>lo.
     # A non-positive UPPER bound (or hi<=lo) is genuinely broken -> fail. But a
     # lower bound of 0 is a common, benign ">= 0" intent; clamp it to a small
@@ -116,6 +141,18 @@ def run_optimization(cli: OSPCli, snapshot_path: str, observed: list[dict],
                 "0 <= lo < hi and hi > 0 (the fit is in log space)"}
     clamped = [names[i] for i in range(len(los)) if los[i] <= 0]
     los = np.where(los <= 0, his * 1e-6, los)
+
+    def expand(values: dict[str, float]) -> dict[str, float]:
+        """Map optimization variables -> actual parameters: a group scale expands
+        to its members (member = base * scale); individual params pass through."""
+        out: dict[str, float] = {}
+        for k, v in values.items():
+            if k in gmap:
+                for m, base in gmap[k].items():
+                    out[m] = base * float(v)
+            else:
+                out[k] = v
+        return out
 
     # subset of simulations to fit against
     all_sims = cli.simulation_names(snapshot_path)
@@ -134,7 +171,7 @@ def run_optimization(cli: OSPCli, snapshot_path: str, observed: list[dict],
 
     def eval_at(values: dict[str, float], sims):
         edits = {**base_edits,
-                 "parameters": {**base_edits["parameters"], **values}}
+                 "parameters": {**base_edits["parameters"], **expand(values)}}
         # during the fit, prune the snapshot to the subset so snap builds ONLY
         # those simulations (snap otherwise rebuilds all of them every eval).
         res = cli.build_and_run(snapshot_path, edits=edits, simulations=sims,
@@ -216,11 +253,25 @@ def run_optimization(cli: OSPCli, snapshot_path: str, observed: list[dict],
     predicted_full, res_full = eval_at(optimized, None)
     if predicted_full is None:
         return {"ok": False, "message": f"final run failed: {res_full.get('message')}",
-                "optimized": optimized}
+                "optimized": expand(optimized)}
     score = osp_score.score_fit(observed, predicted_full)
+
+    # expand variable-space results to PER-PARAMETER values for the report/re-run:
+    # a group scale becomes its actual member values, and each member inherits the
+    # group's (shared) identifiability - they are pinned only together, not apart.
+    optimized_expanded = expand(optimized)
+    sensitivity_expanded: dict[str, Any] = {}
+    for k, s in sensitivity.items():
+        if k in gmap:
+            for m in gmap[k]:
+                sensitivity_expanded[m] = {**s, "linked_group": k}
+        else:
+            sensitivity_expanded[k] = s
+    link_scales = {g["name"]: {"scale": optimized[g["name"]],
+                               "members": list(g["members"])} for g in groups}
     return {
         "ok": True,
-        "optimized": optimized,
+        "optimized": optimized_expanded,
         "fit": score["overall"],
         "by_route": score["by_route"],
         "worst_datasets": [{"dataset": d["dataset"], "route": d["route"],
@@ -228,7 +279,8 @@ def run_optimization(cli: OSPCli, snapshot_path: str, observed: list[dict],
                            for d in score["per_dataset"][:3]],
         "params_at_bound": at_bound,
         "bounds_clamped": clamped or None,
-        "sensitivity": sensitivity,
+        "sensitivity": sensitivity_expanded,
+        "link_scales": link_scales or None,
         "recommendations": actions,
         "n_evals": len(history),
         "fit_simulations": subset,
@@ -378,9 +430,11 @@ def _identifiability_actions(names, sensitivity, at_bound) -> list[dict]:
                           "anchor, fix that one and estimate only the other. If "
                           "NEITHER has an anchor (e.g. two per-enzyme clearances), "
                           "do NOT fix one at an arbitrary value - that creates a "
-                          "spurious mis-split. Instead estimate only their "
-                          "identifiable combination (their sum / total) and report "
-                          "the individual split as unresolved",
+                          "spurious mis-split AND corrupts the identifiable total. "
+                          "Instead use link_scale to fit their SHARED magnitude "
+                          "(the total) while holding their ratio: "
+                          f"link_scale=[{{members:['{n}','{partner}'], bounds:[lo,hi]}}]. "
+                          "Report the individual split as unresolved",
                 "severity": "medium"})
 
     # 3. parameters pinned to a bound -> the bound is doing the fitting
