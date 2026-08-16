@@ -96,10 +96,18 @@ def val_biologic(cli, lib, keep):
     sc = out["score"]
     print(f"   matched {out['n_matched']}/{out['n_matrices']} matrices, "
           f"overall GMFE {sc['overall'].get('gmfe')}")
+    # per-matrix breakdown (bias > 1 = over-predicts): a SYSTEMATIC bias across
+    # all matrices points to a quantity/basis mismatch; error concentrated in the
+    # low-penetration tissues (fat/brain/muscle) is normal mAb-PBPK behaviour.
+    rows = [(k, v) for k, v in sc["per_matrix"].items() if v["matched"]]
+    rows.sort(key=lambda kv: (kv[1].get("gmfe") or 0), reverse=True)
+    print(f"   {'matrix':24} {'GMFE':>7} {'bias':>7}")
+    for k, v in rows:
+        print(f"   {k:24} {str(v.get('gmfe')):>7} {str(v.get('bias')):>7}")
     unmatched = [k for k, v in sc["per_matrix"].items() if not v["matched"]]
     if unmatched:
-        print(f"   UNMATCHED matrices (token mismatch - check column names): "
-              f"{unmatched}")
+        print(f"   UNMATCHED (no model organ - e.g. Tumor/Bone/Intestine have no "
+              f"standard PK-Sim compartment): {unmatched}")
         if keep:
             _dump_header(cli, path, None)
 
