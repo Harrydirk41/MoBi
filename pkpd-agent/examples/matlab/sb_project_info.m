@@ -4,6 +4,14 @@ function info = sb_project_info(projPath)
 %   baseline simulation. Proves an existing QSP model (e.g. the Vantage RA model)
 %   can be loaded and driven from code, no GUI. Returns a struct summary.
 
+    % the model's reactions may call custom functions shipped alongside the
+    % project (e.g. the Vantage RA model's MM.m). Put the project folder on the
+    % path so those resolve during load + simulation.
+    projDir = fileparts(projPath);
+    if ~isempty(projDir)
+        addpath(projDir);
+    end
+
     data = sbioloadproject(projPath);      % loads project variables into a struct
 
     % find the SimBiology model among the loaded variables (its variable name
