@@ -103,7 +103,8 @@ class OSPCli:
                       simulations: list[str] | None = None,
                       workdir: str | None = None,
                       prune_simulations: bool = False,
-                      target_molecule: str | None = None) -> dict[str, Any]:
+                      target_molecule: str | None = None,
+                      target_molecules: list[str] | None = None) -> dict[str, Any]:
         """snapshot (optionally edited) -> .pksim5 -> run -> predicted profiles.
 
         ``edits`` is the structured spec from ``snapshot_edit`` (parameters,
@@ -115,6 +116,12 @@ class OSPCli:
         snapshot BEFORE snap, so PK-Sim only *builds* the ones requested - a big
         speedup during optimization, where snap otherwise rebuilds every
         simulation on every objective evaluation.
+
+        ``target_molecules`` (metabolite cascades): pull SEVERAL molecules'
+        plasma from the SAME run - parent + each daughter metabolite - each with
+        its own molecular weight. When given, the result carries an extra
+        ``profiles_by_molecule`` = {molecule: [PredictedProfile...]} so a single
+        snap+export scores the whole cascade, not one molecule at a time.
 
         Returns {ok, message, profiles:[PredictedProfile...], project, logs}.
         """
@@ -171,6 +178,11 @@ class OSPCli:
             return self._fail("export (run) failed", logs, wd)
 
         profiles = self._parse_results(out_dir, mol_weight, target_molecule)
+        by_molecule = None
+        if target_molecules:
+            mw_by_name = self._mol_weight_by_name(snap)
+            by_molecule = self._parse_results_multi(out_dir, mw_by_name,
+                                                    target_molecules, mol_weight)
         if not self.keep_workdir and not workdir:
             shutil.rmtree(wd, ignore_errors=True)
 
@@ -178,12 +190,17 @@ class OSPCli:
                    + len(applied.get("calculation_methods", {}))
                    + len([v for v in applied.get("processes", {}).values()
                           if v == "disabled"]))
-        return {"ok": bool(profiles),
-                "message": (f"ran {len(profiles)} simulation(s); "
-                            f"applied {n_edits} edit(s)")
-                           if profiles else "no result CSVs parsed",
-                "profiles": profiles, "project": project,
-                "edits_applied": applied, "logs": logs, "mol_weight": mol_weight}
+        result = {"ok": bool(profiles),
+                  "message": (f"ran {len(profiles)} simulation(s); "
+                              f"applied {n_edits} edit(s)")
+                             if profiles else "no result CSVs parsed",
+                  "profiles": profiles, "project": project,
+                  "edits_applied": applied, "logs": logs, "mol_weight": mol_weight}
+        if by_molecule is not None:
+            result["profiles_by_molecule"] = by_molecule
+            # a cascade run "ok" if at least one requested molecule was parsed
+            result["ok"] = result["ok"] or any(by_molecule.values())
+        return result
 
     # -- snapshot helpers ------------------------------------------------ #
     @staticmethod
@@ -213,6 +230,24 @@ class OSPCli:
                 return p.get("Value")
         return None
 
+    @staticmethod
+    def _mol_weight_by_name(snap: dict) -> dict[str, float | None]:
+        """Molecular weight per compound name - a metabolite cascade has several
+        compounds, each with its own MW (needed to convert its mol/L result to
+        mg/L). Falls back to None (no conversion) when absent."""
+        out: dict[str, float | None] = {}
+        for comp in snap.get("Compounds") or []:
+            nm = comp.get("Name")
+            if not nm:
+                continue
+            mw = None
+            for p in comp.get("Parameters") or []:
+                if p.get("Name") == "Molecular weight":
+                    mw = p.get("Value")
+                    break
+            out[nm] = mw
+        return out
+
     # -- CSV parsing ----------------------------------------------------- #
     def _parse_results(self, out_dir: str, mol_weight: float | None,
                        target_molecule: str | None = None) \
@@ -225,9 +260,32 @@ class OSPCli:
                 profiles.append(prof)
         return profiles
 
+    def _parse_results_multi(self, out_dir: str,
+                             mw_by_name: dict[str, float | None],
+                             molecules: list[str],
+                             default_mw: float | None = None) \
+            -> dict[str, list[PredictedProfile]]:
+        """{molecule: [PredictedProfile...]} - one concentration column per
+        requested molecule per simulation CSV, each converted with that
+        molecule's own molecular weight. This is how a metabolite cascade is
+        scored from ONE run: parent + every daughter, side by side."""
+        by_mol: dict[str, list[PredictedProfile]] = {m: [] for m in molecules}
+        for csv_path in sorted(glob.glob(os.path.join(out_dir, "*", "*-Results.csv"))):
+            sim_name = os.path.basename(os.path.dirname(csv_path))
+            for m in molecules:
+                mw = mw_by_name.get(m, default_mw)
+                if mw is None:
+                    mw = default_mw
+                prof = self._parse_one(csv_path, sim_name, mw, target_molecule=m,
+                                       require_molecule_match=True)
+                if prof:
+                    by_mol[m].append(prof)
+        return by_mol
+
     def _parse_one(self, csv_path: str, sim_name: str,
                    mol_weight: float | None,
-                   target_molecule: str | None = None) -> PredictedProfile | None:
+                   target_molecule: str | None = None,
+                   require_molecule_match: bool = False) -> PredictedProfile | None:
         with open(csv_path, encoding="utf-8", errors="replace", newline="") as fh:
             rows = list(csv.reader(fh))
         if len(rows) < 2:
@@ -241,7 +299,8 @@ class OSPCli:
         t_unit = _unit_in_brackets(header[t_idx])
         # concentration column: peripheral venous plasma, a concentration unit
         # (the target/victim molecule's, when a DDI run has several compounds)
-        c_idx = self._pick_conc_column(header, target_molecule)
+        c_idx = self._pick_conc_column(header, target_molecule,
+                                       require_molecule_match)
         if c_idx is None:
             return None
         c_unit = _unit_in_brackets(header[c_idx])
@@ -274,7 +333,8 @@ class OSPCli:
         return PredictedProfile(sim_name, study, route, dose, time_h, conc_mg_L)
 
     @staticmethod
-    def _pick_conc_column(header: list[str], target_molecule: str | None = None) -> int | None:
+    def _pick_conc_column(header: list[str], target_molecule: str | None = None,
+                          require_molecule_match: bool = False) -> int | None:
         conc_cols = []
         for i, h in enumerate(header):
             u = _unit_in_brackets(h)
@@ -293,6 +353,11 @@ class OSPCli:
             for i, h in conc_cols:
                 if tl in h.lower():
                     return i
+            # metabolite cascade: each molecule must match its OWN column; do NOT
+            # fall back to the parent's plasma (that would score every daughter
+            # against the parent). No name match -> this molecule isn't here.
+            if require_molecule_match:
+                return None
         # prefer peripheral venous plasma (matches observed clinical matrix)
         for i, h in conc_cols:
             hl = h.lower()
