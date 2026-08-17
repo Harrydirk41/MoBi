@@ -1,25 +1,29 @@
-r"""Run the RA QSP virtual population — the foundation for the virtual-trial agent.
+r"""Run the RA QSP virtual population and report the MODEL's OWN clinical readouts.
 
-Loads the model + a virtual-population .xlsx (Vpop1/Vpop2 from the Vantage repo),
-applies each patient's parameter set, simulates (optionally under a drug regimen),
-and reports the population clinical readouts (DAS28-CRP distribution, ACR20/50/70
-and remission RATES). Reproducing the paper's baseline DAS28 spread and the
-MTX/ADA/TCZ response rates is the "pipeline works" milestone before the agent loop.
+The Vantage RA model encodes the whole trial as events, so the response is read
+from the model, never recomputed:
+  * DAS28_BL captured at day 199, ACR20/ACR50/ACR70/Remission set at day 284
+    (first-line, week 12);
+  * for MTX-inadequate responders (MTX_NonResp==1), MTX_NonResp_TCZ_ACR20/50/70/Rem
+    set at day 600 (the second-line TCZ readout - the paper's held-out validation).
 
-    # quick check on 5 patients, no drug (baseline disease):
+Reproducing the paper's baseline DAS28 spread and the MTX/ADA/TCZ response RATES
+is the "pipeline works" milestone before wiring the agent loop on top.
+
+    # first-line MTX, quick check on 20 patients:
     python -m examples.run_ra_vpop --sbproj "C:\...\Vantage RA QSP Model v1.0.sbproj" ^
-        --vpop "C:\...\Vpop1.xlsx" --limit 5
+        --vpop "C:\...\Vpop1.xlsx" --dose MTX_15mg_Q1W_SC_t200 --limit 20
 
-    # full population under a TCZ regimen:
+    # full population, MTX first-line + TCZ (captures the second-line TCZ-in-MTX-IR
+    # flagship in the same run):
     python -m examples.run_ra_vpop --sbproj "...sbproj" --vpop "...Vpop1.xlsx" ^
-        --dose TCZ8mgkg_Q4W_IV_t200
+        --dose "MTX_15mg_Q1W_SC_t200;TCZ8mgkg_Q4W_IV_t200" --stop-time 700 --limit 300
 """
 
 from __future__ import annotations
 
 import argparse
 import os
-import statistics
 import sys
 import traceback
 
@@ -59,11 +63,12 @@ def _summ(xs):
             f"min={min(xs):.3f} max={max(xs):.3f}")
 
 
-def _rate(xs):
-    xs = [x for x in xs if isinstance(x, (int, float)) and x == x]
+def _rate(flags):
+    """Percent of finite flags that equal 1 (a model-set responder flag)."""
+    xs = _finite(flags)
     if not xs:
-        return "n/a"
-    return f"{100.0 * sum(1 for x in xs if x >= 0.5) / len(xs):.1f}% (of {len(xs)})"
+        return None, 0
+    return 100.0 * sum(1 for x in xs if x >= 0.5) / len(xs), len(xs)
 
 
 def main() -> None:
@@ -72,16 +77,17 @@ def main() -> None:
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--sbproj", required=True)
     ap.add_argument("--vpop", required=True, help="Vpop1.xlsx / Vpop2.xlsx")
-    ap.add_argument("--dose", default="", help="dose regimen name (default: baseline, no drug)")
-    ap.add_argument("--readout-time", type=float, default=0.0,
-                    help="absolute time (days) to read the endpoints (0 = sim end)")
-    ap.add_argument("--week", type=float, default=None,
-                    help="clinical week POST treatment-start (overrides --readout-time); "
-                         "readout day = tx-start + week*7")
-    ap.add_argument("--tx-start", type=float, default=200.0,
-                    help="day treatment starts (the _t200 doses begin at day 200)")
-    ap.add_argument("--limit", type=int, default=5,
-                    help="run only the first N patients (default 5; use 300 for the full Vpop)")
+    ap.add_argument("--dose", default="",
+                    help="dose name, or several joined by ';' (default: baseline, no drug)")
+    ap.add_argument("--stop-time", type=float, default=700.0,
+                    help="force sim end (days); needs >=601 to capture the second-line "
+                         "TCZ-in-MTX-IR readout (day 600)")
+    ap.add_argument("--baseline-day", type=float, default=200.0,
+                    help="day to report DAS28 baseline (treatment start; flags use day 199)")
+    ap.add_argument("--readout-day", type=float, default=284.0,
+                    help="day to report DAS28 first-line readout (week 12)")
+    ap.add_argument("--limit", type=int, default=20,
+                    help="run only the first N patients (default 20; use 300 for the full Vpop)")
     args = ap.parse_args()
 
     try:
@@ -96,39 +102,59 @@ def main() -> None:
         log("-> start engine"); sb.start(); log("<- engine started")
         log(f"-> load {args.sbproj}"); sb.load_project(args.sbproj); log("<- loaded")
 
-        lim = args.limit
-        bl_day = args.tx_start
-        week = args.week if args.week is not None else 12.0
-        rd_day = bl_day + week * 7.0
         label = args.dose or "PLACEBO (no drug)"
-        log(f"trial: {label}; baseline day {bl_day:g} (treatment start), "
-            f"readout week {week:g} = day {rd_day:g}")
+        log(f"trial: {label}; stop day {args.stop_time:g}; "
+            f"DAS28 baseline day {args.baseline_day:g}, first-line readout day {args.readout_day:g}")
 
-        log(f"-> run vpop, limit={lim} (each patient = one sim)...")
-        r = sb.run_vpop(args.vpop, dose=args.dose, baseline_day=bl_day,
-                        readout_day=rd_day, limit=lim)
+        log(f"-> run vpop, limit={args.limit} (each patient = one sim)...")
+        r = sb.run_vpop(args.vpop, dose=args.dose, stop_time=args.stop_time,
+                        baseline_day=args.baseline_day, readout_day=args.readout_day,
+                        limit=args.limit)
         ml = (r.get("matlab_log") or "").strip()
         if ml:
             log("   [MATLAB] " + ml.replace("\n", "\n   [MATLAB] "))
 
         base = _col(r, "DAS28_base")
         read = _col(r, "DAS28_read")
-        log(f"<- {len(base)} patients")
-        log(f"\nDAS28 at baseline (day {bl_day:g}): {_summ(base)}")
-        log(f"DAS28 at readout  (day {rd_day:g}): {_summ(read)}")
+        n = len(base)
+        log(f"<- {n} patients")
+        log(f"\nDAS28 baseline (day {args.baseline_day:g}): {_summ(base)}")
+        log(f"DAS28 first-line readout (day {args.readout_day:g}): {_summ(read)}")
 
-        # ACR = % DAS28 improvement from each patient's OWN baseline (model's def)
-        acrp = [100.0 * (b - t) / b for b, t in zip(base, read) if b and b > 0]
-        n = len(acrp)
-        log(f"\nresponse under {label}, n={n} "
-            f"(ACR = % DAS28 improvement from own baseline):")
-        if n:
-            for thr, name in ((20, "ACR20"), (50, "ACR50"), (70, "ACR70")):
-                log(f"   {name}: {100.0 * sum(1 for x in acrp if x >= thr) / n:.1f}%")
-            log(f"   mean DAS28 improvement: {sum(acrp) / n:.1f}%")
-            rem = 100.0 * sum(1 for x in read if x <= 2.6) / len(read)
-            low = 100.0 * sum(1 for x in read if x <= 3.2) / len(read)
-            log(f"   DAS28 remission (<=2.6): {rem:.1f}%   low activity (<=3.2): {low:.1f}%")
+        # ---- first-line response: read the model's OWN ACR/Remission flags ----
+        log(f"\nFIRST-LINE response under {label} (model-computed flags, day 284):")
+        for key, name in (("ACR20", "ACR20"), ("ACR50", "ACR50"),
+                          ("ACR70", "ACR70"), ("Rem", "Remission (DAS28<=2.6)")):
+            rate, k = _rate(_col(r, key))
+            log(f"   {name:<24}: " + (f"{rate:.1f}%  (of {k})" if rate is not None else "n/a"))
+
+        # ---- second-line: TCZ in MTX-inadequate responders (the flagship) ----
+        # use the RAW (row-aligned) columns so MTX_NonResp pairs with each TCZ flag
+        cols = r.get("columns") or {}
+        nonresp_raw = cols.get("MTX_NonResp", [])
+        def _isnr(v):
+            return isinstance(v, (int, float)) and v == v and v >= 0.5
+        n_ir = sum(1 for v in nonresp_raw if _isnr(v))
+        n_nr_finite = sum(1 for v in nonresp_raw
+                          if isinstance(v, (int, float)) and v == v)
+        log(f"\nSECOND-LINE (flagship) TCZ in MTX-non-responders "
+            f"(MTX_NonResp==1: {n_ir}/{n_nr_finite} patients):")
+        if n_ir == 0:
+            log("   (no MTX non-responders flagged - either no TCZ dose given, "
+                "sim ended before day 600, or the MTX arm resolved everyone)")
+        else:
+            def _among_ir(key):
+                col = cols.get(key, [])
+                vals = [v for v, nr in zip(col, nonresp_raw)
+                        if isinstance(v, (int, float)) and v == v and _isnr(nr)]
+                if not vals:
+                    return None, 0
+                return 100.0 * sum(1 for v in vals if v >= 0.5) / len(vals), len(vals)
+            for key, name in (("TCZ_ACR20", "ACR20"), ("TCZ_ACR50", "ACR50"),
+                              ("TCZ_ACR70", "ACR70"), ("TCZ_Rem", "Remission")):
+                rate, k = _among_ir(key)
+                log(f"   TCZ {name:<10}: " + (f"{rate:.1f}%  (of {k} MTX-IR)"
+                                              if rate is not None else "n/a"))
 
         log("\n=== VPOP RUN END (reached the end cleanly) ===")
     except Exception as exc:                            # noqa: BLE001
