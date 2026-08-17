@@ -114,19 +114,21 @@ class SimBiologyEngine:
         finally:
             _quiet_rm(out)
 
-    def run_vpop(self, vpop_xlsx: str, dose: str = "", readout_time: float = 0.0,
-                 limit: int = 0) -> dict[str, Any]:
-        """Run the whole virtual population (an .xlsx of patient parameter sets),
-        optionally under a named dose, and return per-patient clinical readouts
-        (DAS28_CRP, ACR20/50/70, Remission, Response). ``limit`` runs only the
-        first N patients (test fast before all 300). MATLAB reads the Excel and
-        writes the results CSV; only paths cross the boundary."""
+    def run_vpop(self, vpop_xlsx: str, dose: str = "", baseline_day: float = 200.0,
+                 readout_day: float = 284.0, limit: int = 0) -> dict[str, Any]:
+        """Run the whole virtual population (an .xlsx of patient parameter sets)
+        under an optional named dose, and return each patient's DAS28-CRP at the
+        treatment-start BASELINE day and at the READOUT day. The clinical response
+        (ACR = % DAS28 improvement from the patient's own baseline) is computed by
+        the caller. ``limit`` runs only the first N patients. MATLAB reads the
+        Excel and writes the results CSV; only paths cross the boundary."""
         import io
         out = _tmp(".csv")
         so = io.StringIO()
         try:
-            self.eng.sb_run_vpop(vpop_xlsx, dose or "", float(readout_time),
-                                 out, float(limit), nargout=0, stdout=so, stderr=so)
+            self.eng.sb_run_vpop(vpop_xlsx, dose or "", float(baseline_day),
+                                 float(readout_day), out, float(limit),
+                                 nargout=0, stdout=so, stderr=so)
             res = _read_csv(out)
             res["matlab_log"] = so.getvalue()
             return res

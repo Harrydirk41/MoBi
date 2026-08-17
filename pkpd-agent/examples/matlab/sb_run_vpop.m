@@ -1,9 +1,12 @@
-function nDone = sb_run_vpop(vpopXlsx, doseName, readoutTime, outCsv, nLimit)
+function nDone = sb_run_vpop(vpopXlsx, doseName, baselineDay, readoutDay, outCsv, nLimit)
 %SB_RUN_VPOP Run the loaded model across a virtual population (an .xlsx whose row
 %   1 is parameter names and each following row is one patient's parameter set),
-%   optionally under a named dose, and write the clinical readouts per patient to
-%   outCsv. MATLAB reads the Excel and writes the CSV, so no arrays cross to
-%   Python. nLimit>0 runs only the first nLimit patients (use a few to test fast).
+%   optionally under a named dose, and write per-patient DAS28-CRP at the
+%   treatment-start BASELINE day and at the READOUT day. The clinical response
+%   (ACR20/50/70 = % DAS28 improvement from that patient's own baseline) is
+%   computed in Python - this matches the model's own DAS28_BL definition and
+%   needs only one arm. MATLAB reads the Excel and writes the CSV (no arrays cross
+%   to Python). nLimit>0 runs only the first nLimit patients.
 
     nDone = 0;
     m  = evalin('base', 'sbmodel');
@@ -22,16 +25,15 @@ function nDone = sb_run_vpop(vpopXlsx, doseName, readoutTime, outCsv, nLimit)
     if nLimit > 0
         nP = min(nP, nLimit);
     end
-    fprintf('vpop: %d patients x %d parameters\n', nP, nCols);
+    fprintf('vpop: %d patients x %d parameters; baseline day %g, readout day %g\n', ...
+            nP, nCols, baselineDay, readoutDay);
 
-    % resolve each parameter/species once (validate names, cache type)
     types   = cell(1, nCols);
     missing = {};
     for j = 1:nCols
         obj = sbioselect(m, 'Name', names{j});
         if isempty(obj)
-            types{j} = '';
-            missing{end+1} = names{j}; %#ok<AGROW>
+            types{j} = ''; missing{end+1} = names{j}; %#ok<AGROW>
         elseif isa(obj(1), 'SimBiology.Species')
             types{j} = 'species';
         else
@@ -47,21 +49,16 @@ function nDone = sb_run_vpop(vpopXlsx, doseName, readoutTime, outCsv, nLimit)
     if ~isempty(doseName)
         d = getdose(m, doseName);
     end
-    % DAS28_CRP + DAS28_BL + ACR_Perc are continuous states; ACR20/50/70 are
-    % event-set flags (unreliable at an arbitrary read time) - we threshold
-    % ACR_Perc ourselves in Python, but log the flags too for comparison.
-    readouts = {'DAS28_CRP', 'DAS28_BL', 'ACR_Perc', ...
-                'ACR20', 'ACR50', 'ACR70', 'Remission', 'Response'};
 
     fid = fopen(outCsv, 'w', 'n', 'UTF-8');
-    fprintf(fid, 'patient,%s\n', strjoin(readouts, ','));
+    fprintf(fid, 'patient,DAS28_base,DAS28_read\n');
 
     for i = 1:nP
         rowvals = raw(i + 1, keep);
         content = {};
         for j = 1:nCols
             if isempty(types{j}) || ~isnumeric(rowvals{j})
-                continue;                       % skip unmatched / non-numeric
+                continue;
             end
             if strcmp(types{j}, 'species')
                 content{end+1} = {'species', names{j}, 'InitialAmount', rowvals{j}}; %#ok<AGROW>
@@ -78,28 +75,16 @@ function nDone = sb_run_vpop(vpopXlsx, doseName, readoutTime, outCsv, nLimit)
             fprintf('patient %d sim FAILED: %s\n', i, ME.message);
             continue;
         end
-
-        vals = nan(1, numel(readouts));
-        for k = 1:numel(readouts)
-            try
-                dd = selectbyname(sd, readouts{k});
-                y  = dd.Data;
-                if readoutTime > 0
-                    % nearest time point - robust to the DUPLICATE timestamps
-                    % SimBiology inserts at each dose event (interp1 errors on
-                    % non-unique sample points).
-                    [~, idx] = min(abs(sd.Time - readoutTime));
-                    vals(k) = y(idx);
-                else
-                    vals(k) = y(end);
-                end
-            catch
-                vals(k) = NaN;
-            end
+        try
+            y = selectbyname(sd, 'DAS28_CRP').Data;
+            [~, ib] = min(abs(sd.Time - baselineDay));   % nearest time (dose events
+            [~, ir] = min(abs(sd.Time - readoutDay));    % create duplicate stamps)
+            fprintf(fid, '%d,%g,%g\n', i, y(ib), y(ir));
+            nDone = i;
+        catch ME
+            fprintf('patient %d readout FAILED: %s\n', i, ME.message);
         end
-        fprintf(fid, '%d,%s\n', i, strjoin(cellstr(compose('%g', vals)), ','));
-        nDone = i;
     end
     fclose(fid);
-    fprintf('done: %d patients written to CSV\n', nDone);
+    fprintf('done: %d patients written\n', nDone);
 end

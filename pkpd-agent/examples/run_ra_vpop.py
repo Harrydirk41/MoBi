@@ -97,47 +97,38 @@ def main() -> None:
         log(f"-> load {args.sbproj}"); sb.load_project(args.sbproj); log("<- loaded")
 
         lim = args.limit
-        if args.week is not None:
-            rt = args.tx_start + args.week * 7.0
-            log(f"readout: week {args.week:g} post-treatment-start (tx day "
-                f"{args.tx_start:g}) = day {rt:g}")
-        else:
-            rt = args.readout_time
+        bl_day = args.tx_start
+        week = args.week if args.week is not None else 12.0
+        rd_day = bl_day + week * 7.0
+        label = args.dose or "PLACEBO (no drug)"
+        log(f"trial: {label}; baseline day {bl_day:g} (treatment start), "
+            f"readout week {week:g} = day {rd_day:g}")
 
-        def _do(dose, tag):
-            log(f"-> run vpop, {tag}, limit={lim} (each patient = one sim)...")
-            r = sb.run_vpop(args.vpop, dose=dose, readout_time=rt, limit=lim)
-            ml = (r.get("matlab_log") or "").strip()
-            if ml:
-                log("   [MATLAB] " + ml.replace("\n", "\n   [MATLAB] "))
-            log(f"<- {len(_col(r, 'patient'))} patients")
-            return r
+        log(f"-> run vpop, limit={lim} (each patient = one sim)...")
+        r = sb.run_vpop(args.vpop, dose=args.dose, baseline_day=bl_day,
+                        readout_day=rd_day, limit=lim)
+        ml = (r.get("matlab_log") or "").strip()
+        if ml:
+            log("   [MATLAB] " + ml.replace("\n", "\n   [MATLAB] "))
 
-        if not args.dose:
-            base = _do("", "BASELINE (no drug)")
-            log(f"\nbaseline DAS28_CRP: {_summ(_col(base, 'DAS28_CRP'))}")
-            log("(no drug -> nothing to score; run with --dose for a trial)")
-        else:
-            # the model's DAS28_BL event doesn't fire in a plain dose run, so we
-            # define the reference OURSELVES: an untreated arm at the same readout
-            # time, paired per patient. ACR_Perc = % DAS28 reduction vs untreated.
-            base = _do("", "BASELINE arm (no drug)")
-            drug = _do(args.dose, f"TREATED arm ({args.dose})")
-            bd, dd = _col(base, "DAS28_CRP"), _col(drug, "DAS28_CRP")
-            log(f"\nDAS28_CRP  untreated: {_summ(bd)}")
-            log(f"DAS28_CRP  {args.dose}: {_summ(dd)}")
+        base = _col(r, "DAS28_base")
+        read = _col(r, "DAS28_read")
+        log(f"<- {len(base)} patients")
+        log(f"\nDAS28 at baseline (day {bl_day:g}): {_summ(base)}")
+        log(f"DAS28 at readout  (day {rd_day:g}): {_summ(read)}")
 
-            acrp = [100.0 * (b - t) / b for b, t in zip(bd, dd) if b and b > 0]
-            n = len(acrp)
-            log(f"\nresponse @ day {rt:g} (paired vs untreated, "
-                f"ACR_Perc = 100*(untreated-treated)/untreated), n={n}:")
-            if n:
-                for thr, name in ((20, "ACR20"), (50, "ACR50"), (70, "ACR70")):
-                    log(f"   {name}: {100.0 * sum(1 for x in acrp if x >= thr) / n:.1f}%")
-                log(f"   mean DAS28 improvement: {sum(acrp)/n:.1f}%")
-                rem = 100.0 * sum(1 for x in dd if x <= 2.6) / len(dd)
-                low = 100.0 * sum(1 for x in dd if x <= 3.2) / len(dd)
-                log(f"   DAS28 remission (<=2.6): {rem:.1f}%   low activity (<=3.2): {low:.1f}%")
+        # ACR = % DAS28 improvement from each patient's OWN baseline (model's def)
+        acrp = [100.0 * (b - t) / b for b, t in zip(base, read) if b and b > 0]
+        n = len(acrp)
+        log(f"\nresponse under {label}, n={n} "
+            f"(ACR = % DAS28 improvement from own baseline):")
+        if n:
+            for thr, name in ((20, "ACR20"), (50, "ACR50"), (70, "ACR70")):
+                log(f"   {name}: {100.0 * sum(1 for x in acrp if x >= thr) / n:.1f}%")
+            log(f"   mean DAS28 improvement: {sum(acrp) / n:.1f}%")
+            rem = 100.0 * sum(1 for x in read if x <= 2.6) / len(read)
+            low = 100.0 * sum(1 for x in read if x <= 3.2) / len(read)
+            log(f"   DAS28 remission (<=2.6): {rem:.1f}%   low activity (<=3.2): {low:.1f}%")
 
         log("\n=== VPOP RUN END (reached the end cleanly) ===")
     except Exception as exc:                            # noqa: BLE001
