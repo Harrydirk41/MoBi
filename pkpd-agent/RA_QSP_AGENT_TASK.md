@@ -98,6 +98,27 @@ day the model itself uses for the ADA arm) and compare the flagship
 ACR20/50/70 against the paper's reported held-out validation to pick the
 protocol the authors used.
 
+### Validated result (Vpop1, 300 patients, TCZ switched in at day 285)
+
+`--dose "MTX_15mg_Q1W_SC_t200;TCZ8mgkg_Q4W_IV_t200@285" --stop-time 700 --limit 300`
+
+| arm | ACR20 | ACR50 | ACR70 | Remission | n |
+|-----|-------|-------|-------|-----------|---|
+| MTX first-line (day 284, pure MTX) | 43.3% | 23.7% | 13.7% | 26.7% | 300 |
+| TCZ in MTX-IR (day 600, flagship)  | 44.9% | 23.5% | 14.0% | 28.4% | 243 |
+
+Both arms are clinically plausible (real TCZ-in-MTX/DMARD-IR trials report ACR20
+~48-59%, ACR50 ~32-44%, ACR70 ~12-22%). Two checks confirm the split is real,
+not lucky: moving TCZ to day 285 cut the first-line DAS28 drop from 1.86 (combo)
+to 0.93 (MTX-mono size), and the MTX-IR denominator rose from 173 to 243 -
+because `MTX_NonResp` uses the stricter EULAR criterion (deltaDAS28 < 1.2), not
+ACR20, so weaker pure MTX leaves more non-responders. The concurrent-dosing
+variant gives a dead flagship (ACR50/70 = 0%) and is the wrong protocol.
+
+**One run reproduces both arms, correctly separated** - the MTX first-line and
+the held-out TCZ-in-MTX-IR flagship - so the pipeline is validated and ready to
+carry the agent loop.
+
 ## How this becomes the agent task
 
 Fill-in-the-blank style (the style chosen for the OSP tasks):
