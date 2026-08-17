@@ -95,8 +95,25 @@ def main() -> None:
 
         log(f"population clinical readouts under {label}:")
         log(f"   DAS28_CRP : {_summ(_col(res, 'DAS28_CRP'))}")
+        log(f"   DAS28_BL  : {_summ(_col(res, 'DAS28_BL'))}")
+        log(f"   ACR_Perc  : {_summ(_col(res, 'ACR_Perc'))}   (% DAS28 improvement)")
+
+        # RESPONSE from the model's own definition: ACR_Perc thresholds + DAS28
+        # remission. This is robust to the event-set ACR flags reading 0.
+        acrp = _col(res, "ACR_Perc")
+        das = _col(res, "DAS28_CRP")
+        n = len(acrp)
+        if n:
+            log("\n   response rates (thresholding ACR_Perc = % DAS28 improvement):")
+            for thr, name in ((20, "ACR20"), (50, "ACR50"), (70, "ACR70")):
+                rate = 100.0 * sum(1 for x in acrp if x >= thr) / n
+                log(f"      {name}: {rate:.1f}%")
+            rem = 100.0 * sum(1 for x in das if x <= 2.6) / len(das) if das else 0.0
+            low = 100.0 * sum(1 for x in das if x <= 3.2) / len(das) if das else 0.0
+            log(f"      DAS28 remission (<=2.6): {rem:.1f}%    low activity (<=3.2): {low:.1f}%")
+        log("\n   (model's event-set flags, for comparison - expected unreliable:)")
         for r in ("ACR20", "ACR50", "ACR70", "Remission", "Response"):
-            log(f"   {r:9} response rate: {_rate(_col(res, r))}")
+            log(f"      {r:9} state rate: {_rate(_col(res, r))}")
 
         log("\n=== VPOP RUN END (reached the end cleanly) ===")
     except Exception as exc:                            # noqa: BLE001

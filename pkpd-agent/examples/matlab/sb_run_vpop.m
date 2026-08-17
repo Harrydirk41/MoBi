@@ -47,7 +47,11 @@ function nDone = sb_run_vpop(vpopXlsx, doseName, readoutTime, outCsv, nLimit)
     if ~isempty(doseName)
         d = getdose(m, doseName);
     end
-    readouts = {'DAS28_CRP', 'ACR20', 'ACR50', 'ACR70', 'Remission', 'Response'};
+    % DAS28_CRP + DAS28_BL + ACR_Perc are continuous states; ACR20/50/70 are
+    % event-set flags (unreliable at an arbitrary read time) - we threshold
+    % ACR_Perc ourselves in Python, but log the flags too for comparison.
+    readouts = {'DAS28_CRP', 'DAS28_BL', 'ACR_Perc', ...
+                'ACR20', 'ACR50', 'ACR70', 'Remission', 'Response'};
 
     fid = fopen(outCsv, 'w', 'n', 'UTF-8');
     fprintf(fid, 'patient,%s\n', strjoin(readouts, ','));
