@@ -41,12 +41,22 @@ def _col(res, name):
     return [v for v in (res.get("columns") or {}).get(name, []) if isinstance(v, (int, float))]
 
 
+_INF = (float("inf"), float("-inf"))
+
+
+def _finite(xs):
+    return [x for x in xs
+            if isinstance(x, (int, float)) and x == x and x not in _INF]
+
+
 def _summ(xs):
-    xs = [x for x in xs if isinstance(x, (int, float)) and x == x]
+    xs = _finite(xs)
     if not xs:
         return "n/a"
-    return (f"n={len(xs)} mean={statistics.mean(xs):.3f} "
-            f"sd={statistics.pstdev(xs):.3f} min={min(xs):.3f} max={max(xs):.3f}")
+    m = sum(xs) / len(xs)
+    sd = (sum((x - m) ** 2 for x in xs) / len(xs)) ** 0.5
+    return (f"n={len(xs)} mean={m:.3f} sd={sd:.3f} "
+            f"min={min(xs):.3f} max={max(xs):.3f}")
 
 
 def _rate(xs):
@@ -81,39 +91,42 @@ def main() -> None:
         log("-> start engine"); sb.start(); log("<- engine started")
         log(f"-> load {args.sbproj}"); sb.load_project(args.sbproj); log("<- loaded")
 
-        label = args.dose or "BASELINE (no drug)"
-        log(f"-> run vpop '{os.path.basename(args.vpop)}' under {label}, "
-            f"limit={args.limit} (each patient is one simulation)...")
-        res = sb.run_vpop(args.vpop, dose=args.dose,
-                          readout_time=args.readout_time, limit=args.limit)
-        mlog = (res.get("matlab_log") or "").strip()
-        if mlog:
-            log("   [MATLAB] " + mlog.replace("\n", "\n   [MATLAB] "))
+        rt, lim = args.readout_time, args.limit
 
-        pts = _col(res, "patient")
-        log(f"<- {len(pts)} patients returned\n")
+        def _do(dose, tag):
+            log(f"-> run vpop, {tag}, limit={lim} (each patient = one sim)...")
+            r = sb.run_vpop(args.vpop, dose=dose, readout_time=rt, limit=lim)
+            ml = (r.get("matlab_log") or "").strip()
+            if ml:
+                log("   [MATLAB] " + ml.replace("\n", "\n   [MATLAB] "))
+            log(f"<- {len(_col(r, 'patient'))} patients")
+            return r
 
-        log(f"population clinical readouts under {label}:")
-        log(f"   DAS28_CRP : {_summ(_col(res, 'DAS28_CRP'))}")
-        log(f"   DAS28_BL  : {_summ(_col(res, 'DAS28_BL'))}")
-        log(f"   ACR_Perc  : {_summ(_col(res, 'ACR_Perc'))}   (% DAS28 improvement)")
+        if not args.dose:
+            base = _do("", "BASELINE (no drug)")
+            log(f"\nbaseline DAS28_CRP: {_summ(_col(base, 'DAS28_CRP'))}")
+            log("(no drug -> nothing to score; run with --dose for a trial)")
+        else:
+            # the model's DAS28_BL event doesn't fire in a plain dose run, so we
+            # define the reference OURSELVES: an untreated arm at the same readout
+            # time, paired per patient. ACR_Perc = % DAS28 reduction vs untreated.
+            base = _do("", "BASELINE arm (no drug)")
+            drug = _do(args.dose, f"TREATED arm ({args.dose})")
+            bd, dd = _col(base, "DAS28_CRP"), _col(drug, "DAS28_CRP")
+            log(f"\nDAS28_CRP  untreated: {_summ(bd)}")
+            log(f"DAS28_CRP  {args.dose}: {_summ(dd)}")
 
-        # RESPONSE from the model's own definition: ACR_Perc thresholds + DAS28
-        # remission. This is robust to the event-set ACR flags reading 0.
-        acrp = _col(res, "ACR_Perc")
-        das = _col(res, "DAS28_CRP")
-        n = len(acrp)
-        if n:
-            log("\n   response rates (thresholding ACR_Perc = % DAS28 improvement):")
-            for thr, name in ((20, "ACR20"), (50, "ACR50"), (70, "ACR70")):
-                rate = 100.0 * sum(1 for x in acrp if x >= thr) / n
-                log(f"      {name}: {rate:.1f}%")
-            rem = 100.0 * sum(1 for x in das if x <= 2.6) / len(das) if das else 0.0
-            low = 100.0 * sum(1 for x in das if x <= 3.2) / len(das) if das else 0.0
-            log(f"      DAS28 remission (<=2.6): {rem:.1f}%    low activity (<=3.2): {low:.1f}%")
-        log("\n   (model's event-set flags, for comparison - expected unreliable:)")
-        for r in ("ACR20", "ACR50", "ACR70", "Remission", "Response"):
-            log(f"      {r:9} state rate: {_rate(_col(res, r))}")
+            acrp = [100.0 * (b - t) / b for b, t in zip(bd, dd) if b and b > 0]
+            n = len(acrp)
+            log(f"\nresponse @ day {rt:g} (paired vs untreated, "
+                f"ACR_Perc = 100*(untreated-treated)/untreated), n={n}:")
+            if n:
+                for thr, name in ((20, "ACR20"), (50, "ACR50"), (70, "ACR70")):
+                    log(f"   {name}: {100.0 * sum(1 for x in acrp if x >= thr) / n:.1f}%")
+                log(f"   mean DAS28 improvement: {sum(acrp)/n:.1f}%")
+                rem = 100.0 * sum(1 for x in dd if x <= 2.6) / len(dd)
+                low = 100.0 * sum(1 for x in dd if x <= 3.2) / len(dd)
+                log(f"   DAS28 remission (<=2.6): {rem:.1f}%   low activity (<=3.2): {low:.1f}%")
 
         log("\n=== VPOP RUN END (reached the end cleanly) ===")
     except Exception as exc:                            # noqa: BLE001
