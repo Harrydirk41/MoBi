@@ -81,7 +81,11 @@ function nDone = sb_run_vpop(vpopXlsx, doseName, readoutTime, outCsv, nLimit)
                 dd = selectbyname(sd, readouts{k});
                 y  = dd.Data;
                 if readoutTime > 0
-                    vals(k) = interp1(sd.Time, y, readoutTime, 'linear', y(end));
+                    % nearest time point - robust to the DUPLICATE timestamps
+                    % SimBiology inserts at each dose event (interp1 errors on
+                    % non-unique sample points).
+                    [~, idx] = min(abs(sd.Time - readoutTime));
+                    vals(k) = y(idx);
                 else
                     vals(k) = y(end);
                 end
