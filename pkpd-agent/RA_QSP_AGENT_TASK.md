@@ -135,3 +135,43 @@ The agent's decision loop is the same shape as the OSP loop — inspect the mode
 and available regimens, choose a protocol, run, evaluate the population readout,
 and stop when the prediction is both close to the target and mechanistically
 sensible (right drug, right line of therapy, plausible dose).
+
+## The agent loop (implemented)
+
+Same three pieces as the OSP DDI loop:
+
+* `pkpd_agent/engines/osp_ra_trial.py` — pure-Python: `summarize_run` (a Vpop CSV
+  → first-line and second-line response rates), `build_dose_spec` (the
+  `name@switch_day` sequential-switch string), `score_flagship` (predicted vs
+  held-out, MAE in percentage points), and `DRUG_CATALOG` (the formulary with
+  mechanisms).
+* `pkpd_agent/tools/ra_trial_loop_tools.py` — `ra_inspect` (observe: disease,
+  timeline, formulary, calibrated reference arms, the held-out objective) and
+  `ra_run_trial` (act: apply a `{first_line, second_line, switch_day}` protocol,
+  run the Vpop, return the model's response rates). The held-out target is **not**
+  exposed to the agent.
+* `examples/run_llm_ra_trial.py` — wires the SimBiology engine + tools + the LLM
+  policy, then scores the agent's final protocol against the held-out truth.
+
+```
+set ANTHROPIC_API_KEY=...
+python -m examples.run_llm_ra_trial ^
+    --sbproj "..\RA-QSP-Model\Vantage RA QSP Model v1.0.sbproj" ^
+    --vpop   "..\RA-QSP-Model\Vpop1.xlsx" --limit 50 --max-steps 8
+```
+
+The agent is told the disease, the timeline, the formulary (MTX + adalimumab /
+tocilizumab / secukinumab / anakinra, each with its mechanism) and the calibrated
+MTX first-line rates — but **not** which second-line drug to use, nor the held-out
+answer. A correct run: validate the harness on first-line MTX, reason that
+MTX-inadequate responders need a mechanistically distinct biologic switched in
+after day 284, run `MTX_15mg_Q1W_SC_t200` + `TCZ8mgkg_Q4W_IV_t200@285`, and predict
+ACR20 ~45% / ACR50 ~24% / ACR70 ~14%. Choosing concurrent dosing, or a
+TNF/IL-17/IL-1 agent instead of the IL-6 blocker, moves the prediction away from
+the held-out truth and raises the MAE. Keep `--limit` modest (50) during the loop —
+each `ra_run_trial` simulates the whole subsampled population — then confirm the
+winning protocol at `--limit 300` with `examples.run_ra_vpop`.
+
+Scoring targets default to the validated model output (ACR20 44.9 / ACR50 23.5 /
+ACR70 14.0); pass `--target-acr20/50/70` to score against the paper's reported
+held-out numbers once you have them.
