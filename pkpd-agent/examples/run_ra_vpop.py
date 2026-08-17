@@ -74,7 +74,12 @@ def main() -> None:
     ap.add_argument("--vpop", required=True, help="Vpop1.xlsx / Vpop2.xlsx")
     ap.add_argument("--dose", default="", help="dose regimen name (default: baseline, no drug)")
     ap.add_argument("--readout-time", type=float, default=0.0,
-                    help="time at which to read the clinical endpoints (0 = sim end)")
+                    help="absolute time (days) to read the endpoints (0 = sim end)")
+    ap.add_argument("--week", type=float, default=None,
+                    help="clinical week POST treatment-start (overrides --readout-time); "
+                         "readout day = tx-start + week*7")
+    ap.add_argument("--tx-start", type=float, default=200.0,
+                    help="day treatment starts (the _t200 doses begin at day 200)")
     ap.add_argument("--limit", type=int, default=5,
                     help="run only the first N patients (default 5; use 300 for the full Vpop)")
     args = ap.parse_args()
@@ -91,7 +96,13 @@ def main() -> None:
         log("-> start engine"); sb.start(); log("<- engine started")
         log(f"-> load {args.sbproj}"); sb.load_project(args.sbproj); log("<- loaded")
 
-        rt, lim = args.readout_time, args.limit
+        lim = args.limit
+        if args.week is not None:
+            rt = args.tx_start + args.week * 7.0
+            log(f"readout: week {args.week:g} post-treatment-start (tx day "
+                f"{args.tx_start:g}) = day {rt:g}")
+        else:
+            rt = args.readout_time
 
         def _do(dose, tag):
             log(f"-> run vpop, {tag}, limit={lim} (each patient = one sim)...")
