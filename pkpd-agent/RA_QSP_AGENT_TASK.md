@@ -66,17 +66,37 @@ The runner prints:
 (`local_lastval`), so a run under a dose set that never triggers a given flag
 just reports `n/a` for it rather than failing.
 
-## Open question for the domain expert (SimBiology GUI)
+## Dose timing (decoded from the HDF5) and the sequential switch
 
-The one thing the HDF5 does **not** reveal (SimBiology serializes dose
-`StartTime`/`Interval`/`RepeatCount` in a binary MCOS form, not as ASCII) is the
-exact **second-line TCZ schedule**: is TCZ added *concurrently* from day 200 on
-a background of MTX (the standard TCZ-in-MTX-IR add-on design), or *switched in*
-sequentially at a later start (paralleling `Ada40mg_t564`)? Both are consistent
-with the day-600 readout gate. Confirm from the model's saved analysis tasks
-(`task1/2/3.mat` in the project) or the dose objects' `StartTime` in the GUI,
-then set `--dose` to the matching combination. The runner already accepts any
-`;`-joined dose set, so no code change is needed once the schedule is known.
+Dumping the float64 scalars out of `simbiodata.mat` recovers the dose start
+times even though SimBiology stores them in binary MCOS form: **13 doses start
+at day 200** (every `_t200` name, including `TCZ8mgkg_Q4W_IV_t200`), exactly one
+(`Ada40mg_t564`) starts at day 564, and `600` is the second-line readout gate.
+So the shipped TCZ dose is **concurrent from day 200** — there is no late-start
+TCZ dose in the project.
+
+That concurrency is why applying `MTX_15mg_Q1W_SC_t200;TCZ8mgkg_Q4W_IV_t200`
+gives a dead second-line arm (in a 300-patient run: first-line ACR20 43% /
+remission 27% look right, but the flagship comes back ACR20 23%, ACR50/70 0%).
+With both drugs from day 200, the `MTX_NonResp==1` patients are people who
+failed the *combination* — the refractory tail — so there is no additional drug
+to rescue them at day 600.
+
+The fix is a **sequential switch**: give MTX from day 200 but start TCZ *after*
+the day-284 first-line readout, so `MTX_NonResp` is a clean pure-MTX
+classification and TCZ then acts on those non-responders through day 600. The
+runner builds this with a `name@START` suffix that clones the dose with an
+overridden `StartTime`:
+
+```
+python -m examples.run_ra_vpop --sbproj "...sbproj" --vpop "...Vpop1.xlsx" \
+    --dose "MTX_15mg_Q1W_SC_t200;TCZ8mgkg_Q4W_IV_t200@285" --stop-time 700 --limit 300
+```
+
+Sweep the TCZ switch day (285 = immediately after first-line; 564 = the switch
+day the model itself uses for the ADA arm) and compare the flagship
+ACR20/50/70 against the paper's reported held-out validation to pick the
+protocol the authors used.
 
 ## How this becomes the agent task
 

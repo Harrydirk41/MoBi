@@ -60,19 +60,40 @@ function nDone = sb_run_vpop(vpopXlsx, doseNames, stopTime, baselineDay, readout
                 numel(missing), strjoin(missing(1:min(6, end)), ', '));
     end
 
-    % assemble the dose array (';'-separated names)
+    % assemble the dose array (';'-separated names). A "name@START" suffix clones
+    % the dose with an overridden StartTime (days) - this builds a SEQUENTIAL
+    % switch the model does not ship: e.g. give MTX from day 200 but start TCZ
+    % after the day-284 first-line readout, so MTX_NonResp is a clean pure-MTX
+    % classification and TCZ then rescues those non-responders through day 600.
     d = [];
     if ~isempty(doseNames)
         parts = strsplit(string(doseNames), ';');
         for k = 1:numel(parts)
-            nm = strtrim(char(parts(k)));
-            if isempty(nm), continue; end
+            spec = strtrim(char(parts(k)));
+            if isempty(spec), continue; end
+            startOverride = NaN;
+            at = strfind(spec, '@');
+            if ~isempty(at)
+                nm = strtrim(spec(1:at(1)-1));
+                startOverride = str2double(spec(at(1)+1:end));
+            else
+                nm = spec;
+            end
             dk = getdose(m, nm);
             if isempty(dk)
                 fprintf('WARNING: dose "%s" not found - skipped\n', nm);
-            else
-                d = [d, dk]; %#ok<AGROW>
+                continue;
             end
+            if ~isnan(startOverride)
+                dk = copyobj(dk);                 % detached copy we can retime
+                try
+                    dk.StartTime = startOverride;
+                    fprintf('dose "%s" retimed to StartTime=%g\n', nm, startOverride);
+                catch ME
+                    fprintf('WARNING: could not retime "%s": %s\n', nm, ME.message);
+                end
+            end
+            d = [d, dk]; %#ok<AGROW>
         end
     end
 

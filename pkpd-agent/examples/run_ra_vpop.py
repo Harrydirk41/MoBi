@@ -78,7 +78,10 @@ def main() -> None:
     ap.add_argument("--sbproj", required=True)
     ap.add_argument("--vpop", required=True, help="Vpop1.xlsx / Vpop2.xlsx")
     ap.add_argument("--dose", default="",
-                    help="dose name, or several joined by ';' (default: baseline, no drug)")
+                    help="dose name, or several joined by ';' (default: baseline, no drug). "
+                         "A 'name@START' suffix retimes that dose's StartTime (days), e.g. "
+                         "'MTX_15mg_Q1W_SC_t200;TCZ8mgkg_Q4W_IV_t200@285' gives MTX from day "
+                         "200 and switches TCZ in at day 285 (the sequential MTX-then-TCZ trial)")
     ap.add_argument("--stop-time", type=float, default=700.0,
                     help="force sim end (days); needs >=601 to capture the second-line "
                          "TCZ-in-MTX-IR readout (day 600)")
