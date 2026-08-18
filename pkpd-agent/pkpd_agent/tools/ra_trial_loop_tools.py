@@ -127,6 +127,32 @@ def register_ra_trial_loop_tools(registry: ToolRegistry, config, ctx: dict) -> N
             iteration=len(hist),
         )
 
+    # -- evaluate (commit the chosen protocol as the answer to be scored) ---- #
+    def finalize(args: dict, session) -> ToolResult:
+        first = args.get("first_line") or []
+        second = args.get("second_line") or []
+        switch = args.get("switch_day")
+        spec = osp_ra_trial.build_dose_spec(
+            first, second, float(switch) if switch is not None else None)
+        hist = session.get("ra_history") or []
+        match = next((h for h in reversed(hist) if h.get("protocol") == spec), None)
+        if match is None:
+            return ToolResult.error(
+                f"protocol '{spec}' has not been run - call ra_run_trial with it "
+                "first, then finalize the exact same protocol.")
+        sl = match["second_line"] or {}
+        if not sl.get("n_MTX_IR"):
+            return ToolResult.error(
+                f"protocol '{spec}' has an empty MTX-IR arm - finalize a protocol "
+                "that gives MTX first-line and a second-line drug switched in, so "
+                "there is a second-line response to report.")
+        session.put("ra_final", match)
+        return ToolResult.success(
+            f"committed final answer: protocol '{spec}', predicted second-line "
+            f"(MTX-IR n={sl.get('n_MTX_IR')}) ACR20 {sl.get('ACR20')}% "
+            f"ACR50 {sl.get('ACR50')}% ACR70 {sl.get('ACR70')}%",
+            protocol=spec, second_line=sl)
+
     registry.register(Tool(
         name="ra_inspect",
         description=(
@@ -161,3 +187,18 @@ def register_ra_trial_loop_tools(registry: ToolRegistry, config, ctx: dict) -> N
             "switch_day": {"type": "number",
                            "description": "day the second_line starts (e.g. 285)"}}},
         handler=run_trial, phase="act"))
+
+    registry.register(Tool(
+        name="ra_finalize",
+        description=(
+            "COMMIT your final answer: the protocol you are predicting with (same "
+            "first_line / second_line / switch_day you passed to ra_run_trial). Call "
+            "this once, on the protocol you actually recommend, BEFORE finishing - "
+            "it is the run that gets scored, so do not leave your answer as whatever "
+            "control or dose-response check you happened to run last. The protocol "
+            "must already have been run and have a non-empty MTX-IR arm."),
+        input_schema={"type": "object", "properties": {
+            "first_line": {"type": "array", "items": {"type": "string"}},
+            "second_line": {"type": "array", "items": {"type": "string"}},
+            "switch_day": {"type": "number"}}},
+        handler=finalize, phase="evaluate"))

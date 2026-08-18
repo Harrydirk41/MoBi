@@ -70,6 +70,11 @@ def _system_prompt() -> str:
         "(give MTX first-line, switch the biologic in later) and re-run.\n"
         "ENGINE/EMPTY-ARM RESULTS ARE FAILURES: if a run warns the second-line arm "
         "is empty, the protocol is wrong - fix it and re-run; do not finish on it.\n"
+        "6. COMMIT: call ra_finalize with the protocol you actually recommend. This "
+        "is the run that gets scored - if you ran controls or dose-response checks "
+        "afterwards, ra_finalize makes sure your ANSWER is scored, not the last "
+        "thing you happened to run. Finalize the therapy+dose you would give a "
+        "patient, then finish.\n"
         "Finish with: the therapy you chose and WHY (mechanism), the protocol "
         "(doses + switch day), and your predicted second-line ACR20/50/70."
     )
@@ -155,12 +160,19 @@ def main() -> None:
 
         session = loop.run(goal, ModelingSession(goal=goal), on_event=show)
 
-        # score the agent's final protocol (last run with a non-empty MTX-IR arm)
-        hist = session.get("ra_history") or []
-        final = next((h for h in reversed(hist)
-                      if (h.get("second_line") or {}).get("n_MTX_IR", 0) > 0), None)
+        # score the agent's COMMITTED protocol (ra_finalize); fall back to the last
+        # non-empty run only if it never finalized (and say so).
+        final = session.get("ra_final")
+        committed = final is not None
+        if final is None:
+            hist = session.get("ra_history") or []
+            final = next((h for h in reversed(hist)
+                          if (h.get("second_line") or {}).get("n_MTX_IR", 0) > 0), None)
         print("\n== SCORING vs held-out truth ==")
         print(f"held-out target (second-line, MTX-IR): {target}")
+        if not committed:
+            print("[warn] agent did not call ra_finalize - scoring its last "
+                  "non-empty run, which may be a control rather than its answer.")
         if not final:
             print("no scorable protocol run (the agent never produced a non-empty "
                   "second-line arm).")

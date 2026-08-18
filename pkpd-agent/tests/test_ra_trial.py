@@ -115,6 +115,51 @@ class TestLoopToolRegistration(unittest.TestCase):
         res = reg.dispatch("ra_run_trial", {}, _FakeSession())
         self.assertFalse(res.ok)
 
+    def test_finalize_registered(self):
+        reg = ToolRegistry()
+        register_ra_trial_loop_tools(reg, None, {
+            "sb": None, "vpop": "V.xlsx", "calibrated_arms": []})
+        self.assertIn("ra_finalize", reg)
+
+    def test_finalize_rejects_unrun_protocol(self):
+        reg = ToolRegistry()
+        register_ra_trial_loop_tools(reg, None, {
+            "sb": None, "vpop": "V.xlsx", "calibrated_arms": []})
+        res = reg.dispatch("ra_finalize", {
+            "first_line": ["MTX_15mg_Q1W_SC_t200"],
+            "second_line": ["TCZ8mgkg_Q4W_IV_t200"], "switch_day": 285},
+            _FakeSession())
+        self.assertFalse(res.ok)
+
+    def test_finalize_commits_a_run_protocol(self):
+        reg = ToolRegistry()
+        register_ra_trial_loop_tools(reg, None, {
+            "sb": None, "vpop": "V.xlsx", "calibrated_arms": []})
+        sess = _FakeSession()
+        # simulate a completed run in history
+        spec = "MTX_15mg_Q1W_SC_t200;TCZ8mgkg_Q4W_IV_t200@285"
+        sess.put("ra_history", [{"protocol": spec,
+                                 "first_line": {"ACR20": 30.0},
+                                 "second_line": {"n_MTX_IR": 38, "ACR20": 42.1,
+                                                 "ACR50": 26.3, "ACR70": 15.8}}])
+        res = reg.dispatch("ra_finalize", {
+            "first_line": ["MTX_15mg_Q1W_SC_t200"],
+            "second_line": ["TCZ8mgkg_Q4W_IV_t200"], "switch_day": 285}, sess)
+        self.assertTrue(res.ok)
+        self.assertEqual(sess.get("ra_final")["protocol"], spec)
+
+    def test_finalize_rejects_empty_mtx_ir_arm(self):
+        reg = ToolRegistry()
+        register_ra_trial_loop_tools(reg, None, {
+            "sb": None, "vpop": "V.xlsx", "calibrated_arms": []})
+        sess = _FakeSession()
+        sess.put("ra_history", [{"protocol": "MTX_15mg_Q1W_SC_t200",
+                                 "first_line": {"ACR20": 30.0},
+                                 "second_line": {"n_MTX_IR": 0}}])
+        res = reg.dispatch("ra_finalize", {
+            "first_line": ["MTX_15mg_Q1W_SC_t200"]}, sess)
+        self.assertFalse(res.ok)
+
 
 class _FakeSession:
     def __init__(self):

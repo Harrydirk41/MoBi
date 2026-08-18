@@ -101,11 +101,25 @@ function nDone = sb_run_vpop(vpopXlsx, doseNames, stopTime, baselineDay, readout
             end
             if ~isnan(startOverride)
                 dk = copyobj(dk);                 % detached copy we can retime
-                try
-                    dk.StartTime = startOverride;
-                    fprintf('dose "%s" retimed to StartTime=%g\n', nm, startOverride);
-                catch ME
-                    fprintf('WARNING: could not retime "%s": %s\n', nm, ME.message);
+                ok = false;
+                for e = 1:numel(dk)               % a name may map to >1 dose object
+                    try
+                        if isprop(dk(e), 'StartTime')      % RepeatDose
+                            dk(e).StartTime = startOverride;
+                            ok = true;
+                        elseif isprop(dk(e), 'Time')       % ScheduleDose (e.g. SC ADA)
+                            t = dk(e).Time;
+                            dk(e).Time = t - min(t) + startOverride;  % shift, keep spacing
+                            ok = true;
+                        end
+                    catch ME
+                        fprintf('WARNING: could not retime "%s"(%d): %s\n', nm, e, ME.message);
+                    end
+                end
+                if ok
+                    fprintf('dose "%s" retimed to start at day %g\n', nm, startOverride);
+                else
+                    fprintf('WARNING: dose "%s" has no StartTime/Time to retime\n', nm);
                 end
             end
             d = [d, dk]; %#ok<AGROW>
