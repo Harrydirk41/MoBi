@@ -75,32 +75,39 @@ function nDone = sb_run_vpop(vpopXlsx, doseNames, stopTime, baselineDay, readout
                 numel(missing), strjoin(missing(1:min(6, end)), ', '));
     end
 
-    % assemble the dose array (';'-separated names). A "name@START" suffix clones
-    % the dose with an overridden StartTime (days) - this builds a SEQUENTIAL
-    % switch the model does not ship: e.g. give MTX from day 200 but start TCZ
-    % after the day-284 first-line readout, so MTX_NonResp is a clean pure-MTX
-    % classification and TCZ then rescues those non-responders through day 600.
+    % Assemble the dose array (';'-separated tokens). Each token is
+    %   NAME[*SCALE][@START]
+    % where "*SCALE" multiplies the dose Amount (continuous dose level) and
+    % "@START" overrides the StartTime in days (a SEQUENTIAL switch the model does
+    % not ship). Both clone the dose so the model's originals are untouched.
     d = [];
     if ~isempty(doseNames)
         parts = strsplit(string(doseNames), ';');
         for k = 1:numel(parts)
             spec = strtrim(char(parts(k)));
             if isempty(spec), continue; end
-            startOverride = NaN;
-            at = strfind(spec, '@');
+            % split NAME[*SCALE][@START] (SCALE before START by convention)
+            startOverride = NaN; scaleOverride = NaN;
+            at = strfind(spec, '@'); star = strfind(spec, '*');
+            cut = min([at, star, numel(spec) + 1]);
+            nm  = strtrim(spec(1:cut - 1));
+            if ~isempty(star)
+                sEnd = at(at > star(1));
+                if isempty(sEnd), sEnd = numel(spec) + 1; else, sEnd = sEnd(1); end
+                scaleOverride = str2double(spec(star(1) + 1:sEnd - 1));
+            end
             if ~isempty(at)
-                nm = strtrim(spec(1:at(1)-1));
-                startOverride = str2double(spec(at(1)+1:end));
-            else
-                nm = spec;
+                startOverride = str2double(spec(at(1) + 1:end));
             end
             dk = getdose(m, nm);
             if isempty(dk)
                 fprintf('WARNING: dose "%s" not found - skipped\n', nm);
                 continue;
             end
+            if ~isnan(startOverride) || ~isnan(scaleOverride)
+                dk = copyobj(dk);                 % detached copy we can edit
+            end
             if ~isnan(startOverride)
-                dk = copyobj(dk);                 % detached copy we can retime
                 ok = false;
                 for e = 1:numel(dk)               % a name may map to >1 dose object
                     try
@@ -121,6 +128,16 @@ function nDone = sb_run_vpop(vpopXlsx, doseNames, stopTime, baselineDay, readout
                 else
                     fprintf('WARNING: dose "%s" has no StartTime/Time to retime\n', nm);
                 end
+            end
+            if ~isnan(scaleOverride)
+                for e = 1:numel(dk)
+                    try
+                        dk(e).Amount = dk(e).Amount * scaleOverride;   % continuous dose level
+                    catch ME
+                        fprintf('WARNING: could not scale "%s"(%d): %s\n', nm, e, ME.message);
+                    end
+                end
+                fprintf('dose "%s" amount scaled x%g\n', nm, scaleOverride);
             end
             d = [d, dk]; %#ok<AGROW>
         end

@@ -65,21 +65,22 @@ def register_ra_trial_loop_tools(registry: ToolRegistry, config, ctx: dict) -> N
                 "treatment_start_day": 200,
                 "first_line_readout_day": 284,
                 "second_line_readout_day": 600,
-                "note": "a dose name carries StartTime day 200 (suffix _t200); "
-                        "append '@DAY' to a dose to switch it in later (sequential "
-                        "second-line therapy)",
+                "note": "every shipped dose starts at day 200 (suffix _t200). The "
+                        "MTX_NonResp classification and the day-284 ACR readout are "
+                        "the model's own events - it is your job to work out how a "
+                        "protocol interacts with them.",
             },
             drug_formulary=_formulary(),
             calibrated_reference_arms=calibrated_arms,
-            held_out="the second-line response rate (MTX_NonResp==1 subgroup, "
-                     "day 600) is NOT given - predict it by choosing the therapy",
+            held_out="the second-line response (the MTX_NonResp==1 subgroup at day "
+                     "600) is NOT given - you determine the therapy and predict it",
             edit_spec_help={
-                "first_line": "[dose_name, ...] started at day 200 (e.g. "
-                              "['MTX_15mg_Q1W_SC_t200'])",
-                "second_line": "[dose_name, ...] switched in for MTX-inadequate "
-                               "responders (e.g. ['TCZ8mgkg_Q4W_IV_t200'])",
-                "switch_day": "day the second_line starts (e.g. 285, just after the "
-                              "day-284 first-line readout); omit for concurrent",
+                "first_line": "[dose_name, ...] applied from day 200",
+                "second_line": "[dose_name, ...] applied to the same patients",
+                "switch_day": "OPTIONAL day to override the second_line start (days). "
+                              "Omit to leave doses at their shipped day-200 start.",
+                "dose_scale": "OPTIONAL multiplier on the second_line dose amount "
+                              "(1.0 = the labeled dose; 0.5 = half, 2.0 = double).",
             },
         )
 
@@ -88,12 +89,14 @@ def register_ra_trial_loop_tools(registry: ToolRegistry, config, ctx: dict) -> N
         first = args.get("first_line") or []
         second = args.get("second_line") or []
         switch = args.get("switch_day")
+        scale = args.get("dose_scale")
         if not first and not second:
             return ToolResult.error(
-                "no doses given - set first_line (and optionally second_line + "
-                "switch_day). Call ra_inspect for the dose names.")
+                "no doses given - set first_line (and optionally second_line, "
+                "switch_day, dose_scale). Call ra_inspect for the dose names.")
         spec = osp_ra_trial.build_dose_spec(
-            first, second, float(switch) if switch is not None else None)
+            first, second, float(switch) if switch is not None else None,
+            float(scale) if scale is not None else None)
         r = sb.run_vpop(vpop, dose=spec, stop_time=stop_time,
                         baseline_day=baseline_day, readout_day=readout_day,
                         limit=limit)
@@ -132,8 +135,10 @@ def register_ra_trial_loop_tools(registry: ToolRegistry, config, ctx: dict) -> N
         first = args.get("first_line") or []
         second = args.get("second_line") or []
         switch = args.get("switch_day")
+        scale = args.get("dose_scale")
         spec = osp_ra_trial.build_dose_spec(
-            first, second, float(switch) if switch is not None else None)
+            first, second, float(switch) if switch is not None else None,
+            float(scale) if scale is not None else None)
         hist = session.get("ra_history") or []
         match = next((h for h in reversed(hist) if h.get("protocol") == spec), None)
         if match is None:
@@ -170,22 +175,23 @@ def register_ra_trial_loop_tools(registry: ToolRegistry, config, ctx: dict) -> N
         name="ra_run_trial",
         description=(
             "ACT: run a treatment protocol across the virtual population and read "
-            "the model's own response flags. first_line doses start at day 200; "
-            "second_line doses are switched in at switch_day (use a day just after "
-            "the day-284 first-line readout, e.g. 285, so the first-line "
-            "classification stays pure and the second-line therapy then acts on the "
-            "MTX-inadequate responders through the day-600 readout). Returns the "
-            "first-line ACR20/50/70/remission (all patients, day 284) and the "
-            "second-line rates among MTX non-responders (day 600). A second-line "
-            "given concurrently from day 200 conflates the arms - switch it in "
-            "later."),
+            "the model's own response flags. Returns the first-line "
+            "ACR20/50/70/remission (all patients, day 284) and the second-line "
+            "rates among the MTX non-responders (day 600). first_line and "
+            "second_line take dose names from the formulary; switch_day and "
+            "dose_scale optionally retime and rescale the second_line. It is up to "
+            "you to choose the drugs, timing and dose and to interpret how they "
+            "interact with the model's day-284 classification and day-600 readout."),
         input_schema={"type": "object", "properties": {
             "first_line": {"type": "array", "items": {"type": "string"},
-                           "description": "dose names started at day 200"},
+                           "description": "dose names applied from day 200"},
             "second_line": {"type": "array", "items": {"type": "string"},
-                            "description": "dose names switched in for MTX-IR"},
+                            "description": "dose names applied to the same patients"},
             "switch_day": {"type": "number",
-                           "description": "day the second_line starts (e.g. 285)"}}},
+                           "description": "optional: override the second_line start day"},
+            "dose_scale": {"type": "number",
+                           "description": "optional: multiply the second_line dose "
+                                          "amount (1.0 = labeled dose)"}}},
         handler=run_trial, phase="act"))
 
     registry.register(Tool(
@@ -200,5 +206,6 @@ def register_ra_trial_loop_tools(registry: ToolRegistry, config, ctx: dict) -> N
         input_schema={"type": "object", "properties": {
             "first_line": {"type": "array", "items": {"type": "string"}},
             "second_line": {"type": "array", "items": {"type": "string"}},
-            "switch_day": {"type": "number"}}},
+            "switch_day": {"type": "number"},
+            "dose_scale": {"type": "number"}}},
         handler=finalize, phase="evaluate"))

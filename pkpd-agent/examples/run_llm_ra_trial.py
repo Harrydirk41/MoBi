@@ -13,11 +13,20 @@ The held-out truth (TCZ-in-MTX-inadequate-responders ACR20/50/70) is NOT shown t
 the agent - it must pick the therapy from mechanism, and this script scores the
 final prediction against the held-out numbers after the loop.
 
+Two objectives:
+  * --objective predict  (default): reproduce the held-out TCZ-in-MTX-IR rates.
+  * --objective min-dose: find the LOWEST second-line dose that clears an ACR20
+    bar (--min-dose-acr20). This one is not brute-forceable by "pick the max
+    response" - the agent must titrate dose_scale to the efficient point.
+
+The tool descriptions no longer hint the drug, the switch timing or the dose -
+the agent derives them from mechanism and experiment.
+
     set ANTHROPIC_API_KEY=...
     python -m examples.run_llm_ra_trial ^
         --sbproj "..\RA-QSP-Model\Vantage RA QSP Model v1.0.sbproj" ^
         --vpop   "..\RA-QSP-Model\Vpop1.xlsx" ^
-        --limit 50 --max-steps 8
+        --limit 50 --max-steps 10 --objective min-dose
 
 Note: each ra_run_trial simulates the whole (subsampled) population, so keep
 --limit modest (50) during the loop; confirm the winner at --limit 300 with
@@ -40,44 +49,46 @@ from pkpd_agent.tools.registry import ToolRegistry
 from pkpd_agent.tools.ra_trial_loop_tools import register_ra_trial_loop_tools
 
 
-def _system_prompt() -> str:
-    return (
-        "You are a clinical pharmacologist running an in-silico trial on a "
-        "rheumatoid-arthritis QSP model with the SimBiology engine. The disease "
-        "model and the virtual population are GIVEN and fixed; you design the "
-        "treatment PROTOCOL.\n\n"
-        "The task: predict the response of patients who INADEQUATELY RESPOND to "
-        "first-line methotrexate (MTX) when they are escalated to a second-line "
-        "therapy. Each round:\n"
-        "1. Call ra_inspect: the DAS28/ACR readout, the trial timeline (baseline "
-        "day 199, first-line readout day 284, second-line readout day 600), the "
-        "drug formulary (MTX plus the biologics, each with its MECHANISM), and the "
-        "calibrated reference arms with their known rates.\n"
-        "2. VALIDATE your harness: run first-line MTX (ra_run_trial with only "
-        "first_line) and confirm the ACR20/remission match the reference arm. This "
-        "proves the population and readout are wired correctly.\n"
-        "3. REASON about the second line. MTX-inadequate responders need a therapy "
-        "that hits a DIFFERENT node of the inflammatory network than MTX - a "
-        "biologic. Pick the one whose mechanism best matches an escalation for "
-        "MTX-IR RA, and give it as a SWITCH: set second_line and a switch_day just "
-        "after the day-284 readout (e.g. 285), NOT concurrently from day 200 (which "
-        "would conflate the arms and give a dead second-line, ACR50/70 near 0).\n"
-        "4. Call ra_run_trial with first_line MTX + your second_line + switch_day, "
-        "and read the second-line ACR20/50/70 among the MTX non-responders.\n"
-        "5. SANITY-CHECK: are the second-line rates clinically plausible for a "
-        "biologic in MTX-IR RA (ACR20 roughly one-half, ACR50 roughly one-quarter, "
-        "ACR70 lower)? If the second-line arm is empty or dead, fix the protocol "
-        "(give MTX first-line, switch the biologic in later) and re-run.\n"
-        "ENGINE/EMPTY-ARM RESULTS ARE FAILURES: if a run warns the second-line arm "
-        "is empty, the protocol is wrong - fix it and re-run; do not finish on it.\n"
-        "6. COMMIT: call ra_finalize with the protocol you actually recommend. This "
-        "is the run that gets scored - if you ran controls or dose-response checks "
-        "afterwards, ra_finalize makes sure your ANSWER is scored, not the last "
-        "thing you happened to run. Finalize the therapy+dose you would give a "
-        "patient, then finish.\n"
-        "Finish with: the therapy you chose and WHY (mechanism), the protocol "
-        "(doses + switch day), and your predicted second-line ACR20/50/70."
-    )
+_COMMON = (
+    "You are a clinical pharmacologist running an in-silico trial on a "
+    "rheumatoid-arthritis QSP model with the SimBiology engine. The disease model "
+    "and the virtual population are GIVEN and fixed; you design the treatment "
+    "PROTOCOL. You have three tools: ra_inspect (the disease/readout, trial "
+    "timeline, drug formulary with mechanisms, and the calibrated MTX reference), "
+    "ra_run_trial (run a protocol - first_line / second_line dose names, optional "
+    "switch_day and dose_scale - and read the model's response rates), and "
+    "ra_finalize (commit the protocol you recommend; that is what gets scored).\n\n"
+    "Work like a scientist, not a search: the numbers are cheap but the protocol "
+    "and its interpretation are yours to get right. Nothing tells you the correct "
+    "drug, timing or dose - derive them. Start by VALIDATING your harness against "
+    "the calibrated MTX reference so you trust the pipeline. Then reason from "
+    "MECHANISM about the escalation. Watch how a protocol interacts with the "
+    "model's day-284 MTX-non-responder classification and its day-600 readout, and "
+    "be suspicious of any result that is clinically implausible or an artifact of "
+    "how you set the trial up - diagnose it rather than reporting it. A run whose "
+    "MTX-IR arm is empty is a mis-specified protocol, not a result; fix it. "
+    "Finalize the protocol you would actually give a patient before finishing.\n\n")
+
+_GOAL = {
+    "predict": (
+        "OBJECTIVE: predict the ACR20/50/70 response of patients who inadequately "
+        "respond to first-line methotrexate when they are escalated to a "
+        "second-line therapy. Choose the therapy and protocol, run it, and commit "
+        "your predicted second-line rates. Judge for yourself whether your numbers "
+        "are clinically plausible for the therapy you chose."),
+    "min-dose": (
+        "OBJECTIVE: for the methotrexate-inadequate responders, find the "
+        "LOWEST-DOSE second-line regimen that still achieves ACR20 >= {thr:g}% in "
+        "that subgroup. Use dose_scale to titrate the second-line amount (1.0 = the "
+        "labeled dose). Simply maxing the dose meets the target but wastes drug and "
+        "risks toxicity; too little misses it. Find the smallest dose_scale that "
+        "clears the bar, then commit that protocol. Report the drug, the dose_scale, "
+        "and the response you achieved."),
+}
+
+
+def _system_prompt(objective: str, thr: float) -> str:
+    return _COMMON + _GOAL[objective].format(thr=thr)
 
 
 def main() -> None:
@@ -91,6 +102,12 @@ def main() -> None:
     ap.add_argument("--max-steps", type=int, default=8)
     ap.add_argument("--model", default=None)
     ap.add_argument("--effort", default=None)
+    ap.add_argument("--objective", choices=["predict", "min-dose"], default="predict",
+                    help="predict = reproduce the held-out TCZ-in-MTX-IR rates; "
+                         "min-dose = find the lowest second-line dose clearing an "
+                         "ACR20 target (the harder, non-brute-forceable task)")
+    ap.add_argument("--min-dose-acr20", type=float, default=35.0,
+                    help="min-dose objective: the ACR20%% bar to clear (default 35)")
     # held-out target (the paper's validation; default = the validated model output)
     ap.add_argument("--target-acr20", type=float, default=44.9)
     ap.add_argument("--target-acr50", type=float, default=23.5)
@@ -128,20 +145,25 @@ def main() -> None:
         print(f"== loading {os.path.basename(args.sbproj)} ==", flush=True)
         sb.load_project(args.sbproj)
 
+        obj_text = (
+            "Predict the ACR20/50/70 response of MTX-inadequate responders "
+            "escalated to a second-line therapy."
+            if args.objective == "predict" else
+            f"Find the lowest-dose second-line regimen reaching ACR20 >= "
+            f"{args.min_dose_acr20:g}% in the MTX-inadequate responders.")
         registry = ToolRegistry()
         register_ra_trial_loop_tools(registry, cfg, {
             "sb": sb, "vpop": args.vpop, "calibrated_arms": calibrated_arms,
-            "objective": "Predict the ACR20/50/70 response of MTX-inadequate "
-                         "responders escalated to a second-line therapy.",
+            "objective": obj_text,
             "limit": args.limit, "stop_time": args.stop_time})
 
-        goal = ("Predict the second-line response in MTX-inadequate responders. "
-                "Start by calling ra_inspect, validate the harness on first-line "
-                "MTX, then choose and run the second-line protocol.")
-        policy = LLMPolicy(cfg, registry, _system_prompt())
+        goal = (obj_text + " Start by calling ra_inspect and validating the harness "
+                "on first-line MTX, then design and run the second-line protocol.")
+        policy = LLMPolicy(cfg, registry,
+                           _system_prompt(args.objective, args.min_dose_acr20))
         loop = DecisionLoop(config=cfg, registry=registry, policy=policy)
 
-        print(f"\n== LLM RA virtual-trial loop ({args.vpop}, "
+        print(f"\n== LLM RA virtual-trial loop [{args.objective}] ({args.vpop}, "
               f"limit {args.limit}/run) ==\n", flush=True)
 
         def show(ev):
@@ -168,15 +190,15 @@ def main() -> None:
             hist = session.get("ra_history") or []
             final = next((h for h in reversed(hist)
                           if (h.get("second_line") or {}).get("n_MTX_IR", 0) > 0), None)
-        print("\n== SCORING vs held-out truth ==")
-        print(f"held-out target (second-line, MTX-IR): {target}")
+        print(f"\n== SCORING [{args.objective}] ==")
         if not committed:
             print("[warn] agent did not call ra_finalize - scoring its last "
                   "non-empty run, which may be a control rather than its answer.")
         if not final:
             print("no scorable protocol run (the agent never produced a non-empty "
                   "second-line arm).")
-        else:
+        elif args.objective == "predict":
+            print(f"held-out target (second-line, MTX-IR): {target}")
             pred = final["second_line"]
             score = osp_ra_trial.score_flagship(pred, target)
             print(f"agent protocol: {final['protocol']}")
@@ -188,6 +210,22 @@ def main() -> None:
             for k, v in (score.get("per_endpoint") or {}).items():
                 print(f"   {k}: predicted {v['predicted']} vs target {v['target']} "
                       f"(|err| {v['abs_error_pp']} pp)")
+        else:  # min-dose
+            pred = final["second_line"]
+            # recover the committed dose_scale from the protocol string (NAME*scale@..)
+            import re as _re
+            m = _re.search(r"\*([0-9.]+)", final["protocol"])
+            scale = float(m.group(1)) if m else 1.0
+            score = osp_ra_trial.score_min_dose(pred, scale, args.min_dose_acr20)
+            print(f"target: ACR20 >= {args.min_dose_acr20:g}% at the lowest dose")
+            print(f"agent protocol: {final['protocol']}  (dose_scale={scale:g})")
+            print(f"achieved: ACR20 {pred.get('ACR20')}% in MTX-IR "
+                  f"n={pred.get('n_MTX_IR')}  -> {score['verdict']}")
+            if score["target_met"]:
+                print(f"response-per-dose (efficiency, higher=leaner): "
+                      f"{score['response_per_dose']}  "
+                      f"(a full-dose x1.0 answer scores {pred.get('ACR20')}; "
+                      f"a leaner passing dose scores higher)")
     finally:
         sb.stop()
 

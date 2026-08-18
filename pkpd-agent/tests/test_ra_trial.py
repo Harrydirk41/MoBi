@@ -65,6 +65,27 @@ class TestDoseSpecAndScore(unittest.TestCase):
         spec = R.build_dose_spec(["MTX_15mg_Q1W_SC_t200", "TCZ8mgkg_Q4W_IV_t200"])
         self.assertEqual(spec, "MTX_15mg_Q1W_SC_t200;TCZ8mgkg_Q4W_IV_t200")
 
+    def test_build_dose_spec_scale_and_switch(self):
+        spec = R.build_dose_spec(["MTX_15mg_Q1W_SC_t200"],
+                                 ["TCZ8mgkg_Q4W_IV_t200"], 285, 0.5)
+        self.assertEqual(spec, "MTX_15mg_Q1W_SC_t200;TCZ8mgkg_Q4W_IV_t200*0.5@285")
+
+    def test_build_dose_spec_scale_one_is_noop(self):
+        spec = R.build_dose_spec(["MTX_15mg_Q1W_SC_t200"],
+                                 ["TCZ8mgkg_Q4W_IV_t200"], 285, 1.0)
+        self.assertEqual(spec, "MTX_15mg_Q1W_SC_t200;TCZ8mgkg_Q4W_IV_t200@285")
+
+    def test_score_min_dose_met(self):
+        sc = R.score_min_dose({"ACR20": 40.0}, 0.7, 35.0)
+        self.assertTrue(sc["target_met"])
+        self.assertEqual(sc["dose_scale"], 0.7)
+        self.assertIsNotNone(sc["response_per_dose"])
+
+    def test_score_min_dose_missed(self):
+        sc = R.score_min_dose({"ACR20": 20.0}, 0.5, 35.0)
+        self.assertFalse(sc["target_met"])
+        self.assertIsNone(sc["response_per_dose"])
+
     def test_score_mae(self):
         sc = R.score_flagship({"ACR20": 45.0, "ACR50": 24.0, "ACR70": 14.0},
                               {"ACR20": 45.0, "ACR50": 24.0, "ACR70": 14.0})

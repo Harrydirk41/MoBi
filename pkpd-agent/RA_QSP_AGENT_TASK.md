@@ -151,6 +151,31 @@ and available regimens, choose a protocol, run, evaluate the population readout,
 and stop when the prediction is both close to the target and mechanistically
 sensible (right drug, right line of therapy, plausible dose).
 
+## Two objectives (difficulty)
+
+`run_llm_ra_trial.py --objective` selects the task:
+
+* **`predict`** (default) — reproduce the held-out TCZ-in-MTX-IR rates. The
+  decision space is small (~a dozen drug×timing combinations) and a "pick the
+  strongest arm" heuristic happens to land on the right drug, so this is really a
+  pipeline/​reasoning demonstration, not a hard search.
+* **`min-dose`** — find the LOWEST second-line dose that still clears an ACR20 bar
+  (`--min-dose-acr20`, default 35%). `dose_scale` makes the dose axis continuous,
+  so "just max the dose" clears the bar but wastes drug (and scores worse on
+  response-per-dose), while too little misses it. The agent must titrate to the
+  efficient point — brute-force enumeration over a continuous dose no longer
+  works, and the shortcut proxy fails.
+
+The dose spec grew a `*scale` suffix (multiply the dose amount) beside `@day`
+(retime the start): token form `NAME[*SCALE][@START]`, e.g.
+`TCZ8mgkg_Q4W_IV_t200*0.5@285` is half-dose TCZ switched in at day 285.
+
+**De-hinted tools.** The `ra_inspect`/`ra_run_trial` descriptions no longer name
+the switch day (285), the sequential-vs-concurrent trade-off, or the expected
+response magnitude. Those were giveaways; the agent now has to discover that a
+concurrently-dosed second line contaminates the day-284 classification, and to
+derive the drug/timing/dose itself from mechanism and experiment.
+
 ## The agent loop (implemented)
 
 Same three pieces as the OSP DDI loop:

@@ -120,13 +120,47 @@ def summarize_run(res: dict) -> dict[str, Any]:
 
 
 def build_dose_spec(first_line: list[str], second_line: Optional[list[str]] = None,
-                    switch_day: Optional[float] = None) -> str:
-    """Assemble the ';'-joined --dose string. Second-line doses get a '@switch_day'
-    suffix so they start after the first-line readout (the sequential switch)."""
+                    switch_day: Optional[float] = None,
+                    dose_scale: Optional[float] = None) -> str:
+    """Assemble the ';'-joined --dose string. A second-line dose gets a '*scale'
+    suffix (multiply the dose amount, a continuous dose level) and/or a
+    '@switch_day' suffix (start after the first-line readout). Token form is
+    NAME[*SCALE][@START]."""
     parts = list(first_line or [])
     for nm in (second_line or []):
-        parts.append(f"{nm}@{switch_day:g}" if switch_day is not None else nm)
+        tok = nm
+        if dose_scale is not None and abs(dose_scale - 1.0) > 1e-9:
+            tok = f"{tok}*{dose_scale:g}"
+        if switch_day is not None:
+            tok = f"{tok}@{switch_day:g}"
+        parts.append(tok)
     return ";".join(p for p in parts if p)
+
+
+def score_min_dose(second_line: dict, dose_scale: float, acr20_target: float,
+                   endpoint: str = "ACR20") -> dict[str, Any]:
+    """Score the 'minimum effective dose' objective: the second-line regimen must
+    reach ``endpoint`` >= ``acr20_target`` (%) in the MTX-IR subgroup at the LOWEST
+    dose. ``dose_scale`` is the committed dose multiple (1.0 = the labeled dose).
+    A regimen that meets the target at a smaller scale scores better; one that
+    misses the target fails regardless of dose. 'Just use the max dose' meets the
+    target but wastes drug, so it is not optimal."""
+    achieved = second_line.get(endpoint)
+    met = isinstance(achieved, (int, float)) and achieved >= acr20_target
+    return {
+        "endpoint": endpoint,
+        "target_pct": acr20_target,
+        "achieved_pct": achieved,
+        "dose_scale": dose_scale,
+        "target_met": bool(met),
+        # efficiency: response delivered per unit dose (higher = less wasteful);
+        # only meaningful when the target is met
+        "response_per_dose": (round(achieved / dose_scale, 1)
+                              if met and dose_scale else None),
+        "verdict": ("meets target at dose x%g" % dose_scale if met
+                    else "MISSES target (%s %s%% < %s%%)"
+                    % (endpoint, achieved, acr20_target)),
+    }
 
 
 def score_flagship(predicted: dict, target: dict) -> dict[str, Any]:
