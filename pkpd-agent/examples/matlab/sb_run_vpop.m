@@ -17,6 +17,15 @@ function nDone = sb_run_vpop(vpopXlsx, doseNames, stopTime, baselineDay, readout
 %   representative subsample of nLimit patients (the Vpop rows are severity-ordered).
 
     nDone = 0;
+    % The Vantage model's Hill/MM terms (X^n) go briefly complex when a state
+    % overshoots slightly negative; SimBiology discards the imaginary part. This is
+    % a benign, known property of the model, but it emits a warning on nearly every
+    % solver step and buries the results. Suppress the flood for the batch run (our
+    % own diagnostics use fprintf, not warning, so nothing useful is hidden); the
+    % warning state is restored automatically when the function returns.
+    origWarn = warning('off', 'all');
+    cleanupWarn = onCleanup(@() warning(origWarn)); %#ok<NASGU>
+
     m  = evalin('base', 'sbmodel');
     cs = getconfigset(m);
     try
