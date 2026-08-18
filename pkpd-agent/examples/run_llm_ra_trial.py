@@ -104,12 +104,16 @@ def main() -> None:
     target = {"ACR20": args.target_acr20, "ACR50": args.target_acr50,
               "ACR70": args.target_acr70}
 
-    # the calibrated first-line reference the agent validates its harness against
+    # the calibrated first-line reference the agent validates its harness against.
+    # These are FULL-POPULATION (n=300) rates; a subsampled run (--limit) will
+    # differ by sampling noise (at n=50 the standard error on a ~40% rate is ~7pp
+    # and the resolution is 2pp), so treat a match as "same ballpark", not exact.
     calibrated_arms = [{
         "arm": "MTX first-line monotherapy",
         "protocol": {"first_line": ["MTX_15mg_Q1W_SC_t200"]},
-        "known_rates_day284": {"ACR20": 43.3, "ACR50": 23.7, "ACR70": 13.7,
-                               "remission": 26.7},
+        "known_rates_day284_full_pop_n300": {"ACR20": 43.3, "ACR50": 23.7,
+                                             "ACR70": 13.7, "remission": 26.7},
+        "note": "run this first; expect these +/- sampling noise at your --limit",
     }]
 
     sb = SimBiologyEngine()

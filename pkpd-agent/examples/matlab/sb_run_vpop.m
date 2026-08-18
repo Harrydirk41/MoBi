@@ -13,7 +13,8 @@ function nDone = sb_run_vpop(vpopXlsx, doseNames, stopTime, baselineDay, readout
 %   applied), e.g. 'MTX_15mg_Q1W_SC_t200;TCZ8mgkg_Q4W_IV_t200'. stopTime>0 forces
 %   the simulation end time (must exceed the readout the flags fire at: >=285 for
 %   first-line, >=601 for the second-line TCZ readout). MATLAB reads the Excel and
-%   writes the CSV (no arrays cross to Python). nLimit>0 runs the first nLimit only.
+%   writes the CSV (no arrays cross to Python). nLimit>0 runs an evenly-spaced
+%   representative subsample of nLimit patients (the Vpop rows are severity-ordered).
 
     nDone = 0;
     m  = evalin('base', 'sbmodel');
@@ -25,10 +26,25 @@ function nDone = sb_run_vpop(vpopXlsx, doseNames, stopTime, baselineDay, readout
     if stopTime > 0
         try
             cs.StopTime = stopTime;
-            cs.SolverOptions.OutputTimes = [];   % let the solver choose, honour StopTime
         catch ME
             fprintf('WARNING: could not set StopTime=%g: %s\n', stopTime, ME.message);
         end
+    end
+    % Force solver output onto a fixed daily grid through the event-readout points.
+    % The first-line ACR/MTX_NonResp events have a NARROW trigger window
+    % (time>=284 & time<285): the compound expression is 0 on both sides of the
+    % window, so an adaptive solver that steps over [284,285) never sees the rising
+    % edge and the flags silently read 0 - unless a dose (e.g. TCZ Q4W lands on day
+    % 284) happens to force a step inside it. A daily grid puts an output point AT
+    % 284 (and just inside each window) so the events fire regardless of the dosing
+    % schedule. Duplicates from dose-event timestamps are handled by nearest-time
+    % lookup downstream.
+    try
+        st  = cs.StopTime;
+        pts = [0:1:st, 199, 284, 284.5, 600, 600.5];
+        cs.SolverOptions.OutputTimes = unique(pts(pts <= st));
+    catch ME
+        fprintf('WARNING: could not set OutputTimes: %s\n', ME.message);
     end
 
     raw   = readcell(vpopXlsx, 'Sheet', 1);
