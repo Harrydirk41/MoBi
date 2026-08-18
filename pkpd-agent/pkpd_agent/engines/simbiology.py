@@ -128,7 +128,9 @@ class SimBiologyEngine:
         ``dose`` may join several dose names with ';' (a SimBiology dose array is
         applied), e.g. 'MTX_15mg_Q1W_SC_t200;TCZ8mgkg_Q4W_IV_t200'. ``stop_time``
         forces the sim end (needs >=601 days to capture the second-line flags).
-        ``limit`` runs only the first N patients. MATLAB reads the Excel and writes
+        ``limit`` runs a representative EVENLY-SPACED subsample of N patients (the
+        Vpop rows are ordered by severity, so the first N would be the sickest
+        slice). MATLAB reads the Excel and writes
         the results CSV; only paths cross the boundary. Returned columns include
         DAS28_BL/base/read/end and the flag columns ACR20, ACR50, ACR70, Rem,
         MTX_NonResp, TCZ_ACR20, TCZ_ACR50, TCZ_ACR70, TCZ_Rem."""

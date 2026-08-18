@@ -90,7 +90,10 @@ def main() -> None:
     ap.add_argument("--readout-day", type=float, default=284.0,
                     help="day to report DAS28 first-line readout (week 12)")
     ap.add_argument("--limit", type=int, default=20,
-                    help="run only the first N patients (default 20; use 300 for the full Vpop)")
+                    help="run a representative EVENLY-SPACED subsample of N patients "
+                         "(default 20; use 300 for the full Vpop). The Vpop rows are "
+                         "ordered by severity, so this samples across the whole range, "
+                         "not the sickest first N")
     args = ap.parse_args()
 
     try:

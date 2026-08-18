@@ -175,3 +175,12 @@ winning protocol at `--limit 300` with `examples.run_ra_vpop`.
 Scoring targets default to the validated model output (ACR20 44.9 / ACR50 23.5 /
 ACR70 14.0); pass `--target-acr20/50/70` to score against the paper's reported
 held-out numbers once you have them.
+
+**Subsampling is representative, not first-N.** The Vpop rows are ordered by
+disease severity — the first 50 patients have inflammatory drivers (IL-17,
+RANTES, GM-CSF, VEGF secretion, FLS baseline) shifted +0.3 to +0.6 SD toward
+*more severe* disease, and taking the first 50 floors the flagship at
+ACR50/70 = 0 (even TCZ 8 mg/kg gives only ACR20 28.6% / ACR50 0% on that slice
+vs 44.9% / 23.5% on the full 300). So `--limit N` runs an evenly-spaced sample
+across the whole population, which tracks the full-population rates much more
+closely and gives the agent a fair, scorable signal.

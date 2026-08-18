@@ -36,12 +36,18 @@ function nDone = sb_run_vpop(vpopXlsx, doseNames, stopTime, baselineDay, readout
     keep  = cellfun(@(x) (ischar(x) || isstring(x)) && strlength(string(x)) > 0, names);
     names = names(keep);
     nCols = numel(names);
-    nP    = size(raw, 1) - 1;
-    if nLimit > 0
-        nP = min(nP, nLimit);
+    nTot  = size(raw, 1) - 1;
+    % Representative subsample: the Vpop rows are ORDERED by disease severity, so
+    % the first N patients are the sickest slice. When limiting, take evenly-spaced
+    % rows across the whole population (deterministic) instead of the first N.
+    if nLimit > 0 && nLimit < nTot
+        sel = unique(round(linspace(1, nTot, nLimit)));
+    else
+        sel = 1:nTot;
     end
-    fprintf('vpop: %d patients x %d parameters; stopTime %g, baseline day %g, readout day %g\n', ...
-            nP, nCols, stopTime, baselineDay, readoutDay);
+    nP = numel(sel);
+    fprintf('vpop: %d of %d patients (evenly spaced) x %d parameters; stopTime %g, baseline day %g, readout day %g\n', ...
+            nP, nTot, nCols, stopTime, baselineDay, readoutDay);
 
     types   = cell(1, nCols);
     missing = {};
@@ -107,7 +113,8 @@ function nDone = sb_run_vpop(vpopXlsx, doseNames, stopTime, baselineDay, readout
                   'ACR20,ACR50,ACR70,Rem,MTX_NonResp,' ...
                   'TCZ_ACR20,TCZ_ACR50,TCZ_ACR70,TCZ_Rem\n']);
 
-    for i = 1:nP
+    for ii = 1:nP
+        i = sel(ii);                          % real Vpop row index (1..nTot)
         rowvals = raw(i + 1, keep);
         content = {};
         for j = 1:nCols
@@ -141,7 +148,7 @@ function nDone = sb_run_vpop(vpopXlsx, doseNames, stopTime, baselineDay, readout
             fprintf(fid, '%d,%g,%g,%g,%g,%g,%g,%g,%g,%g,%g,%g,%g,%g\n', ...
                     i, bl, das(ib), das(ir), das(end), ...
                     fv(1), fv(2), fv(3), fv(4), fv(5), fv(6), fv(7), fv(8), fv(9));
-            nDone = i;
+            nDone = nDone + 1;
         catch ME
             fprintf('patient %d readout FAILED: %s\n', i, ME.message);
         end
