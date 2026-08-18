@@ -39,21 +39,19 @@ function nDone = sb_run_vpop(vpopXlsx, doseNames, stopTime, baselineDay, readout
             fprintf('WARNING: could not set StopTime=%g: %s\n', stopTime, ME.message);
         end
     end
-    % Force solver output onto a fixed daily grid through the event-readout points.
-    % The first-line ACR/MTX_NonResp events have a NARROW trigger window
-    % (time>=284 & time<285): the compound expression is 0 on both sides of the
-    % window, so an adaptive solver that steps over [284,285) never sees the rising
-    % edge and the flags silently read 0 - unless a dose (e.g. TCZ Q4W lands on day
-    % 284) happens to force a step inside it. A daily grid puts an output point AT
-    % 284 (and just inside each window) so the events fire regardless of the dosing
-    % schedule. Duplicates from dose-event timestamps are handled by nearest-time
-    % lookup downstream.
+    % Cap the solver step so the first-line ACR/MTX_NonResp events actually fire.
+    % Those events have a NARROW trigger window (time>=284 & time<285): the compound
+    % expression is 0 on both sides of the 1-day window, so SimBiology's event
+    % detection (which watches the trigger at the solver's OWN internal steps, NOT
+    % at OutputTimes) never sees the rising edge unless the solver physically steps
+    % inside [284,285). An adaptive solver skips it - except when a dose (e.g. TCZ
+    % IV Q4W near day 285) forces fine stepping there, which is why only TCZ arms
+    % lit up. MaxStep=0.5 (< the 1-day window) guarantees a step inside every such
+    % window for every patient, so the flags fire regardless of the dosing schedule.
     try
-        st  = cs.StopTime;
-        pts = [0:1:st, 199, 284, 284.5, 600, 600.5];
-        cs.SolverOptions.OutputTimes = unique(pts(pts <= st));
+        cs.SolverOptions.MaxStep = 0.5;
     catch ME
-        fprintf('WARNING: could not set OutputTimes: %s\n', ME.message);
+        fprintf('WARNING: could not set MaxStep: %s\n', ME.message);
     end
 
     raw   = readcell(vpopXlsx, 'Sheet', 1);
