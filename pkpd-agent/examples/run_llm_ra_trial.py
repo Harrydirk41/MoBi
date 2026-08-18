@@ -111,8 +111,8 @@ def main() -> None:
     calibrated_arms = [{
         "arm": "MTX first-line monotherapy",
         "protocol": {"first_line": ["MTX_15mg_Q1W_SC_t200"]},
-        "known_rates_day284_full_pop_n300": {"ACR20": 43.3, "ACR50": 23.7,
-                                             "ACR70": 13.7, "remission": 26.7},
+        "known_rates_day284_full_pop_n300": {"ACR20": 33.7, "ACR50": 17.7,
+                                             "ACR70": 2.3, "remission": 18.0},
         "note": "run this first; expect these +/- sampling noise at your --limit",
     }]
 

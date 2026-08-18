@@ -104,16 +104,31 @@ protocol the authors used.
 
 | arm | ACR20 | ACR50 | ACR70 | Remission | n |
 |-----|-------|-------|-------|-----------|---|
-| MTX first-line (day 284, pure MTX) | 43.3% | 23.7% | 13.7% | 26.7% | 300 |
+| MTX first-line (day 284, pure MTX) | 33.7% | 17.7% | 2.3% | 18.0% | 300 |
 | TCZ in MTX-IR (day 600, flagship)  | 44.9% | 23.5% | 14.0% | 28.4% | 243 |
 
-Both arms are clinically plausible (real TCZ-in-MTX/DMARD-IR trials report ACR20
-~48-59%, ACR50 ~32-44%, ACR70 ~12-22%). Two checks confirm the split is real,
-not lucky: moving TCZ to day 285 cut the first-line DAS28 drop from 1.86 (combo)
-to 0.93 (MTX-mono size), and the MTX-IR denominator rose from 173 to 243 -
-because `MTX_NonResp` uses the stricter EULAR criterion (deltaDAS28 < 1.2), not
-ACR20, so weaker pure MTX leaves more non-responders. The concurrent-dosing
-variant gives a dead flagship (ACR50/70 = 0%) and is the wrong protocol.
+Both arms are clinically plausible (MTX-monotherapy week-12 ACR20 ~30-40%; real
+TCZ-in-MTX/DMARD-IR trials report ACR20 ~48-59%, ACR50 ~32-44%, ACR70 ~12-22%).
+The MTX-IR denominator (243/300) uses the stricter EULAR criterion
+(deltaDAS28 < 1.2), not ACR20, so it is larger than the ACR20 non-responder count.
+
+**Read the flags at the right time.** ACR20/50/70/Remission are CONTINUOUS flags
+(trigger `ACR_Perc>=X`): they must be read AT the day-284 first-line readout, not
+at sim end - reading at day 700 wanes for untreated patients and is contaminated
+by any second-line drug, which silently made the first-line number track the
+second-line drug's potency. `MTX_NonResp` (latched day 284) and the
+`MTX_NonResp_TCZ_*` flagship (day 600) are read at sim end where they hold.
+
+**Invariance check (the harness-correctness gate).** With the first-line flags
+read at day 284, the first-line rates are IDENTICAL across second-line arms
+(MTX-only = MTX+SEC@285 = MTX+TCZ@285 = ACR20 30% at n=50), proving the day-284
+readout does not depend on a drug started at day 285. Only the second-line column
+moves with the drug: SEC is correctly inert (the model reproduces secukinumab's
+real-world RA failure), TCZ is alive (~42/26/16 at n=50, ~45/24/14 at n=300).
+Two SimBiology gotchas were ruled out along the way: `OutputTimes` does not drive
+event detection (the solver watches triggers at its own steps), and the
+narrow-window events (`time>=284 & time<285`) fire fine without a `MaxStep` cap -
+the only bug was the read time.
 
 **One run reproduces both arms, correctly separated** - the MTX first-line and
 the held-out TCZ-in-MTX-IR flagship - so the pipeline is validated and ready to
