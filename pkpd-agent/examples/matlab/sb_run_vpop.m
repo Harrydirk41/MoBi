@@ -39,20 +39,6 @@ function nDone = sb_run_vpop(vpopXlsx, doseNames, stopTime, baselineDay, readout
             fprintf('WARNING: could not set StopTime=%g: %s\n', stopTime, ME.message);
         end
     end
-    % Cap the solver step so the first-line ACR/MTX_NonResp events actually fire.
-    % Those events have a NARROW trigger window (time>=284 & time<285): the compound
-    % expression is 0 on both sides of the 1-day window, so SimBiology's event
-    % detection (which watches the trigger at the solver's OWN internal steps, NOT
-    % at OutputTimes) never sees the rising edge unless the solver physically steps
-    % inside [284,285). An adaptive solver skips it - except when a dose (e.g. TCZ
-    % IV Q4W near day 285) forces fine stepping there, which is why only TCZ arms
-    % lit up. MaxStep=0.5 (< the 1-day window) guarantees a step inside every such
-    % window for every patient, so the flags fire regardless of the dosing schedule.
-    try
-        cs.SolverOptions.MaxStep = 0.5;
-    catch ME
-        fprintf('WARNING: could not set MaxStep: %s\n', ME.message);
-    end
 
     raw   = readcell(vpopXlsx, 'Sheet', 1);
     names = raw(1, :);
@@ -126,10 +112,17 @@ function nDone = sb_run_vpop(vpopXlsx, doseNames, stopTime, baselineDay, readout
         end
     end
 
-    % clinical endpoints computed by the model's own events (read, never recompute)
-    flags = {'ACR20','ACR50','ACR70','Remission','MTX_NonResp', ...
-             'MTX_NonResp_TCZ_ACR20','MTX_NonResp_TCZ_ACR50', ...
-             'MTX_NonResp_TCZ_ACR70','MTX_NonResp_TCZ_Rem'};
+    % Clinical endpoints computed by the model's own events (read, never recompute).
+    % Two kinds, read at DIFFERENT times:
+    %  - first-line ACR20/50/70/Remission are CONTINUOUS flags (trigger ACR_Perc>=X),
+    %    so they track the CURRENT response; read them AT the day-284 first-line
+    %    readout. Reading at sim end would wane for untreated patients and be
+    %    contaminated by any second-line drug started at day 285.
+    %  - MTX_NonResp (latched at day 284) and MTX_NonResp_TCZ_* (the day-600
+    %    second-line readout) are read at sim end, where they hold.
+    firstLineFlags = {'ACR20','ACR50','ACR70','Remission'};
+    lateFlags      = {'MTX_NonResp','MTX_NonResp_TCZ_ACR20','MTX_NonResp_TCZ_ACR50', ...
+                      'MTX_NonResp_TCZ_ACR70','MTX_NonResp_TCZ_Rem'};
 
     fid = fopen(outCsv, 'w', 'n', 'UTF-8');
     fprintf(fid, ['patient,DAS28_BL,DAS28_base,DAS28_read,DAS28_end,' ...
@@ -163,14 +156,19 @@ function nDone = sb_run_vpop(vpopXlsx, doseNames, stopTime, baselineDay, readout
             das = selectbyname(sd, 'DAS28_CRP').Data;
             [~, ib] = min(abs(sd.Time - baselineDay));   % nearest time (dose events
             [~, ir] = min(abs(sd.Time - readoutDay));    % create duplicate stamps)
-            fv = zeros(1, numel(flags));
-            for f = 1:numel(flags)
-                fv(f) = local_lastval(sd, flags{f});
+            fl = zeros(1, 4);                            % first-line, read AT day 284
+            for f = 1:4
+                fl(f) = local_valat(sd, firstLineFlags{f}, ir);
+            end
+            lt = zeros(1, 5);                            % latched, read at sim end
+            for f = 1:5
+                lt(f) = local_lastval(sd, lateFlags{f});
             end
             bl = local_lastval(sd, 'DAS28_BL');
             fprintf(fid, '%d,%g,%g,%g,%g,%g,%g,%g,%g,%g,%g,%g,%g,%g\n', ...
                     i, bl, das(ib), das(ir), das(end), ...
-                    fv(1), fv(2), fv(3), fv(4), fv(5), fv(6), fv(7), fv(8), fv(9));
+                    fl(1), fl(2), fl(3), fl(4), ...
+                    lt(1), lt(2), lt(3), lt(4), lt(5));
             nDone = nDone + 1;
         catch ME
             fprintf('patient %d readout FAILED: %s\n', i, ME.message);
@@ -188,6 +186,20 @@ function val = local_lastval(sd, name)
         y = selectbyname(sd, name).Data;
         if ~isempty(y)
             val = y(end);
+        end
+    catch
+    end
+end
+
+function val = local_valat(sd, name, idx)
+%LOCAL_VALAT Logged value of a state by name at output index idx (the nearest-time
+%   sample to a readout day); NaN if the model does not log it.
+    val = NaN;
+    try
+        y = selectbyname(sd, name).Data;
+        if ~isempty(y)
+            idx = max(1, min(idx, numel(y)));
+            val = y(idx);
         end
     catch
     end
