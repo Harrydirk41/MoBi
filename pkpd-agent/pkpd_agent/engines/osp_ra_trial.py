@@ -69,6 +69,23 @@ FIT_PARAMS: dict[str, dict[str, Any]] = {
     },
 }
 
+# Cytokine pathways an agent can TARGET when designing a new biologic (Stage-2).
+# Each maps to a disease-driver parameter the drug suppresses, with the pathway's
+# real-world drug analogue for mechanistic grounding.
+DESIGN_TARGETS: dict[str, dict[str, Any]] = {
+    "F_IL6":   {"pathway": "IL-6 signaling", "analogue": "tocilizumab (anti-IL-6R)",
+                "note": "IL-6 drives the CRP arm of DAS28-CRP directly"},
+    "F_TNFa":  {"pathway": "TNF-alpha", "analogue": "adalimumab/etanercept (anti-TNF)",
+                "note": "a dominant pro-inflammatory cytokine in RA"},
+    "F_IL17":  {"pathway": "IL-17A", "analogue": "secukinumab (anti-IL-17A)",
+                "note": "central in psoriatic disease; historically weak in RA"},
+    "F_RANTES":{"pathway": "RANTES/CCL5 chemokine", "analogue": "(no approved RA drug)",
+                "note": "chemokine recruiting leukocytes to the synovium"},
+    "F_GMCSF": {"pathway": "GM-CSF", "analogue": "otilimab (anti-GM-CSF, investigational)",
+                "note": "myeloid-driver, an emerging RA target"},
+}
+
+
 # Disease-driver parameters an agent can SAMPLE to build a virtual population
 # (Stage-3). Nominal = the Vpop1 mean; (lo, hi) = the Vpop1 observed span. These
 # are the pro-inflammatory amplification factors (F_*) and cell-baseline growth

@@ -283,6 +283,43 @@ class TestVpopLoopTools(unittest.TestCase):
         self.assertFalse(self._reg().dispatch("vpop_sample", {}, _FakeSession()).ok)
 
 
+class TestDrugDesign(unittest.TestCase):
+    def _reg(self):
+        from pkpd_agent.tools.ra_design_loop_tools import register_ra_design_loop_tools
+        reg = ToolRegistry()
+        register_ra_design_loop_tools(reg, None, {
+            "sb": None, "sbproj": "p.sbproj", "vpop": "v.xlsx"})
+        return reg
+
+    def test_targets_have_pathway_and_analogue(self):
+        for name, d in R.DESIGN_TARGETS.items():
+            self.assertTrue(d["pathway"], name)
+            self.assertTrue(d["analogue"], name)
+        self.assertIn("F_IL6", R.DESIGN_TARGETS)
+
+    def test_registers(self):
+        reg = self._reg()
+        for n in ("design_inspect", "design_try", "design_finalize"):
+            self.assertIn(n, reg)
+
+    def test_inspect_lists_pathways(self):
+        res = self._reg().dispatch("design_inspect", {}, _FakeSession())
+        self.assertTrue(res.ok)
+        self.assertEqual(len(res.data["targetable_pathways"]), len(R.DESIGN_TARGETS))
+
+    def test_try_rejects_missing_efficacy(self):
+        self.assertFalse(self._reg().dispatch("design_try", {}, _FakeSession()).ok)
+
+    def test_try_rejects_unknown_target(self):
+        res = self._reg().dispatch("design_try", {"target": "F_XYZ", "efficacy": 0.8},
+                                   _FakeSession())
+        self.assertFalse(res.ok)
+
+    def test_try_rejects_nonzero_efficacy_without_target(self):
+        res = self._reg().dispatch("design_try", {"efficacy": 0.8}, _FakeSession())
+        self.assertFalse(res.ok)
+
+
 class TestDrugCatalog(unittest.TestCase):
     def test_tocilizumab_is_il6(self):
         self.assertIn("IL-6", R.DRUG_CATALOG["TCZ"]["mechanism"])
