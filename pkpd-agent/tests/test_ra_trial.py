@@ -320,6 +320,61 @@ class TestDrugDesign(unittest.TestCase):
         self.assertFalse(res.ok)
 
 
+class TestHeldOutValidation(unittest.TestCase):
+    def test_ir_mask_and_intersection(self):
+        mtx = {"columns": {"patient": [1, 2, 3, 4, 5], "ACR50": [1, 0, 0, 0, 1],
+                           "DAS28_read": [2.5, 4.0, 5.0, 3.5, 3.0]}}
+        ada = {"columns": {"patient": [1, 2, 3, 4, 5], "ACR50": [0, 0, 1, 0, 0],
+                           "DAS28_read": [3.0, 4.5, 2.8, 3.6, 3.1]}}
+        mm = R.ir_mask(mtx)
+        am = R.ir_mask(ada)
+        self.assertTrue(mm[2] and mm[3] and mm[4])
+        self.assertFalse(mm[1] or mm[5])
+        dual = {p for p in mm if mm[p] and am.get(p)}
+        self.assertEqual(dual, {2, 4})
+
+    def test_response_in_subgroup(self):
+        tcz = {"columns": {"patient": [1, 2, 3, 4, 5],
+                           "ACR20": [1, 1, 1, 0, 1], "ACR50": [0, 1, 0, 0, 1],
+                           "ACR70": [0, 0, 0, 0, 0]}}
+        resp = R.response_in_subgroup(tcz, {2, 4})
+        self.assertEqual(resp["n"], 2)
+        self.assertEqual(resp["ACR20"], 50.0)   # patients 2,4 -> [1,0]
+        self.assertEqual(resp["ACR70"], 0.0)
+
+    def test_ir_mask_das_threshold(self):
+        # patient with ACR50==0 but DAS28 below threshold is NOT an IR
+        run = {"columns": {"patient": [1], "ACR50": [0], "DAS28_read": [3.0]}}
+        self.assertFalse(R.ir_mask(run, das_threshold=3.2)[1])
+
+    def test_refractory_comparator_present(self):
+        from pkpd_agent.engines import ra_clinical_reference as RC
+        self.assertIn("ACR20", RC.REFRACTORY_TCZ)
+        self.assertIn("RADIATE", RC.REFRACTORY_TCZ["trial"])
+
+
+class TestValidateLoopTools(unittest.TestCase):
+    def _reg(self):
+        from pkpd_agent.tools.ra_validate_loop_tools import register_ra_validate_loop_tools
+        reg = ToolRegistry()
+        register_ra_validate_loop_tools(reg, None, {"sb": None, "vpop": "v.xlsx"})
+        return reg
+
+    def test_registers(self):
+        reg = self._reg()
+        for n in ("validate_inspect", "validate_run", "validate_finalize"):
+            self.assertIn(n, reg)
+
+    def test_run_rejects_no_prior_arms(self):
+        self.assertFalse(self._reg().dispatch("validate_run", {}, _FakeSession()).ok)
+
+    def test_inspect_exposes_arms_and_comparator(self):
+        res = self._reg().dispatch("validate_inspect", {}, _FakeSession())
+        self.assertTrue(res.ok)
+        self.assertIn("available_arms", res.data)
+        self.assertIn("comparator", res.data)
+
+
 class TestDrugCatalog(unittest.TestCase):
     def test_tocilizumab_is_il6(self):
         self.assertIn("IL-6", R.DRUG_CATALOG["TCZ"]["mechanism"])

@@ -253,6 +253,44 @@ def score_vpop(das_values, target: dict = None) -> dict[str, Any]:
     }
 
 
+def ir_mask(run: dict, acr_key: str = "ACR50", das_threshold: float = 3.2) -> dict:
+    """Classify inadequate responders from a run: a patient is an IR if they did NOT
+    reach the ACR level (flag == 0) AND still have active disease (DAS28_read >
+    threshold). Returns {patient_id: bool}, keyed by patient so arms align."""
+    cols = run.get("columns") or {}
+    pats = cols.get("patient", [])
+    acr = cols.get(acr_key, [])
+    das = cols.get("DAS28_read", [])
+    m: dict[int, bool] = {}
+    for p, a, d in zip(pats, acr, das):
+        if not isinstance(p, (int, float)):
+            continue
+        if not (isinstance(a, (int, float)) and a == a):
+            continue
+        if not (isinstance(d, (int, float)) and d == d):
+            continue
+        m[int(p)] = (a < 0.5) and (d > das_threshold)
+    return m
+
+
+def response_in_subgroup(run: dict, ids: set,
+                         keys=("ACR20", "ACR50", "ACR70")) -> dict:
+    """Percent responders on each ACR flag, restricted to the patient ids in the
+    subgroup. For the TCZ arm read at the day-600 readout, these are the treated
+    response rates among the refractory subpopulation."""
+    cols = run.get("columns") or {}
+    pats = cols.get("patient", [])
+    out: dict[str, Any] = {"n": len(ids)}
+    for key in keys:
+        col = cols.get(key, [])
+        vals = [v for p, v in zip(pats, col)
+                if isinstance(p, (int, float)) and int(p) in ids
+                and isinstance(v, (int, float)) and v == v]
+        out[key] = round(100.0 * sum(1 for v in vals if v >= 0.5) / len(vals), 1) \
+            if vals else None
+    return out
+
+
 def build_override_spec(overrides: dict) -> str:
     """{'KD_TCZ': 2.5e-12} -> 'KD_TCZ=2.5e-12' for the harness param_overrides arg."""
     return ";".join(f"{k}={float(v):.6g}" for k, v in (overrides or {}).items())

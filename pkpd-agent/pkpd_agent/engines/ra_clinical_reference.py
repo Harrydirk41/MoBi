@@ -52,6 +52,18 @@ RA_TRIALS: dict[str, dict[str, Any]] = {
 }
 
 
+# The held-out VALIDATION comparator (paper Stage 6 / Fig 6): TCZ in a refractory
+# population that inadequately responded to prior therapy. The paper compared its
+# dual (MTX+ADA) inadequate-responder prediction to a real TCZ trial in this
+# setting; RADIATE (Emery et al. 2008, TCZ 8mg/kg in anti-TNF-IR, week 24) is the
+# canonical real-world anchor for TCZ in the refractory population.
+REFRACTORY_TCZ = {
+    "trial": "RADIATE (Emery et al. 2008, TCZ 8mg/kg in anti-TNF inadequate responders)",
+    "week": 24,
+    "ACR20": 50.0, "ACR50": 28.8, "ACR70": 12.4,
+}
+
+
 def trial_target(drug: str, week: int, correction: str = "raw") -> Optional[dict]:
     """Return {ACR20, ACR50, ACR70[, rem]} for a drug/week. ``correction`` is
     'raw' (drug arm) or 'pcorr' (drug minus placebo, floored at 0)."""
