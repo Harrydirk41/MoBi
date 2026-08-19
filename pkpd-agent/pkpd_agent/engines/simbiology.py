@@ -114,6 +114,24 @@ class SimBiologyEngine:
         finally:
             _quiet_rm(out)
 
+    def sample_vpop(self, param_spec: str, n_samples: int = 60,
+                    baseline_day: float = 200.0, seed: int = 1) -> dict[str, Any]:
+        """Generate a virtual population by sampling disease-driver parameters and
+        simulating each candidate to its untreated disease baseline. ``param_spec``
+        is ';'-joined 'name,lo,hi,scale' entries (scale 'lin'/'log'). Returns the
+        per-candidate parameter draws and baseline DAS28-CRP (column 'DAS28_base')."""
+        import io
+        out = _tmp(".csv")
+        so = io.StringIO()
+        try:
+            self.eng.sb_sample_vpop(param_spec, float(n_samples), float(baseline_day),
+                                    out, float(seed), nargout=0, stdout=so, stderr=so)
+            res = _read_csv(out)
+            res["matlab_log"] = so.getvalue()
+            return res
+        finally:
+            _quiet_rm(out)
+
     def run_vpop(self, vpop_xlsx: str, dose: str = "", stop_time: float = 700.0,
                  baseline_day: float = 200.0, readout_day: float = 284.0,
                  limit: int = 0, param_overrides: str = "") -> dict[str, Any]:

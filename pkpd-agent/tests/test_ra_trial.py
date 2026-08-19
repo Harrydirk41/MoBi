@@ -176,6 +176,53 @@ class TestFitLoopTools(unittest.TestCase):
         self.assertFalse(res.ok)
 
 
+class TestVpopGeneration(unittest.TestCase):
+    def test_build_sample_spec(self):
+        s = R.build_sample_spec({"F_TNFa": (0.1, 50, "log"), "kg_FLS_Baseline": (2e4, 4e6)})
+        self.assertEqual(s, "F_TNFa,0.1,50,log;kg_FLS_Baseline,20000,4e+06,lin")
+
+    def test_score_vpop_good_vs_bad(self):
+        good = [5.0, 5.2, 4.8, 6.0, 3.5, 5.5, 4.5, 5.1]     # all in band, ~target
+        gs = R.score_vpop(good)
+        self.assertEqual(gs["yield_pct"], 100.0)
+        self.assertLess(gs["distribution_distance"], 1.0)
+        bad = [1.0, 1.2, 9.0, 8.5, 0.5, 2.0]                 # mostly out of band
+        bs = R.score_vpop(bad)
+        self.assertLess(bs["yield_pct"], 50.0)
+
+    def test_score_vpop_empty_band(self):
+        s = R.score_vpop([1.0, 1.5, 2.0])   # all below the active band
+        self.assertEqual(s["n_accepted"], 0)
+        self.assertIsNone(s["distribution_distance"])
+
+    def test_vpop_params_have_spans(self):
+        for name, p in R.VPOP_PARAMS.items():
+            self.assertEqual(len(p["span"]), 2, name)
+            self.assertLess(p["span"][0], p["span"][1], name)
+
+
+class TestVpopLoopTools(unittest.TestCase):
+    def _reg(self):
+        from pkpd_agent.tools.ra_vpop_loop_tools import register_ra_vpop_loop_tools
+        reg = ToolRegistry()
+        register_ra_vpop_loop_tools(reg, None, {"sb": None})
+        return reg
+
+    def test_registers(self):
+        reg = self._reg()
+        for n in ("vpop_inspect", "vpop_sample", "vpop_finalize"):
+            self.assertIn(n, reg)
+
+    def test_inspect_lists_drivers_and_target(self):
+        res = self._reg().dispatch("vpop_inspect", {}, _FakeSession())
+        self.assertTrue(res.ok)
+        self.assertTrue(res.data["disease_driver_parameters"])
+        self.assertIn("mean", res.data["clinical_target"])
+
+    def test_sample_rejects_empty(self):
+        self.assertFalse(self._reg().dispatch("vpop_sample", {}, _FakeSession()).ok)
+
+
 class TestDrugCatalog(unittest.TestCase):
     def test_tocilizumab_is_il6(self):
         self.assertIn("IL-6", R.DRUG_CATALOG["TCZ"]["mechanism"])

@@ -69,6 +69,25 @@ FIT_PARAMS: dict[str, dict[str, Any]] = {
     },
 }
 
+# Disease-driver parameters an agent can SAMPLE to build a virtual population
+# (Stage-3). Nominal = the Vpop1 mean; (lo, hi) = the Vpop1 observed span. These
+# are the pro-inflammatory amplification factors (F_*) and cell-baseline growth
+# rates (kg_*) that set disease severity, so their spread drives the baseline
+# DAS28-CRP distribution.
+VPOP_PARAMS: dict[str, dict[str, Any]] = {
+    "F_TNFa":  {"nominal": 10.0,   "span": (0.034, 55.9), "meaning": "TNF-alpha amplification factor"},
+    "F_IL6":   {"nominal": 8.39,   "span": (0.035, 44.4), "meaning": "IL-6 amplification factor"},
+    "F_IL17":  {"nominal": 13.1,   "span": (0.071, 99.8), "meaning": "IL-17 amplification factor"},
+    "F_RANTES":{"nominal": 3.47,   "span": (0.024, 28.3), "meaning": "RANTES/CCL5 amplification factor"},
+    "F_GMCSF": {"nominal": 5.54,   "span": (0.027, 37.1), "meaning": "GM-CSF amplification factor"},
+    "kg_FLS_Baseline":       {"nominal": 5.18e5, "span": (2.1e4, 4.5e6), "meaning": "fibroblast-like synoviocyte baseline growth"},
+    "kg_Macrophage_Baseline":{"nominal": 3.42e5, "span": (8.0e3, 7.5e6), "meaning": "macrophage baseline growth"},
+}
+
+# clinical target for the baseline DAS28-CRP distribution (the Vpop1 reference,
+# an active-RA population): mean/sd to match, and the active-disease band.
+VPOP_TARGET = {"mean": 5.12, "sd": 1.24, "band": (3.2, 8.0)}
+
 _INF = (float("inf"), float("-inf"))
 
 
@@ -177,6 +196,43 @@ def score_min_dose(second_line: dict, dose_scale: float, acr20_target: float,
         "verdict": ("meets target at dose x%g" % dose_scale if met
                     else "MISSES target (%s %s%% < %s%%)"
                     % (endpoint, achieved, acr20_target)),
+    }
+
+
+def build_sample_spec(bounds: dict) -> str:
+    """{'F_TNFa': (lo, hi, 'log'), ...} -> 'F_TNFa,lo,hi,log;...' for sb_sample_vpop.
+    A 2-tuple defaults to linear scale."""
+    parts = []
+    for name, b in (bounds or {}).items():
+        lo, hi = b[0], b[1]
+        scale = b[2] if len(b) > 2 else "lin"
+        parts.append(f"{name},{lo:g},{hi:g},{scale}")
+    return ";".join(parts)
+
+
+def score_vpop(das_values, target: dict = None) -> dict[str, Any]:
+    """Score a generated population's baseline DAS28-CRP against the clinical target:
+    the fraction inside the active-RA band (yield), the accepted cohort's mean/sd,
+    and a distribution distance = |mean-target_mean| + |sd-target_sd| (on accepted
+    patients). Lower distance + higher yield = a better virtual population."""
+    tgt = target or VPOP_TARGET
+    lo, hi = tgt["band"]
+    xs = _finite(das_values)
+    n = len(xs)
+    accepted = [x for x in xs if lo <= x <= hi]
+    yield_pct = round(100.0 * len(accepted) / n, 1) if n else None
+    if accepted:
+        m = sum(accepted) / len(accepted)
+        sd = (sum((x - m) ** 2 for x in accepted) / len(accepted)) ** 0.5
+        dist = round(abs(m - tgt["mean"]) + abs(sd - tgt["sd"]), 3)
+    else:
+        m = sd = dist = None
+    return {
+        "n": n, "n_accepted": len(accepted), "yield_pct": yield_pct,
+        "accepted_mean": round(m, 3) if m is not None else None,
+        "accepted_sd": round(sd, 3) if sd is not None else None,
+        "target_mean": tgt["mean"], "target_sd": tgt["sd"], "band": tgt["band"],
+        "distribution_distance": dist,
     }
 
 
