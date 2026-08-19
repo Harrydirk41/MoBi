@@ -176,6 +176,31 @@ response magnitude. Those were giveaways; the agent now has to discover that a
 concurrently-dosed second line contaminates the day-284 classification, and to
 derive the drug/timing/dose itself from mechanism and experiment.
 
+## Scoring against REAL clinical data (not just the model)
+
+`engines/ra_clinical_reference.py` transcribes the paper's ESM1
+(`Clinical_trials` sheet) - the actual trials the model was calibrated to:
+
+| drug | trial | ACR20/50/70 (raw) | placebo-corrected |
+|------|-------|-------------------|-------------------|
+| MTX  | Strand 1999, wk12 | 46 / 23 / 9 | 20 / 15 / 5 |
+| ADA  | OPTIMA, wk24 | 70 / 52 / 35 | 13 / 18 / 18 |
+| TCZ  | ROSE, wk24 | 45 / 29 / 13.9 | 20 / 19 / 12 |
+
+`run_llm_ra_trial.py --target-source clinical` (the default) scores the agent's
+TCZ prediction against the **real ROSE trial**, not the model's own output. Two
+things matter:
+
+* The **agent's self-validation** still uses the *model's* MTX output (33.7%),
+  because that check asks "does my pipeline reproduce the model" - swapping in the
+  real 46% would make a correct harness look broken.
+* The **final score** uses the *real* data, because that asks "does the
+  model/agent match reality". The agent's committed prediction (42.1/26.3/15.8)
+  lands **MAE 2.5 pp from real ROSE wk24 (45/29/13.9)**; the model's own output
+  (44.9/23.5/14.0) is 1.9 pp. Placebo-corrected is ~11 pp off, confirming the QSP
+  Vpop output aligns with *raw* clinical efficacy (it carries its own disease
+  baseline). The run prints all three reference frames side by side.
+
 ## The agent loop (implemented)
 
 Same three pieces as the OSP DDI loop:

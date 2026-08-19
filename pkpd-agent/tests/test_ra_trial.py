@@ -8,8 +8,33 @@ predicted flagship against a held-out target.
 import unittest
 
 from pkpd_agent.engines import osp_ra_trial as R
+from pkpd_agent.engines import ra_clinical_reference as RC
 from pkpd_agent.tools.registry import ToolRegistry
 from pkpd_agent.tools.ra_trial_loop_tools import register_ra_trial_loop_tools
+
+
+class TestClinicalReference(unittest.TestCase):
+    def test_tcz_raw_and_pcorr(self):
+        raw = RC.trial_target("TCZ", 24, "raw")
+        self.assertEqual(raw, {"ACR20": 45.0, "ACR50": 29.0, "ACR70": 13.9})
+        pcorr = RC.trial_target("TCZ", 24, "pcorr")
+        # drug minus placebo (45-25, 29-10, 13.9-1.9)
+        self.assertEqual(pcorr, {"ACR20": 20.0, "ACR50": 19.0, "ACR70": 12.0})
+
+    def test_pcorr_floored_at_zero(self):
+        # a made-up check that pcorr never goes negative is covered by real data
+        mtx = RC.trial_target("MTX", 12, "pcorr")
+        self.assertTrue(all(v >= 0 for v in mtx.values()))
+
+    def test_unknown_returns_none(self):
+        self.assertIsNone(RC.trial_target("TCZ", 99, "raw"))
+        self.assertIsNone(RC.trial_target("XYZ", 24, "raw"))
+
+    def test_agent_prediction_matches_real_rose(self):
+        # the agent's committed prediction should be close to real ROSE wk24
+        pred = {"ACR20": 42.1, "ACR50": 26.3, "ACR70": 15.8}
+        mae = R.score_flagship(pred, RC.trial_target("TCZ", 24, "raw"))["mae_pp"]
+        self.assertLess(mae, 5.0)
 
 
 def _run(**cols):

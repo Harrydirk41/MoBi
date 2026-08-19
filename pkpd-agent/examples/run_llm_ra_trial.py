@@ -42,6 +42,7 @@ import os
 from pkpd_agent.config import AgentConfig
 from pkpd_agent.engines.simbiology import SimBiologyEngine
 from pkpd_agent.engines import osp_ra_trial
+from pkpd_agent.engines import ra_clinical_reference as ra_clin
 from pkpd_agent.llm import LLMPolicy
 from pkpd_agent.loop import DecisionLoop
 from pkpd_agent.state import Decision, Finish, ModelingSession, Observation
@@ -108,7 +109,13 @@ def main() -> None:
                          "ACR20 target (the harder, non-brute-forceable task)")
     ap.add_argument("--min-dose-acr20", type=float, default=35.0,
                     help="min-dose objective: the ACR20%% bar to clear (default 35)")
-    # held-out target (the paper's validation; default = the validated model output)
+    # scoring target for the predict objective
+    ap.add_argument("--target-source", choices=["clinical", "model"], default="clinical",
+                    help="clinical = score against the REAL TCZ trial (ROSE, ESM1); "
+                         "model = score against the model's own reference output")
+    ap.add_argument("--target-week", type=int, default=24, choices=[12, 24],
+                    help="clinical target: which ROSE readout week (default 24)")
+    # model-output target (used when --target-source model)
     ap.add_argument("--target-acr20", type=float, default=44.9)
     ap.add_argument("--target-acr50", type=float, default=23.5)
     ap.add_argument("--target-acr70", type=float, default=14.0)
@@ -123,8 +130,11 @@ def main() -> None:
         print("ANTHROPIC_API_KEY not set.")
         return
 
-    target = {"ACR20": args.target_acr20, "ACR50": args.target_acr50,
-              "ACR70": args.target_acr70}
+    model_target = {"ACR20": args.target_acr20, "ACR50": args.target_acr50,
+                    "ACR70": args.target_acr70}
+    clin_raw = ra_clin.trial_target("TCZ", args.target_week, "raw")
+    clin_pcorr = ra_clin.trial_target("TCZ", args.target_week, "pcorr")
+    target = clin_raw if args.target_source == "clinical" else model_target
 
     # the calibrated first-line reference the agent validates its harness against.
     # These are FULL-POPULATION (n=300) rates; a subsampled run (--limit) will
@@ -198,18 +208,32 @@ def main() -> None:
             print("no scorable protocol run (the agent never produced a non-empty "
                   "second-line arm).")
         elif args.objective == "predict":
-            print(f"held-out target (second-line, MTX-IR): {target}")
             pred = final["second_line"]
-            score = osp_ra_trial.score_flagship(pred, target)
             print(f"agent protocol: {final['protocol']}")
             print(f"agent prediction (MTX-IR n={pred.get('n_MTX_IR')}): "
                   f"ACR20 {pred.get('ACR20')}% ACR50 {pred.get('ACR50')}% "
                   f"ACR70 {pred.get('ACR70')}%")
-            print(f"score: MAE {score.get('mae_pp')} percentage points over "
-                  f"{score.get('n_endpoints')} endpoints")
+            src = ("REAL TCZ trial " + ra_clin.describe("TCZ") +
+                   f", week {args.target_week}, raw"
+                   if args.target_source == "clinical" else "the model's own output")
+            score = osp_ra_trial.score_flagship(pred, target)
+            print(f"\nPRIMARY score vs {src}:")
+            print(f"   target {target}  ->  MAE {score.get('mae_pp')} pp "
+                  f"over {score.get('n_endpoints')} endpoints")
             for k, v in (score.get("per_endpoint") or {}).items():
-                print(f"   {k}: predicted {v['predicted']} vs target {v['target']} "
+                print(f"     {k}: pred {v['predicted']} vs {v['target']} "
                       f"(|err| {v['abs_error_pp']} pp)")
+            # transparency: show all three reference frames side by side
+            print("\nreference frames (agent prediction vs each):")
+            frames = [("model output", model_target),
+                      (f"ROSE wk{args.target_week} raw", clin_raw),
+                      (f"ROSE wk{args.target_week} placebo-corrected", clin_pcorr)]
+            for name, ref in frames:
+                if not ref:
+                    continue
+                mae = osp_ra_trial.score_flagship(pred, ref).get("mae_pp")
+                cells = " ".join(f"{k}={ref.get(k)}" for k in ("ACR20", "ACR50", "ACR70"))
+                print(f"   {name:38} {cells:34} MAE {mae} pp")
         else:  # min-dose
             pred = final["second_line"]
             # recover the committed dose_scale from the protocol string (NAME*scale@..)
