@@ -31,30 +31,48 @@ from pkpd_agent.tools.registry import ToolRegistry
 from pkpd_agent.tools.ra_fit_loop_tools import register_ra_fit_loop_tools
 
 
-def _system_prompt(param: str) -> str:
-    return (
+def _system_prompt(param: str, numeric: bool) -> str:
+    head = (
         "You are a QSP modeler CALIBRATING a rheumatoid-arthritis model with the "
         "SimBiology engine. The model structure, the virtual population and the "
         "treatment protocol are all FIXED. One PD parameter is UNKNOWN and you must "
         f"estimate it - here, {param}, tocilizumab's binding affinity - so that the "
         "model's simulated response reproduces an OBSERVED clinical trial result.\n\n"
-        "This is a parameter-identification problem, so work like one:\n"
-        "1. Call fit_inspect: the fixed arm, the parameter (its unit, meaning, and "
-        "plausible range), and the observed target ACR you must hit.\n"
-        "2. Reason about direction from the biology: for a dissociation constant, a "
-        "SMALLER value means tighter binding and a STRONGER effect. Bracket the "
-        "target first with a low and a high value, confirm the response moves the "
-        "way you expect, then converge.\n"
-        "3. Call fit_try with {overrides:{" + param + ": value}} and read the ACR "
-        "error (MAE) vs the target. Because the parameter is log-scale, step by "
-        "FACTORS (10x, 3x, ...) not by small increments; then bisect in log space.\n"
-        "4. Iterate until the ACR MAE is small and stable. Watch for a plateau - if "
-        "the response saturates, a wide range of values fits equally and you should "
-        "report the identifiable edge, not an arbitrary point in the flat region.\n"
-        "5. Call fit_finalize with your committed value, then finish with: the "
-        "estimated value, how tightly it is identified, and how it compares to the "
-        "literature reference."
-    )
+        "Start by calling fit_inspect: the fixed arm, the parameter (unit, meaning, "
+        "plausible range), and the observed target ACR you must hit. Reason about "
+        "direction from the biology: for a dissociation constant, a SMALLER value "
+        "means tighter binding and a STRONGER effect.\n\n")
+    if numeric:
+        body = (
+            "DO THE FIT NUMERICALLY. The minimization itself is a numerical problem, "
+            "not something to hand-search: your job is to SET IT UP and INTERPRET it.\n"
+            "1. Choose the parameter and sensible search bounds [lo, hi] (log-scale "
+            "for an affinity spanning orders of magnitude), then call fit_optimize - "
+            "a bounded optimizer does the minimization and returns the fitted value, "
+            "the error, and the (value,error) PROFILE.\n"
+            "2. Read the profile for IDENTIFIABILITY: is there a sharp minimum, or a "
+            "flat region where many values fit equally? Distinguish a true plateau "
+            "from finite-cohort discretization.\n"
+            "3. Use fit_try only to PROBE - confirm a direction, or sample a couple "
+            "of points around the optimum the profile didn't cover. Do not hand-run "
+            "the minimization.\n"
+            "4. Judge whether any residual is STRUCTURAL (a mismatch no value of this "
+            "parameter can remove) and how the fitted value compares to the "
+            "literature reference.\n"
+            "5. Call fit_finalize with your committed value, then finish with the "
+            "estimate, its identifiability, and the literature comparison.")
+    else:
+        body = (
+            "Fit it by reasoning (no numerical optimizer is available):\n"
+            "1. Bracket the target with a low and a high value; confirm the response "
+            "moves the way the biology predicts.\n"
+            "2. Call fit_try with {overrides:{" + param + ": value}} and read the ACR "
+            "error. The parameter is log-scale, so step by FACTORS, then bisect.\n"
+            "3. Iterate until the MAE is small and stable; watch for a plateau and "
+            "report the identifiable edge, not an arbitrary flat point.\n"
+            "4. Call fit_finalize, then finish with the estimate, its identifiability, "
+            "and the literature comparison.")
+    return head + body
 
 
 def main() -> None:
@@ -70,6 +88,10 @@ def main() -> None:
     ap.add_argument("--limit", type=int, default=50)
     ap.add_argument("--stop-time", type=float, default=700.0)
     ap.add_argument("--max-steps", type=int, default=12)
+    ap.add_argument("--optimizer", choices=["numeric", "agent", "both"], default="both",
+                    help="numeric = agent sets up, scipy minimizes (fit_optimize); "
+                         "agent = pure reasoning search (fit_try only); both = agent "
+                         "has both tools")
     ap.add_argument("--model", default=None)
     ap.add_argument("--effort", default=None)
     args = ap.parse_args()
@@ -92,19 +114,20 @@ def main() -> None:
         print(f"== loading {os.path.basename(args.sbproj)} ==", flush=True)
         sb.load_project(args.sbproj)
 
+        enable_optimize = args.optimizer in ("numeric", "both")
         registry = ToolRegistry()
         register_ra_fit_loop_tools(registry, cfg, {
             "sb": sb, "vpop": args.vpop, "arm": args.arm, "target": target,
             "fit_params": [args.param], "limit": args.limit,
-            "stop_time": args.stop_time})
+            "stop_time": args.stop_time, "enable_optimize": enable_optimize})
 
         goal = (f"Estimate {args.param} so the model reproduces the observed ACR "
-                f"{target}. Start with fit_inspect, bracket the target, then converge "
-                "and finalize.")
-        policy = LLMPolicy(cfg, registry, _system_prompt(args.param))
+                f"{target}. Start with fit_inspect, then fit and finalize.")
+        policy = LLMPolicy(cfg, registry,
+                           _system_prompt(args.param, numeric=enable_optimize))
         loop = DecisionLoop(config=cfg, registry=registry, policy=policy)
 
-        print(f"\n== LLM RA calibration loop [{args.param}] "
+        print(f"\n== LLM RA calibration loop [{args.param}, optimizer={args.optimizer}] "
               f"(target ROSE wk{args.target_week} {target}) ==\n", flush=True)
 
         def show(ev):
@@ -114,7 +137,7 @@ def main() -> None:
                 for c in ev.calls:
                     print(f"  -> {c.name} "
                           f"{json.dumps(c.arguments, ensure_ascii=False)[:300]}")
-                    if c.name == "fit_try":
+                    if c.name in ("fit_try", "fit_optimize"):
                         print("     ...simulating the population...", flush=True)
             elif isinstance(ev, Observation):
                 print(f"  <- {ev.tool}: {ev.content.get('message', '')}", flush=True)

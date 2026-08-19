@@ -175,6 +175,43 @@ class TestFitLoopTools(unittest.TestCase):
                                    _FakeSession())
         self.assertFalse(res.ok)
 
+    def test_optimize_gated_off_by_default_flag(self):
+        from pkpd_agent.tools.ra_fit_loop_tools import register_ra_fit_loop_tools
+        reg = ToolRegistry()
+        register_ra_fit_loop_tools(reg, None, {
+            "sb": None, "vpop": "V", "arm": "X", "target": {"ACR20": 45.0},
+            "fit_params": ["KD_TCZ"], "enable_optimize": False})
+        self.assertNotIn("fit_optimize", reg)
+
+    def test_optimize_registered_when_enabled(self):
+        from pkpd_agent.tools.ra_fit_loop_tools import register_ra_fit_loop_tools
+        reg = ToolRegistry()
+        register_ra_fit_loop_tools(reg, None, {
+            "sb": None, "vpop": "V", "arm": "X", "target": {"ACR20": 45.0},
+            "fit_params": ["KD_TCZ"], "enable_optimize": True})
+        self.assertIn("fit_optimize", reg)
+
+
+class TestNumericFit1D(unittest.TestCase):
+    def test_recovers_scalar_minimum_log(self):
+        import math
+        target = 1.65e-12
+
+        def evaluate(val):
+            return abs(math.log10(val) - math.log10(target)) * 10.0
+
+        res = R.numeric_fit_1d(evaluate, 1e-13, 1e-9, log=True, max_evals=25)
+        self.assertLess(abs(math.log10(res["fitted"]) - math.log10(target)), 0.1)
+        self.assertGreater(res["n_evals"], 2)
+        self.assertTrue(res["trace"])
+
+    def test_recovers_scalar_minimum_linear(self):
+        def evaluate(val):
+            return (val - 3.0) ** 2
+
+        res = R.numeric_fit_1d(evaluate, 0.0, 10.0, log=False, max_evals=30)
+        self.assertAlmostEqual(res["fitted"], 3.0, delta=0.2)
+
 
 class TestVpopGeneration(unittest.TestCase):
     def test_build_sample_spec(self):

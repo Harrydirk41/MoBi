@@ -33,6 +33,7 @@ def register_ra_fit_loop_tools(registry: ToolRegistry, config, ctx: dict) -> Non
     fit_params: list = ctx.get("fit_params") or ["KD_TCZ"]
     limit: int = int(ctx.get("limit") or 50)
     stop_time: float = float(ctx.get("stop_time") or 700.0)
+    enable_optimize: bool = bool(ctx.get("enable_optimize", True))
 
     def _param_specs() -> list[dict]:
         out = []
@@ -102,6 +103,50 @@ def register_ra_fit_loop_tools(registry: ToolRegistry, config, ctx: dict) -> Non
             mae_pp=mae, per_endpoint=score.get("per_endpoint"),
             best_mae_so_far=session.get("fit_best_mae"), iteration=len(hist))
 
+    # -- act via NUMERICAL optimizer (agent sets up, scipy minimizes) --- #
+    def optimize(args: dict, session) -> ToolResult:
+        param = args.get("param") or (fit_params[0] if fit_params else None)
+        lo, hi = args.get("lo"), args.get("hi")
+        if not param or lo is None or hi is None:
+            return ToolResult.error(
+                "give {param, lo, hi} - the parameter to fit and its search bounds. "
+                "Call fit_inspect for names and plausible ranges.")
+        p = osp_ra_trial.FIT_PARAMS.get(param) or {}
+        log = bool(args.get("log", p.get("log_scale", True)))
+        cache: dict = {}
+
+        def evaluate(val):
+            out = _run({param: val})
+            sl = out["summary"]["second_line"]
+            pred = {k: sl.get(k) for k in ("ACR20", "ACR50", "ACR70")}
+            mae = osp_ra_trial.score_flagship(pred, target).get("mae_pp")
+            cache[val] = pred
+            return mae
+
+        res = osp_ra_trial.numeric_fit_1d(
+            evaluate, float(lo), float(hi), log=log,
+            max_evals=int(args.get("max_evals") or 20))
+        fitted = res["fitted"]
+        pred = cache.get(fitted, {})
+
+        hist = session.get("fit_history") or []
+        hist.append({"overrides": {param: fitted}, "predicted": pred,
+                     "mae": res["error"], "via": "numeric"})
+        session.put("fit_history", hist)
+        best = session.get("fit_best_mae")
+        if res["error"] is not None and (best is None or res["error"] < best):
+            session.put("fit_best_mae", res["error"])
+            session.put("fit_best_overrides", {param: fitted})
+
+        prof = [f"{t['value']:.3g}:{t['error']}" for t in res["trace"]]
+        return ToolResult.success(
+            f"numeric fit of {param} in [{lo:g},{hi:g}] ({'log' if log else 'lin'}): "
+            f"fitted {fitted:.4g}, ACR MAE {res['error']} pp in {res['n_evals']} "
+            f"evaluations. Predicted {pred}.",
+            param=param, fitted=fitted, mae_pp=res["error"],
+            n_evals=res["n_evals"], predicted=pred,
+            profile=prof, best_mae_so_far=session.get("fit_best_mae"))
+
     # -- evaluate (commit) ---------------------------------------------- #
     def finalize(args: dict, session) -> ToolResult:
         overrides = args.get("overrides") or session.get("fit_best_overrides")
@@ -135,15 +180,35 @@ def register_ra_fit_loop_tools(registry: ToolRegistry, config, ctx: dict) -> Non
     registry.register(Tool(
         name="fit_try",
         description=(
-            "ACT: set the PD parameter value(s) and run the fixed drug arm across "
-            "the virtual population, returning the predicted ACR20/50/70 among MTX "
-            "non-responders and the error (MAE, pp) vs the observed target. Iterate "
-            "the value(s) to minimize the error. A log-scale parameter moves the "
-            "response over orders of magnitude - step by factors, not increments."),
+            "ACT: run the fixed arm at ONE explicit parameter value and return the "
+            "predicted ACR + error vs target. Use this to PROBE - check a value, "
+            "profile the response around an optimum, or confirm a direction - NOT to "
+            "hand-run a minimization. For the actual fit, prefer fit_optimize."),
         input_schema={"type": "object", "properties": {
             "overrides": {"type": "object",
                           "description": "{param_name: value}, e.g. {\"KD_TCZ\": 2.5e-12}"}}},
         handler=try_fit, phase="act"))
+
+    if enable_optimize:
+        registry.register(Tool(
+            name="fit_optimize",
+            description=(
+                "ACT: fit a parameter NUMERICALLY. You set up the problem - the "
+                "parameter, its search bounds [lo,hi], and whether it is log-scale - "
+                "and a bounded numerical optimizer does the minimization, returning "
+                "the fitted value, the ACR error there, the evaluation count, and the "
+                "(value,error) profile. This is the right tool for the actual fit; "
+                "your job is choosing what to fit and interpreting the result "
+                "(identifiability from the profile, whether residuals are structural, "
+                "how the value compares to the literature)."),
+            input_schema={"type": "object", "properties": {
+                "param": {"type": "string", "description": "parameter name to fit"},
+                "lo": {"type": "number", "description": "lower search bound"},
+                "hi": {"type": "number", "description": "upper search bound"},
+                "log": {"type": "boolean", "description": "search on log scale (default true)"},
+                "max_evals": {"type": "number", "description": "max model evaluations (default 20)"}},
+                "required": ["param", "lo", "hi"]},
+            handler=optimize, phase="act"))
 
     registry.register(Tool(
         name="fit_finalize",

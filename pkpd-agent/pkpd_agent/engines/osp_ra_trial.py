@@ -241,6 +241,35 @@ def build_override_spec(overrides: dict) -> str:
     return ";".join(f"{k}={float(v):.6g}" for k, v in (overrides or {}).items())
 
 
+def numeric_fit_1d(evaluate, lo: float, hi: float, log: bool = True,
+                   max_evals: int = 20) -> dict[str, Any]:
+    """Minimize a scalar objective over ONE parameter with a bounded numerical
+    optimizer (scipy Brent). ``evaluate(value) -> error`` runs the forward model;
+    the optimizer chooses the values. This is the numerical counterpart to an
+    agent hand-searching the parameter - the optimizer does the minimization, the
+    agent does the setup and the interpretation. Returns the fitted value, the
+    error there, the number of evaluations, and the full (value, error) trace so
+    the caller can judge identifiability."""
+    import math
+    from scipy.optimize import minimize_scalar
+    trace: list[dict] = []
+
+    def obj(u):
+        val = 10.0 ** u if log else u
+        err = evaluate(val)
+        e = err if isinstance(err, (int, float)) else 1e9
+        trace.append({"value": val, "error": err})
+        return e
+
+    a, b = (math.log10(lo), math.log10(hi)) if log else (lo, hi)
+    minimize_scalar(obj, bounds=(a, b), method="bounded",
+                    options={"maxiter": max_evals, "xatol": (b - a) / 500.0})
+    best = min(trace, key=lambda t: (t["error"] if isinstance(t["error"], (int, float))
+                                     else 1e9))
+    return {"fitted": best["value"], "error": best["error"], "n_evals": len(trace),
+            "trace": sorted(trace, key=lambda t: t["value"])}
+
+
 def score_fit(predicted: dict, target: dict, fitted: dict,
               references: dict) -> dict[str, Any]:
     """Score a Stage-4 calibration: PRIMARY is how well the fitted parameter(s)
