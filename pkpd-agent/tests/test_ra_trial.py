@@ -124,6 +124,58 @@ class TestDoseSpecAndScore(unittest.TestCase):
         self.assertEqual(sc["mae_pp"], 10.0)
 
 
+class TestCalibrationFit(unittest.TestCase):
+    def test_build_override_spec(self):
+        self.assertEqual(R.build_override_spec({"KD_TCZ": 2.5e-12}), "KD_TCZ=2.5e-12")
+        self.assertEqual(R.build_override_spec({}), "")
+
+    def test_score_fit_perfect_acr(self):
+        tgt = {"ACR20": 45.0, "ACR50": 29.0, "ACR70": 13.9}
+        sc = R.score_fit(tgt, tgt, {"KD_TCZ": 2.5e-12}, {"KD_TCZ": 2.5e-12})
+        self.assertEqual(sc["acr_mae_pp"], 0.0)
+        self.assertEqual(sc["parameters"]["KD_TCZ"]["log10_fold_from_ref"], 0.0)
+
+    def test_score_fit_logfold(self):
+        sc = R.score_fit({"ACR20": 40.0}, {"ACR20": 45.0},
+                         {"KD_TCZ": 2.5e-11}, {"KD_TCZ": 2.5e-12})
+        self.assertEqual(sc["acr_mae_pp"], 5.0)
+        self.assertEqual(sc["parameters"]["KD_TCZ"]["log10_fold_from_ref"], 1.0)
+
+    def test_fit_param_has_reference(self):
+        self.assertIn("KD_TCZ", R.FIT_PARAMS)
+        self.assertEqual(R.FIT_PARAMS["KD_TCZ"]["reference"], 2.5e-12)
+
+
+class TestFitLoopTools(unittest.TestCase):
+    def _reg(self):
+        from pkpd_agent.tools.ra_fit_loop_tools import register_ra_fit_loop_tools
+        reg = ToolRegistry()
+        register_ra_fit_loop_tools(reg, None, {
+            "sb": None, "vpop": "V.xlsx", "arm": "MTX;TCZ@285",
+            "target": {"ACR20": 45.0, "ACR50": 29.0, "ACR70": 13.9},
+            "fit_params": ["KD_TCZ"]})
+        return reg
+
+    def test_registers(self):
+        reg = self._reg()
+        for n in ("fit_inspect", "fit_try", "fit_finalize"):
+            self.assertIn(n, reg)
+
+    def test_inspect_exposes_param_and_target(self):
+        res = self._reg().dispatch("fit_inspect", {}, _FakeSession())
+        self.assertTrue(res.ok)
+        self.assertEqual(res.data["observed_target"]["ACR20"], 45.0)
+        self.assertEqual(res.data["parameters_to_fit"][0]["name"], "KD_TCZ")
+
+    def test_try_rejects_empty(self):
+        self.assertFalse(self._reg().dispatch("fit_try", {}, _FakeSession()).ok)
+
+    def test_finalize_needs_a_run(self):
+        res = self._reg().dispatch("fit_finalize", {"overrides": {"KD_TCZ": 1e-12}},
+                                   _FakeSession())
+        self.assertFalse(res.ok)
+
+
 class TestDrugCatalog(unittest.TestCase):
     def test_tocilizumab_is_il6(self):
         self.assertIn("IL-6", R.DRUG_CATALOG["TCZ"]["mechanism"])

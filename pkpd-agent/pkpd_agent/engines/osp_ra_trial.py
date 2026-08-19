@@ -52,6 +52,23 @@ DRUG_CATALOG: dict[str, dict[str, Any]] = {
     },
 }
 
+# PD parameters an agent can be asked to CALIBRATE (Stage-4 fit task). Reference
+# values transcribed from the paper's ESM2 (Model_parameters, PD section). The
+# "true" value is the one that reproduces the observed clinical response; the
+# literature reference is a secondary sanity check, not ground truth.
+FIT_PARAMS: dict[str, dict[str, Any]] = {
+    "KD_TCZ": {
+        "unit": "M (molar)",
+        "reference": 2.5e-12,
+        "meaning": "tocilizumab-IL-6R dissociation constant (binding affinity). "
+                   "LOWER KD = tighter binding = more potent IL-6R blockade = "
+                   "higher ACR response.",
+        "search_range": (1e-13, 1e-9),
+        "log_scale": True,
+        "source": "ESM2 PD parameters (reference 2.5e-12 M)",
+    },
+}
+
 _INF = (float("inf"), float("-inf"))
 
 
@@ -161,6 +178,30 @@ def score_min_dose(second_line: dict, dose_scale: float, acr20_target: float,
                     else "MISSES target (%s %s%% < %s%%)"
                     % (endpoint, achieved, acr20_target)),
     }
+
+
+def build_override_spec(overrides: dict) -> str:
+    """{'KD_TCZ': 2.5e-12} -> 'KD_TCZ=2.5e-12' for the harness param_overrides arg."""
+    return ";".join(f"{k}={float(v):.6g}" for k, v in (overrides or {}).items())
+
+
+def score_fit(predicted: dict, target: dict, fitted: dict,
+              references: dict) -> dict[str, Any]:
+    """Score a Stage-4 calibration: PRIMARY is how well the fitted parameter(s)
+    reproduce the observed response (ACR MAE vs target); SECONDARY is how far each
+    fitted value sits from its literature reference (log10-fold)."""
+    import math
+    fit = score_flagship(predicted, target)
+    params = {}
+    for name, val in (fitted or {}).items():
+        ref = (references or {}).get(name)
+        lf = None
+        if isinstance(val, (int, float)) and isinstance(ref, (int, float)) \
+                and val > 0 and ref > 0:
+            lf = round(math.log10(val / ref), 2)
+        params[name] = {"fitted": val, "reference": ref, "log10_fold_from_ref": lf}
+    return {"acr_mae_pp": fit.get("mae_pp"), "per_endpoint": fit.get("per_endpoint"),
+            "parameters": params}
 
 
 def score_flagship(predicted: dict, target: dict) -> dict[str, Any]:

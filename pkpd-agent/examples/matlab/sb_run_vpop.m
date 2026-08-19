@@ -1,4 +1,4 @@
-function nDone = sb_run_vpop(vpopXlsx, doseNames, stopTime, baselineDay, readoutDay, outCsv, nLimit)
+function nDone = sb_run_vpop(vpopXlsx, doseNames, stopTime, baselineDay, readoutDay, outCsv, nLimit, paramOverrides)
 %SB_RUN_VPOP Run the loaded model across a virtual population (an .xlsx whose row
 %   1 is parameter names and each following row is one patient's parameter set),
 %   optionally under one or more named doses, and write per-patient the MODEL's
@@ -151,6 +151,31 @@ function nDone = sb_run_vpop(vpopXlsx, doseNames, stopTime, baselineDay, readout
     %    contaminated by any second-line drug started at day 285.
     %  - MTX_NonResp (latched at day 284) and MTX_NonResp_TCZ_* (the day-600
     %    second-line readout) are read at sim end, where they hold.
+    % Global PARAMETER OVERRIDES ('name=value;name=value') applied to every patient
+    % as an extra variant AFTER the patient's own variant, so it wins on any shared
+    % name. This is the knob for a calibration/fitting task: e.g. set KD_TCZ to
+    % estimate the drug's potency against a target response.
+    vOverride = [];
+    if nargin >= 8 && ~isempty(paramOverrides)
+        ovc = {};
+        ops = strsplit(string(paramOverrides), ';');
+        for k = 1:numel(ops)
+            kv = strtrim(char(ops(k)));
+            if isempty(kv), continue; end
+            eq = strfind(kv, '=');
+            if isempty(eq), fprintf('WARNING: bad override "%s"\n', kv); continue; end
+            pn = strtrim(kv(1:eq(1)-1));
+            pv = str2double(kv(eq(1)+1:end));
+            if isnan(pv), fprintf('WARNING: non-numeric override "%s"\n', kv); continue; end
+            ovc{end+1} = {'parameter', pn, 'Value', pv}; %#ok<AGROW>
+            fprintf('param override: %s = %g\n', pn, pv);
+        end
+        if ~isempty(ovc)
+            vOverride = sbiovariant('overrides');
+            vOverride.Content = ovc;
+        end
+    end
+
     firstLineFlags = {'ACR20','ACR50','ACR70','Remission'};
     lateFlags      = {'MTX_NonResp','MTX_NonResp_TCZ_ACR20','MTX_NonResp_TCZ_ACR50', ...
                       'MTX_NonResp_TCZ_ACR70','MTX_NonResp_TCZ_Rem'};
@@ -176,9 +201,14 @@ function nDone = sb_run_vpop(vpopXlsx, doseNames, stopTime, baselineDay, readout
         end
         v = sbiovariant(sprintf('vp%d', i));
         v.Content = content;
+        if isempty(vOverride)
+            vsim = v;
+        else
+            vsim = [v, vOverride];        % override wins on shared parameters
+        end
 
         try
-            sd = sbiosimulate(m, cs, v, d);
+            sd = sbiosimulate(m, cs, vsim, d);
         catch ME
             fprintf('patient %d sim FAILED: %s\n', i, ME.message);
             continue;
