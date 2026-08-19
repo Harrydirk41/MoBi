@@ -113,6 +113,9 @@ def register_ra_fit_loop_tools(registry: ToolRegistry, config, ctx: dict) -> Non
                 "Call fit_inspect for names and plausible ranges.")
         p = osp_ra_trial.FIT_PARAMS.get(param) or {}
         log = bool(args.get("log", p.get("log_scale", True)))
+        # 1-D bounded Brent converges in ~10 evals; each eval is a full Vpop sim
+        # (slow), so cap the count and stream progress rather than blocking silently.
+        max_evals = min(int(args.get("max_evals") or 12), 14)
         cache: dict = {}
 
         def evaluate(val):
@@ -121,11 +124,12 @@ def register_ra_fit_loop_tools(registry: ToolRegistry, config, ctx: dict) -> Non
             pred = {k: sl.get(k) for k in ("ACR20", "ACR50", "ACR70")}
             mae = osp_ra_trial.score_flagship(pred, target).get("mae_pp")
             cache[val] = pred
+            print(f"     [opt {len(cache):>2}/{max_evals}] {param}={val:.3g} -> "
+                  f"ACR20 {pred.get('ACR20')} MAE {mae} pp", flush=True)
             return mae
 
         res = osp_ra_trial.numeric_fit_1d(
-            evaluate, float(lo), float(hi), log=log,
-            max_evals=int(args.get("max_evals") or 20))
+            evaluate, float(lo), float(hi), log=log, max_evals=max_evals)
         fitted = res["fitted"]
         pred = cache.get(fitted, {})
 
@@ -206,7 +210,9 @@ def register_ra_fit_loop_tools(registry: ToolRegistry, config, ctx: dict) -> Non
                 "lo": {"type": "number", "description": "lower search bound"},
                 "hi": {"type": "number", "description": "upper search bound"},
                 "log": {"type": "boolean", "description": "search on log scale (default true)"},
-                "max_evals": {"type": "number", "description": "max model evaluations (default 20)"}},
+                "max_evals": {"type": "number", "description": "max model evaluations "
+                              "(default 12, capped at 14); each is a full slow Vpop "
+                              "sim, and 1-D fits converge in ~10, so do not ask for more"}},
                 "required": ["param", "lo", "hi"]},
             handler=optimize, phase="act"))
 
