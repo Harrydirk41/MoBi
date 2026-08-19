@@ -238,6 +238,29 @@ class TestVpopGeneration(unittest.TestCase):
             self.assertLess(p["span"][0], p["span"][1], name)
 
 
+class TestVpopSelection(unittest.TestCase):
+    def test_spanning_pool_matches_target(self):
+        import random
+        random.seed(1)
+        pool = [random.uniform(2.0, 8.5) for _ in range(150)]
+        sel = R.select_to_moments(pool, {"mean": 5.12, "sd": 1.24, "band": (3.2, 8.0)})
+        self.assertTrue(sel["ok"])
+        self.assertLess(abs(sel["weighted_mean"] - 5.12), 0.6)
+        self.assertGreater(sel["ess_fraction"], 0.3)
+
+    def test_offtarget_pool_flagged_by_distance(self):
+        import random
+        random.seed(2)
+        pool = [random.uniform(6.5, 8.0) for _ in range(150)]   # no mild patients
+        sel = R.select_to_moments(pool, {"mean": 5.12, "sd": 1.24, "band": (3.2, 8.0)})
+        # cannot reach the target mean -> large distribution distance
+        self.assertGreater(sel["distribution_distance"], 1.0)
+
+    def test_too_few_inband(self):
+        sel = R.select_to_moments([1.0, 1.5, 9.0], {"mean": 5.12, "sd": 1.24, "band": (3.2, 8.0)})
+        self.assertFalse(sel["ok"])
+
+
 class TestVpopLoopTools(unittest.TestCase):
     def _reg(self):
         from pkpd_agent.tools.ra_vpop_loop_tools import register_ra_vpop_loop_tools

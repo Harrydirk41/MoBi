@@ -30,6 +30,8 @@ def register_ra_vpop_loop_tools(registry: ToolRegistry, config, ctx: dict) -> No
     baseline_day: float = float(ctx.get("baseline_day") or 200.0)
     seed: int = int(ctx.get("seed") or 1)
     target: dict = ctx.get("target") or osp_ra_trial.VPOP_TARGET
+    enable_select: bool = bool(ctx.get("enable_select", True))
+    n_pool: int = int(ctx.get("n_pool") or 80)
 
     def _catalog() -> list[dict]:
         out = []
@@ -90,6 +92,44 @@ def register_ra_vpop_loop_tools(registry: ToolRegistry, config, ctx: dict) -> No
             bounds=bounds, **score,
             best_distance_so_far=session.get("vpop_best_dist"), iteration=len(hist))
 
+    # -- act via NUMERICAL selection (agent designs, routine selects) --- #
+    def select(args: dict, session) -> ToolResult:
+        bounds = args.get("bounds") or {}
+        if not bounds:
+            return ToolResult.error(
+                "no bounds given - pass {bounds:{param:[lo,hi,scale]}}. Sample a pool "
+                "WIDE enough to span the target range; the routine does the selection.")
+        pool_n = int(args.get("n_pool") or n_pool)
+        spec = osp_ra_trial.build_sample_spec(bounds)
+        r = sb.sample_vpop(spec, n_samples=pool_n, baseline_day=baseline_day, seed=seed)
+        das = (r.get("columns") or {}).get("DAS28_base", [])
+        sel = osp_ra_trial.select_to_moments(das, target)
+        if not sel.get("ok"):
+            return ToolResult.error(
+                f"selection failed: {sel.get('reason')} (pool {sel.get('n_pool')}, "
+                f"in-band {sel.get('n_inband')}). Widen the bounds so the pool spans "
+                f"the active band {target['band']} and the target mean {target['mean']}.",
+                **sel)
+
+        hist = session.get("vpop_history") or []
+        hist.append({"bounds": bounds, "score": sel, "via": "numeric"})
+        session.put("vpop_history", hist)
+        best = session.get("vpop_best_dist")
+        d = sel.get("distribution_distance")
+        if d is not None and (best is None or d < best):
+            session.put("vpop_best_dist", d)
+            session.put("vpop_best_bounds", bounds)
+
+        return ToolResult.success(
+            f"pool {sel['n_pool']}, {sel['n_inband']} in band -> reweighted to target: "
+            f"DAS28 mean {sel['weighted_mean']} sd {sel['weighted_sd']} "
+            f"(target {sel['target_mean']}/{sel['target_sd']}); distance "
+            f"{sel['distribution_distance']}; effective sample size "
+            f"{sel['effective_sample_size']} ({int(sel['ess_fraction']*100)}% of "
+            f"in-band - low means the pool barely covers the target)",
+            bounds=bounds, **sel,
+            best_distance_so_far=session.get("vpop_best_dist"))
+
     # -- evaluate ------------------------------------------------------- #
     def finalize(args: dict, session) -> ToolResult:
         bounds = args.get("bounds") or session.get("vpop_best_bounds")
@@ -102,10 +142,15 @@ def register_ra_vpop_loop_tools(registry: ToolRegistry, config, ctx: dict) -> No
                                     "vpop_sample it first, then finalize.")
         session.put("vpop_final", match)
         s = match["score"]
+        # numeric selection reports weighted_mean/sd + ESS; raw sampling reports
+        # accepted_mean/sd + yield
+        mean = s.get("weighted_mean", s.get("accepted_mean"))
+        sd = s.get("weighted_sd", s.get("accepted_sd"))
+        extra = (f"ESS {s.get('effective_sample_size')}" if match.get("via") == "numeric"
+                 else f"yield {s.get('yield_pct')}%")
         return ToolResult.success(
-            f"committed vpop design: yield {s.get('yield_pct')}%, DAS28 "
-            f"{s.get('accepted_mean')}/{s.get('accepted_sd')}, distance "
-            f"{s.get('distribution_distance')}",
+            f"committed vpop design ({match.get('via', 'raw')}): DAS28 {mean}/{sd}, "
+            f"distance {s.get('distribution_distance')}, {extra}",
             bounds=bounds, score=s)
 
     registry.register(Tool(
@@ -121,16 +166,37 @@ def register_ra_vpop_loop_tools(registry: ToolRegistry, config, ctx: dict) -> No
     registry.register(Tool(
         name="vpop_sample",
         description=(
-            "ACT: set the sampling bounds per disease-driver parameter and generate a "
-            "candidate virtual population, simulating each patient to its untreated "
-            "baseline. Returns the baseline DAS28-CRP yield (fraction in the active "
-            "band), the accepted cohort's mean/sd, and the distance to the target "
-            "distribution. Iterate the bounds to raise yield and match mean/sd with "
-            "realistic spread."),
+            "ACT: sample a candidate population at the given bounds and report the "
+            "RAW baseline DAS28-CRP distribution (yield in the active band, mean/sd, "
+            "distance). Use this to PROBE - see where a set of bounds lands the raw "
+            "distribution - not to hand-tune the population to target. For the actual "
+            "population, prefer vpop_select, which reweights a pool to the target."),
         input_schema={"type": "object", "properties": {
             "bounds": {"type": "object",
                        "description": "{param: [lo, hi, scale]}, scale 'lin' or 'log'"}}},
         handler=sample, phase="act"))
+
+    if enable_select:
+        registry.register(Tool(
+            name="vpop_select",
+            description=(
+                "ACT: build the population NUMERICALLY. You set up the design - which "
+                "disease drivers to vary and WIDE bounds that span the target range - "
+                "and a prevalence-weighting routine (the standard QSP method, what the "
+                "paper's genetic algorithm implements) reweights the sampled pool so "
+                "its baseline DAS28-CRP matches the target moments. Returns the "
+                "reweighted mean/sd, the distance, and the EFFECTIVE SAMPLE SIZE. Your "
+                "job is choosing drivers + bounds wide enough to cover the target, and "
+                "judging the result: a low effective sample size means the pool barely "
+                "covers the target (widen the bounds); a healthy one means a diverse, "
+                "on-target population."),
+            input_schema={"type": "object", "properties": {
+                "bounds": {"type": "object",
+                           "description": "{param: [lo, hi, scale]}; sample WIDE"},
+                "n_pool": {"type": "number",
+                           "description": "candidate pool size (default 80); each is a "
+                                          "baseline sim, so keep modest"}}},
+            handler=select, phase="act"))
 
     registry.register(Tool(
         name="vpop_finalize",

@@ -241,6 +241,62 @@ def build_override_spec(overrides: dict) -> str:
     return ";".join(f"{k}={float(v):.6g}" for k, v in (overrides or {}).items())
 
 
+def select_to_moments(das_values, target: dict = None) -> dict[str, Any]:
+    """Numerically SELECT a virtual population from a sampled pool to match a target
+    baseline DAS28-CRP distribution - the standard QSP prevalence-weighting method
+    (which the paper's genetic algorithm implements). Each in-band candidate gets an
+    importance weight = target_density / pool_density, so the reweighted population's
+    moments match the target. Returns the weighted mean/sd, the distance to target,
+    and the effective sample size (ESS) - a low ESS means the match is degenerate
+    (a few candidates dominate), i.e. the pool did not cover the target range.
+
+    The agent's job is to sample a pool WIDE enough to span the target; this routine
+    does the selection. No hand-tuning of bounds required."""
+    import math
+    tgt = target or VPOP_TARGET
+    lo, hi = tgt["band"]
+    m, s = tgt["mean"], tgt["sd"]
+    pool = [x for x in _finite(das_values) if lo <= x <= hi]
+    n_in = len(pool)
+    if n_in < 5:
+        return {"n_pool": len(_finite(das_values)), "n_inband": n_in,
+                "ok": False, "reason": "too few in-band candidates to select from"}
+
+    nbins = max(6, int(round(n_in ** 0.5)))
+    binw = (hi - lo) / nbins
+    counts = [0] * nbins
+
+    def _bin(x):
+        return min(max(int((x - lo) / (hi - lo) * nbins), 0), nbins - 1)
+
+    for x in pool:
+        counts[_bin(x)] += 1
+
+    def pool_density(x):
+        return max(counts[_bin(x)], 1) / (n_in * binw)
+
+    def target_density(x):
+        return math.exp(-0.5 * ((x - m) / s) ** 2) / (s * math.sqrt(2 * math.pi))
+
+    w = [target_density(x) / pool_density(x) for x in pool]
+    sw = sum(w)
+    if sw <= 0:
+        return {"n_pool": len(_finite(das_values)), "n_inband": n_in,
+                "ok": False, "reason": "degenerate weights"}
+    w = [wi / sw for wi in w]
+    wmean = sum(wi * x for wi, x in zip(w, pool))
+    wsd = (sum(wi * (x - wmean) ** 2 for wi, x in zip(w, pool))) ** 0.5
+    ess = 1.0 / sum(wi * wi for wi in w)
+    return {
+        "ok": True, "n_pool": len(_finite(das_values)), "n_inband": n_in,
+        "weighted_mean": round(wmean, 3), "weighted_sd": round(wsd, 3),
+        "target_mean": m, "target_sd": s,
+        "distribution_distance": round(abs(wmean - m) + abs(wsd - s), 3),
+        "effective_sample_size": round(ess, 1),
+        "ess_fraction": round(ess / n_in, 3),
+    }
+
+
 def numeric_fit_1d(evaluate, lo: float, hi: float, log: bool = True,
                    max_evals: int = 20) -> dict[str, Any]:
     """Minimize a scalar objective over ONE parameter with a bounded numerical
