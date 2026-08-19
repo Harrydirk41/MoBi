@@ -114,6 +114,13 @@ class SimBiologyEngine:
         finally:
             _quiet_rm(out)
 
+    def add_drug(self, target: str, efficacy: float,
+                 start_day: float = 200.0) -> None:
+        """Add a designed anti-cytokine drug to the loaded model: from ``start_day``
+        it suppresses the ``target`` disease-driver parameter to (1-efficacy) of its
+        baseline. Reload the project (load_project) to reset before a new design."""
+        self.eng.sb_add_drug(target, float(efficacy), float(start_day), nargout=0)
+
     def sample_vpop(self, param_spec: str, n_samples: int = 60,
                     baseline_day: float = 200.0, seed: int = 1) -> dict[str, Any]:
         """Generate a virtual population by sampling disease-driver parameters and
