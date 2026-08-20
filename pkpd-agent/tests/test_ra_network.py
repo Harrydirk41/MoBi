@@ -128,6 +128,29 @@ class TestDiagramTruth(unittest.TestCase):
             self.assertIn(e.target, N.NODES)
 
 
+class TestSignScoring(unittest.TestCase):
+    def setUp(self):
+        self.truth = [N.Edge("Macro", 1, "IL6"), N.Edge("Macro", 1, "TNFa"),
+                      N.Edge("Treg", -1, "TNFa"), N.Edge("TGFb", -1, "BCell")]
+
+    def test_perfect(self):
+        pred = {e.pair(): e.sign for e in self.truth}
+        s = N.score_signs(pred, self.truth)
+        self.assertEqual(s["accuracy"], 1.0)
+
+    def test_majority_baseline(self):
+        # 2 of 4 positive -> majority baseline 0.5
+        s = N.score_signs({}, self.truth)
+        self.assertEqual(s["majority_baseline"], 0.5)
+        self.assertEqual(s["correct"], 0)
+
+    def test_all_positive_guess(self):
+        pred = {e.pair(): 1 for e in self.truth}   # guess all activate
+        s = N.score_signs(pred, self.truth)
+        self.assertEqual(s["correct"], 2)          # the 2 real positives
+        self.assertFalse(s["beats_majority"])      # equals majority, not beats
+
+
 class _FakeSession:
     def __init__(self):
         self._d = {}

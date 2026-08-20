@@ -22,8 +22,21 @@ from pkpd_agent.tools.registry import ToolRegistry
 from pkpd_agent.tools.ra_scope_loop_tools import register_ra_scope_loop_tools
 
 
-def _system_prompt() -> str:
-    return (
+_CONVENTIONS = (
+    "\n\nIMPORTANT - scope to the ENDPOINTS, not to RA pathology in general:\n"
+    "1. ACR/DAS28-CRP read out tender/swollen joints + CRP/ESR (systemic inflammation) - "
+    "NOT radiographic joint damage. So LEAVE OUT the bone/cartilage EROSION axis "
+    "(chondrocytes, osteoclasts, RANKL, MMPs): the endpoints never see it.\n"
+    "2. DO INCLUDE the cell-recruitment/trafficking layer - endothelium, adhesion "
+    "molecules (CAM), and chemokines (MCP1, MIP3, RANTES): influx into the synovium is "
+    "modeled mechanistically and drives the cell densities the endpoints depend on.\n"
+    "3. CRP and IL-8 are not separate nodes (CRP is read off IL-6; IL-8/neutrophils are "
+    "omitted). Autoantibodies and BAFF ARE in (B-cell-targeted therapy arm)."
+)
+
+
+def _system_prompt(conventions: bool = False) -> str:
+    base = (
         "You are a QSP modeler scoping a rheumatoid-arthritis model. Choose the cast: the "
         "cell types and soluble mediators to include so the model can simulate late-phase "
         "trials and reproduce ACR / DAS28-CRP endpoints. A good QSP model is PARSIMONIOUS "
@@ -35,6 +48,7 @@ def _system_prompt() -> str:
         "scope_propose, then scope_finalize once. Precision is scored - do not dump the "
         "whole immunology textbook."
     )
+    return base + (_CONVENTIONS if conventions else "")
 
 
 def _report_variance(tag: str, xs: list) -> None:
@@ -50,6 +64,9 @@ def main() -> None:
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--max-steps", type=int, default=12)
     ap.add_argument("--repeat", type=int, default=1)
+    ap.add_argument("--conventions", action="store_true",
+                    help="prime the endpoint-focus + trafficking-layer conventions the "
+                         "agent diagnosed missing (tests judgment vs recall)")
     ap.add_argument("--model", default=None)
     ap.add_argument("--effort", default=None)
     args = ap.parse_args()
@@ -85,7 +102,7 @@ def main() -> None:
 
     runs = []
     for i in range(args.repeat):
-        policy = LLMPolicy(cfg, registry, _system_prompt())
+        policy = LLMPolicy(cfg, registry, _system_prompt(args.conventions))
         loop = DecisionLoop(config=cfg, registry=registry, policy=policy)
         session = loop.run(goal, ModelingSession(goal=goal), on_event=show)
         final = session.get("scope_final")

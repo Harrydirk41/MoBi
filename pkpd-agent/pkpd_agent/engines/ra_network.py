@@ -203,6 +203,29 @@ def score_network(proposed: list[Edge], truth: list[Edge],
     }
 
 
+def score_signs(pred: dict, truth: list[Edge]) -> dict:
+    """Isolated sign accuracy: given the TRUE (unsigned) edges, how many signs did the
+    agent get right? pred maps (source, target) -> sign. Compared to the majority-class
+    baseline (guess every edge the more common sign) - the real bar, since if most edges
+    are activating, 'all +1' already scores high."""
+    total = len(truth)
+    if total == 0:
+        return {"n": 0}
+    correct = 0
+    for e in truth:
+        s = pred.get((e.source, e.target))
+        if s is None:
+            continue
+        if (1 if s >= 0 else -1) == e.sign:
+            correct += 1
+    n_pos = sum(1 for e in truth if e.sign > 0)
+    maj = max(n_pos, total - n_pos) / total
+    acc = correct / total
+    return {"n": total, "correct": correct, "accuracy": round(acc, 3),
+            "majority_baseline": round(maj, 3), "beats_majority": acc > maj,
+            "frac_positive": round(n_pos / total, 3)}
+
+
 def edges_from_proposal(items: list[dict]) -> list[Edge]:
     """Turn an agent's proposed edges ({source, target, sign} dicts, sign as
     +1/-1 or 'promote'/'inhibit'/'activate'/'suppress') into canonical Edges."""
