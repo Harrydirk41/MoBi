@@ -357,20 +357,40 @@ Result:
   (koff given in 1/s vs the model's 1/day). The agent's own reasoning was often
   physiologically right and lost only on the model's bookkeeping.
 
-## The ladder (the whole finding)
+## The ladder (the whole finding, all layers measured over 5 runs)
 
-| Stage-1 layer (qualitative → quantitative) | LLM result (5 runs) | verdict |
-|---|---|---|
-| model scope (cast) | F1 0.698 ± 0.028 | best — knows the cast; errs on scope *judgment* |
-| network topology | F1 0.555 ± 0.017, primed ~0.66 | genuinely useful **draft** |
-| edge signs | F1 0.447 ± 0.013 | weak |
-| parameter values (dimensional) | 0.78 ± 0.05 vs baseline 0.62 | **wall** (reliably worse) |
+The distinguishing axis is **biology-determined vs model-committed**, not qualitative vs
+quantitative. Where the answer is dictated by known RA biology, the LLM is strong; where it
+is the modeler's own committed choice (a fitted value, a sign convention, an arbitrary
+readout formula), it is weak — even when the task is otherwise a simple "selection".
 
-**LLM usefulness for Stage 1 degrades monotonically as the layer gets more quantitative:
-it reaches the skeleton, not the numbers.** Scope (0.70) > topology (0.55) > signs (0.45) >
-parameters (below a naive baseline). The qualitative structure it drafts well; the
-quantitative values live in the model's internal scaling and in data-fitting, which no
-amount of physiological reasoning recovers.
+| the answer is… | layer | LLM (5 runs) | baseline | verdict |
+|---|---|---|---|---|
+| **known RA biology** | sensitivity — *which* params matter | recall 0.87 ± 0.03 | random 0.44 | **strong** |
+| | model scope (cast), primed | F1 0.82 ± 0.06 | — | strong |
+| | model scope (cast), raw | F1 0.70 ± 0.03 | — | strong |
+| | network topology, primed | F1 ~0.66 | — | useful |
+| | network topology, raw | F1 0.555 ± 0.017 | — | useful **draft** |
+| **this model's committed choice** | readout formula (DAS28 drivers) | F1 0.37 ± 0.06 | 9-cell key | weak |
+| | edge signs (isolated) | acc 0.77 ± 0.005 | majority 0.74 | barely above guessing |
+| | sensitivity — exact *rank* | Spearman 0.34 | — | weak |
+| | parameter values (fair physiological subset) | 0.76 ± 0.04 | 0.68 | **below baseline (0/5)** |
+
+**The LLM identifies what standard biology dictates (which cells belong, what wires to
+what, which knobs dominate) and fails at what the model committed to on its own** — the
+fitted parameter values, the exact feedback signs, the precise sensitivity order, and the
+idiosyncratic readout formula (9 specific cells, T-cells split into 4 subsets, no cytokines,
+Treg negative). The readout is the sharpest case: the agent gave the *biologically* sensible
+answer (cell load + IL-6→CRP) and lost only because the model made *different* reductive
+choices it had no way to guess. Priming lifts the biology-adjacent layers (scope 0.70→0.82,
+topology 0.55→0.66) because it supplies the model's conventions; it cannot rescue the
+committed-value layers, because those are not derivable.
+
+Recurring methodological finding: the **harness under-credited the LLM four separate times**
+(edge key 3× short; missing TGFb/IL10; scope free-text synonyms; readout free-text synonyms)
+— a strict-match answer key systematically understates a free-text LLM, and each time the
+agent's own self-diagnosis caught it. The tolerant `resolve_node` matcher and the naive/
+majority/random baselines are most of what makes these numbers trustworthy.
 
 Caveats kept explicit: (a) headlines are over 5 runs and the variance is small (F1 sd
 0.02–0.03) — the numbers are stable, not n=1 noise; (b) this is **one** QSP model — the
