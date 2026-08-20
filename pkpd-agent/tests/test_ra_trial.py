@@ -375,6 +375,40 @@ class TestValidateLoopTools(unittest.TestCase):
         self.assertIn("comparator", res.data)
 
 
+class TestQSPConfig(unittest.TestCase):
+    def test_vantage_ra_validates(self):
+        from pkpd_agent.engines import qsp_config as C
+        cfg = C.get()
+        self.assertEqual(cfg.validate(), [])
+        self.assertEqual(len(cfg.readout_states), len(C.READOUT_ROLES))
+
+    def test_states_match_matlab_defaults(self):
+        # the config's readout states MUST equal sb_run_vpop's hardcoded defaults,
+        # so passing them through changes nothing (backward compatibility)
+        from pkpd_agent.engines import qsp_config as C
+        default_m = ["ACR20", "ACR50", "ACR70", "Remission", "MTX_NonResp",
+                     "MTX_NonResp_TCZ_ACR20", "MTX_NonResp_TCZ_ACR50",
+                     "MTX_NonResp_TCZ_ACR70", "MTX_NonResp_TCZ_Rem",
+                     "DAS28_CRP", "DAS28_BL"]
+        self.assertEqual(C.VANTAGE_RA.readout_states, default_m)
+
+    def test_config_aggregates_catalogs(self):
+        from pkpd_agent.engines import qsp_config as C
+        cfg = C.get()
+        self.assertIs(cfg.drugs, R.DRUG_CATALOG)
+        self.assertIs(cfg.design_targets, R.DESIGN_TARGETS)
+        self.assertIs(cfg.fit_params, R.FIT_PARAMS)
+
+    def test_validate_catches_wrong_state_count(self):
+        from pkpd_agent.engines import qsp_config as C
+        bad = C.QSPModelConfig(name="x", readout_states=["a", "b"],
+                               timeline={}, drugs={}, vpop_drivers={},
+                               vpop_target={}, fit_params={}, design_targets={})
+        problems = bad.validate()
+        self.assertTrue(any("readout_states" in p for p in problems))
+        self.assertTrue(any("timeline" in p for p in problems))
+
+
 class TestDrugCatalog(unittest.TestCase):
     def test_tocilizumab_is_il6(self):
         self.assertIn("IL-6", R.DRUG_CATALOG["TCZ"]["mechanism"])

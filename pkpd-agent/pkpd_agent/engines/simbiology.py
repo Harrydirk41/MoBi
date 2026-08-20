@@ -141,7 +141,8 @@ class SimBiologyEngine:
 
     def run_vpop(self, vpop_xlsx: str, dose: str = "", stop_time: float = 700.0,
                  baseline_day: float = 200.0, readout_day: float = 284.0,
-                 limit: int = 0, param_overrides: str = "") -> dict[str, Any]:
+                 limit: int = 0, param_overrides: str = "",
+                 states: "list | None" = None) -> dict[str, Any]:
         """Run the whole virtual population (an .xlsx of patient parameter sets)
         under one or more named doses, and return each patient's MODEL-COMPUTED
         clinical-response flags. The Vantage RA model encodes the trial as events:
@@ -163,9 +164,10 @@ class SimBiologyEngine:
         out = _tmp(".csv")
         so = io.StringIO()
         try:
+            state_spec = ";".join(states) if states else ""
             self.eng.sb_run_vpop(vpop_xlsx, dose or "", float(stop_time),
                                  float(baseline_day), float(readout_day), out,
-                                 float(limit), param_overrides or "",
+                                 float(limit), param_overrides or "", state_spec,
                                  nargout=0, stdout=so, stderr=so)
             res = _read_csv(out)
             res["matlab_log"] = so.getvalue()

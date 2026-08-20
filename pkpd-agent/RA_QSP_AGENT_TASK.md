@@ -151,6 +151,32 @@ and available regimens, choose a protocol, run, evaluate the population readout,
 and stop when the prediction is both close to the target and mechanistically
 sensible (right drug, right line of therapy, plausible dose).
 
+## Porting to a new QSP model
+
+The engine (`SimBiologyEngine`), the loop, and the numerical routines
+(`numeric_fit_1d`, `select_to_moments`, `ir_mask`, dose retime/scale, structural
+drug-add) are **model-agnostic**. What is specific to the Vantage RA model is
+gathered into one adapter — `engines/qsp_config.py` (`QSPModelConfig`, instance
+`VANTAGE_RA`):
+
+* `readout_states` — the 11 model state names, in role order, that `sb_run_vpop`
+  reads. The CSV column *roles* are fixed (four first-line flags, five latched
+  flags, a trajectory state, a baseline state); the config maps each role to *this
+  model's* state name. `sb_run_vpop.m` takes these as its `stateSpec` argument and
+  falls back to the RA defaults when none is given, so a new model changes the
+  names without touching the `.m`.
+* `timeline` — the days the model's readout events fire.
+* `drugs` / `vpop_drivers` / `fit_params` / `design_targets` — the catalogs the
+  task tools present to the agent.
+* `clinical_reference` — the real trial data to score against.
+
+So a new QSP model is **a new `QSPModelConfig` plus its reference data**, not a
+code rewrite — the engine, loop, and numerical routines carry over unchanged. What
+is *not* yet automated: deriving the catalogs from the model itself. `model_info()`
+already lists any model's species / parameters / doses generically, so the next
+step toward plug-and-play is having the agent propose the config from that
+inventory rather than a human writing it.
+
 ## Two objectives (difficulty)
 
 `run_llm_ra_trial.py --objective` selects the task:

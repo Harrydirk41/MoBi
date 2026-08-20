@@ -1,4 +1,4 @@
-function nDone = sb_run_vpop(vpopXlsx, doseNames, stopTime, baselineDay, readoutDay, outCsv, nLimit, paramOverrides)
+function nDone = sb_run_vpop(vpopXlsx, doseNames, stopTime, baselineDay, readoutDay, outCsv, nLimit, paramOverrides, stateSpec)
 %SB_RUN_VPOP Run the loaded model across a virtual population (an .xlsx whose row
 %   1 is parameter names and each following row is one patient's parameter set),
 %   optionally under one or more named doses, and write per-patient the MODEL's
@@ -176,9 +176,27 @@ function nDone = sb_run_vpop(vpopXlsx, doseNames, stopTime, baselineDay, readout
         end
     end
 
-    firstLineFlags = {'ACR20','ACR50','ACR70','Remission'};
-    lateFlags      = {'MTX_NonResp','MTX_NonResp_TCZ_ACR20','MTX_NonResp_TCZ_ACR50', ...
-                      'MTX_NonResp_TCZ_ACR70','MTX_NonResp_TCZ_Rem'};
+    % Readout state names are CONFIGURABLE (a new QSP model has different events).
+    % stateSpec is a ';'-joined list of 11 state names in role order:
+    %   [firstline1..4, latched1..5, trajectoryState, baselineState]
+    % The CSV column roles stay fixed; only which model state fills each role changes.
+    % Empty -> the Vantage RA defaults (backward compatible).
+    st = {'ACR20','ACR50','ACR70','Remission','MTX_NonResp', ...
+          'MTX_NonResp_TCZ_ACR20','MTX_NonResp_TCZ_ACR50', ...
+          'MTX_NonResp_TCZ_ACR70','MTX_NonResp_TCZ_Rem','DAS28_CRP','DAS28_BL'};
+    if nargin >= 9 && ~isempty(stateSpec)
+        parts = cellstr(strsplit(string(stateSpec), ';'));
+        if numel(parts) == numel(st)
+            st = parts;
+        else
+            fprintf('WARNING: stateSpec needs %d names, got %d - using defaults\n', ...
+                    numel(st), numel(parts));
+        end
+    end
+    firstLineFlags = st(1:4);
+    lateFlags      = st(5:9);
+    trajState      = char(st{10});
+    baseState      = char(st{11});
 
     fid = fopen(outCsv, 'w', 'n', 'UTF-8');
     fprintf(fid, ['patient,DAS28_BL,DAS28_base,DAS28_read,DAS28_end,' ...
@@ -214,7 +232,7 @@ function nDone = sb_run_vpop(vpopXlsx, doseNames, stopTime, baselineDay, readout
             continue;
         end
         try
-            das = selectbyname(sd, 'DAS28_CRP').Data;
+            das = selectbyname(sd, trajState).Data;
             [~, ib] = min(abs(sd.Time - baselineDay));   % nearest time (dose events
             [~, ir] = min(abs(sd.Time - readoutDay));    % create duplicate stamps)
             fl = zeros(1, 4);                            % first-line, read AT day 284
@@ -225,7 +243,7 @@ function nDone = sb_run_vpop(vpopXlsx, doseNames, stopTime, baselineDay, readout
             for f = 1:5
                 lt(f) = local_lastval(sd, lateFlags{f});
             end
-            bl = local_lastval(sd, 'DAS28_BL');
+            bl = local_lastval(sd, baseState);
             fprintf(fid, '%d,%g,%g,%g,%g,%g,%g,%g,%g,%g,%g,%g,%g,%g\n', ...
                     i, bl, das(ib), das(ir), das(end), ...
                     fl(1), fl(2), fl(3), fl(4), ...
