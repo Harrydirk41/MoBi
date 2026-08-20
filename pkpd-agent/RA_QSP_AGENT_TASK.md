@@ -301,12 +301,20 @@ numbers are stable ceilings, not n=1 luck.
 ## Layer 0 — model scope (`run_llm_ra_scope`, `ra_scope.py`)
 
 Given only the disease and the modeling goal (no cast), the agent proposes which cells and
-mediators to include; scored precision/recall/F1 vs the model's real 26-node cast. Recall
-is easy; **precision is the test** — a good QSP model is parsimonious, so dumping the RA
-textbook is penalised. Over-inclusions that are real RA mediators the model deliberately
-omits (IL-2/8/15/18/32, NK/dendritic/osteoclast, …) are flagged so the miss list is
-interpretable. This is the Stage-2 scoping judgment the other tasks skipped by handing the
-agent the cast.
+mediators to include; scored precision/recall/F1 vs the model's real 26-node cast. Over-
+inclusions that are real RA mediators the model deliberately omits (IL-2/8/15/18/32,
+NK/dendritic/osteoclast, …) are flagged so the miss list is interpretable. This is the
+Stage-2 scoping judgment the other tasks skipped by handing the agent the cast.
+
+Result (5 runs): **F1 0.698 ± 0.028** (P 0.68 / R 0.72). The agent knows the cast; its
+*genuine* errors are modeling-scope judgment, not biology recall: it under-includes the
+recruitment/trafficking layer (Endo, CAM, chemokines MIP3/RANTES) and over-includes the
+joint-erosion axis (chondrocyte, osteoclast, RANKL, MMP3) that the ACR/DAS28 endpoints
+never read out — i.e. it scoped to "RA pathology" instead of "what drives *these*
+endpoints." (First pass scored a spurious 0.44: the scorer, not the agent, was wrong —
+free-text names like "Th1 cell", "Fibroblast-like synoviocyte", "CCL2 (MCP-1)" failed a
+strict match and were double-penalised as miss+extra. `resolve_node` fixed it. This was
+the third time the harness under-credited the agent; see the caveat below.)
 
 ## Layer 1 — network topology (`run_llm_ra_network`, `ra_network.py`)
 
@@ -351,24 +359,29 @@ Result:
 
 ## The ladder (the whole finding)
 
-| Stage-1 layer | LLM result | verdict |
+| Stage-1 layer (qualitative → quantitative) | LLM result (5 runs) | verdict |
 |---|---|---|
-| model scope (cast) | `run_llm_ra_scope` — precision is the signal | built; measures parsimony |
+| model scope (cast) | F1 0.698 ± 0.028 | best — knows the cast; errs on scope *judgment* |
 | network topology | F1 0.555 ± 0.017, primed ~0.66 | genuinely useful **draft** |
 | edge signs | F1 0.447 ± 0.013 | weak |
 | parameter values (dimensional) | 0.78 ± 0.05 vs baseline 0.62 | **wall** (reliably worse) |
 
-**LLM usefulness for Stage 1 degrades exactly as the layer gets more quantitative:
-it reaches the skeleton, not the numbers.** The qualitative wiring it drafts well; the
+**LLM usefulness for Stage 1 degrades monotonically as the layer gets more quantitative:
+it reaches the skeleton, not the numbers.** Scope (0.70) > topology (0.55) > signs (0.45) >
+parameters (below a naive baseline). The qualitative structure it drafts well; the
 quantitative values live in the model's internal scaling and in data-fitting, which no
 amount of physiological reasoning recovers.
 
-Caveats kept explicit: (a) headlines are over 5 runs and the variance is small (topology
-F1 sd 0.017, dimensional-param sd 0.05) — the numbers are stable, not n=1 noise; (b) this
-is **one** QSP model — the ladder is a finding about this RA model, and would need a second
-model to generalize; (c) the benchmark tests *reconstruction against an answer key*, which
-is easier than *de novo construction* — recovering wiring you're scored against is not the
-same as building a model that simulates and calibrates.
+Caveats kept explicit: (a) headlines are over 5 runs and the variance is small (F1 sd
+0.02–0.03) — the numbers are stable, not n=1 noise; (b) this is **one** QSP model — the
+ladder is a finding about this RA model, and would need a second model to generalize; (c)
+the benchmark tests *reconstruction against an answer key*, which is easier than *de novo
+construction* — recovering wiring you're scored against is not the same as building a model
+that simulates and calibrates; (d) **the harness under-credited the agent three times**
+(network key 3× short; missing TGFb/IL10 from the cast; scope free-text names failing a
+strict match) — each time the raw number understated the LLM and the agent's own self-
+diagnosis flagged the bug. A strict-string answer key systematically penalises a free-text
+model; tolerant (or LLM-judge) matching is required for an honest score.
 
 ## Files
 
