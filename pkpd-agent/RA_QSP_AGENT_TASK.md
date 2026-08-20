@@ -293,8 +293,20 @@ It is the paper authors' real contribution and we did **none** of it. But becaus
 have the finished model as an **answer key**, we can benchmark whether an LLM could
 *reconstruct* pieces of it — which is where LLM reasoning is finally load-bearing.
 
-We measured three layers, top (qualitative) to bottom (quantitative). Every number
-below is the model's own wiring/values as the key; the LLM never sees it until scoring.
+We measured several layers, top (qualitative) to bottom (quantitative). Every number
+below is the model's own scope/wiring/values as the key; the LLM never sees it until
+scoring. Headlines are over **5 runs** (`--repeat 5`) — variance is small enough that the
+numbers are stable ceilings, not n=1 luck.
+
+## Layer 0 — model scope (`run_llm_ra_scope`, `ra_scope.py`)
+
+Given only the disease and the modeling goal (no cast), the agent proposes which cells and
+mediators to include; scored precision/recall/F1 vs the model's real 26-node cast. Recall
+is easy; **precision is the test** — a good QSP model is parsimonious, so dumping the RA
+textbook is penalised. Over-inclusions that are real RA mediators the model deliberately
+omits (IL-2/8/15/18/32, NK/dendritic/osteoclast, …) are flagged so the miss list is
+interpretable. This is the Stage-2 scoping judgment the other tasks skipped by handing the
+agent the cast.
 
 ## Layer 1 — network topology (`run_llm_ra_network`, `ra_network.py`)
 
@@ -305,10 +317,12 @@ topology-only. The answer key is parsed from the model's rule expressions — ea
 from the `_by` parameter names (that first key was 3× short: 30 vs 88 edges).
 
 Result (full 88-edge key):
-* biology-only prompt: **topology F1 ≈ 0.55** (P 0.49 / R 0.63, 50/80 recovered)
+* biology-only prompt (5 runs): **topology F1 0.555 ± 0.017** (P 0.49 / R 0.63,
+  ~50/80 recovered) — the sd is tiny: the LLM reconstructs almost the same network every
+  run, so ~0.55 is a **stable ceiling**, not a lucky draw.
 * convention-primed (`--conventions`: told the model is bipartite cell↔cytokine +
   negative self-feedback): **topology F1 ≈ 0.66** (R 0.75, 60/80)
-* sign-aware F1 stays ≈ 0.44–0.50 — **signs are the weak point**; primed about signs,
+* sign-aware F1 0.447 ± 0.013 — **signs are the weak point**; primed about signs,
   the agent hedges (proposes both signs) rather than localizing them.
 
 Read: an LLM reconstructs the **skeleton** well (a genuinely useful first-pass draft),
@@ -328,8 +342,8 @@ Result:
   **dimensionless** fold-effects, which cluster near 1 so the baseline already scores
   99% within 10×.
 * on the 40 **dimensional** parameters (rates, secretion, concentrations — where
-  physiology should help): LLM median log10 err **0.72 vs baseline 0.62** — i.e. the
-  LLM is **at parity or slightly worse** than the dumb guess. This is the wall.
+  physiology should help): LLM median log10 err **0.78 ± 0.05 (5 runs) vs baseline 0.62**
+  — the LLM is **reliably worse** than the dumb guess, every run. This is the wall.
 * the worst misses are not bad biology — they are model-internal normalization
   (molecule-scaled secretion ~1e-9, unknowable without the model) and unit conventions
   (koff given in 1/s vs the model's 1/day). The agent's own reasoning was often
@@ -339,24 +353,27 @@ Result:
 
 | Stage-1 layer | LLM result | verdict |
 |---|---|---|
-| network topology | F1 ~0.55, primed ~0.66 | genuinely useful **draft** |
-| edge signs | F1 ~0.44–0.50 | weak |
-| parameter values (dimensional) | ≈ / slightly below naive baseline | **wall** |
+| model scope (cast) | `run_llm_ra_scope` — precision is the signal | built; measures parsimony |
+| network topology | F1 0.555 ± 0.017, primed ~0.66 | genuinely useful **draft** |
+| edge signs | F1 0.447 ± 0.013 | weak |
+| parameter values (dimensional) | 0.78 ± 0.05 vs baseline 0.62 | **wall** (reliably worse) |
 
 **LLM usefulness for Stage 1 degrades exactly as the layer gets more quantitative:
 it reaches the skeleton, not the numbers.** The qualitative wiring it drafts well; the
 quantitative values live in the model's internal scaling and in data-fitting, which no
 amount of physiological reasoning recovers.
 
-Caveats kept explicit: (a) each headline is low-n — use `--repeat N` on both runners to
-get mean/sd instead of a single point; (b) this is **one** QSP model — the ladder is a
-finding about this RA model, and would need a second model to generalize; (c) the
-benchmark tests *reconstruction against an answer key*, which is easier than *de novo
-construction* — recovering wiring you're scored against is not the same as building a
-model that simulates and calibrates.
+Caveats kept explicit: (a) headlines are over 5 runs and the variance is small (topology
+F1 sd 0.017, dimensional-param sd 0.05) — the numbers are stable, not n=1 noise; (b) this
+is **one** QSP model — the ladder is a finding about this RA model, and would need a second
+model to generalize; (c) the benchmark tests *reconstruction against an answer key*, which
+is easier than *de novo construction* — recovering wiring you're scored against is not the
+same as building a model that simulates and calibrates.
 
 ## Files
 
+* `pkpd_agent/engines/ra_scope.py` / `tools/ra_scope_loop_tools.py` /
+  `examples/run_llm_ra_scope.py` — Layer-0 scope/cast benchmark (`--repeat`).
 * `pkpd_agent/engines/ra_network.py` / `tools/ra_network_loop_tools.py` /
   `examples/run_llm_ra_network.py` — topology benchmark (`--conventions`, `--repeat`).
 * `pkpd_agent/engines/ra_params.py` (+ `data/ra_params_esm2.json`) /
