@@ -275,3 +275,92 @@ ACR50/70 = 0 (even TCZ 8 mg/kg gives only ACR20 28.6% / ACR50 0% on that slice
 vs 44.9% / 23.5% on the full 300). So `--limit N` runs an evenly-spaced sample
 across the whole population, which tracks the full-population rates much more
 closely and gives the agent a fair, scorable signal.
+
+---
+
+# Stage 1: can an LLM do the model *building*? (a benchmark, not a claim)
+
+Everything above (the "2–7" tasks: trial design, calibration, Vpop generation,
+drug design, validation) operates on the **finished** model. Honest accounting of
+those tasks: the LLM is rarely load-bearing — a numerical routine (scipy) or the
+hard-coded tool logic does the work, and the LLM mostly *selects among options we
+laid out and narrates the result*. They show an agent can carry the workflow, not
+that it does the science.
+
+Stage 1 — building the model itself (its network + parameters) — is the opposite:
+open-ended, no ground truth until the whole thing is done, and not brute-forceable.
+It is the paper authors' real contribution and we did **none** of it. But because we
+have the finished model as an **answer key**, we can benchmark whether an LLM could
+*reconstruct* pieces of it — which is where LLM reasoning is finally load-bearing.
+
+We measured three layers, top (qualitative) to bottom (quantitative). Every number
+below is the model's own wiring/values as the key; the LLM never sees it until scoring.
+
+## Layer 1 — network topology (`run_llm_ra_network`, `ra_network.py`)
+
+Given only the cast (9 cells, 17 cytokines incl. TGFb/IL10), the agent proposes the
+signed regulatory edges; scored precision/recall/F1 vs the model, both sign-aware and
+topology-only. The answer key is parsed from the model's rule expressions — each
+`MM(source, …)` term in a `(Pro|Anti)_<TargetProcess>_effect` rule is one edge — **not**
+from the `_by` parameter names (that first key was 3× short: 30 vs 88 edges).
+
+Result (full 88-edge key):
+* biology-only prompt: **topology F1 ≈ 0.55** (P 0.49 / R 0.63, 50/80 recovered)
+* convention-primed (`--conventions`: told the model is bipartite cell↔cytokine +
+  negative self-feedback): **topology F1 ≈ 0.66** (R 0.75, 60/80)
+* sign-aware F1 stays ≈ 0.44–0.50 — **signs are the weak point**; primed about signs,
+  the agent hedges (proposes both signs) rather than localizing them.
+
+Read: an LLM reconstructs the **skeleton** well (a genuinely useful first-pass draft),
+and its self-diagnosis is correct and substantive (it identified that the model is a
+bipartite graph with self-limiting feedback loops — a real modeling-convention insight).
+But ~40% of its edges are spurious and half the signs are wrong, so it drafts, it
+doesn't build.
+
+## Layer 2 — parameter values (`run_llm_ra_params`, `ra_params.py`)
+
+Given each parameter's name/units/cell-context, the agent predicts its value; scored
+order-of-magnitude (log10 error) vs ESM2's 130 documented values. **The honesty check
+is a naive unit-geomean baseline** (knows each unit's empirical scale, zero biology).
+
+Result:
+* overall "beats baseline: True" — but that is a **mirage**: it is carried by the 90
+  **dimensionless** fold-effects, which cluster near 1 so the baseline already scores
+  99% within 10×.
+* on the 40 **dimensional** parameters (rates, secretion, concentrations — where
+  physiology should help): LLM median log10 err **0.72 vs baseline 0.62** — i.e. the
+  LLM is **at parity or slightly worse** than the dumb guess. This is the wall.
+* the worst misses are not bad biology — they are model-internal normalization
+  (molecule-scaled secretion ~1e-9, unknowable without the model) and unit conventions
+  (koff given in 1/s vs the model's 1/day). The agent's own reasoning was often
+  physiologically right and lost only on the model's bookkeeping.
+
+## The ladder (the whole finding)
+
+| Stage-1 layer | LLM result | verdict |
+|---|---|---|
+| network topology | F1 ~0.55, primed ~0.66 | genuinely useful **draft** |
+| edge signs | F1 ~0.44–0.50 | weak |
+| parameter values (dimensional) | ≈ / slightly below naive baseline | **wall** |
+
+**LLM usefulness for Stage 1 degrades exactly as the layer gets more quantitative:
+it reaches the skeleton, not the numbers.** The qualitative wiring it drafts well; the
+quantitative values live in the model's internal scaling and in data-fitting, which no
+amount of physiological reasoning recovers.
+
+Caveats kept explicit: (a) each headline is low-n — use `--repeat N` on both runners to
+get mean/sd instead of a single point; (b) this is **one** QSP model — the ladder is a
+finding about this RA model, and would need a second model to generalize; (c) the
+benchmark tests *reconstruction against an answer key*, which is easier than *de novo
+construction* — recovering wiring you're scored against is not the same as building a
+model that simulates and calibrates.
+
+## Files
+
+* `pkpd_agent/engines/ra_network.py` / `tools/ra_network_loop_tools.py` /
+  `examples/run_llm_ra_network.py` — topology benchmark (`--conventions`, `--repeat`).
+* `pkpd_agent/engines/ra_params.py` (+ `data/ra_params_esm2.json`) /
+  `tools/ra_params_loop_tools.py` / `examples/run_llm_ra_params.py` — parameter
+  benchmark with the naive-baseline honesty check (`--repeat`).
+* `examples/matlab/sb_network_json.m` + `examples/dump_network.py` — dump the full
+  wiring answer key from the model (run once).

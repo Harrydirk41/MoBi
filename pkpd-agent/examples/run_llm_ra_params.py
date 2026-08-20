@@ -45,6 +45,9 @@ def main() -> None:
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--key", default=None, help="override the ESM2 params JSON")
     ap.add_argument("--max-steps", type=int, default=14)
+    ap.add_argument("--repeat", type=int, default=1,
+                    help="run N times and report mean/sd of the dimensional error "
+                         "(kills n=1 noise on the metric that matters)")
     ap.add_argument("--model", default=None)
     ap.add_argument("--effort", default=None)
     args = ap.parse_args()
@@ -69,7 +72,11 @@ def main() -> None:
     policy = LLMPolicy(cfg, registry, _system_prompt())
     loop = DecisionLoop(config=cfg, registry=registry, policy=policy)
 
+    verbose = args.repeat == 1
+
     def show(ev):
+        if not verbose:
+            return
         if isinstance(ev, Decision):
             if ev.text:
                 print(f"\n[reason] {ev.text[:1000]}")
@@ -82,27 +89,60 @@ def main() -> None:
         elif isinstance(ev, Finish):
             print(f"\n=== AGENT SUMMARY ===\n{ev.text}")
 
-    session = loop.run(goal, ModelingSession(goal=goal), on_event=show)
+    runs = []
+    for i in range(args.repeat):
+        session = loop.run(goal, ModelingSession(goal=goal), on_event=show)
+        final = session.get("param_final")
+        if not final:
+            print(f"  run {i + 1}: agent did not finalize")
+            continue
+        runs.append(final)
+        if not verbose:
+            d, o = final["dimensional"], final["overall"]
+            print(f"  run {i + 1}/{args.repeat}: DIMENSIONAL median {d['median_log10_err']} "
+                  f"(within 3x {d['within_3x']}), overall median {o['median_log10_err']}, "
+                  f"beats baseline {final['beats_baseline']}")
 
-    final = session.get("param_final")
-    print("\n== SCORE vs the real model (order of magnitude) ==")
-    if not final:
-        print("  (agent did not finalize)")
+    if not runs:
+        print("\nno finalized runs.")
         return
 
-    def line(tag, d):
-        if d.get("n"):
-            print(f"  {tag:16s} n={d['n']:3d}  median log10 err {d['median_log10_err']}"
-                  f"   within 3x {d['within_3x']}  10x {d['within_10x']}")
-    line("OVERALL", final["overall"])
-    line("dimensionless", final["dimensionless"])
-    line("DIMENSIONAL", final["dimensional"])
-    line("naive baseline", final["naive_unit_geomean_baseline"])
-    print(f"\n  beats naive baseline (overall median): {final['beats_baseline']}")
-    print("\n  worst order-of-magnitude misses:")
-    for w in final["worst_misses"][:10]:
-        print(f"    {w['name']:32s} true {w['true']:<10g} pred {w['pred']:<10g} "
-              f"({w['log10_err']} dex off)")
+    print("\n== SCORE vs the real model (order of magnitude) ==")
+    if verbose:
+        final = runs[0]
+
+        def line(tag, d):
+            if d.get("n"):
+                print(f"  {tag:16s} n={d['n']:3d}  median log10 err {d['median_log10_err']}"
+                      f"   within 3x {d['within_3x']}  10x {d['within_10x']}")
+        line("OVERALL", final["overall"])
+        line("dimensionless", final["dimensionless"])
+        line("DIMENSIONAL", final["dimensional"])
+        line("naive baseline", final["naive_unit_geomean_baseline"])
+        print(f"\n  beats naive baseline (overall median): {final['beats_baseline']}")
+        print("\n  worst order-of-magnitude misses:")
+        for w in final["worst_misses"][:10]:
+            print(f"    {w['name']:32s} true {w['true']:<10g} pred {w['pred']:<10g} "
+                  f"({w['log10_err']} dex off)")
+    else:
+        base = runs[0]["naive_unit_geomean_baseline"]["median_log10_err"]
+        base_dim = P.score_params(P.unit_geomean_baseline(truth),
+                                  truth)["dimensional"]["median_log10_err"]
+        _report_variance("DIMENSIONAL median", [r["dimensional"]["median_log10_err"] for r in runs])
+        print(f"    ^ naive baseline (dimensional) median = {base_dim}  <- the bar to beat")
+        _report_variance("overall median", [r["overall"]["median_log10_err"] for r in runs])
+        print(f"    ^ naive baseline (overall) median = {base}")
+        beats = sum(1 for r in runs if r["beats_baseline"])
+        print(f"\n  beats baseline (overall) in {beats}/{len(runs)} runs "
+              f"(note: overall is carried by the easy dimensionless params)")
+
+
+def _report_variance(tag: str, xs: list) -> None:
+    n = len(xs)
+    mean = sum(xs) / n
+    sd = (sum((x - mean) ** 2 for x in xs) / (n - 1)) ** 0.5 if n > 1 else 0.0
+    print(f"\n  {tag:20s} over {n} runs: mean {mean:.3f}  sd {sd:.3f}  "
+          f"min {min(xs):.3f}  max {max(xs):.3f}")
 
 
 if __name__ == "__main__":

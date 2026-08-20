@@ -71,6 +71,8 @@ def main() -> None:
     ap.add_argument("--conventions", action="store_true",
                     help="prime the agent with the model's bipartite + negative-feedback "
                          "conventions (tests whether its gap was grammar, not biology)")
+    ap.add_argument("--repeat", type=int, default=1,
+                    help="run the agent N times and report mean/sd of F1 (kills n=1 noise)")
     ap.add_argument("--model", default=None)
     ap.add_argument("--effort", default=None)
     args = ap.parse_args()
@@ -103,7 +105,11 @@ def main() -> None:
     policy = LLMPolicy(cfg, registry, _system_prompt(args.conventions))
     loop = DecisionLoop(config=cfg, registry=registry, policy=policy)
 
+    verbose = args.repeat == 1
+
     def show(ev):
+        if not verbose:
+            return
         if isinstance(ev, Decision):
             if ev.text:
                 print(f"\n[reason] {ev.text[:1200]}")
@@ -115,24 +121,50 @@ def main() -> None:
         elif isinstance(ev, Finish):
             print(f"\n=== AGENT SUMMARY ===\n{ev.text}")
 
-    session = loop.run(goal, ModelingSession(goal=goal), on_event=show)
+    runs = []
+    for i in range(args.repeat):
+        session = loop.run(goal, ModelingSession(goal=goal), on_event=show)
+        final = session.get("net_final")
+        if not final:
+            print(f"  run {i + 1}: agent did not finalize")
+            continue
+        runs.append(final)
+        if not verbose:
+            t, s = final["topology"], final["sign_aware"]
+            print(f"  run {i + 1}/{args.repeat}: topo F1 {t['f1']} "
+                  f"(P {t['precision']} R {t['recall']}, {final['n_edges']} edges), "
+                  f"sign F1 {s['f1']}")
 
-    final = session.get("net_final")
-    print("\n== SCORE vs the real model ==")
-    if not final:
-        print("  (agent did not finalize)")
+    if not runs:
+        print("\nno finalized runs.")
         return
-    topo, sa = final["topology"], final["sign_aware"]
-    print(f"  edges proposed : {final['n_edges']}   (truth {topo['n_truth']})")
-    print(f"  TOPOLOGY  : P {topo['precision']}  R {topo['recall']}  F1 {topo['f1']}"
-          f"   ({topo['hit']} found, {topo['missed']} missed, {topo['extra']} extra)")
-    print(f"  SIGN-AWARE: P {sa['precision']}  R {sa['recall']}  F1 {sa['f1']}")
-    print("\n  missed real edges (recall gaps):")
-    for e in topo["missed_edges"][:25]:
-        print(f"    {e}")
-    print("\n  extra edges not in the model (may be defensible biology):")
-    for e in topo["extra_edges"][:25]:
-        print(f"    {e}")
+
+    if verbose:
+        final = runs[0]
+        topo, sa = final["topology"], final["sign_aware"]
+        print("\n== SCORE vs the real model ==")
+        print(f"  edges proposed : {final['n_edges']}   (truth {topo['n_truth']})")
+        print(f"  TOPOLOGY  : P {topo['precision']}  R {topo['recall']}  F1 {topo['f1']}"
+              f"   ({topo['hit']} found, {topo['missed']} missed, {topo['extra']} extra)")
+        print(f"  SIGN-AWARE: P {sa['precision']}  R {sa['recall']}  F1 {sa['f1']}")
+        print("\n  missed real edges (recall gaps):")
+        for e in topo["missed_edges"][:25]:
+            print(f"    {e}")
+        print("\n  extra edges not in the model (may be defensible biology):")
+        for e in topo["extra_edges"][:25]:
+            print(f"    {e}")
+    else:
+        _report_variance("TOPOLOGY F1", [r["topology"]["f1"] for r in runs])
+        _report_variance("sign-aware F1", [r["sign_aware"]["f1"] for r in runs])
+        _report_variance("edges proposed", [float(r["n_edges"]) for r in runs])
+
+
+def _report_variance(tag: str, xs: list) -> None:
+    n = len(xs)
+    mean = sum(xs) / n
+    sd = (sum((x - mean) ** 2 for x in xs) / (n - 1)) ** 0.5 if n > 1 else 0.0
+    print(f"\n  {tag:16s} over {n} runs: mean {mean:.3f}  sd {sd:.3f}  "
+          f"min {min(xs):.3f}  max {max(xs):.3f}")
 
 
 if __name__ == "__main__":
