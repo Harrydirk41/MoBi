@@ -383,10 +383,39 @@ strict match) — each time the raw number understated the LLM and the agent's o
 diagnosis flagged the bug. A strict-string answer key systematically penalises a free-text
 model; tolerant (or LLM-judge) matching is required for an honest score.
 
+## More Stage-1 probes (built; run to measure)
+
+Five further benchmarks push on the layers above and add two new skills. Each has a
+`--repeat N` variance mode; the LLM runs need `ANTHROPIC_API_KEY` (no live MATLAB).
+
+* **Fairer parameter test** (`run_llm_ra_params`, now splits the 40 dimensional params):
+  a **physiological** subset (28: rates `1/day`/`sec-1`, concentrations `M` — groundable
+  from biology; baseline median 0.68) vs a **model-scaling** subset (12: per-molecule /
+  per-mL normalization — unknowable). `beats_physiological_baseline` is the *fair* verdict;
+  the earlier all-dimensional 0.62 unfairly lumped in the unknowable units.
+* **Isolated sign prediction** (`run_llm_ra_sign --network network.json`): hand the agent
+  the true *unsigned* edges, ask only activate-vs-inhibit; scored vs the **majority-class
+  baseline** (most edges activate, so "all +1" already scores high — the bar to beat).
+* **Sensitivity ranking** (`run_llm_ra_sensitivity`): a *different skill* — which knobs
+  matter, not biology recall. Rank the parameters driving DAS28-CRP from a pool of 50 (the
+  paper's Fig-9 GSA top-20 hidden among 30 real distractors); scored overlap + rank
+  correlation vs the GSA, against a **random blind-pick baseline (recall 0.40)**.
+* **Readout mapping** (`run_llm_ra_readout --network network.json`): the mechanism→endpoint
+  bridge — which nodes DAS28-CRP is computed from; scored vs the species the model's readout
+  rule depends on. `--show-key` prints the extracted drivers + raw rule.
+* **Scope priming** (`run_llm_ra_scope --conventions`): hands the agent the endpoint-focus +
+  trafficking-layer conventions it diagnosed missing, to separate scope *judgment* from
+  recall (analogous to `--conventions` on topology).
+
 ## Files
 
 * `pkpd_agent/engines/ra_scope.py` / `tools/ra_scope_loop_tools.py` /
-  `examples/run_llm_ra_scope.py` — Layer-0 scope/cast benchmark (`--repeat`).
+  `examples/run_llm_ra_scope.py` — Layer-0 scope/cast benchmark (`--repeat`,
+  `--conventions`). `resolve_node` does tolerant free-text matching.
+* `pkpd_agent/engines/ra_sensitivity.py` / `ra_readout.py` + their `tools/` and
+  `examples/run_llm_ra_sensitivity.py` / `run_llm_ra_readout.py`; sign task in
+  `tools/ra_sign_loop_tools.py` + `examples/run_llm_ra_sign.py` (`score_signs` in
+  `ra_network.py`).
 * `pkpd_agent/engines/ra_network.py` / `tools/ra_network_loop_tools.py` /
   `examples/run_llm_ra_network.py` — topology benchmark (`--conventions`, `--repeat`).
 * `pkpd_agent/engines/ra_params.py` (+ `data/ra_params_esm2.json`) /
