@@ -102,8 +102,6 @@ def main() -> None:
     goal = ("Reconstruct the RA disease network: propose the directed signed regulatory "
             "edges among the cells and cytokines, then finalize to be scored.")
     print(f"prompt: {'convention-primed' if args.conventions else 'biology-only (baseline)'}\n")
-    policy = LLMPolicy(cfg, registry, _system_prompt(args.conventions))
-    loop = DecisionLoop(config=cfg, registry=registry, policy=policy)
 
     verbose = args.repeat == 1
 
@@ -123,6 +121,11 @@ def main() -> None:
 
     runs = []
     for i in range(args.repeat):
+        # fresh policy+loop each run: LLMPolicy keeps its own message history, so
+        # reusing one would carry a finished (assistant-ended) conversation into the
+        # next run and 400 on prefill.
+        policy = LLMPolicy(cfg, registry, _system_prompt(args.conventions))
+        loop = DecisionLoop(config=cfg, registry=registry, policy=policy)
         session = loop.run(goal, ModelingSession(goal=goal), on_event=show)
         final = session.get("net_final")
         if not final:

@@ -69,8 +69,6 @@ def main() -> None:
 
     goal = ("Estimate every RA model parameter's value from its name, units, and cell "
             "context, then finalize to be scored order-of-magnitude vs the real model.")
-    policy = LLMPolicy(cfg, registry, _system_prompt())
-    loop = DecisionLoop(config=cfg, registry=registry, policy=policy)
 
     verbose = args.repeat == 1
 
@@ -91,6 +89,9 @@ def main() -> None:
 
     runs = []
     for i in range(args.repeat):
+        # fresh policy+loop each run (LLMPolicy keeps its own message history).
+        policy = LLMPolicy(cfg, registry, _system_prompt())
+        loop = DecisionLoop(config=cfg, registry=registry, policy=policy)
         session = loop.run(goal, ModelingSession(goal=goal), on_event=show)
         final = session.get("param_final")
         if not final:
