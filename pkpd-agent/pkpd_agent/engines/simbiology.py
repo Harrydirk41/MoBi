@@ -100,6 +100,14 @@ class SimBiologyEngine:
         finally:
             _quiet_rm(out)
 
+    def network_json(self, out_path: str) -> dict[str, Any]:
+        """Dump the full network structure (species, reactions with rate laws, rules,
+        parameters) to ``out_path`` and return it. The Stage-1 reconstruction answer
+        key. Writes to a real path (kept), not a temp file."""
+        self.eng.sb_network_json(os.path.abspath(out_path), nargout=0)
+        with open(out_path, encoding="utf-8") as fh:
+            return json.load(fh)
+
     def simulate(self, dose: str = "", variant: str = "",
                  stop_time: float = 0.0) -> dict[str, Any]:
         """Simulate the loaded model, optionally with a named dose and/or variant.
