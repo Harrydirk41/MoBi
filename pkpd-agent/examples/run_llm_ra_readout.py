@@ -58,12 +58,18 @@ def main() -> None:
     drivers = ext["drivers"]
     print(f"readout targets found: {ext['targets_found']}")
     print(f"readout drivers (answer key, {len(drivers)}): {drivers}\n")
-    if args.show_key or not ext["targets_found"]:
+    if args.show_key or not drivers:
         for t, r in ext["target_rules"].items():
             print(f"  rule {t} = {r[:400]}")
-        if not ext["targets_found"]:
-            print("\n  (no DAS28/ACR rule found - available rule names:)")
-            print("  ", ext["all_rule_names"])
+        if not drivers:
+            print("\n  !! no readout drivers extracted - DAS28_CRP is a state variable, "
+                  "not an algebraic rule, so the rule-graph walk cannot reach the biology.")
+            print("  Find its real definition with:")
+            print("    python -c \"import json; d=json.load(open('network.json')); "
+                  "[print('RULE',u.get('rule')) for u in d['rules'] if 'DAS28' in "
+                  "u.get('rule','')]; [print('RXN',r['name'],'|',r.get('reaction'),'|',"
+                  "r.get('rate')) for r in d['reactions'] if 'DAS28' in "
+                  "(str(r.get('reaction'))+str(r.get('rate')))]\"")
         return
 
     cfg = AgentConfig(mock=False, max_steps=args.max_steps)
