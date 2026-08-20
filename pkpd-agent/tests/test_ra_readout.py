@@ -34,6 +34,26 @@ class TestDriverExtraction(unittest.TestCase):
         finally:
             os.remove(path)
 
+    def test_real_das28_rule_with_compartment_prefix(self):
+        # the actual model rule: DAS28 is a Hill-sum of the 9 cell densities (Treg negative)
+        das = ("Synovium.DAS28_CRP = 2*FLS^2.5/(1.3E7^2.5+FLS^2.5)+0.5*Endothelial^2.5/"
+               "(4.2e7^2.5+Endothelial^2.5)+1.5*Th1^2.5/(4e6^2.5+Th1^2.5)+0.5*Th17^2.5/"
+               "(1e5^2.5+Th17^2.5)-0.5*Treg^2.5/(2E6^2.5+Treg^2.5)+0.5*CTL^2.5/"
+               "(1.3E5^2.5+CTL^2.5)+1.5*BCells^2.5/(3E6^2.5+BCells^2.5)+1*PlasmaCells^2.5/"
+               "(1.8E6^2.5+PlasmaCells^2.5)+2.5*Macrophages^2.5/(2.2e7^2.5+Macrophages^2.5)")
+        path = _write(
+            rules=["ACR_Perc = 100*delta_DAS28_CRP/DAS28_BL",
+                   "delta_DAS28_CRP = DAS28_BL-DAS28_CRP", das],
+            species=["FLS", "Endothelial", "Th1", "Th17", "Treg", "CTL", "BCells",
+                     "PlasmaCells", "Macrophages", "TNFa", "IL6"])
+        try:
+            ext = RO.readout_drivers(path)
+            self.assertEqual(set(ext["drivers"]),
+                             {"FLS", "Endo", "Th1", "Th17", "Treg", "CTL", "BCell",
+                              "PlasmaCell", "Macro"})     # the 9 cells, no cytokines
+        finally:
+            os.remove(path)
+
     def test_missing_target_reports_rule_names(self):
         path = _write(rules=["SomethingElse = FLS"], species=["FLS"])
         try:

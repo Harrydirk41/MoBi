@@ -23,13 +23,15 @@ DEFAULT_TARGETS = ("DAS28_CRP", "ACR_Perc", "ACR20", "DAS28")
 
 
 def _rule_map(rules: list) -> dict[str, str]:
-    """name -> RHS expression, for every 'LHS = RHS' rule."""
+    """name -> RHS expression, for every 'LHS = RHS' rule. The LHS may carry a
+    compartment prefix (e.g. 'Synovium.DAS28_CRP') - strip it so bare target names match."""
     out = {}
     for r in rules or []:
         expr = r.get("rule", "") if isinstance(r, dict) else str(r)
         if "=" in expr:
             lhs, rhs = expr.split("=", 1)
-            out[lhs.strip()] = rhs
+            lhs = lhs.strip().split(".")[-1]          # drop 'Synovium.' etc.
+            out[lhs] = rhs
     return out
 
 
