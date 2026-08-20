@@ -1,0 +1,782 @@
+[
+{
+"name": "kd_FLS_Baseline",
+"units": "1/day",
+"section": "FLS",
+"value": 0.1
+},
+{
+"name": "FLSProlif_MaxbyTNFa",
+"units": "dimensionless",
+"section": "FLS",
+"value": 1.5
+},
+{
+"name": "FLSProlif_MaxbyIL6",
+"units": "dimensionless",
+"section": "FLS",
+"value": 2.0
+},
+{
+"name": "IL6SecFLS_MaxbyIL1b",
+"units": "nanogram/(molecule*day)",
+"section": "FLS",
+"value": 1.0
+},
+{
+"name": "FLSProlif_MaxbyIL1b",
+"units": "dimensionless",
+"section": "FLS",
+"value": 1.4
+},
+{
+"name": "FLSProlif_MaxbyIL17",
+"units": "dimensionless",
+"section": "FLS",
+"value": 1.2
+},
+{
+"name": "FLSProlif_MaxbyTGFb",
+"units": "dimensionless",
+"section": "FLS",
+"value": 1.8
+},
+{
+"name": "VEGFSecFLS_MaxbyIL1b",
+"units": "dimensionless",
+"section": "FLS",
+"value": 1.3
+},
+{
+"name": "VEGFSecFLS_MaxbyIL6",
+"units": "dimensionless",
+"section": "FLS",
+"value": 0.4
+},
+{
+"name": "VEGFSecFLS_MaxbyTNFa",
+"units": "dimensionless",
+"section": "FLS",
+"value": 0.4
+},
+{
+"name": "VEGFSecFLS_MaxbyIL17",
+"units": "dimensionless",
+"section": "FLS",
+"value": 1.3
+},
+{
+"name": "IL6SecFLS_MaxbyIL17",
+"units": "dimensionless",
+"section": "FLS",
+"value": 4.3
+},
+{
+"name": "GMCSFSecFLS_MaxbyTNFa",
+"units": "dimensionless",
+"section": "FLS",
+"value": 5.0
+},
+{
+"name": "IL1bSecFLS_MaxbyIL10",
+"units": "dimensionless",
+"section": "FLS",
+"value": 0.5
+},
+{
+"name": "TNFaSecFLS_MaxbyIL10",
+"units": "dimensionless",
+"section": "FLS",
+"value": 0.74
+},
+{
+"name": "MIP3SecFLS_MaxbyTNFa",
+"units": "dimensionless",
+"section": "FLS",
+"value": 10.0
+},
+{
+"name": "MIP3SecFLS_MaxbyIL17",
+"units": "dimensionless",
+"section": "FLS",
+"value": 5.0
+},
+{
+"name": "kcl_RANTES",
+"units": "1/day",
+"section": "FLS",
+"value": 33.0
+},
+{
+"name": "RANTESSecFLS_MaxbyTNFa",
+"units": "dimensionless",
+"section": "FLS",
+"value": 2.0
+},
+{
+"name": "RANTESSecFLS_MaxbyIL1b",
+"units": "dimensionless",
+"section": "FLS",
+"value": 1.0
+},
+{
+"name": "RANTESSecFLS_byTNFa_MaxbyIFNg",
+"units": "dimensionless",
+"section": "FLS",
+"value": 2.75
+},
+{
+"name": "RANTESSecFLS_byTNFa_MaxbyIFNg",
+"units": "dimensionless",
+"section": "FLS",
+"value": 2.75
+},
+{
+"name": "RANTESSecFLS_byIL1b_MaxbyIFNg",
+"units": "dimensionless",
+"section": "FLS",
+"value": 1.5
+},
+{
+"name": "IL6SecFLS_MaxbyRANTES",
+"units": "dimensionless",
+"section": "FLS",
+"value": 0.6
+},
+{
+"name": "RANTESSecFLS_byIL1b_MaxbyIFNg",
+"units": "dimensionless",
+"section": "FLS",
+"value": 1.5
+},
+{
+"name": "Endoinflux_MaxbyVEGF",
+"units": "dimensionless",
+"section": "Endothelial cell",
+"value": 1.2
+},
+{
+"name": "kIn_Endo_Baseline",
+"units": "molecule/(milliliter*day)",
+"section": "Endothelial cell",
+"value": 45000.0
+},
+{
+"name": "EndoProlif_MaxbyVEGF",
+"units": "dimensionless",
+"section": "Endothelial cell",
+"value": 2.75
+},
+{
+"name": "Endoinflux_MaxbyTNFa",
+"units": "dimensionless",
+"section": "Endothelial cell",
+"value": 2.5
+},
+{
+"name": "kd_Endo_Baseline",
+"units": "1/day",
+"section": "Endothelial cell",
+"value": 0.1
+},
+{
+"name": "EndoApop_MaxbyTNFa",
+"units": "dimensionless",
+"section": "Endothelial cell",
+"value": 1.7
+},
+{
+"name": "EndoApop_MaxbyVEGF",
+"units": "dimensionless",
+"section": "Endothelial cell",
+"value": 0.7
+},
+{
+"name": "Endoinflux_MaxbyIL6",
+"units": "dimensionless",
+"section": "Endothelial cell",
+"value": 1.7
+},
+{
+"name": "EndoProlif_MaxbyIL1b",
+"units": "dimensionless",
+"section": "Endothelial cell",
+"value": 0.2
+},
+{
+"name": "Endoinflux_MaxbyIL17",
+"units": "dimensionless",
+"section": "Endothelial cell",
+"value": 1.1
+},
+{
+"name": "Endoinflux_MaxbyTGFb",
+"units": "dimensionless",
+"section": "Endothelial cell",
+"value": 0.7
+},
+{
+"name": "VEGFSecEndo_MaxbyTGFb",
+"units": "dimensionless",
+"section": "Endothelial cell",
+"value": 3.0
+},
+{
+"name": "EndoProlif_MaxbyGMCSF",
+"units": "dimensionless",
+"section": "Endothelial cell",
+"value": 0.6
+},
+{
+"name": "Endoinflux_MaxbyGMCSF",
+"units": "dimensionless",
+"section": "Endothelial cell",
+"value": 1.8
+},
+{
+"name": "RANTESSecEndo_MaxbyTNFa",
+"units": "dimensionless",
+"section": "Endothelial cell",
+"value": 10.0
+},
+{
+"name": "RANTESSecEndo_byTNFa_MaxbyIFNg",
+"units": "dimensionless",
+"section": "Endothelial cell",
+"value": 1.5
+},
+{
+"name": "RANTESSecEndo_MaxbyIL1b",
+"units": "dimensionless",
+"section": "Endothelial cell",
+"value": 3.0
+},
+{
+"name": "MacroApop_MaxbyTNFa",
+"units": "dimensionless",
+"section": "Macrophage",
+"value": 0.8
+},
+{
+"name": "kIn_Macrophage_Baseline",
+"units": "molecule/(milliliter*day)",
+"section": "Macrophage",
+"value": 12000.0
+},
+{
+"name": "kd_Macrophase_Baseline",
+"units": "1/day",
+"section": "Macrophage",
+"value": 0.0619
+},
+{
+"name": "MacroInflux_MaxbyIL17",
+"units": "dimensionless",
+"section": "Macrophage",
+"value": 1.4
+},
+{
+"name": "IL6SecMacro_MaxbyTNFa",
+"units": "dimensionless",
+"section": "Macrophage",
+"value": 2.5
+},
+{
+"name": "IL6SecMacro_MaxbyIL1b",
+"units": "dimensionless",
+"section": "Macrophage",
+"value": 1.0
+},
+{
+"name": "IL1bSecMacro_MaxbyIL17",
+"units": "dimensionless",
+"section": "Macrophage",
+"value": 1.0
+},
+{
+"name": "TNFaSecMacro_MaxbyIL17",
+"units": "dimensionless",
+"section": "Macrophage",
+"value": 1.0
+},
+{
+"name": "MacroProlif_MaxbyGMCSF",
+"units": "dimensionless",
+"section": "Macrophage",
+"value": 2.2
+},
+{
+"name": "MacroInflux_MaxbyMCP1",
+"units": "dimensionless",
+"section": "Macrophage",
+"value": 2.0
+},
+{
+"name": "TNFaSecMacro_MaxbyIL10",
+"units": "dimensionless",
+"section": "Macrophage",
+"value": 0.75
+},
+{
+"name": "IL6SecMacro_MaxbyIL10",
+"units": "dimensionless",
+"section": "Macrophage",
+"value": 0.8
+},
+{
+"name": "MacroInflux_MaxbyTGFb",
+"units": "dimensionless",
+"section": "Macrophage",
+"value": 3.5
+},
+{
+"name": "TNFaSecMacro_MaxbyAutoAb",
+"units": "dimensionless",
+"section": "Macrophage",
+"value": 7.0
+},
+{
+"name": "MCP1SecMacro_MaxbyIL1b",
+"units": "dimensionless",
+"section": "Macrophage",
+"value": 0.4
+},
+{
+"name": "TNFaSecMacro_MaxbyGMCSF",
+"units": "dimensionless",
+"section": "Macrophage",
+"value": 3.0
+},
+{
+"name": "kp_IL12Sec_byMacro",
+"units": "nanogram/(molecule*day)",
+"section": "Macrophage",
+"value": 1.1e-09
+},
+{
+"name": "kp_IL23Sec_byMacro",
+"units": "nanogram/(molecule*day)",
+"section": "Macrophage",
+"value": 1.1e-09
+},
+{
+"name": "MacroProlif_MaxbyTNFa",
+"units": "dimensionless",
+"section": "Macrophage",
+"value": 1.0
+},
+{
+"name": "MacroInflux_MaxbyRANTES",
+"units": "dimensionless",
+"section": "Macrophage",
+"value": 0.2
+},
+{
+"name": "TCellProlif_MaxbyIL6",
+"units": "dimensionless",
+"section": "General T cell",
+"value": 6.0
+},
+{
+"name": "TCellinflux_MaxbyRANTES",
+"units": "dimensionless",
+"section": "General T cell",
+"value": 10.0
+},
+{
+"name": "TCellApop_MaxbyIL6",
+"units": "dimensionless",
+"section": "General T cell",
+"value": 0.5
+},
+{
+"name": "TCellProlif_MaxbyIL10",
+"units": "dimensionless",
+"section": "General T cell",
+"value": 0.8
+},
+{
+"name": "TCellinflux_MaxbyTNFa",
+"units": "dimensionless",
+"section": "General T cell",
+"value": 3.5
+},
+{
+"name": "LymphoInflux_MaxbyMIP3",
+"units": "dimensionless",
+"section": "General T cell",
+"value": 5.0
+},
+{
+"name": "Th1Prolif_MaxbyIL12",
+"units": "dimensionless",
+"section": "Th1",
+"value": 3.5
+},
+{
+"name": "kd_Th1_Baseline",
+"units": "1/day",
+"section": "Th1",
+"value": 0.65
+},
+{
+"name": "Th1prolif_maxbyTGFb",
+"units": "dimensionless",
+"section": "Th1",
+"value": 0.65
+},
+{
+"name": "IFNgSecTh1_MaxbyIL10",
+"units": "dimensionless",
+"section": "Th1",
+"value": 0.65
+},
+{
+"name": "kIn_Th1_Baseline",
+"units": "molecule/(milliliter*day)",
+"section": "Th1",
+"value": 350000.0
+},
+{
+"name": "kp_IFNg_byTh1",
+"units": "nanogram/(molecule*day)",
+"section": "Th1",
+"value": 2.78e-07
+},
+{
+"name": "kp_GMCSFSec_byTh1",
+"units": "nanogram/(molecule*day)",
+"section": "Th1",
+"value": 2.78e-08
+},
+{
+"name": "Th1Apop_MaxbyIL12",
+"units": "dimensionless",
+"section": "Th1",
+"value": 0.26
+},
+{
+"name": "Th17Prolif_MaxbyIL1b",
+"units": "dimensionless",
+"section": "Th17",
+"value": 7.0
+},
+{
+"name": "IL17SecTh17_MaxbyIL1b",
+"units": "dimensionless",
+"section": "Th17",
+"value": 10.0
+},
+{
+"name": "IL17SecTh17_MaxbyIL6",
+"units": "dimensionless",
+"section": "Th17",
+"value": 1.0
+},
+{
+"name": "kd_Th17_Baseline",
+"units": "1/day",
+"section": "Th17",
+"value": 0.65
+},
+{
+"name": "Th17Prolif_MaxbyIL6",
+"units": "dimensionless",
+"section": "Th17",
+"value": 2.5
+},
+{
+"name": "Th17Prolif_MaxbyIL23",
+"units": "dimensionless",
+"section": "Th17",
+"value": 1.0
+},
+{
+"name": "IL17SecTh17_MaxbyIL23",
+"units": "dimensionless",
+"section": "Th17",
+"value": 1.0
+},
+{
+"name": "TregProlif_MaxbyIL6",
+"units": "dimensionless",
+"section": "Treg",
+"value": 0.4
+},
+{
+"name": "kIn_Treg_Baseline",
+"units": "molecule/(milliliter*day)",
+"section": "Treg",
+"value": 160000.0
+},
+{
+"name": "kd_Treg_Baseline",
+"units": "1/day",
+"section": "Treg",
+"value": 0.65
+},
+{
+"name": "TregProlif_MaxbyTGFb",
+"units": "dimensionless",
+"section": "Treg",
+"value": 2.25
+},
+{
+"name": "TregProlif_MaxbyIFNg",
+"units": "dimensionless",
+"section": "Treg",
+"value": 0.3
+},
+{
+"name": "kIn_CTL_Baseline",
+"units": "molecule/(milliliter*day)",
+"section": "CTL",
+"value": 15370.0
+},
+{
+"name": "IFNgSecCTL_MaxbyIL6",
+"units": "dimensionless",
+"section": "CTL",
+"value": 0.5
+},
+{
+"name": "CTLProlif_MaxbyIL1b",
+"units": "dimensionless",
+"section": "CTL",
+"value": 1.0
+},
+{
+"name": "CTLProlif_MaxbyTGFb",
+"units": "dimensionless",
+"section": "CTL",
+"value": 0.55
+},
+{
+"name": "IFNgSecCTL_MaxbyTGFb",
+"units": "dimensionless",
+"section": "CTL",
+"value": 0.8
+},
+{
+"name": "CTLApop_MaxbyTGFb",
+"units": "dimensionless",
+"section": "CTL",
+"value": 0.6
+},
+{
+"name": "kp_GMCSF_byCTL",
+"units": "nanogram/(molecule*day)",
+"section": "CTL",
+"value": 2.54e-07
+},
+{
+"name": "CTLProlif_MaxbyIL12",
+"units": "dimensionless",
+"section": "CTL",
+"value": 4.6
+},
+{
+"name": "IL17SecCTL_MaxbyIL23",
+"units": "dimensionless",
+"section": "CTL",
+"value": 2.7
+},
+{
+"name": "CTLInflux_MaxbyRANTES",
+"units": "dimensionless",
+"section": "CTL",
+"value": 0.7
+},
+{
+"name": "kIn_BCells_Baseline",
+"units": "molecule/(milliliter*day)",
+"section": "B-cell",
+"value": 30000.0
+},
+{
+"name": "BCellApop_MaxbyBAFF",
+"units": "dimensionless",
+"section": "B-cell",
+"value": 0.72
+},
+{
+"name": "BCellProlif_MaxbyIL6",
+"units": "dimensionless",
+"section": "B-cell",
+"value": 2.6
+},
+{
+"name": "BCellProlif_MaxbyIFNg",
+"units": "dimensionless",
+"section": "B-cell",
+"value": 0.7
+},
+{
+"name": "BCellProlif_MaxbyIL10",
+"units": "dimensionless",
+"section": "B-cell",
+"value": 10.0
+},
+{
+"name": "BCellProlif_MaxbyTGFb",
+"units": "dimensionless",
+"section": "B-cell",
+"value": 0.14
+},
+{
+"name": "kd_BCells_Baseline",
+"units": "1/day",
+"section": "B-cell",
+"value": 0.13
+},
+{
+"name": "kdiff_BCells_PlasmaCells",
+"units": "1/day",
+"section": "B-cell",
+"value": 0.014
+},
+{
+"name": "BCellDiff_MaxbyIL6",
+"units": "dimensionless",
+"section": "B-cell",
+"value": 0.7
+},
+{
+"name": "kd_PlasmaCells_Baseline",
+"units": "1/day",
+"section": "Plasma cell",
+"value": 0.0137
+},
+{
+"name": "Plasma cell survival effect of IL-6",
+"units": "dimensionless",
+"section": "Plasma cell",
+"value": 0.94
+},
+{
+"name": "kcl_IL6",
+"units": "1/day",
+"section": "Plasma cell",
+"value": 5.55
+},
+{
+"name": "kcl_IL1b",
+"units": "1/day",
+"section": "Plasma cell",
+"value": 4.75
+},
+{
+"name": "kcl_IL17",
+"units": "1/day",
+"section": "Plasma cell",
+"value": 2.0
+},
+{
+"name": "kcl_IL10",
+"units": "1/day",
+"section": "Plasma cell",
+"value": 4.6
+},
+{
+"name": "kcl_IFNg",
+"units": "1/day",
+"section": "Plasma cell",
+"value": 3.7
+},
+{
+"name": "kcl_TGFb",
+"units": "1/day",
+"section": "Plasma cell",
+"value": 333.0
+},
+{
+"name": "kcl_AutoAb",
+"units": "1/day",
+"section": "Plasma cell",
+"value": 0.05
+},
+{
+"name": "kcl_MIP3",
+"units": "1/day",
+"section": "Plasma cell",
+"value": 33.0
+},
+{
+"name": "kcl_MCP1",
+"units": "1/day",
+"section": "Plasma cell",
+"value": 8.0
+},
+{
+"name": "kcl_BAFF",
+"units": "1/day",
+"section": "Plasma cell",
+"value": 6.0
+},
+{
+"name": "kcl_GMCSF",
+"units": "1/day",
+"section": "Plasma cell",
+"value": 7.0
+},
+{
+"name": "kcl_IL12",
+"units": "1/day",
+"section": "Plasma cell",
+"value": 0.55
+},
+{
+"name": "kcl_IL23",
+"units": "1/day",
+"section": "Plasma cell",
+"value": 0.55
+},
+{
+"name": "kcl_VEGF",
+"units": "1/day",
+"section": "Plasma cell",
+"value": 29.0
+},
+{
+"name": "kcl_TNFa",
+"units": "1/day",
+"section": "Plasma cell",
+"value": 55.0
+},
+{
+"name": "TCellinflux_MaxbyTNFa",
+"units": "dimensionless",
+"section": "Plasma cell",
+"value": 3.5
+},
+{
+"name": "LymphoInflux_MaxbyMIP3",
+"units": "dimensionless",
+"section": "Plasma cell",
+"value": 5.0
+},
+{
+"name": "TCellinflux_MaxbyRANTES",
+"units": "dimensionless",
+"section": "Plasma cell",
+"value": 10.0
+},
+{
+"name": "KD_ADA",
+"units": "M",
+"section": "PD",
+"value": 3.04e-14
+},
+{
+"name": "Koff_Ada",
+"units": "sec-1",
+"section": "PD",
+"value": 4.061
+},
+{
+"name": "Koff_TCZ",
+"units": "sec-1",
+"section": "PD",
+"value": 4.061
+}
+]
