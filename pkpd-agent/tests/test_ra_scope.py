@@ -19,6 +19,20 @@ class TestScoreScope(unittest.TestCase):
         self.assertEqual(sc.hit, 4)
         self.assertEqual(sc.extra, 0)
 
+    def test_freetext_synonyms_resolve(self):
+        # the names that were wrongly scored as missed+extra in a real run
+        for raw, node in [("Th1 cell", "Th1"), ("Regulatory T cell", "Treg"),
+                          ("Fibroblast-like synoviocyte", "FLS"), ("IL-17A", "IL17"),
+                          ("CCL2 (MCP-1)", "MCP1"), ("endothelial cell", "Endo"),
+                          ("CCL5", "RANTES"), ("ACPA", "AutoAb")]:
+            self.assertEqual(S.resolve_node(raw), node, raw)
+
+    def test_synonyms_not_double_counted(self):
+        # proposing FLS by its long name must count as a hit, not a miss+extra
+        sc = S.score_scope(["Fibroblast-like synoviocyte", "Th1 cell", "CCL2"])
+        self.assertEqual(sc.hit, 3)
+        self.assertEqual(sc.extra, 0)
+
     def test_over_inclusion_hits_precision(self):
         sc = S.score_scope(S.MODEL_NODES + ["IL-2", "IL8", "NK cells"])
         self.assertEqual(sc.recall, 1.0)

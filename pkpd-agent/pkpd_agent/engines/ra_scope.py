@@ -39,6 +39,49 @@ def _norm(s: str) -> str:
     return re.sub(r"[^A-Za-z0-9]", "", str(s or "")).upper()
 
 
+# Free-text clinical synonyms the agent uses that the strict model-name canon_node does
+# not know (systematic chemokine names, full cell names, isoforms, autoantibody types).
+# Kept HERE, not in canon_node, so the network task's model-name parsing stays strict.
+_SCOPE_SYN = {
+    "TH1CELL": "Th1", "TH17CELL": "Th17", "TREGCELL": "Treg",
+    "REGULATORYTCELL": "Treg", "REGULATORYTCELLS": "Treg",
+    "CD8": "CTL", "CD8TCELL": "CTL", "CYTOTOXICTCELL": "CTL", "CD8TCELLS": "CTL",
+    "FIBROBLASTLIKESYNOVIOCYTE": "FLS", "FIBROBLASTLIKESYNOVIOCYTES": "FLS",
+    "SYNOVIOCYTE": "FLS", "SYNOVIALFIBROBLAST": "FLS",
+    "ENDOTHELIALCELL": "Endo", "ENDOTHELIUM": "Endo", "ENDOTHELIALCELLS": "Endo",
+    "IL17A": "IL17", "IL17F": "IL17",
+    "CCL2": "MCP1", "CCL2MCP1": "MCP1", "MCP1CCL2": "MCP1",
+    "CCL5": "RANTES", "CCL5RANTES": "RANTES", "RANTESCCL5": "RANTES",
+    "CCL20": "MIP3", "CCL20MIP3": "MIP3", "MIP3A": "MIP3", "MIP3CCL20": "MIP3",
+    "ICAM": "CAM", "ICAM1": "CAM", "VCAM": "CAM", "VCAM1": "CAM",
+    "ADHESIONMOLECULE": "CAM", "ADHESIONMOLECULES": "CAM", "CELLADHESIONMOLECULE": "CAM",
+    "ACPA": "AutoAb", "ANTICITRULLINATEDPROTEINANTIBODY": "AutoAb",
+    "ANTICITRULLINATEDPROTEINANTIBODYACPA": "AutoAb",
+    "AUTOANTIBODIES": "AutoAb", "RHEUMATOIDFACTOR": "AutoAb",
+}
+
+
+def resolve_node(raw: str):
+    """Map a free-text agent proposal to a model node, tolerantly: strict canon first,
+    then clinical synonyms, then a trailing 'cell(s)' strip (so 'Th1 cell',
+    'endothelial cell' resolve). Returns the canonical node or None."""
+    c = canon_node(raw)
+    if c is not None:
+        return c
+    n = _norm(raw)
+    if n in _SCOPE_SYN:
+        return _SCOPE_SYN[n]
+    for suf in ("CELLS", "CELL"):
+        if n.endswith(suf) and len(n) > len(suf):
+            base = n[: -len(suf)]
+            if base in _SCOPE_SYN:
+                return _SCOPE_SYN[base]
+            c = canon_node(base)
+            if c is not None:
+                return c
+    return None
+
+
 @dataclass
 class ScopeScore:
     hit: int
@@ -57,7 +100,7 @@ def score_scope(proposed: list[str]) -> ScopeScore:
     model_hits: set[str] = set()
     extras: set[str] = set()
     for raw in proposed or []:
-        c = canon_node(raw)
+        c = resolve_node(raw)
         if c is not None:
             model_hits.add(c)
         else:
