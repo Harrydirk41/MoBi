@@ -69,7 +69,10 @@ def register_ra_design_loop_tools(registry: ToolRegistry, config, ctx: dict) -> 
             sb.add_drug(target, efficacy, start_day)
         r = sb.run_vpop(vpop, dose=background, stop_time=400.0,
                         baseline_day=start_day, readout_day=readout_day, limit=limit)
-        return osp_ra_trial.summarize_run(r)["first_line"]
+        fl = osp_ra_trial.summarize_run(r)["first_line"]
+        if efficacy > 0 and target:
+            sb.load_project(sbproj)                  # restore clean model (this task
+        return fl                                    # mutates structure; others assume clean)
 
     # -- act ------------------------------------------------------------ #
     def try_design(args: dict, session) -> ToolResult:
