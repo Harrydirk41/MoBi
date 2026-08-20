@@ -17,6 +17,7 @@ import json
 import re
 
 from .ra_network import canon_node
+from .ra_scope import resolve_node
 
 _TOKEN = re.compile(r"[A-Za-z_][A-Za-z0-9_]*")
 DEFAULT_TARGETS = ("DAS28_CRP", "ACR_Perc", "ACR20", "DAS28")
@@ -70,9 +71,11 @@ def score_readout(proposed: list[str], drivers: list[str]) -> dict:
     """Node-recovery of the readout drivers: precision/recall/F1 of the agent's proposed
     DAS28 drivers vs the species the readout actually depends on."""
     truth = {canon_node(d) or d for d in drivers}
-    picks = {canon_node(p) for p in (proposed or []) if canon_node(p)}
+    # tolerant matching for the agent's free-text (Th1 cell, endothelial cell, plasma
+    # cells, ...) - the strict canon_node under-credits synonyms (as it did for scope).
+    picks = {resolve_node(p) for p in (proposed or []) if resolve_node(p)}
     junk = {re.sub(r"[^A-Za-z0-9]", "", str(p)).upper()
-            for p in (proposed or []) if canon_node(p) is None}
+            for p in (proposed or []) if resolve_node(p) is None}
     hit = len(picks & truth)
     false_pos = picks - truth                      # valid nodes that aren't drivers
     n_prop = len(picks) + len(junk)
