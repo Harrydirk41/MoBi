@@ -63,15 +63,11 @@ def _rate(rows: list[dict], key: str) -> float | None:
     return 100.0 * sum(1 for v in vals if v >= 0.5) / len(vals)
 
 
-def main() -> None:
-    ap = argparse.ArgumentParser(description=__doc__,
-                                 formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--dir", required=True, help="folder with arm_mtx/ada/tcz.csv")
-    args = ap.parse_args()
-
-    mtx = _read(os.path.join(args.dir, "arm_mtx.csv"))
-    ada = _read(os.path.join(args.dir, "arm_ada.csv"))
-    tcz = _read(os.path.join(args.dir, "arm_tcz.csv"))
+def report(dirpath: str) -> None:
+    """Print the three-column model-vs-model comparison from the three arm CSVs."""
+    mtx = _read(os.path.join(dirpath, "arm_mtx.csv"))
+    ada = _read(os.path.join(dirpath, "arm_ada.csv"))
+    tcz = _read(os.path.join(dirpath, "arm_tcz.csv"))
     pats = sorted(set(mtx) & set(ada) & set(tcz))
     print(f"patients common to all three arms: {len(pats)}\n")
 
@@ -111,6 +107,14 @@ def main() -> None:
     print("col 'real'  = raw clinical data (Table 1 / ESM1), NOT placebo-corrected")
     print("The model-vs-model question is  mine vs paper  (both raw sim). A large")
     print("|d(m-p)| means my pipeline does NOT reproduce their model on that endpoint.")
+
+
+def main() -> None:
+    ap = argparse.ArgumentParser(description=__doc__,
+                                 formatter_class=argparse.RawDescriptionHelpFormatter)
+    ap.add_argument("--dir", required=True, help="folder with arm_mtx/ada/tcz.csv")
+    args = ap.parse_args()
+    report(args.dir)
 
 
 if __name__ == "__main__":
