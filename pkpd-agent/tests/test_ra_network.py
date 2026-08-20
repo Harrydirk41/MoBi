@@ -55,6 +55,28 @@ class TestEdgeParsing(unittest.TestCase):
         self.assertEqual(len(e), 1)
 
 
+class TestRuleParsing(unittest.TestCase):
+    def test_mm_terms_become_edges(self):
+        rules = [{"rule": "Pro_FLSProlif_effect = min(10,MM(TNFa,a,b,c)+MM(IL6,a,b,c))"}]
+        e = {x.signed() for x in N.edges_from_rules(rules)}
+        self.assertIn(("TNFa", 1, "FLS"), e)
+        self.assertIn(("IL6", 1, "FLS"), e)
+
+    def test_anti_rule_negative(self):
+        rules = [{"rule": "Anti_EndoInflux_effect = min(0.9,MM(TGFb,a,b,c))"}]
+        self.assertEqual(N.edges_from_rules(rules)[0].signed(), ("TGFb", -1, "Endo"))
+
+    def test_non_regulatory_rule_ignored(self):
+        rules = [{"rule": "SCD = FLS+Endothelial+Macrophages+BCells"}]
+        self.assertEqual(N.edges_from_rules(rules), [])
+
+    def test_new_nodes_recognized(self):
+        self.assertEqual(N.canon_node("TGFb"), "TGFb")
+        self.assertEqual(N.canon_node("IL10"), "IL10")
+        self.assertEqual(N.canon_node("Macrophages"), "Macro")
+        self.assertEqual(N.canon_node("PlasmaCells"), "PlasmaCell")
+
+
 class TestScoring(unittest.TestCase):
     def setUp(self):
         self.truth = [N.Edge("Macro", 1, "IL6"), N.Edge("Macro", 1, "TNFa"),

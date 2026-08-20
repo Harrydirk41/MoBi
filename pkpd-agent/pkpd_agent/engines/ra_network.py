@@ -34,20 +34,22 @@ from dataclasses import dataclass
 # canonical node so scoring is not defeated by naming (IFNg vs IFNgamma, etc.).
 CELLS = ["Macro", "Th1", "Th17", "CTL", "Treg", "BCell", "PlasmaCell", "FLS", "Endo"]
 CYTOKINES = ["TNFa", "IL6", "IL17", "IL1b", "IFNg", "IL12", "IL23", "GMCSF",
-             "VEGF", "BAFF", "MCP1", "MIP3", "CAM", "RANTES", "AutoAb"]
+             "VEGF", "BAFF", "MCP1", "MIP3", "CAM", "RANTES", "AutoAb", "TGFb", "IL10"]
 NODES = CELLS + CYTOKINES
 
 _ALIAS = {
-    "macrophage": "Macro", "macro": "Macro", "mac": "Macro",
+    "macrophage": "Macro", "macrophages": "Macro", "macro": "Macro", "mac": "Macro",
     "tnf": "TNFa", "tnfa": "TNFa", "tnfalpha": "TNFa",
     "ifng": "IFNg", "ifngamma": "IFNg", "ifn": "IFNg",
     "il1b": "IL1b", "il1beta": "IL1b", "il1": "IL1b",
     "gmcsf": "GMCSF", "gm-csf": "GMCSF",
     "cd8": "CTL", "ctl": "CTL",
-    "bcell": "BCell", "b": "BCell", "plasma": "PlasmaCell", "plasmacell": "PlasmaCell",
+    "bcell": "BCell", "bcells": "BCell", "b": "BCell",
+    "plasma": "PlasmaCell", "plasmacell": "PlasmaCell", "plasmacells": "PlasmaCell",
     "fls": "FLS", "endo": "Endo", "endothelial": "Endo",
     "autoab": "AutoAb", "autoantibody": "AutoAb", "mip3": "MIP3", "mcp1": "MCP1",
     "cam": "CAM", "rantes": "RANTES", "vegf": "VEGF", "baff": "BAFF",
+    "tgfb": "TGFb", "tgfbeta": "TGFb", "tgf": "TGFb", "il10": "IL10",
 }
 
 
@@ -113,16 +115,49 @@ def edges_from_names(names: list[str]) -> list[Edge]:
     return list(out.values())
 
 
+# A regulatory rule reads  (Pro|Anti)_<TargetProcess>_effect = min(..., MM(SRC,...)+MM(SRC,...))
+# where each MM()'s FIRST argument is a driving species (the real edge source). This is
+# where the bulk of the network lives - the _by parameter NAMES only expose a fraction.
+_RULE_RE = re.compile(r"^\s*(Pro|Anti|Hill)_([A-Za-z0-9]+?)_effect\s*=\s*(.*)$")
+_MM_SRC = re.compile(r"MM\(\s*([A-Za-z_][A-Za-z0-9_]*)")
+
+
+def edges_from_rules(rules: list) -> list[Edge]:
+    """Parse regulatory edges from the model's repeatedAssignment rule expressions:
+    each MM(source, ...) term in a Pro_/Anti_<TargetProcess>_effect rule is one edge
+    source -> target with the rule's sign. This recovers the cell-process regulation
+    (proliferation / influx / apoptosis / secretion drivers) that the name scan misses."""
+    out: dict[tuple, Edge] = {}
+    for r in rules or []:
+        expr = r.get("rule", "") if isinstance(r, dict) else str(r)
+        m = _RULE_RE.match(expr or "")
+        if not m:
+            continue
+        sign = _SIGN[m.group(1)]
+        tgt, proc = _split_target(m.group(2))
+        if tgt is None:
+            continue
+        for sm in _MM_SRC.finditer(m.group(3)):
+            src = canon_node(sm.group(1))
+            if src is None or src == tgt:
+                continue
+            e = Edge(src, sign, tgt, proc)
+            out.setdefault(e.signed(), e)
+    return list(out.values())
+
+
 def parse_truth(network_json: str) -> list[Edge]:
     """The complete answer key from the MATLAB dump (sb_network_json.m output):
-    regulatory edges parsed from ALL parameter names and rule expressions."""
+    regulatory edges from the rule MM() terms UNION the _by parameter names."""
     with open(network_json, encoding="utf-8") as fh:
         s = json.load(fh)
+    edges: dict[tuple, Edge] = {}
+    for e in edges_from_rules(s.get("rules", [])):
+        edges.setdefault(e.signed(), e)
     names = [p.get("name", "") for p in s.get("parameters", [])]
-    # rule expressions can name effects inline too; harvest tokens that look like names
-    for r in s.get("rules", []):
-        names += re.findall(r"(?:Pro|Anti|Hill)_[A-Za-z0-9_]+", r.get("rule", "") or "")
-    return edges_from_names(names)
+    for e in edges_from_names(names):
+        edges.setdefault(e.signed(), e)
+    return list(edges.values())
 
 
 def parse_truth_from_diagram(sbproj: str) -> list[Edge]:
