@@ -23,6 +23,15 @@ from dataclasses import dataclass
 _DATA = os.path.join(os.path.dirname(__file__), "data", "ra_params_esm2.json")
 
 
+# Dimensional units that are MODEL-SCALING, not physiological: secretion normalized per
+# molecule and influx per mL are tied to the model's compartment volume and cell-number
+# normalization, so they are unknowable from physiology alone (the agent itself flagged
+# these). The FAIR test of "does biology help" excludes them and keeps only the units a
+# physiologist can actually ground: rates (1/day, sec-1) and concentrations (M).
+_MODEL_SCALING_UNITS = {"nanogram/(molecule*day)", "molecule/(milliliter*day)",
+                        "molecule/(ml*day)", "ng/(molecule*day)"}
+
+
 @dataclass(frozen=True)
 class Param:
     name: str
@@ -32,6 +41,14 @@ class Param:
 
     def dimensionless(self) -> bool:
         return self.units.lower() in ("dimensionless", "", "none", "fraction")
+
+    def model_scaling(self) -> bool:
+        return self.units.lower() in _MODEL_SCALING_UNITS
+
+    def physiological(self) -> bool:
+        """A dimensional parameter a physiologist can ground (rate/concentration), i.e.
+        dimensional but NOT a model-scaling normalization unit."""
+        return (not self.dimensionless()) and (not self.model_scaling())
 
 
 def load_truth(path: str = _DATA) -> list[Param]:
@@ -94,16 +111,26 @@ def score_params(pred: dict[str, float], truth: list[Param]) -> dict:
     errs = [e for _, e in pairs]
     dimless = [e for (p, e) in pairs if p.dimensionless()]
     dimens = [e for (p, e) in pairs if not p.dimensionless()]
+    phys = [e for (p, e) in pairs if p.physiological()]
+    scaling = [e for (p, e) in pairs if p.model_scaling()]
 
     base_pred = unit_geomean_baseline(truth)
-    base_errs = [e for _, e in _log10_errs(base_pred, covered)]
+    base_pairs = _log10_errs(base_pred, covered)
+    base_errs = [e for _, e in base_pairs]
+    base_phys = [e for (p, e) in base_pairs if p.physiological()]
 
+    ll = _summ(phys)["median_log10_err"] if phys else None
+    bb = _summ(base_phys)["median_log10_err"] if base_phys else None
     worst = sorted(pairs, key=lambda pe: -pe[1])[:12]
     return {
         "n_predicted": len(pred), "n_scored": len(errs), "n_truth": len(truth),
         "overall": _summ(errs),
         "dimensionless": _summ(dimless),
         "dimensional": _summ(dimens),
+        "physiological": _summ(phys),          # the FAIR subset: rates + concentrations
+        "physiological_baseline": _summ(base_phys),
+        "model_scaling": _summ(scaling),       # the unknowable normalization units
+        "beats_physiological_baseline": (ll is not None and bb is not None and ll < bb),
         "naive_unit_geomean_baseline": _summ(base_errs),
         "beats_baseline": (bool(errs) and bool(base_errs)
                            and _summ(errs)["median_log10_err"]

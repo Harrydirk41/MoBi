@@ -119,23 +119,33 @@ def main() -> None:
         line("OVERALL", final["overall"])
         line("dimensionless", final["dimensionless"])
         line("DIMENSIONAL", final["dimensional"])
+        line("  PHYSIOLOGICAL", final["physiological"])       # the FAIR subset
+        line("  phys baseline", final["physiological_baseline"])
+        line("  model-scaling", final["model_scaling"])       # the unknowable subset
         line("naive baseline", final["naive_unit_geomean_baseline"])
-        print(f"\n  beats naive baseline (overall median): {final['beats_baseline']}")
+        print(f"\n  beats naive baseline (overall): {final['beats_baseline']}")
+        print(f"  beats baseline on the FAIR physiological subset: "
+              f"{final['beats_physiological_baseline']}")
         print("\n  worst order-of-magnitude misses:")
         for w in final["worst_misses"][:10]:
             print(f"    {w['name']:32s} true {w['true']:<10g} pred {w['pred']:<10g} "
                   f"({w['log10_err']} dex off)")
     else:
-        base = runs[0]["naive_unit_geomean_baseline"]["median_log10_err"]
-        base_dim = P.score_params(P.unit_geomean_baseline(truth),
-                                  truth)["dimensional"]["median_log10_err"]
-        _report_variance("DIMENSIONAL median", [r["dimensional"]["median_log10_err"] for r in runs])
-        print(f"    ^ naive baseline (dimensional) median = {base_dim}  <- the bar to beat")
+        bsc = P.score_params(P.unit_geomean_baseline(truth), truth)
+        base_dim = bsc["dimensional"]["median_log10_err"]
+        base_phys = bsc["physiological"]["median_log10_err"]
+        _report_variance("PHYSIOLOGICAL median",
+                         [r["physiological"]["median_log10_err"] for r in runs])
+        print(f"    ^ FAIR test: baseline (physiological subset) median = {base_phys}  "
+              f"<- the bar to beat")
+        beats_p = sum(1 for r in runs if r["beats_physiological_baseline"])
+        print(f"    beats it on the fair subset in {beats_p}/{len(runs)} runs")
+        _report_variance("DIMENSIONAL median",
+                         [r["dimensional"]["median_log10_err"] for r in runs])
+        print(f"    ^ all-dimensional baseline median = {base_dim} "
+              f"(includes the unknowable model-scaling units)")
         _report_variance("overall median", [r["overall"]["median_log10_err"] for r in runs])
-        print(f"    ^ naive baseline (overall) median = {base}")
-        beats = sum(1 for r in runs if r["beats_baseline"])
-        print(f"\n  beats baseline (overall) in {beats}/{len(runs)} runs "
-              f"(note: overall is carried by the easy dimensionless params)")
+        print("    ^ overall is carried by the easy dimensionless params")
 
 
 def _report_variance(tag: str, xs: list) -> None:

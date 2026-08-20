@@ -68,6 +68,17 @@ class TestBaseline(unittest.TestCase):
         self.assertAlmostEqual(base["a"], 1.0, places=6)
         self.assertAlmostEqual(base["b"], 1.0, places=6)
 
+    def test_physiological_split(self):
+        # rates/concentrations are physiological; per-molecule secretion is model-scaling
+        t = [P.Param("kcl", "1/day", "x", 1.0), P.Param("kd", "sec-1", "x", 1e-4),
+             P.Param("KD", "M", "x", 1e-10),
+             P.Param("sec", "nanogram/(molecule*day)", "x", 1e-9),
+             P.Param("f", "dimensionless", "x", 1.5)]
+        s = P.score_params({p.name: p.value for p in t}, t)
+        self.assertEqual(s["physiological"]["n"], 3)     # kcl, kd, KD
+        self.assertEqual(s["model_scaling"]["n"], 1)      # sec
+        self.assertEqual(s["dimensionless"]["n"], 1)
+
     def test_real_key_dimensional_is_hard(self):
         # sanity: on the real key the naive baseline should be far from perfect on the
         # dimensional params (that is why the benchmark is meaningful)
