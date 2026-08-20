@@ -29,8 +29,25 @@ from pkpd_agent.tools.registry import ToolRegistry
 from pkpd_agent.tools.ra_network_loop_tools import register_ra_network_loop_tools
 
 
-def _system_prompt() -> str:
-    return (
+_CONVENTIONS = (
+    "\n\nIMPORTANT - how THIS QSP model is structured (its modeling grammar, distinct "
+    "from textbook cause-and-effect):\n"
+    "1. The network is BIPARTITE cell<->cytokine. Cells SECRETE cytokines (cell->"
+    "cytokine edges); cytokines DRIVE cell proliferation / influx / apoptosis (cytokine"
+    "->cell edges). AVOID cytokine->cytokine shortcuts - where textbook biology says "
+    "'TNFa induces IL-6', the model routes it through a cell (TNFa->cell, cell->IL6).\n"
+    "2. Every secreting cell also carries a NEGATIVE self-feedback edge on its own "
+    "cytokine (e.g. Macro -| its own IL-6/TNFa, Th1 -| its own IFN-g): saturating / "
+    "self-limiting terms the model needs to stay bounded. Include these.\n"
+    "3. Chemokines (MIP3, RANTES, MCP1) and adhesion recruit BROADLY - fan them out "
+    "across many leukocyte compartments, not one.\n"
+    "4. TGF-b and IL-10 are context-dependent, not globally suppressive: some targets "
+    "positive, some negative - reason per target rather than assuming all-inhibitory."
+)
+
+
+def _system_prompt(conventions: bool = False) -> str:
+    base = (
         "You are an immunologist reconstructing the regulatory network of a rheumatoid-"
         "arthritis QSP model. You are given the cast of cells and cytokines and must "
         "propose the directed, signed edges - which cell/cytokine up- or down-regulates "
@@ -42,6 +59,7 @@ def _system_prompt() -> str:
         "structural feedback to find gaps, then network_finalize exactly once. Balance "
         "recall (find the real edges) against precision (do not propose every pair)."
     )
+    return base + (_CONVENTIONS if conventions else "")
 
 
 def main() -> None:
@@ -50,6 +68,9 @@ def main() -> None:
     ap.add_argument("--network", help="network.json from sb_network_json.m (full key)")
     ap.add_argument("--sbproj", help="sbproj to parse the diagram key from (bootstrap)")
     ap.add_argument("--max-steps", type=int, default=20)
+    ap.add_argument("--conventions", action="store_true",
+                    help="prime the agent with the model's bipartite + negative-feedback "
+                         "conventions (tests whether its gap was grammar, not biology)")
     ap.add_argument("--model", default=None)
     ap.add_argument("--effort", default=None)
     args = ap.parse_args()
@@ -78,7 +99,8 @@ def main() -> None:
 
     goal = ("Reconstruct the RA disease network: propose the directed signed regulatory "
             "edges among the cells and cytokines, then finalize to be scored.")
-    policy = LLMPolicy(cfg, registry, _system_prompt())
+    print(f"prompt: {'convention-primed' if args.conventions else 'biology-only (baseline)'}\n")
+    policy = LLMPolicy(cfg, registry, _system_prompt(args.conventions))
     loop = DecisionLoop(config=cfg, registry=registry, policy=policy)
 
     def show(ev):
