@@ -32,6 +32,8 @@ _TOKEN = re.compile(r"[A-Za-z_][A-Za-z0-9_]*")
 _RULE_RE = re.compile(r"^\s*(Pro|Anti|Hill)_([A-Za-z0-9]+?)_effect\s*=\s*(.*)$")
 _MM_SRC = re.compile(r"MM\(\s*([A-Za-z_][A-Za-z0-9_]*)")
 _NAME_RE = re.compile(r"^(Pro|Anti|Hill)_([A-Za-z0-9]+?)_by([A-Za-z0-9]+)")
+# unprefixed effect-strength params also name edges: 'IL6SecMacro_MaxbyTNFa' -> TNFa->IL6
+_NAME_RE2 = re.compile(r"^([A-Za-z0-9]+?)_(?:Max)?by([A-Za-z0-9]+)$")
 
 
 @dataclass
@@ -149,12 +151,19 @@ class QSPModel:
                 if src and src != tgt:
                     out.setdefault((src, sign, tgt), Edge(src, sign, tgt, proc))
         for p in params or []:
-            m = _NAME_RE.match(p.get("name", "") or "")
-            if not m:
-                continue
-            sign = _SIGN[m.group(1)]
-            tgt, proc = _split_target_general(m.group(2), self.resolve)
-            src = self.resolve(m.group(3))
+            nm = p.get("name", "") or ""
+            m = _NAME_RE.match(nm)
+            if m:
+                sign = _SIGN[m.group(1)]
+                tgt, proc = _split_target_general(m.group(2), self.resolve)
+                src = self.resolve(m.group(3))
+            else:                                    # unprefixed effect-strength params
+                m2 = _NAME_RE2.match(nm)             # 'IL6SecMacro_MaxbyTNFa' -> TNFa->IL6
+                if not m2:
+                    continue
+                sign = 1
+                tgt, proc = _split_target_general(m2.group(1), self.resolve)
+                src = self.resolve(m2.group(2))
             if src and tgt and src != tgt:
                 out.setdefault((src, sign, tgt), Edge(src, sign, tgt, proc))
         return list(out.values())

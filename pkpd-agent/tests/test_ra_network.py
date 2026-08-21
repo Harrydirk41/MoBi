@@ -47,6 +47,19 @@ class TestEdgeParsing(unittest.TestCase):
     def test_unknown_nodes_dropped(self):
         self.assertEqual(N.edges_from_names(["Pro_XSec_byAspirin"]), [])
 
+    def test_unprefixed_maxby_edge(self):
+        # effect-strength params with NO Pro/Anti prefix also name edges (the regex used
+        # to miss these; an LLM reading semantics caught them)
+        e = N.edges_from_names(["IL6SecMacro_MaxbyTNFa"])
+        self.assertEqual(len(e), 1)
+        self.assertEqual(e[0].signed(), ("TNFa", 1, "IL6"))   # sign defaults to +1
+        e2 = N.edges_from_names(["FLSProlif_MaxbyIL17"])
+        self.assertEqual(e2[0].signed(), ("IL17", 1, "FLS"))
+
+    def test_maxby_does_not_match_coefficient_names(self):
+        # multi-underscore coefficient names must not be misread as edges
+        self.assertEqual(N.edges_from_names(["HalfEffectConc_FLSProlif_byTNFa"]), [])
+
     def test_self_loop_dropped(self):
         self.assertEqual(N.edges_from_names(["Pro_IL6Sec_byIL6"]), [])
 

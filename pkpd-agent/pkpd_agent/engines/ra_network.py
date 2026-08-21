@@ -93,25 +93,36 @@ class Edge:
 
 
 _NAME_RE = re.compile(r"^(Pro|Anti|Hill)_([A-Za-z0-9]+?)_by([A-Za-z0-9]+)")
+# Effect-strength params ALSO name edges but carry NO Pro/Anti prefix, e.g.
+# 'IL6SecMacro_MaxbyTNFa' (TNFa -> IL6) or 'FLSProlif_MaxbyIL17' (IL17 -> FLS). The
+# prefixed regex missed these, so the deterministic key undercounted (an LLM reading the
+# semantics caught them). Sign is not in the name here, so default +1 - a rule-derived
+# edge with the correct sign wins on dedupe.
+_NAME_RE2 = re.compile(r"^([A-Za-z0-9]+?)_(?:Max)?by([A-Za-z0-9]+)$")
 _SIGN = {"Pro": 1, "Anti": -1, "Hill": 1}
 
 
 def edges_from_names(names: list[str]) -> list[Edge]:
-    """Parse regulatory edges out of a list of parameter/rule names following the
-    model's (Pro|Anti|Hill)_<TargetProcess>_by<Source> convention. Unknown nodes
-    are dropped (keeps the edge set on the shared vocabulary)."""
+    """Parse regulatory edges out of parameter/rule names. Handles both the prefixed
+    (Pro|Anti|Hill)_<TargetProcess>_by<Source> form AND the unprefixed effect-strength
+    form <TargetProcess>_[Max]by<Source> (sign unknown -> +1). Unknown nodes are dropped."""
     out: dict[tuple, Edge] = {}
     for nm in names:
         m = _NAME_RE.match(nm or "")
-        if not m:
-            continue
-        sign = _SIGN[m.group(1)]
-        tgt, proc = _split_target(m.group(2))
-        src = canon_node(m.group(3))
+        if m:
+            sign = _SIGN[m.group(1)]
+            tgt, proc = _split_target(m.group(2))
+            src = canon_node(m.group(3))
+        else:
+            m2 = _NAME_RE2.match(nm or "")
+            if not m2:
+                continue
+            sign = 1                              # no Pro/Anti in the name -> assume promoting
+            tgt, proc = _split_target(m2.group(1))
+            src = canon_node(m2.group(2))
         if src is None or tgt is None or src == tgt:
             continue
-        e = Edge(src, sign, tgt, proc)
-        out[e.signed()] = e            # dedupe on (src,sign,tgt), keep a process label
+        out.setdefault(Edge(src, sign, tgt, proc).signed(), Edge(src, sign, tgt, proc))
     return list(out.values())
 
 
