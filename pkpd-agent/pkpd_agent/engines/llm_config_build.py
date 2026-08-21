@@ -53,8 +53,8 @@ model support; omit what you cannot determine):
   "fit_params": {"<param>": {"unit": "...", "reference": N, "meaning": "...",
                  "search_range": [lo,hi], "log_scale": true}},
   "design_targets": {"<param>": {"pathway": "...", "analogue": "...", "note": "..."}},
-  "clinical_trials": {"<DRUG>": {"trial": "...", "weeks": {"24": {"drug": {"ACR20": N,...}}}}},
-  "refractory_target": {"trial": "...", "ACR20": N, ...}
+  "clinical_trials": {"<DRUG>": {"trial": "...", "weeks": {"<week>": {"drug": {"<endpoint>": N, ...}}}}},
+  "refractory_target": {"trial": "...", "<endpoint>": N, ...}
 }
 PRUNE vpop_drivers / design_targets / fit_params from the candidate pools to only the
 ones the description says the tasks use. Keep readout_states from the draft unless the
