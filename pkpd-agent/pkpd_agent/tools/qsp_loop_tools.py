@@ -22,7 +22,10 @@ def register_qsp_scope_loop_tools(registry: ToolRegistry, config, ctx: dict) -> 
             f"{model.spec.name} scope task: propose the cast (cells and mediators) this "
             "QSP model should include. Precision is scored - a good model is parsimonious.",
             objective="list the cell types and mediators that belong in the model",
-            readout=model.spec.readout_name)
+            readout=model.spec.readout_name,
+            format="ONE entity per list entry, by its standard short name (e.g. 'Th1', "
+                   "'IL-6', 'macrophage') - do not group several into one string or add "
+                   "parenthetical aliases")
 
     def propose(a, s):
         acc = list(s.get("qsp_scope") or []) + [str(n) for n in (a.get("nodes") or [])]
@@ -85,7 +88,13 @@ def register_qsp_readout_loop_tools(registry: ToolRegistry, config, ctx: dict) -
         return ToolResult.success(
             f"{model.spec.name} readout task: which model nodes is the readout "
             f"({model.spec.readout_name}) computed from?",
-            objective="list the nodes the readout is a direct function of")
+            objective="list the MODEL NODES (cells/mediators) the readout is a direct "
+                      "function of",
+            hint="the readout is a formula over the model's own state variables (cell "
+                 "densities and mediators), NOT the clinical instrument's inputs - so "
+                 "propose model nodes (which cells/mediators drive severity), not clinical "
+                 "sub-scores like joint counts, CRP, or patient global assessment",
+            format="one model node per entry, standard short name")
 
     def propose(a, s):
         acc = list(s.get("qsp_readout") or []) + [str(n) for n in (a.get("nodes") or [])]

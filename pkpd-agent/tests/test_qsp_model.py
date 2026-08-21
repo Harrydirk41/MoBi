@@ -94,6 +94,19 @@ class TestMatcher(unittest.TestCase):
         self.assertEqual(s["hit"], 2)
         self.assertIn("ASPIRIN", s["extra"])
 
+    def test_resolve_all_splits_compound(self):
+        m = _model()
+        self.assertEqual(m.resolve_all("B cell / plasma cell"), {"BCells", "PlasmaCells"})
+        self.assertEqual(m.resolve_all("Macrophage (synovial)"), {"Macrophages"})
+        self.assertEqual(m.resolve_all("CD4 T cell (Th1, Th17)"), {"Th1", "Th17"})
+        self.assertEqual(m.resolve_all("osteoclast"), set())
+
+    def test_score_node_set_credits_compound(self):
+        m = _model()
+        s = m.score_node_set(["B cell / plasma cell", "Macrophage (synovial)"],
+                             ["BCells", "PlasmaCells", "Macrophages"])
+        self.assertEqual(s["hit"], 3)                 # all three, from 2 compound entries
+
 
 class TestInferSpec(unittest.TestCase):
     def _data(self):

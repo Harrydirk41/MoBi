@@ -194,10 +194,30 @@ class QSPModel:
             out[e.signed()] = e
         return list(out.values())
 
+    def resolve_all(self, raw: str) -> set:
+        """Resolve a free-text entry that may pack several nodes or annotations into one
+        string ('B cell / plasma cell', 'Macrophage (synovial)', 'CD4 T cell (Th1, Th17)').
+        Returns the set of nodes it references (empty if none)."""
+        r = self.resolve(raw)
+        if r:
+            return {r}
+        out = set()
+        for part in re.split(r"[\/,;+]|\(|\)|\band\b", str(raw)):
+            c = self.resolve(part.strip())
+            if c:
+                out.add(c)
+        return out
+
     def score_node_set(self, proposed: list, truth: list) -> dict:
-        """Generic precision/recall/F1 of proposed node names vs a truth node set."""
-        picks = {self.resolve(p) for p in (proposed or []) if self.resolve(p)}
-        junk = {_norm(p) for p in (proposed or []) if self.resolve(p) is None}
+        """Generic precision/recall/F1 of proposed node names vs a truth node set. Handles
+        compound/annotated free-text entries by splitting them before matching."""
+        picks, junk = set(), set()
+        for p in (proposed or []):
+            got = self.resolve_all(p)
+            if got:
+                picks |= got
+            else:
+                junk.add(_norm(p))
         T = set(truth)
         hit = len(picks & T)
         n_prop = len(picks) + len(junk)
@@ -222,7 +242,9 @@ class QSPModel:
 
     def score_sensitivity(self, ranked: list) -> dict:
         top = set(self.spec.gsa_top)
-        picks = [p for p in dict.fromkeys(ranked or [])]
+        # the task is 'rank the ~top-K most sensitive'; keep only the agent's top-K so
+        # dumping the whole pool cannot trivially score recall 1.0.
+        picks = [p for p in dict.fromkeys(ranked or [])][: max(1, len(top))]
         hit = [p for p in picks if p in top]
         pool_n = len(self.sensitivity_pool())
         prec = len(hit) / len(picks) if picks else 0.0
