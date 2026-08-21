@@ -75,13 +75,20 @@ draft `spec.json` + `tasks.json` → paste the real clinical numbers + dose name
 
 ### For a traditional modeler (no JSON, no schema)
 Naming is never required to match this project — the extractors read whatever the model
-calls things, and `run_columns` maps roles to the modeler's own column names. The one
-command a GUI-native modeler needs is `run_llm_init`: they write a few plain sentences
-("psoriasis model, severity PASI, active band 6–20, drug secukinumab dose SEC_300mg,
-match UNCOVER-2 PASI75 wk12 = 77%, calibrate KD_SEC ref 1e-10 M"), and it extracts the
-structure, drafts the role candidates, fills a `tasks.json` from the description, and
-`project_validate` reports any leftover in plain English. The modeler edits nothing by
-hand unless they want to.
+calls things, and `run_columns` maps roles to the modeler's own column names. A GUI-native
+modeler never touches JSON; they write a few plain sentences ("psoriasis model, severity
+PASI, active band 6–20, drug secukinumab dose SEC_300mg, match UNCOVER-2 PASI75 wk12 = 77%,
+calibrate KD_SEC ref 1e-10 M") and use one of two entry points:
+- `run_llm_init` — linear: extract structure → draft roles → fill `tasks.json` from the
+  description → `project_validate` reports leftovers in plain English → write the folder.
+- `run_llm_onboard` — an AGENT drives it: inspects the model, builds the config, reads its
+  own validation report, fixes the errors it can infer (a `vpop_driver` that near-misses a
+  real parameter, etc.), and saves only when clean, telling the modeler which clinical
+  numbers they still owe. `onboard_save` refuses while any validation ERROR remains.
+
+`engines/project_validate.py` is the safety net either way: it checks every config name
+against the real model and turns the silent foot-guns (a role that is not a real parameter,
+an unfilled stub) into plain-English errors/warnings. The modeler edits nothing by hand.
 
 ## The one input that cannot be derived
 `spec.json:gsa_top` — the global-sensitivity ranking comes from a figure (Fig 9), read by a
