@@ -31,7 +31,26 @@ READOUT_ROLES = (
 
 _PROJECTS_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__),
                                              "..", "..", "projects"))
-_ALIASES = {"ra": "vantage_ra", "vantage_ra": "vantage_ra"}
+
+
+def resolve_project(name: str, filename: str, base: str) -> str:
+    """Resolve a model name to a project folder: a folder named `name` wins; otherwise
+    scan sibling folders for one whose <filename> declares `name` in its 'aliases' list.
+    Short names (e.g. 'ra') thus live in the project's own data, not in engine code."""
+    if os.path.isfile(os.path.join(base, name, filename)):
+        return name
+    if os.path.isdir(base):
+        for folder in sorted(os.listdir(base)):
+            path = os.path.join(base, folder, filename)
+            if not os.path.isfile(path):
+                continue
+            try:
+                with open(path, encoding="utf-8") as fh:
+                    if name in (json.load(fh).get("project_aliases") or []):
+                        return folder
+            except (OSError, json.JSONDecodeError):
+                continue
+    return name
 
 
 def _int_keys(d: dict) -> dict:
@@ -130,9 +149,8 @@ def load_tasks(name: str, projects_dir: str = None) -> QSPTaskConfig:
 
 
 def get(name: str = "vantage_ra", projects_dir: str = None) -> QSPTaskConfig:
-    key = (name or "vantage_ra").lower()
-    folder = _ALIASES.get(key, key)
     base = projects_dir or _PROJECTS_DIR
+    folder = resolve_project(name or "vantage_ra", "tasks.json", base)
     if not os.path.isfile(os.path.join(base, folder, "tasks.json")):
         known = sorted(d for d in os.listdir(base)
                        if os.path.isfile(os.path.join(base, d, "tasks.json"))) \

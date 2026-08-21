@@ -24,7 +24,7 @@ from pkpd_agent.engines import qsp_config, qsp_tasks
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--model", default="ra")
+    ap.add_argument("--model", default="vantage_ra")
     ap.add_argument("--sbproj", required=True)
     ap.add_argument("--vpop", required=True)
     ap.add_argument("--target", default=None, help="disease-driver parameter to suppress")
@@ -42,7 +42,7 @@ def main() -> None:
         else tcfg.timeline.get("baseline_day", 200.0)
     readout_day = args.readout_day if args.readout_day is not None \
         else tcfg.timeline.get("first_line_readout_day", 284.0)
-    dcol = (tcfg.run_columns.get("das28") or {}).get("readout", "DAS28_read")
+    dcol = (tcfg.run_columns.get("severity") or {}).get("readout", "")
 
     try:
         sys.stdout.reconfigure(line_buffering=True)

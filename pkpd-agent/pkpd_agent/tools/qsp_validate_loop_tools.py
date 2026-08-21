@@ -20,8 +20,6 @@ from ..engines import qsp_tasks
 from ..engines.qsp_config import QSPTaskConfig
 from .registry import Tool, ToolRegistry, ToolResult
 
-_ENDPOINTS = ("ACR20", "ACR50", "ACR70")
-
 
 def register_qsp_validate_loop_tools(registry: ToolRegistry, config, ctx: dict) -> None:
     """ctx: {cfg, sb, vpop, limit, comparator?}."""
@@ -34,8 +32,11 @@ def register_qsp_validate_loop_tools(registry: ToolRegistry, config, ctx: dict) 
     default_test_arm = arms.get("tcz_arm", "")
     second_readout = cfg.timeline.get("second_line_readout_day", 600.0)
     first_readout = cfg.timeline.get("first_line_readout_day", 284.0)
-    comp_endpoints = [k for k in _ENDPOINTS if k in comparator] \
-        or [k for k in comparator if str(k).upper().startswith("ACR")]
+    fl_roles = [r for r in cfg.run_columns.get("first_line", {})]
+    # non-response role: the second first-line role if present (the config's convention)
+    default_acr = fl_roles[1] if len(fl_roles) > 1 else (fl_roles[0] if fl_roles else "")
+    comp_endpoints = [k for k in fl_roles if k in comparator] \
+        or [k for k in comparator if k not in ("trial", "week")]
 
     def inspect(args: dict, session) -> ToolResult:
         return ToolResult.success(
@@ -54,13 +55,13 @@ def register_qsp_validate_loop_tools(registry: ToolRegistry, config, ctx: dict) 
                 "prior_arms": "[dose, ...] - each therapy whose non-responders define "
                               "the refractory population (intersection of failures)",
                 "test_arm": "the arm to read the refractory response from",
-                "acr_key": "first-line role for non-response, e.g. 'ACR50' or 'ACR20'",
+                "acr_key": f"first-line response role for non-response (default '{default_acr}')",
                 "das_threshold": "severity above which disease is active (default 3.2)"})
 
     def run(args: dict, session) -> ToolResult:
         prior = args.get("prior_arms") or arms.get("prior_therapies") or []
         test_arm = args.get("test_arm") or args.get("tcz_arm") or default_test_arm
-        acr_key = args.get("acr_key") or "ACR50"
+        acr_key = args.get("acr_key") or default_acr
         das_thr = float(args.get("das_threshold") or 3.2)
         if len(prior) < 1:
             return ToolResult.error("give prior_arms - the therapies whose non-responders "

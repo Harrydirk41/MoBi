@@ -43,7 +43,7 @@ def _system_prompt(cfg, target, numeric: bool) -> str:
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--model", default="ra")
+    ap.add_argument("--model", default="vantage_ra")
     ap.add_argument("--sbproj", required=True)
     ap.add_argument("--n-samples", type=int, default=60)
     ap.add_argument("--seed", type=int, default=1)

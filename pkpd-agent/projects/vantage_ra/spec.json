@@ -1,5 +1,6 @@
 {
   "name": "Vantage RA",
+  "project_aliases": ["ra"],
   "readout_name": "DAS28-CRP (a composite of tender/swollen joint counts, CRP, and patient global assessment)",
   "readout_targets": ["DAS28_CRP", "ACR_Perc"],
   "drug_patterns": ["MTX", "Ada", "^TCZ", "Secu", "^ana_", "Drug", "Dose", "_Central", "_Peripheral", "_available", "_GI"],

@@ -26,7 +26,7 @@ def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--network", required=True)
-    ap.add_argument("--model", default="ra", help="spec for the deterministic ground truth")
+    ap.add_argument("--model", default="vantage_ra", help="spec for the deterministic ground truth")
     ap.add_argument("--llm-model", default=None)
     args = ap.parse_args()
 

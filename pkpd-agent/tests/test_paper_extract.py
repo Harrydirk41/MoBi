@@ -16,16 +16,19 @@ _PDF = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..",
 
 class TestAcrRegex(unittest.TestCase):
     def test_clean_row_parses(self):
-        # a clean, well-separated row parses; monotonicity filter keeps it
-        txt = "Tocilizumab TCZ 8mg 45 30 13.9"
-        # feed via the module's regex on a stand-in text (no PDF needed)
-        rows = [m for m in PE._ACR_ROW.finditer(txt)]
+        # a clean, well-separated row parses; the row regex is anchored on given drugs
+        txt = "Tocilizumab 45 30 13.9"
+        rows = list(PE._acr_row(["Tocilizumab", "MTX"]).finditer(txt))
+        self.assertTrue(rows)
+
+    def test_generic_row_regex_no_drug_baked_in(self):
+        # with no drug list it still matches a capitalized drug-like token
+        rows = list(PE._acr_row().finditer("Etanercept 50 28 12"))
         self.assertTrue(rows)
 
     def test_monotonicity_filter_rejects_noise(self):
         # ACR20 < ACR50 is impossible -> filtered out (protects against table noise)
-        import re
-        m = re.search(PE._ACR_ROW, "MTX 9 23 46")   # reversed order = noise
+        m = PE._acr_row(["MTX"]).search("MTX 9 23 46")   # reversed order = noise
         if m:
             a20, a50, a70 = float(m.group(2)), float(m.group(3)), float(m.group(4))
             self.assertFalse(a20 >= a50 >= a70)      # correctly not a valid ACR triple

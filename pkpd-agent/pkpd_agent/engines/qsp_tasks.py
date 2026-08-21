@@ -42,11 +42,11 @@ def _mean(xs) -> Optional[float]:
 
 # ----------------------------------------------------------- run summarizers -- #
 def summarize_run(res: dict, columns: dict) -> dict[str, Any]:
-    """A run_vpop result -> {first_line, second_line, das28} population rates.
+    """A run_vpop result -> {first_line, second_line, severity} population rates.
 
     ``columns`` is the semantic column map (from the task config):
       {patient, first_line{role->col}, subgroup_flag, second_line{role->col},
-       das28{baseline, readout}}
+       severity{baseline, readout}}
     first_line rates are over all patients; second_line rates are restricted to the
     subgroup where ``subgroup_flag`` == 1 (e.g. the inadequate responders), so the
     caller never hardcodes which flag or which columns a given model emits.
@@ -79,10 +79,10 @@ def summarize_run(res: dict, columns: dict) -> dict[str, Any]:
     for role, colname in (columns.get("second_line") or {}).items():
         second[role] = _among_subgroup(colname)
 
-    dcols = columns.get("das28") or {}
-    das = {"baseline_mean": _mean(cols.get(dcols.get("baseline", ""), [])),
+    dcols = columns.get("severity") or {}
+    sev = {"baseline_mean": _mean(cols.get(dcols.get("baseline", ""), [])),
            "readout_mean": _mean(cols.get(dcols.get("readout", ""), []))}
-    return {"first_line": first, "second_line": second, "das28": das}
+    return {"first_line": first, "second_line": second, "severity": sev}
 
 
 def ir_mask(run: dict, columns: dict, acr_key: str = None,
@@ -91,7 +91,7 @@ def ir_mask(run: dict, columns: dict, acr_key: str = None,
     reach the response flag (== 0) AND still have active disease (severity readout >
     threshold). Returns {patient_id: bool}, keyed by patient so arms align.
 
-    ``columns`` supplies patient / first_line role->col / das28.readout; ``acr_key``
+    ``columns`` supplies patient / first_line role->col / severity.readout; ``acr_key``
     is a first_line ROLE (e.g. 'ACR50') resolved through the column map, defaulting
     to the second first_line role if omitted.
     """
@@ -101,7 +101,7 @@ def ir_mask(run: dict, columns: dict, acr_key: str = None,
     role = acr_key if acr_key in fl else (roles[1] if len(roles) > 1 else roles[0])
     pcol = columns.get("patient", "patient")
     acol = fl[role]
-    dcol = (columns.get("das28") or {}).get("readout", "")
+    dcol = (columns.get("severity") or {}).get("readout", "")
     pats = cols.get(pcol, [])
     acr = cols.get(acol, [])
     das = cols.get(dcol, [])
@@ -190,11 +190,13 @@ def score_flagship(predicted: dict, target: dict) -> dict[str, Any]:
 
 
 def score_min_dose(second_line: dict, dose_scale: float, target_pct: float,
-                   endpoint: str = "ACR20") -> dict[str, Any]:
+                   endpoint: str = None) -> dict[str, Any]:
     """Score the 'minimum effective dose' objective: the regimen must reach
     ``endpoint`` >= ``target_pct`` (%) at the LOWEST dose. A regimen that meets the
     target at a smaller scale scores better; one that misses fails regardless of
-    dose."""
+    dose. ``endpoint`` defaults to the first response role in ``second_line``."""
+    if endpoint is None:
+        endpoint = next((k for k in second_line if k != "n_subgroup"), None)
     achieved = second_line.get(endpoint)
     met = isinstance(achieved, (int, float)) and achieved >= target_pct
     return {

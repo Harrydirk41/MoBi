@@ -7,7 +7,9 @@ without an API. The real LLM is swapped in only in run_llm_extract.
 import unittest
 
 from pkpd_agent.engines import llm_structure as LS
-from pkpd_agent.engines.qsp_model import QSPModel, VANTAGE_RA_SPEC
+from pkpd_agent.engines.qsp_model import QSPModel, get_spec
+
+VANTAGE_RA_SPEC = get_spec("vantage_ra")
 from tests.test_qsp_model import _DAS28, _BIO, _NONBIO
 
 

@@ -43,7 +43,7 @@ def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--network", required=True)
-    ap.add_argument("--model", default="ra", help="spec name in qsp_model.SPECS")
+    ap.add_argument("--model", default="vantage_ra", help="spec name in qsp_model.SPECS")
     ap.add_argument("--show-key", action="store_true")
     ap.add_argument("--repeat", type=int, default=1)
     ap.add_argument("--max-steps", type=int, default=20)

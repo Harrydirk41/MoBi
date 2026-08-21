@@ -97,7 +97,7 @@ def register_qsp_trial_loop_tools(registry: ToolRegistry, config, ctx: dict) -> 
             f"protocol '{spec}' run on {fl.get('n')} patients: "
             f"first-line {fl}; second-line (subgroup n={sl.get('n_subgroup')}) {sl}"
             + (f"  [WARN] {warn}" if warn else ""),
-            protocol=spec, first_line=fl, second_line=sl, das28=summary["das28"],
+            protocol=spec, first_line=fl, second_line=sl, severity=summary["severity"],
             warning=warn, matlab_tail=ml[-400:] if ml else "", iteration=len(hist))
 
     def finalize(args: dict, session) -> ToolResult:

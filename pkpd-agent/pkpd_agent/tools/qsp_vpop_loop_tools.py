@@ -29,7 +29,7 @@ def register_qsp_vpop_loop_tools(registry: ToolRegistry, config, ctx: dict) -> N
     seed: int = int(ctx.get("seed") or 1)
     target: dict = ctx.get("target") or cfg.vpop_target
     sev = cfg.severity_readout
-    base_col = (cfg.run_columns.get("das28") or {}).get("baseline", "DAS28_base")
+    base_col = (cfg.run_columns.get("severity") or {}).get("baseline", "")
     enable_select: bool = bool(ctx.get("enable_select", True))
     n_pool: int = int(ctx.get("n_pool") or 80)
 

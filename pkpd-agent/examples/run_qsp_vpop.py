@@ -44,7 +44,7 @@ def main() -> None:
     global _LOG
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--model", default="ra")
+    ap.add_argument("--model", default="vantage_ra")
     ap.add_argument("--sbproj", required=True)
     ap.add_argument("--vpop", required=True)
     ap.add_argument("--dose", default="", help="dose name(s) joined by ';' (default: baseline)")
@@ -85,7 +85,7 @@ def main() -> None:
             log("   [MATLAB] " + ml.replace("\n", "\n   [MATLAB] "))
 
         cols = r.get("columns") or {}
-        dcols = tcfg.run_columns.get("das28") or {}
+        dcols = tcfg.run_columns.get("severity") or {}
         log(f"\n{tcfg.severity_readout} baseline: {_summ(cols.get(dcols.get('baseline',''), []))}")
         log(f"{tcfg.severity_readout} first-line readout: "
             f"{_summ(cols.get(dcols.get('readout',''), []))}")

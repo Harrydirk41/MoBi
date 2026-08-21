@@ -72,7 +72,7 @@ class TestSummarizeRun(unittest.TestCase):
         self.assertEqual(s["second_line"]["n_subgroup"], 3)
         self.assertEqual(s["second_line"]["ACR20"], 66.7)
         self.assertEqual(s["second_line"]["ACR70"], 0.0)
-        self.assertEqual(s["das28"]["baseline_mean"], 5.25)
+        self.assertEqual(s["severity"]["baseline_mean"], 5.25)
 
     def test_empty_second_line(self):
         res = _run(patient=[1, 2], ACR20=[1, 1], ACR50=[1, 0], ACR70=[0, 0],

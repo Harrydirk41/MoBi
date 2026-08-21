@@ -29,7 +29,7 @@ def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--network", required=True)
-    ap.add_argument("--model", default="ra",
+    ap.add_argument("--model", default="vantage_ra",
                     help="known-good project to regress the draft against (if it exists)")
     ap.add_argument("--out", default=None, help="write the draft tasks.json here")
     ap.add_argument("--llm-model", default=None)

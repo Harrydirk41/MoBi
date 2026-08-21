@@ -80,7 +80,7 @@ def register_qsp_design_loop_tools(registry: ToolRegistry, config, ctx: dict) ->
             return ToolResult.error(f"unknown target '{target}'. Options: "
                                     f"{', '.join(targets)}")
         fl = _run(target or "", float(efficacy))
-        primary = next(iter(cfg.run_columns.get("first_line", {"ACR20": 1})), "ACR20")
+        primary = next(iter(cfg.run_columns.get("first_line", {})), None)
         score = fl.get(primary)
 
         hist = session.get("design_history") or []

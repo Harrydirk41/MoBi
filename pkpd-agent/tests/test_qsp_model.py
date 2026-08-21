@@ -7,7 +7,9 @@ RA answer keys - the backward-compat regression that validates Problem A on this
 
 import unittest
 
-from pkpd_agent.engines.qsp_model import QSPModel, VANTAGE_RA_SPEC, get_spec
+from pkpd_agent.engines.qsp_model import QSPModel, get_spec
+
+VANTAGE_RA_SPEC = get_spec("vantage_ra")   # the project spec, loaded from data
 
 _DAS28 = ("Synovium.DAS28_CRP = 2*FLS^2.5/(1.3E7^2.5+FLS^2.5)+0.5*Endothelial^2.5/"
           "(4.2e7^2.5+Endothelial^2.5)+1.5*Th1^2.5/(4e6^2.5+Th1^2.5)+0.5*Th17^2.5/"

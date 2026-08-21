@@ -18,8 +18,6 @@ from ..engines import qsp_tasks
 from ..engines.qsp_config import QSPTaskConfig
 from .registry import Tool, ToolRegistry, ToolResult
 
-_ENDPOINTS = ("ACR20", "ACR50", "ACR70")
-
 
 def register_qsp_fit_loop_tools(registry: ToolRegistry, config, ctx: dict) -> None:
     """ctx: {cfg, sb, vpop, arm, target, fit_params?, limit, stop_time,
@@ -30,7 +28,10 @@ def register_qsp_fit_loop_tools(registry: ToolRegistry, config, ctx: dict) -> No
     arm: str = ctx["arm"]
     target: dict = ctx["target"]
     fit_params: list = ctx.get("fit_params") or list(cfg.fit_params.keys())
-    endpoints = [k for k in _ENDPOINTS if k in target] or list(target.keys())
+    # the response endpoints to score = the model's second-line roles, intersected with
+    # what the observed target provides (from the config, never hardcoded)
+    sl_roles = [r for r in cfg.run_columns.get("second_line", {})]
+    endpoints = [k for k in sl_roles if k in target] or list(target.keys())
     limit: int = int(ctx.get("limit") or 50)
     stop_time: float = float(ctx.get("stop_time") or 700.0)
     enable_optimize: bool = bool(ctx.get("enable_optimize", True))

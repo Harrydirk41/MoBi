@@ -399,27 +399,37 @@ def infer_spec(data: dict, name: str = "QSP model") -> QSPModelSpec:
     rdt_pat = sorted({_pat(t) for s in species for t in _READOUT_TOKENS
                       if re.search(rf"(^|_){t}" if len(t) <= 3 else t, s, re.IGNORECASE)})
     return QSPModelSpec(
-        name=name, readout_targets=readout_targets or ["DAS28_CRP"],
+        name=name, readout_targets=readout_targets,
         drug_patterns=drug_pat, readout_patterns=rdt_pat,
         aliases=_auto_aliases(rules, data.get("parameters", []), species))
 
 
-# Add a new model = add a projects/<name>/ folder with a spec.json. Short aliases map to
-# project folder names; no spec literal lives in code.
-_SPEC_ALIASES = {"ra": "vantage_ra", "vantage_ra": "vantage_ra"}
+# Add a new model = add a projects/<name>/ folder with a spec.json. Short aliases live in
+# each project's own spec.json ("aliases": [...]); no model name is hardcoded here.
+def _resolve_spec_folder(name: str, base: str) -> str:
+    if os.path.isfile(os.path.join(base, name, "spec.json")):
+        return name
+    if os.path.isdir(base):
+        for folder in sorted(os.listdir(base)):
+            path = os.path.join(base, folder, "spec.json")
+            if not os.path.isfile(path):
+                continue
+            try:
+                with open(path, encoding="utf-8") as fh:
+                    if name in (json.load(fh).get("project_aliases") or []):
+                        return folder
+            except (OSError, json.JSONDecodeError):
+                continue
+    return name
 
 
 def get_spec(name: str, projects_dir: str = None) -> QSPModelSpec:
-    key = (name or "ra").lower()
-    folder = _SPEC_ALIASES.get(key, key)
     base = projects_dir or _PROJECTS_DIR
-    if not os.path.isdir(os.path.join(base, folder)):
+    folder = _resolve_spec_folder(name or "vantage_ra", base)
+    if not os.path.isfile(os.path.join(base, folder, "spec.json")):
         known = sorted(d for d in os.listdir(base)
-                       if os.path.isdir(os.path.join(base, d))) if os.path.isdir(base) else []
+                       if os.path.isfile(os.path.join(base, d, "spec.json"))) \
+            if os.path.isdir(base) else []
         raise KeyError(f"unknown project '{name}'. Known: {known}. "
                        "Add a projects/<name>/spec.json.")
     return load_spec(folder, base)
-
-
-# Backward-compat handle: the RA spec, now loaded from data rather than a code literal.
-VANTAGE_RA_SPEC = load_spec("vantage_ra")

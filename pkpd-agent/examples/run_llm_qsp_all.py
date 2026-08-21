@@ -68,7 +68,7 @@ def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--network", required=True)
-    ap.add_argument("--model", default="ra", help="spec name in SPECS")
+    ap.add_argument("--model", default="vantage_ra", help="spec name in SPECS")
     ap.add_argument("--infer", action="store_true",
                     help="heuristically infer the spec from the dump (no hand config); "
                          "skips sensitivity (needs the external GSA list)")
