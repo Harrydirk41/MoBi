@@ -42,6 +42,9 @@ class QSPModelSpec:
     drug_patterns: list[str] = field(default_factory=list)     # species regexes = drugs/PK
     readout_patterns: list[str] = field(default_factory=list)  # species regexes = readouts/flags
     aliases: dict = field(default_factory=dict)        # extra free-text synonyms -> node
+    readout_name: str = "the disease-severity score"   # what the readout is, for prompts
+    gsa_top: list[str] = field(default_factory=list)   # global-sensitivity top params
+                                                       #   (from an analysis/figure, external)
 
 
 def _norm(s: str) -> str:
@@ -206,6 +209,30 @@ class QSPModel:
                 "missed": sorted(T - picks),
                 "extra": sorted(picks - T) + sorted(junk)}
 
+    # -- sensitivity (needs the spec's external GSA list) ---------------- #
+    def sensitivity_pool(self, n_distractors: int = 30) -> list[str]:
+        """The GSA top params hidden among real distractor param names from this model."""
+        top = list(self.spec.gsa_top)
+        pnames = [p.name for p in self.params if p.name not in set(top)]
+        # deterministic, evenly-spaced distractor sample (no RNG)
+        if len(pnames) > n_distractors:
+            step = len(pnames) / n_distractors
+            pnames = [pnames[int(i * step)] for i in range(n_distractors)]
+        return sorted(top + pnames)
+
+    def score_sensitivity(self, ranked: list) -> dict:
+        top = set(self.spec.gsa_top)
+        picks = [p for p in dict.fromkeys(ranked or [])]
+        hit = [p for p in picks if p in top]
+        pool_n = len(self.sensitivity_pool())
+        prec = len(hit) / len(picks) if picks else 0.0
+        rec = len(hit) / len(top) if top else 0.0
+        rand = (len(picks) * len(top) / pool_n / len(top)) if (pool_n and top) else 0.0
+        return {"n_picked": len(picks), "hit": len(hit),
+                "precision": round(prec, 3), "recall": round(rec, 3),
+                "random_baseline_recall": round(rand, 3), "beats_random": rec > rand,
+                "missed_top": sorted(top - set(hit))}
+
     @classmethod
     def from_network_json(cls, path: str, spec: QSPModelSpec) -> "QSPModel":
         with open(path, encoding="utf-8") as fh:
@@ -244,6 +271,14 @@ VANTAGE_RA_SPEC = QSPModelSpec(
              "fls": "FLS", "fibroblastlikesynoviocyte": "FLS", "synoviocyte": "FLS",
              "cd8": "CTL", "regulatorytcell": "Treg", "acpa": "AutoAb",
              "autoantibody": "AutoAb", "ccl2": "MCP1", "ccl5": "RANTES", "ccl20": "MIP3"},
+    readout_name="DAS28-CRP (a composite of tender/swollen joint counts, CRP, and "
+                 "patient global assessment)",
+    gsa_top=[  # Fig 9 global sensitivity top-20 for DAS28-CRP (external: from the paper)
+        "kg_FLS_Baseline", "F_CAM", "kg_BCells_Baseline", "kg_Macrophage_Baseline",
+        "F_GMCSF", "kg_Th1_Baseline", "F_TNFa", "kIn_Th1_Baseline", "LeukoInflux_MaxbyCAM",
+        "F_IL1b", "kIn_BCells_Baseline", "F_VEGF", "kIn_Macrophage_Baseline", "F_IL10",
+        "F_IL17", "F_IL6", "kg_CTL_Baseline", "F_BAFF", "BCellApop_MaxbyBAFF",
+        "MacroApop_MaxbyGMCSF"],
 )
 
 # Named specs - add a new QSP model by adding its spec here (and passing its network.json).
