@@ -58,6 +58,21 @@ The 2–7 tasks drive SimBiology through `examples/matlab/sb_run_vpop.m` /
 model-specific readout boundary (the run-time analogue of `network.json` for Stage-1): a new QSP
 model ships its own readout script + `tasks.json`, and the Python above is unchanged.
 
+## Porting to a new model — what the author actually prepares
+The goal: the author worries only about *their* stuff (the model + their real clinical
+numbers); everything else is derived.
+
+| artifact | how it's produced | author effort |
+|---|---|---|
+| `network.json` | `dump_network.py` / `sbml_to_network_json.py` | none (auto) |
+| `spec.json` | `--infer`, or `run_llm_extract` (LLM reads any naming, regressed vs RA) | review a draft |
+| `tasks.json` role assignments (`readout_states`, `vpop_drivers`, `design_targets`, `fit_params`) | `run_llm_draft_tasks` (LLM drafts from `network.json`, regressed vs this RA `tasks.json`) | review a draft |
+| `tasks.json` external fields (`clinical_trials`, `refractory_target`, `vpop_target`, dose `drugs`, `timeline`) | author supplies — real trial data + `.sbproj` dose names | **the author's own data** |
+| `.m` readout script | reuse `sb_run_vpop.m` as-is if the model is same-shaped (state names come from `readout_states`); rewrite only for a different trial structure | none / rewrite |
+
+So a same-shaped QSP model ports to: dump `network.json` → run the two extractors to
+draft `spec.json` + `tasks.json` → paste the real clinical numbers + dose names → run.
+
 ## The one input that cannot be derived
 `spec.json:gsa_top` — the global-sensitivity ranking comes from a figure (Fig 9), read by a
 vision step or by hand. Everything else in `spec.json` is auto-inferable from `network.json`
