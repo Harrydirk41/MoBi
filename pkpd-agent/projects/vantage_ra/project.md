@@ -73,6 +73,16 @@ numbers); everything else is derived.
 So a same-shaped QSP model ports to: dump `network.json` → run the two extractors to
 draft `spec.json` + `tasks.json` → paste the real clinical numbers + dose names → run.
 
+### For a traditional modeler (no JSON, no schema)
+Naming is never required to match this project — the extractors read whatever the model
+calls things, and `run_columns` maps roles to the modeler's own column names. The one
+command a GUI-native modeler needs is `run_llm_init`: they write a few plain sentences
+("psoriasis model, severity PASI, active band 6–20, drug secukinumab dose SEC_300mg,
+match UNCOVER-2 PASI75 wk12 = 77%, calibrate KD_SEC ref 1e-10 M"), and it extracts the
+structure, drafts the role candidates, fills a `tasks.json` from the description, and
+`project_validate` reports any leftover in plain English. The modeler edits nothing by
+hand unless they want to.
+
 ## The one input that cannot be derived
 `spec.json:gsa_top` — the global-sensitivity ranking comes from a figure (Fig 9), read by a
 vision step or by hand. Everything else in `spec.json` is auto-inferable from `network.json`
