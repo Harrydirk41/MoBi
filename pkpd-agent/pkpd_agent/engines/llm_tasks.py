@@ -27,7 +27,7 @@ from __future__ import annotations
 
 import json
 
-from .llm_structure import _parse_json, default_call  # reuse tolerant parser + Claude call
+from .llm_structure import _parse_json  # reuse the tolerant JSON extractor
 
 _SYS = ("You are a QSP-model analyst. You read a model's parameters, species and rule "
         "expressions and assign each to its ROLE in a virtual-trial workflow, using the "
@@ -35,29 +35,64 @@ _SYS = ("You are a QSP-model analyst. You read a model's parameters, species and
         "clinical numbers. Output JSON only, no prose.")
 
 
-def classify_parameters(params: list[dict], rules: list[str], call) -> dict:
+def default_call(config):
+    """A real Claude call: (system, user) -> text. Larger max_tokens than the structure
+    extractor (role lists over hundreds of parameters), and a clear error on an empty
+    reply so a truncated/blocked response is diagnosable instead of a cryptic JSON error."""
+    import anthropic
+    client = anthropic.Anthropic()
+
+    def call(system: str, user: str) -> str:
+        resp = client.messages.create(
+            model=config.model, max_tokens=16000, system=system,
+            messages=[{"role": "user", "content": user}])
+        text = "".join(getattr(b, "text", "") for b in resp.content
+                       if getattr(b, "type", None) == "text")
+        if not text.strip():
+            kinds = [getattr(b, "type", "?") for b in resp.content]
+            raise RuntimeError(
+                f"LLM returned no text (stop_reason={resp.stop_reason}, "
+                f"content blocks={kinds}). If stop_reason is 'max_tokens', the reply "
+                "was truncated - the drafter batches parameters to avoid this, so re-run.")
+        return text
+    return call
+
+
+def _merge_roles(dst: dict, src: dict) -> None:
+    for k in ("disease_drivers", "druggable", "calibratable"):
+        for n in src.get(k, []):
+            if isinstance(n, str) and n not in dst[k]:
+                dst[k].append(n)
+
+
+def classify_parameters(params: list[dict], rules: list[str], call,
+                        batch: int = 120) -> dict:
     """Assign parameters to task roles from name/units/context. Returns
     {disease_drivers, calibratable, druggable} lists of parameter names (a parameter
     may appear in more than one - a pathway amplification factor is both a Vpop driver
-    and a design target)."""
-    compact = [{"name": p.get("name"), "units": p.get("units"), "value": p.get("value")}
-               for p in params]
-    user = (
-        "Assign each parameter to any of these roles (a parameter may take more than "
-        "one, or none):\n"
-        "- 'disease_drivers': pro-inflammatory amplification factors / baseline growth "
-        "rates that set disease SEVERITY - the knobs you would vary to build a virtual "
-        "population (e.g. pathway amplification factors, cell baseline growth rates).\n"
-        "- 'druggable': the subset of disease drivers a drug could plausibly SUPPRESS "
-        "(a pathway knob a therapeutic targets).\n"
-        "- 'calibratable': PD / binding constants you would FIT to reproduce an observed "
-        "drug response (e.g. a dissociation constant KD, an EC50, a kon/koff).\n"
-        'Return JSON {"disease_drivers": [...], "druggable": [...], "calibratable": '
-        "[...]} using the exact parameter names.\n\n"
-        f"PARAMETERS:\n{json.dumps(compact)}\n\nRULES (context):\n" + "\n".join(rules[:60]))
-    r = _parse_json(call(_SYS, user))
-    return {k: [n for n in r.get(k, []) if isinstance(n, str)]
-            for k in ("disease_drivers", "druggable", "calibratable")}
+    and a design target). Batched over the parameter list so a many-hundred-parameter
+    model does not truncate the reply."""
+    out = {"disease_drivers": [], "druggable": [], "calibratable": []}
+    rule_ctx = "\n".join(rules[:60])
+    for k in range(0, len(params), batch):
+        chunk = params[k:k + batch]
+        compact = [{"name": p.get("name"), "units": p.get("units"),
+                    "value": p.get("value")} for p in chunk]
+        user = (
+            "Assign each parameter to any of these roles (a parameter may take more than "
+            "one, or none - most parameters take NONE, so return only the clear cases):\n"
+            "- 'disease_drivers': pro-inflammatory amplification factors / baseline growth "
+            "rates that set disease SEVERITY - the knobs you would vary to build a virtual "
+            "population (e.g. pathway amplification factors, cell baseline growth rates).\n"
+            "- 'druggable': the subset of disease drivers a drug could plausibly SUPPRESS "
+            "(a pathway knob a therapeutic targets).\n"
+            "- 'calibratable': PD / binding constants you would FIT to reproduce an "
+            "observed drug response (e.g. a dissociation constant KD, an EC50, kon/koff).\n"
+            'Return JSON {"disease_drivers": [...], "druggable": [...], "calibratable": '
+            "[...]} using the exact parameter names from THIS batch.\n\n"
+            f"PARAMETERS:\n{json.dumps(compact)}\n\nRULES (context):\n" + rule_ctx)
+        _merge_roles(out, _parse_json(call(_SYS, user)))
+    return out
 
 
 def classify_readout_states(species: list[str], rules: list[str], call) -> dict:
