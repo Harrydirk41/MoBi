@@ -1,101 +1,142 @@
-"""One place for everything model-specific — the adapter that points the agent at a
-particular QSP model.
+"""The per-model adapter for the downstream (2-7) tasks, loaded from DATA.
 
-The engine (SimBiologyEngine), the loop, and the numerical routines (numeric_fit_1d,
-select_to_moments, ir_mask, ...) are model-agnostic. What is specific to a given
-QSP model is: which internal states are the clinical readouts, which doses and
-parameters exist, the trial timeline, and the real-world reference data. This module
-captures that surface as a ``QSPModelConfig`` and provides the Vantage RA instance.
+The engine (SimBiologyEngine), the loop, and the numerical routines (qsp_tasks:
+numeric_fit_1d, select_to_moments, ir_mask, ...) are model-agnostic. What is
+specific to a given QSP model is: which internal states are the clinical readouts,
+which CSV column plays which role, which doses and parameters exist, the trial
+timeline, and the real-world reference data. All of that lives in
+projects/<name>/tasks.json; this module loads it into a ``QSPTaskConfig`` -- no
+model's specifics are hardcoded here.
 
-To port the agent to a NEW QSP model, build a new ``QSPModelConfig`` (no engine,
-loop, or numerical-routine code changes):
-
-  * ``readout_states`` - the 11 model state names, in role order, that
-    ``sb_run_vpop`` reads (see ``READOUT_ROLES``); a new model has different events.
-  * ``timeline``       - the readout days the model's events fire at.
-  * ``drugs`` / ``vpop_drivers`` / ``fit_params`` / ``design_targets`` - the
-    catalogs the task tools present to the agent (dose names, disease-driver
-    parameters, calibratable parameters, druggable pathways).
-  * ``clinical_reference`` - the module of real trial data to score against.
+To port the agent to a NEW QSP model: add a projects/<name>/ folder with a
+tasks.json (and a matching MATLAB readout script that emits the run_columns). No
+engine, loop, or numerical-routine code changes.
 """
 
 from __future__ import annotations
 
+import json
+import os
 from dataclasses import dataclass, field
-from typing import Any
+from typing import Any, Optional
 
-from . import osp_ra_trial
-from . import ra_clinical_reference
+from . import qsp_tasks
 
-# the fixed CSV column roles sb_run_vpop writes; a config maps each to a model state
+# the fixed CSV column roles the readout script writes; a config maps each to a state
 READOUT_ROLES = (
-    "first_line_1", "first_line_2", "first_line_3", "first_line_4",  # day-284 ACR flags
-    "latched_1", "latched_2", "latched_3", "latched_4", "latched_5",  # day-600 flags
-    "trajectory", "baseline",                                          # DAS28 states
+    "first_line_1", "first_line_2", "first_line_3", "first_line_4",
+    "latched_1", "latched_2", "latched_3", "latched_4", "latched_5",
+    "trajectory", "baseline",
 )
+
+_PROJECTS_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__),
+                                             "..", "..", "projects"))
+_ALIASES = {"ra": "vantage_ra", "vantage_ra": "vantage_ra"}
+
+
+def _int_keys(d: dict) -> dict:
+    """JSON object keys are strings; the clinical-trial 'weeks' maps use int weeks."""
+    out = {}
+    for k, v in (d or {}).items():
+        if isinstance(v, dict) and "weeks" in v:
+            v = dict(v)
+            v["weeks"] = {int(w): arm for w, arm in v["weeks"].items()}
+        out[k] = v
+    return out
 
 
 @dataclass
-class QSPModelConfig:
-    """The model-specific adapter. Everything here changes per QSP model; nothing in
-    the engine, loop, or numerical routines does."""
+class QSPTaskConfig:
+    """The model-specific adapter for the downstream tasks. Everything here is data
+    from tasks.json; nothing in the engine, loop, or numerical routines is."""
     name: str
-    readout_states: list[str]          # 11 state names, role order (READOUT_ROLES)
-    timeline: dict[str, float]         # baseline / first-line / second-line readout days
-    drugs: dict[str, Any]              # drug formulary (code -> {drug, mechanism, doses})
-    vpop_drivers: dict[str, Any]       # disease-driver params to sample for a Vpop
-    vpop_target: dict[str, Any]        # target baseline-score distribution
-    fit_params: dict[str, Any]         # calibratable PD parameters (name -> spec)
-    design_targets: dict[str, Any]     # druggable pathways (param -> {pathway, ...})
-    clinical_reference: Any = None     # module/object of real trial data to score on
-    notes: str = ""
+    disease: str
+    readout_desc: str
+    severity_readout: str
+    readout_states: list[str]
+    timeline: dict[str, float]
+    run_columns: dict[str, Any]
+    drugs: dict[str, Any]
+    vpop_drivers: dict[str, Any]
+    vpop_target: dict[str, Any]
+    fit_params: dict[str, Any]
+    design_targets: dict[str, Any]
+    clinical_trials: dict[str, Any]
+    refractory_target: dict[str, Any]
+    validate_arms: dict[str, Any]
+    flagship_protocol: dict[str, Any]
+    calibrated_arms: list = field(default_factory=list)
+    trial_objective: str = ""
+    design_background: str = ""
+    fit_default_arm: str = ""
+    fit_target: dict[str, Any] = field(default_factory=dict)
+
+    # -- convenience: bind the general engine functions to this config's columns -- #
+    def summarize_run(self, res: dict) -> dict:
+        return qsp_tasks.summarize_run(res, self.run_columns)
+
+    def ir_mask(self, run: dict, acr_key: str = None, threshold: float = 3.2) -> dict:
+        return qsp_tasks.ir_mask(run, self.run_columns, acr_key, threshold)
+
+    def response_in_subgroup(self, run: dict, ids: set, roles=None) -> dict:
+        return qsp_tasks.response_in_subgroup(run, ids, self.run_columns, roles)
+
+    def trial_target(self, drug: str, week: int, correction: str = "raw"):
+        return qsp_tasks.trial_target(self.clinical_trials, drug, week, correction)
 
     def validate(self) -> list[str]:
         """Cheap structural checks; returns a list of problems (empty = ok)."""
         problems = []
         if len(self.readout_states) != len(READOUT_ROLES):
-            problems.append(
-                f"readout_states needs {len(READOUT_ROLES)} names, "
-                f"got {len(self.readout_states)}")
-        for key in ("baseline_day", "first_line_readout_day", "second_line_readout_day"):
+            problems.append(f"readout_states needs {len(READOUT_ROLES)} names, "
+                            f"got {len(self.readout_states)}")
+        for key in ("baseline_day", "first_line_readout_day",
+                    "second_line_readout_day"):
             if key not in self.timeline:
                 problems.append(f"timeline missing '{key}'")
         return problems
 
 
-# --------------------------------------------------------------------------- #
-# The Vantage RA QSP model — the one adapter that exists today. Its catalogs live
-# in osp_ra_trial / ra_clinical_reference; this gathers them into the config.
-# --------------------------------------------------------------------------- #
-
-VANTAGE_RA = QSPModelConfig(
-    name="Vantage RA QSP Model v1.0",
-    readout_states=[
-        "ACR20", "ACR50", "ACR70", "Remission",                       # first-line, day 284
-        "MTX_NonResp", "MTX_NonResp_TCZ_ACR20", "MTX_NonResp_TCZ_ACR50",
-        "MTX_NonResp_TCZ_ACR70", "MTX_NonResp_TCZ_Rem",               # latched, day 600
-        "DAS28_CRP", "DAS28_BL",                                       # trajectory, baseline
-    ],
-    timeline={
-        "baseline_captured_day": 199.0,
-        "treatment_start_day": 200.0,
-        "baseline_day": 200.0,
-        "first_line_readout_day": 284.0,
-        "second_line_readout_day": 600.0,
-    },
-    drugs=osp_ra_trial.DRUG_CATALOG,
-    vpop_drivers=osp_ra_trial.VPOP_PARAMS,
-    vpop_target=osp_ra_trial.VPOP_TARGET,
-    fit_params=osp_ra_trial.FIT_PARAMS,
-    design_targets=osp_ra_trial.DESIGN_TARGETS,
-    clinical_reference=ra_clinical_reference,
-    notes="Readout state names, drug catalog and references are all RA-specific; the "
-          "engine/loop/numerical routines are not.",
-)
+def config_from_dict(d: dict) -> QSPTaskConfig:
+    return QSPTaskConfig(
+        name=d.get("name", "QSP model"),
+        disease=d.get("disease", ""),
+        readout_desc=d.get("readout_desc", "the clinical response"),
+        severity_readout=d.get("severity_readout", "the severity score"),
+        readout_states=list(d.get("readout_states", [])),
+        timeline={k: float(v) for k, v in (d.get("timeline") or {}).items()},
+        run_columns=dict(d.get("run_columns", {})),
+        drugs=dict(d.get("drugs", {})),
+        vpop_drivers=dict(d.get("vpop_drivers", {})),
+        vpop_target=dict(d.get("vpop_target", {})),
+        fit_params=dict(d.get("fit_params", {})),
+        design_targets=dict(d.get("design_targets", {})),
+        clinical_trials=_int_keys(d.get("clinical_trials", {})),
+        refractory_target=dict(d.get("refractory_target", {})),
+        validate_arms=dict(d.get("validate_arms", {})),
+        flagship_protocol=dict(d.get("flagship_protocol", {})),
+        calibrated_arms=list(d.get("calibrated_arms", [])),
+        trial_objective=d.get("trial_objective", ""),
+        design_background=d.get("design_background", ""),
+        fit_default_arm=d.get("fit_default_arm", ""),
+        fit_target=dict(d.get("fit_target", {})))
 
 
-REGISTRY: dict[str, QSPModelConfig] = {"vantage_ra": VANTAGE_RA}
+def load_tasks(name: str, projects_dir: str = None) -> QSPTaskConfig:
+    """Load a project's tasks.json into a QSPTaskConfig. `name` is the folder."""
+    base = projects_dir or _PROJECTS_DIR
+    with open(os.path.join(base, name, "tasks.json"), encoding="utf-8") as fh:
+        return config_from_dict(json.load(fh))
 
 
-def get(name: str = "vantage_ra") -> QSPModelConfig:
-    return REGISTRY[name]
+def get(name: str = "vantage_ra", projects_dir: str = None) -> QSPTaskConfig:
+    key = (name or "vantage_ra").lower()
+    folder = _ALIASES.get(key, key)
+    base = projects_dir or _PROJECTS_DIR
+    if not os.path.isfile(os.path.join(base, folder, "tasks.json")):
+        known = sorted(d for d in os.listdir(base)
+                       if os.path.isfile(os.path.join(base, d, "tasks.json"))) \
+            if os.path.isdir(base) else []
+        raise KeyError(f"unknown project '{name}'. Known: {known}. "
+                       "Add a projects/<name>/tasks.json.")
+    return load_tasks(folder, base)

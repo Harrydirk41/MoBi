@@ -41,17 +41,17 @@ Key consequences:
 
 ## Two arms, one runner
 
-`examples/run_ra_vpop.py` runs the Vpop and reports the model's own flags. Both
+`examples/run_qsp_vpop.py` runs the Vpop and reports the model's own flags. Both
 readouts come out of a single run when the dose set includes MTX + TCZ and the
 sim runs past day 600:
 
 ```
 # first-line MTX only (week-12 ACR), quick 20-patient check
-python -m examples.run_ra_vpop --sbproj "..\RA-QSP-Model\Vantage RA QSP Model v1.0.sbproj" \
+python -m examples.run_qsp_vpop --sbproj "..\RA-QSP-Model\Vantage RA QSP Model v1.0.sbproj" \
     --vpop "..\RA-QSP-Model\Vpop1.xlsx" --dose MTX_15mg_Q1W_SC_t200 --limit 20
 
 # full population, MTX first-line + TCZ — captures the second-line flagship too
-python -m examples.run_ra_vpop --sbproj "..\RA-QSP-Model\Vantage RA QSP Model v1.0.sbproj" \
+python -m examples.run_qsp_vpop --sbproj "..\RA-QSP-Model\Vantage RA QSP Model v1.0.sbproj" \
     --vpop "..\RA-QSP-Model\Vpop1.xlsx" \
     --dose "MTX_15mg_Q1W_SC_t200;TCZ8mgkg_Q4W_IV_t200" --stop-time 700 --limit 300
 ```
@@ -89,7 +89,7 @@ runner builds this with a `name@START` suffix that clones the dose with an
 overridden `StartTime`:
 
 ```
-python -m examples.run_ra_vpop --sbproj "...sbproj" --vpop "...Vpop1.xlsx" \
+python -m examples.run_qsp_vpop --sbproj "...sbproj" --vpop "...Vpop1.xlsx" \
     --dose "MTX_15mg_Q1W_SC_t200;TCZ8mgkg_Q4W_IV_t200@285" --stop-time 700 --limit 300
 ```
 
@@ -179,7 +179,7 @@ inventory rather than a human writing it.
 
 ## Two objectives (difficulty)
 
-`run_llm_ra_trial.py --objective` selects the task:
+`run_llm_qsp_trial.py --objective` selects the task:
 
 * **`predict`** (default) — reproduce the held-out TCZ-in-MTX-IR rates. The
   decision space is small (~a dozen drug×timing combinations) and a "pick the
@@ -196,7 +196,7 @@ The dose spec grew a `*scale` suffix (multiply the dose amount) beside `@day`
 (retime the start): token form `NAME[*SCALE][@START]`, e.g.
 `TCZ8mgkg_Q4W_IV_t200*0.5@285` is half-dose TCZ switched in at day 285.
 
-**De-hinted tools.** The `ra_inspect`/`ra_run_trial` descriptions no longer name
+**De-hinted tools.** The `trial_inspect`/`trial_run` descriptions no longer name
 the switch day (285), the sequential-vs-concurrent trade-off, or the expected
 response magnitude. Those were giveaways; the agent now has to discover that a
 concurrently-dosed second line contaminates the day-284 classification, and to
@@ -204,7 +204,8 @@ derive the drug/timing/dose itself from mechanism and experiment.
 
 ## Scoring against REAL clinical data (not just the model)
 
-`engines/ra_clinical_reference.py` transcribes the paper's ESM1
+`projects/vantage_ra/tasks.json` (`clinical_trials`, read via
+`qsp_config.QSPTaskConfig.trial_target`) transcribes the paper's ESM1
 (`Clinical_trials` sheet) - the actual trials the model was calibrated to:
 
 | drug | trial | ACR20/50/70 (raw) | placebo-corrected |
@@ -213,7 +214,7 @@ derive the drug/timing/dose itself from mechanism and experiment.
 | ADA  | OPTIMA, wk24 | 70 / 52 / 35 | 13 / 18 / 18 |
 | TCZ  | ROSE, wk24 | 45 / 29 / 13.9 | 20 / 19 / 12 |
 
-`run_llm_ra_trial.py --target-source clinical` (the default) scores the agent's
+`run_llm_qsp_trial.py --target-source clinical` (the default) scores the agent's
 TCZ prediction against the **real ROSE trial**, not the model's own output. Two
 things matter:
 
@@ -231,22 +232,23 @@ things matter:
 
 Same three pieces as the OSP DDI loop:
 
-* `pkpd_agent/engines/osp_ra_trial.py` — pure-Python: `summarize_run` (a Vpop CSV
-  → first-line and second-line response rates), `build_dose_spec` (the
-  `name@switch_day` sequential-switch string), `score_flagship` (predicted vs
-  held-out, MAE in percentage points), and `DRUG_CATALOG` (the formulary with
-  mechanisms).
-* `pkpd_agent/tools/ra_trial_loop_tools.py` — `ra_inspect` (observe: disease,
+* `pkpd_agent/engines/qsp_tasks.py` — model-agnostic, pure-Python: `summarize_run`
+  (a Vpop CSV → first-line and second-line response rates via the config's column
+  map), `build_dose_spec` (the `name@switch_day` sequential-switch string), and
+  `score_flagship` (predicted vs held-out, MAE in percentage points). The drug
+  formulary, PD params and targets are DATA in `projects/vantage_ra/tasks.json`,
+  loaded via `qsp_config.QSPTaskConfig`.
+* `pkpd_agent/tools/qsp_trial_loop_tools.py` — `trial_inspect` (observe: disease,
   timeline, formulary, calibrated reference arms, the held-out objective) and
-  `ra_run_trial` (act: apply a `{first_line, second_line, switch_day}` protocol,
+  `trial_run` (act: apply a `{first_line, second_line, switch_day}` protocol,
   run the Vpop, return the model's response rates). The held-out target is **not**
   exposed to the agent.
-* `examples/run_llm_ra_trial.py` — wires the SimBiology engine + tools + the LLM
+* `examples/run_llm_qsp_trial.py` — wires the SimBiology engine + tools + the LLM
   policy, then scores the agent's final protocol against the held-out truth.
 
 ```
 set ANTHROPIC_API_KEY=...
-python -m examples.run_llm_ra_trial ^
+python -m examples.run_llm_qsp_trial --model ra ^
     --sbproj "..\RA-QSP-Model\Vantage RA QSP Model v1.0.sbproj" ^
     --vpop   "..\RA-QSP-Model\Vpop1.xlsx" --limit 50 --max-steps 8
 ```
@@ -260,8 +262,8 @@ after day 284, run `MTX_15mg_Q1W_SC_t200` + `TCZ8mgkg_Q4W_IV_t200@285`, and pred
 ACR20 ~45% / ACR50 ~24% / ACR70 ~14%. Choosing concurrent dosing, or a
 TNF/IL-17/IL-1 agent instead of the IL-6 blocker, moves the prediction away from
 the held-out truth and raises the MAE. Keep `--limit` modest (50) during the loop —
-each `ra_run_trial` simulates the whole subsampled population — then confirm the
-winning protocol at `--limit 300` with `examples.run_ra_vpop`.
+each `trial_run` simulates the whole subsampled population — then confirm the
+winning protocol at `--limit 300` with `examples.run_qsp_vpop`.
 
 Scoring targets default to the validated model output (ACR20 44.9 / ACR50 23.5 /
 ACR70 14.0); pass `--target-acr20/50/70` to score against the paper's reported
@@ -298,7 +300,7 @@ below is the model's own scope/wiring/values as the key; the LLM never sees it u
 scoring. Headlines are over **5 runs** (`--repeat 5`) — variance is small enough that the
 numbers are stable ceilings, not n=1 luck.
 
-## Layer 0 — model scope (`run_llm_ra_scope`, `ra_scope.py`)
+## Layer 0 — model scope (`run_llm_qsp_all --only scope`, scoring in `qsp_core.py`)
 
 Given only the disease and the modeling goal (no cast), the agent proposes which cells and
 mediators to include; scored precision/recall/F1 vs the model's real 26-node cast. Over-
@@ -313,10 +315,10 @@ joint-erosion axis (chondrocyte, osteoclast, RANKL, MMP3) that the ACR/DAS28 end
 never read out — i.e. it scoped to "RA pathology" instead of "what drives *these*
 endpoints." (First pass scored a spurious 0.44: the scorer, not the agent, was wrong —
 free-text names like "Th1 cell", "Fibroblast-like synoviocyte", "CCL2 (MCP-1)" failed a
-strict match and were double-penalised as miss+extra. `resolve_node` fixed it. This was
+strict match and were double-penalised as miss+extra. `model.resolve` fixed it. This was
 the third time the harness under-credited the agent; see the caveat below.)
 
-## Layer 1 — network topology (`run_llm_ra_network`, `ra_network.py`)
+## Layer 1 — network topology (`run_llm_qsp_topology`, scoring in `qsp_core.py`)
 
 Given only the cast (9 cells, 17 cytokines incl. TGFb/IL10), the agent proposes the
 signed regulatory edges; scored precision/recall/F1 vs the model, both sign-aware and
@@ -339,7 +341,7 @@ bipartite graph with self-limiting feedback loops — a real modeling-convention
 But ~40% of its edges are spurious and half the signs are wrong, so it drafts, it
 doesn't build.
 
-## Layer 2 — parameter values (`run_llm_ra_params`, `ra_params.py`)
+## Layer 2 — parameter values (`run_llm_qsp_all --only params`, scoring in `qsp_core.py`)
 
 Given each parameter's name/units/cell-context, the agent predicts its value; scored
 order-of-magnitude (log10 error) vs ESM2's 130 documented values. **The honesty check
@@ -389,7 +391,7 @@ committed-value layers, because those are not derivable.
 Recurring methodological finding: the **harness under-credited the LLM four separate times**
 (edge key 3× short; missing TGFb/IL10; scope free-text synonyms; readout free-text synonyms)
 — a strict-match answer key systematically understates a free-text LLM, and each time the
-agent's own self-diagnosis caught it. The tolerant `resolve_node` matcher and the naive/
+agent's own self-diagnosis caught it. The tolerant `model.resolve` matcher and the naive/
 majority/random baselines are most of what makes these numbers trustworthy.
 
 Caveats kept explicit: (a) headlines are over 5 runs and the variance is small (F1 sd
@@ -408,38 +410,38 @@ model; tolerant (or LLM-judge) matching is required for an honest score.
 Five further benchmarks push on the layers above and add two new skills. Each has a
 `--repeat N` variance mode; the LLM runs need `ANTHROPIC_API_KEY` (no live MATLAB).
 
-* **Fairer parameter test** (`run_llm_ra_params`, now splits the 40 dimensional params):
+* **Fairer parameter test** (`run_llm_qsp_all --only params`, splits the 40 dimensional params):
   a **physiological** subset (28: rates `1/day`/`sec-1`, concentrations `M` — groundable
   from biology; baseline median 0.68) vs a **model-scaling** subset (12: per-molecule /
   per-mL normalization — unknowable). `beats_physiological_baseline` is the *fair* verdict;
   the earlier all-dimensional 0.62 unfairly lumped in the unknowable units.
-* **Isolated sign prediction** (`run_llm_ra_sign --network network.json`): hand the agent
+* **Isolated sign prediction** (`run_llm_qsp_all --only signs --network network.json`): hand the agent
   the true *unsigned* edges, ask only activate-vs-inhibit; scored vs the **majority-class
   baseline** (most edges activate, so "all +1" already scores high — the bar to beat).
-* **Sensitivity ranking** (`run_llm_ra_sensitivity`): a *different skill* — which knobs
+* **Sensitivity ranking** (`run_llm_qsp_all --only sensitivity`): a *different skill* — which knobs
   matter, not biology recall. Rank the parameters driving DAS28-CRP from a pool of 50 (the
   paper's Fig-9 GSA top-20 hidden among 30 real distractors); scored overlap + rank
   correlation vs the GSA, against a **random blind-pick baseline (recall 0.40)**.
-* **Readout mapping** (`run_llm_ra_readout --network network.json`): the mechanism→endpoint
+* **Readout mapping** (`run_llm_qsp_all --only readout --network network.json`): the mechanism→endpoint
   bridge — which nodes DAS28-CRP is computed from; scored vs the species the model's readout
   rule depends on. `--show-key` prints the extracted drivers + raw rule.
-* **Scope priming** (`run_llm_ra_scope --conventions`): hands the agent the endpoint-focus +
+* **Scope priming** (`run_llm_qsp_all --only scope --conventions`): hands the agent the endpoint-focus +
   trafficking-layer conventions it diagnosed missing, to separate scope *judgment* from
   recall (analogous to `--conventions` on topology).
 
 ## Files
 
-* `pkpd_agent/engines/ra_scope.py` / `tools/ra_scope_loop_tools.py` /
-  `examples/run_llm_ra_scope.py` — Layer-0 scope/cast benchmark (`--repeat`,
-  `--conventions`). `resolve_node` does tolerant free-text matching.
-* `pkpd_agent/engines/ra_sensitivity.py` / `ra_readout.py` + their `tools/` and
-  `examples/run_llm_ra_sensitivity.py` / `run_llm_ra_readout.py`; sign task in
-  `tools/ra_sign_loop_tools.py` + `examples/run_llm_ra_sign.py` (`score_signs` in
-  `ra_network.py`).
-* `pkpd_agent/engines/ra_network.py` / `tools/ra_network_loop_tools.py` /
-  `examples/run_llm_ra_network.py` — topology benchmark (`--conventions`, `--repeat`).
-* `pkpd_agent/engines/ra_params.py` (+ `data/ra_params_esm2.json`) /
-  `tools/ra_params_loop_tools.py` / `examples/run_llm_ra_params.py` — parameter
-  benchmark with the naive-baseline honesty check (`--repeat`).
+The whole Stage-1 suite is now **model-agnostic** — no per-paper module. Everything is
+keyed off `projects/vantage_ra/{spec.json,project.md}` + `network.json`:
+
+* `pkpd_agent/engines/qsp_model.py` — `QSPModel` derives the cast/edges/params/readout
+  answer keys from `network.json` + a `QSPModelSpec` (loaded from `spec.json`).
+  `model.resolve` does tolerant free-text matching for scoring free-text LLM answers.
+* `pkpd_agent/engines/qsp_core.py` — vocab-free scorers (`score_network`, `score_signs`,
+  `score_params`, `unit_geomean_baseline`, …), shared by every Stage-1 benchmark.
+* `pkpd_agent/tools/qsp_loop_tools.py` — scope / signs / readout / params / sensitivity
+  loop tools; `tools/qsp_topology_loop_tools.py` — the topology benchmark.
+* `examples/run_llm_qsp_all.py` — runs any subset of the six benchmarks (`--only`,
+  `--repeat`, `--infer`, `--show-key`); `examples/run_llm_qsp_topology.py` — topology alone.
 * `examples/matlab/sb_network_json.m` + `examples/dump_network.py` — dump the full
   wiring answer key from the model (run once).

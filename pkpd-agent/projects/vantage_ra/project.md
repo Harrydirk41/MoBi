@@ -24,6 +24,8 @@ in the engines.
 | `41540_2024_454_MOESM2_ESM.xlsx` | 130 documented params + units + refs | parameter benchmark |
 | `41540_2024_454_MOESM1_ESM.xlsx` | clinical trial reference data | trial/validation scoring |
 | `original_paper.pdf` (Fig 9) | global sensitivity top-20 | sensitivity benchmark (`spec.json:gsa_top`) |
+| `spec.json` | Stage-1 structure spec (readout/drug patterns, aliases, gsa_top) | Stage-1 benchmarks |
+| `tasks.json` | downstream (2–7) task data (drugs, params, targets, columns) | 2–7 loop tools + runners |
 
 ## Clinical endpoints
 - **DAS28-CRP** (disease severity) and **ACR20/50/70** (response). In the model, DAS28-CRP is a
@@ -35,13 +37,26 @@ scope · topology · signs · readout-mapping · parameters · sensitivity. See
 `RA_QSP_AGENT_TASK.md` for the measured ladder and the biology-determined-vs-model-committed
 finding.
 
-## Downstream (2–7) task objectives (config in `tasks.json`)
+## Downstream (2–7) tasks — all RA specifics live in `tasks.json`
+The engine is model-agnostic: `engines/qsp_tasks.py` (vocab-free scorers, spec builders,
+numerical routines) + `engines/qsp_config.py` (`QSPTaskConfig`, loaded from `tasks.json`) +
+`tools/qsp_{trial,fit,vpop,design,validate}_loop_tools.py` (build every prompt/answer-key off
+the config). Runners: `run_llm_qsp_{trial,fit,vpop_gen,design,validate,full}.py --model ra`.
+`tasks.json` holds the drug formulary, PD `fit_params`, `vpop_drivers`+target, `design_targets`,
+the clinical trials, the `run_columns` semantic map, and the trial timeline — no drug, cytokine,
+or trial name appears in the 2–7 code.
 1. **Trial design** — predict the second-line response of MTX-inadequate responders escalated
    to a biologic; choose drug + sequencing.
 2. **Calibration** — fit a PD parameter (e.g. `KD_TCZ`) so the model reproduces a real trial.
 3. **Vpop generation** — sample disease drivers, reweight to a target DAS28 distribution.
 4. **Drug design** — design a new anti-cytokine biologic (pathway + efficacy).
 5. **Validation** — reproduce the held-out TCZ-in-dual-IR validation vs RADIATE.
+
+## The per-model MATLAB boundary
+The 2–7 tasks drive SimBiology through `examples/matlab/sb_run_vpop.m` /
+`sb_sample_vpop.m`, which apply doses and emit the `run_columns` CSV. Those `.m` scripts are the
+model-specific readout boundary (the run-time analogue of `network.json` for Stage-1): a new QSP
+model ships its own readout script + `tasks.json`, and the Python above is unchanged.
 
 ## The one input that cannot be derived
 `spec.json:gsa_top` — the global-sensitivity ranking comes from a figure (Fig 9), read by a
