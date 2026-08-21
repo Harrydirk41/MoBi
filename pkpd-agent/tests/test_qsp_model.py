@@ -141,7 +141,10 @@ class TestInferSpec(unittest.TestCase):
 
 class TestSpecs(unittest.TestCase):
     def test_get_spec(self):
-        self.assertIs(get_spec("ra"), VANTAGE_RA_SPEC)
+        # spec is loaded from projects/vantage_ra/spec.json (data, not a code literal)
+        self.assertEqual(get_spec("ra"), VANTAGE_RA_SPEC)
+        self.assertEqual(get_spec("ra").name, "Vantage RA")
+        self.assertEqual(len(get_spec("ra").gsa_top), 20)
         with self.assertRaises(KeyError):
             get_spec("nonexistent_model")
 

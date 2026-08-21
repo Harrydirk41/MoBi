@@ -22,6 +22,7 @@ regression); a second QSP model is needed to prove it truly transfers.
 from __future__ import annotations
 
 import json
+import os
 import re
 from dataclasses import dataclass, field
 
@@ -303,36 +304,29 @@ def _isnum(x) -> bool:
         return False
 
 
-# The single per-model config for the Vantage RA model - the template a new model copies.
-VANTAGE_RA_SPEC = QSPModelSpec(
-    name="Vantage RA",
-    readout_targets=["DAS28_CRP", "ACR_Perc"],
-    drug_patterns=[r"MTX", r"Ada", r"^TCZ", r"Secu", r"^ana_", r"Drug", r"Dose",
-                   r"_Central", r"_Peripheral", r"_available", r"_GI"],
-    readout_patterns=[r"DAS28", r"^ACR", r"Remission", r"^Response", r"NonResp",
-                      r"^delta_"],
-    # abbreviations the rule/param names use that differ from the species names, plus
-    # the free-text synonyms an agent might use for scope.
-    aliases={"macro": "Macrophages", "macrophage": "Macrophages",
-             "endo": "Endothelial", "endothelial": "Endothelial",
-             "bcell": "BCells", "plasmacell": "PlasmaCells", "plasmacells": "PlasmaCells",
-             "fls": "FLS", "fibroblastlikesynoviocyte": "FLS", "synoviocyte": "FLS",
-             "cd8": "CTL", "cd8tcell": "CTL", "cd8tcells": "CTL", "cytotoxictcell": "CTL",
-             "regulatorytcell": "Treg", "regulatorytcells": "Treg", "tregs": "Treg",
-             "acpa": "AutoAb", "autoantibody": "AutoAb", "autoantibodies": "AutoAb",
-             "tnfalpha": "TNFa", "tnf": "TNFa", "il1beta": "IL1b", "il17a": "IL17",
-             "icam": "CAM", "vcam": "CAM", "adhesionmolecule": "CAM",
-             "ccl2": "MCP1", "ccl5": "RANTES", "ccl20": "MIP3"},
-    readout_name="DAS28-CRP (a composite of tender/swollen joint counts, CRP, and "
-                 "patient global assessment)",
-    # (extra clinical synonyms an agent uses, mirroring the specialized resolve_node)
-    gsa_top=[  # Fig 9 global sensitivity top-20 for DAS28-CRP (external: from the paper)
-        "kg_FLS_Baseline", "F_CAM", "kg_BCells_Baseline", "kg_Macrophage_Baseline",
-        "F_GMCSF", "kg_Th1_Baseline", "F_TNFa", "kIn_Th1_Baseline", "LeukoInflux_MaxbyCAM",
-        "F_IL1b", "kIn_BCells_Baseline", "F_VEGF", "kIn_Macrophage_Baseline", "F_IL10",
-        "F_IL17", "F_IL6", "kg_CTL_Baseline", "F_BAFF", "BCellApop_MaxbyBAFF",
-        "MacroApop_MaxbyGMCSF"],
-)
+# Per-model config is DATA, not code: each project ships projects/<name>/spec.json. No
+# model's specifics are hardcoded in the engine - this just loads them.
+_PROJECTS_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__),
+                                             "..", "..", "projects"))
+
+
+def spec_from_dict(d: dict) -> QSPModelSpec:
+    return QSPModelSpec(
+        name=d.get("name", "QSP model"),
+        readout_targets=list(d.get("readout_targets", [])),
+        drug_patterns=list(d.get("drug_patterns", [])),
+        readout_patterns=list(d.get("readout_patterns", [])),
+        aliases=dict(d.get("aliases", {})),
+        readout_name=d.get("readout_name", "the disease-severity score"),
+        gsa_top=list(d.get("gsa_top", [])))
+
+
+def load_spec(name: str, projects_dir: str = None) -> QSPModelSpec:
+    """Load a project's spec.json into a QSPModelSpec. `name` is the project folder."""
+    base = projects_dir or _PROJECTS_DIR
+    path = os.path.join(base, name, "spec.json")
+    with open(path, encoding="utf-8") as fh:
+        return spec_from_dict(json.load(fh))
 
 _READOUT_TOKENS = ["DAS", "ACR", "SCORE", "ACTIVITY", "REMISSION", "RESPONSE",
                    "NONRESP", "DELTA", "PASI", "SLEDAI", "EULAR"]
@@ -410,13 +404,22 @@ def infer_spec(data: dict, name: str = "QSP model") -> QSPModelSpec:
         aliases=_auto_aliases(rules, data.get("parameters", []), species))
 
 
-# Named specs - add a new QSP model by adding its spec here (and passing its network.json).
-SPECS = {"ra": VANTAGE_RA_SPEC, "vantage_ra": VANTAGE_RA_SPEC}
+# Add a new model = add a projects/<name>/ folder with a spec.json. Short aliases map to
+# project folder names; no spec literal lives in code.
+_SPEC_ALIASES = {"ra": "vantage_ra", "vantage_ra": "vantage_ra"}
 
 
-def get_spec(name: str) -> QSPModelSpec:
+def get_spec(name: str, projects_dir: str = None) -> QSPModelSpec:
     key = (name or "ra").lower()
-    if key not in SPECS:
-        raise KeyError(f"unknown model spec '{name}'. Known: {sorted(SPECS)}. "
-                       "Add a QSPModelSpec to SPECS in qsp_model.py.")
-    return SPECS[key]
+    folder = _SPEC_ALIASES.get(key, key)
+    base = projects_dir or _PROJECTS_DIR
+    if not os.path.isdir(os.path.join(base, folder)):
+        known = sorted(d for d in os.listdir(base)
+                       if os.path.isdir(os.path.join(base, d))) if os.path.isdir(base) else []
+        raise KeyError(f"unknown project '{name}'. Known: {known}. "
+                       "Add a projects/<name>/spec.json.")
+    return load_spec(folder, base)
+
+
+# Backward-compat handle: the RA spec, now loaded from data rather than a code literal.
+VANTAGE_RA_SPEC = load_spec("vantage_ra")
