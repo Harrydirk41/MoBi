@@ -1,0 +1,27 @@
+{
+  "name": "Vantage RA (remission endpoint)",
+  "project_aliases": ["ra_rem"],
+  "readout_name": "DAS28-CRP (a composite of tender/swollen joint counts, CRP, and patient global assessment)",
+  "readout_targets": ["DAS28_CRP", "ACR_Perc"],
+  "drug_patterns": ["MTX", "Ada", "^TCZ", "Secu", "^ana_", "Drug", "Dose", "_Central", "_Peripheral", "_available", "_GI"],
+  "readout_patterns": ["DAS28", "^ACR", "Remission", "^Response", "NonResp", "^delta_"],
+  "aliases": {
+    "macro": "Macrophages", "macrophage": "Macrophages",
+    "endo": "Endothelial", "endothelial": "Endothelial",
+    "bcell": "BCells", "plasmacell": "PlasmaCells", "plasmacells": "PlasmaCells",
+    "fls": "FLS", "fibroblastlikesynoviocyte": "FLS", "synoviocyte": "FLS",
+    "cd8": "CTL", "cd8tcell": "CTL", "cd8tcells": "CTL", "cytotoxictcell": "CTL",
+    "regulatorytcell": "Treg", "regulatorytcells": "Treg", "tregs": "Treg",
+    "acpa": "AutoAb", "autoantibody": "AutoAb", "autoantibodies": "AutoAb",
+    "tnfalpha": "TNFa", "tnf": "TNFa", "il1beta": "IL1b", "il17a": "IL17",
+    "icam": "CAM", "vcam": "CAM", "adhesionmolecule": "CAM",
+    "ccl2": "MCP1", "ccl5": "RANTES", "ccl20": "MIP3"
+  },
+  "gsa_top": [
+    "kg_FLS_Baseline", "F_CAM", "kg_BCells_Baseline", "kg_Macrophage_Baseline",
+    "F_GMCSF", "kg_Th1_Baseline", "F_TNFa", "kIn_Th1_Baseline", "LeukoInflux_MaxbyCAM",
+    "F_IL1b", "kIn_BCells_Baseline", "F_VEGF", "kIn_Macrophage_Baseline", "F_IL10",
+    "F_IL17", "F_IL6", "kg_CTL_Baseline", "F_BAFF", "BCellApop_MaxbyBAFF",
+    "MacroApop_MaxbyGMCSF"
+  ]
+}

@@ -193,5 +193,34 @@ class TestMinimalConfigNoSecondLine(unittest.TestCase):
             self.assertIn(n, reg)
 
 
+class TestSameModelDifferentEndpoint(unittest.TestCase):
+    """The shipped vantage_ra_rem project: SAME model/columns as vantage_ra, but the
+    config tracks DAS28 remission instead of ACR. Proves endpoint is config-driven on
+    the real (committed) config files, not just synthetic dicts."""
+
+    def _run(self):
+        return _run(patient=[1, 2, 3, 4],
+                    ACR20=[1, 0, 0, 1], ACR50=[1, 0, 0, 0], ACR70=[0, 0, 0, 0],
+                    Rem=[1, 0, 0, 1], MTX_NonResp=[0, 1, 1, 1],
+                    TCZ_ACR20=[0, 1, 0, 1], TCZ_Rem=[0, 1, 1, 0],
+                    DAS28_base=[5, 5, 5, 6], DAS28_read=[2.4, 4.9, 4.7, 2.5])
+
+    def test_ra_reports_acr_ra_rem_reports_remission(self):
+        ra = C.get("ra").summarize_run(self._run())
+        rem = C.get("ra_rem").summarize_run(self._run())
+        # ACR config exposes ACR endpoints; remission config exposes only remission
+        self.assertIn("ACR20", ra["first_line"])
+        self.assertNotIn("ACR20", rem["first_line"])
+        self.assertEqual(list(rem["first_line"].keys()), ["n", "remission"])
+        self.assertEqual(rem["second_line"], {"n_subgroup": 3, "remission": 66.7})
+
+    def test_fit_target_follows_endpoint(self):
+        # same trial machinery, endpoint from config: ACR keys vs a remission key
+        ra_t = C.get("ra").trial_target(**C.get("ra").fit_target)
+        rem_t = C.get("ra_rem").trial_target(**C.get("ra_rem").fit_target)
+        self.assertIn("ACR20", ra_t)
+        self.assertEqual(rem_t, {"remission": 38.0})
+
+
 if __name__ == "__main__":
     unittest.main()

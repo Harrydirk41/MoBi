@@ -1,0 +1,101 @@
+{
+  "name": "Vantage RA (remission endpoint)",
+  "project_aliases": ["ra_rem"],
+  "_note": "SAME model + SAME sb_run_vpop.m as vantage_ra. Only the tracked endpoint changed: this config reads DAS28<2.6 REMISSION (columns Rem / TCZ_Rem, which the model already emits) instead of ACR20/50/70. If the agent's output tracks remission here and ACR under vantage_ra, the endpoint is config-driven, proven on a real run.",
+
+  "disease": "rheumatoid arthritis; readout DAS28-CRP; remission = DAS28-CRP < 2.6",
+  "readout_desc": "first-line DAS28 remission",
+  "severity_readout": "DAS28-CRP",
+
+  "readout_states": [
+    "ACR20", "ACR50", "ACR70", "Remission",
+    "MTX_NonResp", "MTX_NonResp_TCZ_ACR20", "MTX_NonResp_TCZ_ACR50",
+    "MTX_NonResp_TCZ_ACR70", "MTX_NonResp_TCZ_Rem",
+    "DAS28_CRP", "DAS28_BL"
+  ],
+
+  "timeline": {
+    "baseline_captured_day": 199.0,
+    "treatment_start_day": 200.0,
+    "baseline_day": 200.0,
+    "first_line_readout_day": 284.0,
+    "second_line_readout_day": 600.0
+  },
+
+  "run_columns": {
+    "patient": "patient",
+    "first_line": {"remission": "Rem"},
+    "subgroup_flag": "MTX_NonResp",
+    "second_line": {"remission": "TCZ_Rem"},
+    "severity": {"baseline": "DAS28_base", "readout": "DAS28_read"}
+  },
+
+  "trial_objective": "Predict the second-line DAS28-remission rate in MTX-inadequate responders.",
+  "calibrated_arms": [
+    {
+      "arm": "MTX first-line monotherapy",
+      "protocol": {"first_line": ["MTX_15mg_Q1W_SC_t200"]},
+      "known_rates_day284_full_pop_n300": {"remission": 18.0}
+    }
+  ],
+
+  "drugs": {
+    "MTX": {"drug": "methotrexate", "modality": "conventional synthetic DMARD",
+            "mechanism": "antifolate; broad anti-inflammatory",
+            "doses": ["MTX_15mg_Q1W_SC_t200", "MTX_9mg_Q1W_SC_t200", "MTX_2p5mgx3_Q1W_Oral_t200"]},
+    "ADA": {"drug": "adalimumab", "modality": "biologic (anti-TNF-alpha mAb)",
+            "mechanism": "neutralizes TNF-alpha", "doses": ["ADA40mg_Q2W_SC_t200"]},
+    "TCZ": {"drug": "tocilizumab", "modality": "biologic (anti-IL-6R mAb)",
+            "mechanism": "blocks IL-6 signaling", "doses": ["TCZ8mgkg_Q4W_IV_t200", "TCZ4mgkg_Q4W_IV_t200"]},
+    "SEC": {"drug": "secukinumab", "modality": "biologic (anti-IL-17A mAb)",
+            "mechanism": "neutralizes IL-17A", "doses": ["SEC_150mg_Q4W_t200", "SEC_75mg_Q4W_t200"]}
+  },
+
+  "fit_params": {
+    "KD_TCZ": {"unit": "M (molar)", "reference": 2.5e-12,
+               "meaning": "tocilizumab-IL-6R dissociation constant; lower = tighter binding = higher remission",
+               "search_range": [1e-13, 1e-9], "log_scale": true,
+               "source": "ESM2 PD parameters"}
+  },
+  "fit_default_arm": "MTX_15mg_Q1W_SC_t200;TCZ8mgkg_Q4W_IV_t200@285",
+  "fit_target": {"drug": "TCZ", "week": 24, "correction": "raw"},
+
+  "design_targets": {
+    "F_IL6":    {"pathway": "IL-6 signaling", "analogue": "tocilizumab (anti-IL-6R)", "note": "IL-6 drives the CRP arm of DAS28-CRP"},
+    "F_TNFa":   {"pathway": "TNF-alpha", "analogue": "adalimumab (anti-TNF)", "note": "dominant pro-inflammatory cytokine"},
+    "F_IL17":   {"pathway": "IL-17A", "analogue": "secukinumab (anti-IL-17A)", "note": "historically weak in RA"},
+    "F_RANTES": {"pathway": "RANTES/CCL5", "analogue": "(no approved RA drug)", "note": "leukocyte-recruiting chemokine"},
+    "F_GMCSF":  {"pathway": "GM-CSF", "analogue": "otilimab (investigational)", "note": "myeloid driver"}
+  },
+  "design_background": "MTX_15mg_Q1W_SC_t200",
+
+  "vpop_drivers": {
+    "F_TNFa":   {"nominal": 10.0,   "span": [0.034, 55.9], "meaning": "TNF-alpha amplification factor"},
+    "F_IL6":    {"nominal": 8.39,   "span": [0.035, 44.4], "meaning": "IL-6 amplification factor"},
+    "F_IL17":   {"nominal": 13.1,   "span": [0.071, 99.8], "meaning": "IL-17 amplification factor"},
+    "F_RANTES": {"nominal": 3.47,   "span": [0.024, 28.3], "meaning": "RANTES/CCL5 amplification factor"},
+    "F_GMCSF":  {"nominal": 5.54,   "span": [0.027, 37.1], "meaning": "GM-CSF amplification factor"},
+    "kg_FLS_Baseline":        {"nominal": 518000.0, "span": [21000.0, 4500000.0], "meaning": "FLS baseline growth"},
+    "kg_Macrophage_Baseline": {"nominal": 342000.0, "span": [8000.0, 7500000.0],  "meaning": "macrophage baseline growth"}
+  },
+  "vpop_target": {"mean": 5.12, "sd": 1.24, "band": [3.2, 8.0]},
+
+  "validate_arms": {
+    "prior_therapies": ["MTX_15mg_Q1W_SC_t200", "ADA40mg_Q2W_SC_t200"],
+    "test_arm": "MTX_15mg_Q1W_SC_t200;TCZ8mgkg_Q4W_IV_t200@285"
+  },
+  "clinical_trials": {
+    "TCZ": {
+      "trial": "ROSE / Yazici et al. 2012 (TCZ 8mg/kg Q4W), DAS28<2.6 remission",
+      "population": "DMARD-IR",
+      "weeks": {
+        "24": {"drug": {"remission": 38.0}, "placebo": {"remission": 2.0}}
+      }
+    }
+  },
+  "refractory_target": {
+    "trial": "RADIATE remission comparator (illustrative - RADIATE reported ACR, not DAS28 remission)",
+    "week": 24,
+    "remission": 30.0
+  }
+}
