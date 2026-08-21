@@ -1,0 +1,258 @@
+"""Model-agnostic core for the Stage-1 benchmarks: derive everything from the model dump.
+
+The RA-specific engines (ra_network / ra_scope / ra_params / ra_readout) hardcode this
+model's cast, naming, and answer keys. This module makes those DERIVED from a standardized
+SimBiology dump (``sb_network_json.m`` -> network.json) plus a small per-model ``QSPModelSpec``
+(patterns that say which species are drugs/PK/readouts, and the readout rule names). Point
+it at a new model's network.json with a new spec and the same benchmarks run - no code
+changes. Only the sensitivity task still needs an external GSA list (a figure/analysis, not
+derivable from structure).
+
+What is derived here:
+  * nodes      - biological species (all species minus drug/PK/readout by the spec patterns)
+  * edges      - signed regulatory edges from the rule expressions (Pro/Anti + MM() drivers)
+  * params     - name/units/value, split dimensionless / physiological / model-scaling
+  * readout    - the species the clinical-readout rule depends on (rule-graph walk)
+  * a model-scoped tolerant matcher for the agent's free-text proposals
+
+Cross-model generality is BUILT here but validated only on this RA model (backward-compat
+regression); a second QSP model is needed to prove it truly transfers.
+"""
+
+from __future__ import annotations
+
+import json
+import re
+from dataclasses import dataclass, field
+
+from .ra_network import Edge, _SIGN, _split_target  # reuse the edge dataclass + helpers
+from .ra_params import _MODEL_SCALING_UNITS
+
+_TOKEN = re.compile(r"[A-Za-z_][A-Za-z0-9_]*")
+_RULE_RE = re.compile(r"^\s*(Pro|Anti|Hill)_([A-Za-z0-9]+?)_effect\s*=\s*(.*)$")
+_MM_SRC = re.compile(r"MM\(\s*([A-Za-z_][A-Za-z0-9_]*)")
+_NAME_RE = re.compile(r"^(Pro|Anti|Hill)_([A-Za-z0-9]+?)_by([A-Za-z0-9]+)")
+
+
+@dataclass
+class QSPModelSpec:
+    """The only per-model configuration needed to run the benchmarks on a new model."""
+    name: str
+    readout_targets: list[str]                         # rule LHS names of the clinical readout
+    drug_patterns: list[str] = field(default_factory=list)     # species regexes = drugs/PK
+    readout_patterns: list[str] = field(default_factory=list)  # species regexes = readouts/flags
+    aliases: dict = field(default_factory=dict)        # extra free-text synonyms -> node
+
+
+def _norm(s: str) -> str:
+    return re.sub(r"[^A-Za-z0-9]", "", str(s or "")).upper()
+
+
+@dataclass
+class QSPParam:
+    name: str
+    units: str
+    value: float
+
+    def dimensionless(self) -> bool:
+        return self.units.lower() in ("dimensionless", "", "none", "fraction")
+
+    def model_scaling(self) -> bool:
+        return self.units.lower() in _MODEL_SCALING_UNITS
+
+    def physiological(self) -> bool:
+        return (not self.dimensionless()) and (not self.model_scaling())
+
+
+class QSPModel:
+    """A model derived from network.json + a QSPModelSpec. Provides the answer keys and a
+    model-scoped tolerant matcher, so the benchmarks are model-agnostic."""
+
+    def __init__(self, data: dict, spec: QSPModelSpec):
+        self.spec = spec
+        self.species = [s["name"] for s in data.get("species", [])]
+        drug = [re.compile(p) for p in spec.drug_patterns]
+        rdt = [re.compile(p) for p in spec.readout_patterns]
+        self.nodes = [s for s in self.species
+                      if not any(p.search(s) for p in drug + rdt)]
+        self._norm2node = {_norm(n): n for n in self.nodes}
+        # plural/singular tolerance + spec aliases, all normalized
+        self._alias = {}
+        for n in self.nodes:
+            k = _norm(n)
+            self._alias.setdefault(k.rstrip("S"), n)      # BCells -> BCELL
+            self._alias.setdefault(k + "S", n)
+        for a, n in (spec.aliases or {}).items():
+            self._alias[_norm(a)] = n
+
+        rules = data.get("rules", [])
+        self.rule_rhs = self._rule_map(rules)
+        self.edges = self._edges(rules, data.get("parameters", []))
+        self.params = [QSPParam(p["name"], str(p.get("units") or "dimensionless"),
+                                float(p["value"]))
+                       for p in data.get("parameters", [])
+                       if _isnum(p.get("value"))]
+        self.readout_drivers = self._readout()
+
+    # -- matching -------------------------------------------------------- #
+    def canon(self, raw: str):
+        n = _norm(raw)
+        if n in self._norm2node:
+            return self._norm2node[n]
+        return None
+
+    def resolve(self, raw: str):
+        """Tolerant: exact node, then alias (plural/singular/spec), then 'cell(s)' strip."""
+        c = self.canon(raw)
+        if c:
+            return c
+        n = _norm(raw)
+        if n in self._alias:
+            return self._alias[n]
+        for suf in ("CELLS", "CELL"):
+            if n.endswith(suf) and len(n) > len(suf):
+                b = n[: -len(suf)]
+                if b in self._norm2node:
+                    return self._norm2node[b]
+                if b in self._alias:
+                    return self._alias[b]
+        return None
+
+    # -- derivation ------------------------------------------------------ #
+    def _rule_map(self, rules) -> dict:
+        out = {}
+        for r in rules or []:
+            expr = r.get("rule", "") if isinstance(r, dict) else str(r)
+            if "=" in expr:
+                lhs, rhs = expr.split("=", 1)
+                out[lhs.strip().split(".")[-1]] = rhs
+        return out
+
+    def _edges(self, rules, params) -> list[Edge]:
+        # rule/param names use abbreviations (EndoInflux, MacroProlif) while species use
+        # full names (Endothelial, Macrophages), so match tolerantly (aliases), not strict.
+        out: dict[tuple, Edge] = {}
+        for r in rules or []:
+            expr = r.get("rule", "") if isinstance(r, dict) else str(r)
+            m = _RULE_RE.match(expr or "")
+            if not m:
+                continue
+            sign = _SIGN[m.group(1)]
+            tgt, proc = _split_target_general(m.group(2), self.resolve)
+            if tgt is None:
+                continue
+            for sm in _MM_SRC.finditer(m.group(3)):
+                src = self.resolve(sm.group(1))
+                if src and src != tgt:
+                    out.setdefault((src, sign, tgt), Edge(src, sign, tgt, proc))
+        for p in params or []:
+            m = _NAME_RE.match(p.get("name", "") or "")
+            if not m:
+                continue
+            sign = _SIGN[m.group(1)]
+            tgt, proc = _split_target_general(m.group(2), self.resolve)
+            src = self.resolve(m.group(3))
+            if src and tgt and src != tgt:
+                out.setdefault((src, sign, tgt), Edge(src, sign, tgt, proc))
+        return list(out.values())
+
+    def _readout(self) -> list[str]:
+        drivers: set[str] = set()
+        visited: set[str] = set()
+        frontier = [t for t in self.spec.readout_targets]
+        while frontier:
+            name = frontier.pop()
+            if name in visited:
+                continue
+            visited.add(name)
+            rhs = self.rule_rhs.get(name)
+            if rhs is None:
+                continue
+            for tok in _TOKEN.findall(rhs):
+                c = self.canon(tok)
+                if c:
+                    drivers.add(c)
+                elif tok in self.rule_rhs and tok not in visited:
+                    frontier.append(tok)
+        return sorted(drivers)
+
+    # -- model-scoped scoring (uses this model's matcher, not RA's) ------ #
+    def edges_from_proposal(self, items) -> list:
+        out: dict[tuple, Edge] = {}
+        for it in items or []:
+            src = self.resolve(str(it.get("source", "")))
+            tgt = self.resolve(str(it.get("target", "")))
+            if src is None or tgt is None or src == tgt:
+                continue
+            s = it.get("sign", 1)
+            if isinstance(s, str):
+                s = -1 if s.lower() in ("-", "inhibit", "suppress", "anti", "down", "-1") else 1
+            e = Edge(src, 1 if s >= 0 else -1, tgt)
+            out[e.signed()] = e
+        return list(out.values())
+
+    def score_node_set(self, proposed: list, truth: list) -> dict:
+        """Generic precision/recall/F1 of proposed node names vs a truth node set."""
+        picks = {self.resolve(p) for p in (proposed or []) if self.resolve(p)}
+        junk = {_norm(p) for p in (proposed or []) if self.resolve(p) is None}
+        T = set(truth)
+        hit = len(picks & T)
+        n_prop = len(picks) + len(junk)
+        prec = hit / n_prop if n_prop else 0.0
+        rec = hit / len(T) if T else 0.0
+        f1 = 2 * prec * rec / (prec + rec) if (prec + rec) else 0.0
+        return {"n_truth": len(T), "hit": hit, "precision": round(prec, 3),
+                "recall": round(rec, 3), "f1": round(f1, 3),
+                "missed": sorted(T - picks),
+                "extra": sorted(picks - T) + sorted(junk)}
+
+    @classmethod
+    def from_network_json(cls, path: str, spec: QSPModelSpec) -> "QSPModel":
+        with open(path, encoding="utf-8") as fh:
+            return cls(json.load(fh), spec)
+
+
+def _split_target_general(core: str, canon):
+    """Strip a process suffix and canon the target, using the model's own matcher."""
+    for p in ("SecMacro", "SecFLS", "Sec", "Prolif", "Influx", "Apop", "Death", "Prod"):
+        if core.endswith(p):
+            return canon(core[: -len(p)]), p
+    return canon(core), ""
+
+
+def _isnum(x) -> bool:
+    try:
+        float(x)
+        return True
+    except (TypeError, ValueError):
+        return False
+
+
+# The single per-model config for the Vantage RA model - the template a new model copies.
+VANTAGE_RA_SPEC = QSPModelSpec(
+    name="Vantage RA",
+    readout_targets=["DAS28_CRP", "ACR_Perc"],
+    drug_patterns=[r"MTX", r"Ada", r"^TCZ", r"Secu", r"^ana_", r"Drug", r"Dose",
+                   r"_Central", r"_Peripheral", r"_available", r"_GI"],
+    readout_patterns=[r"DAS28", r"^ACR", r"Remission", r"^Response", r"NonResp",
+                      r"^delta_"],
+    # abbreviations the rule/param names use that differ from the species names, plus
+    # the free-text synonyms an agent might use for scope.
+    aliases={"macro": "Macrophages", "macrophage": "Macrophages",
+             "endo": "Endothelial", "endothelial": "Endothelial",
+             "bcell": "BCells", "plasmacell": "PlasmaCells", "plasmacells": "PlasmaCells",
+             "fls": "FLS", "fibroblastlikesynoviocyte": "FLS", "synoviocyte": "FLS",
+             "cd8": "CTL", "regulatorytcell": "Treg", "acpa": "AutoAb",
+             "autoantibody": "AutoAb", "ccl2": "MCP1", "ccl5": "RANTES", "ccl20": "MIP3"},
+)
+
+# Named specs - add a new QSP model by adding its spec here (and passing its network.json).
+SPECS = {"ra": VANTAGE_RA_SPEC, "vantage_ra": VANTAGE_RA_SPEC}
+
+
+def get_spec(name: str) -> QSPModelSpec:
+    key = (name or "ra").lower()
+    if key not in SPECS:
+        raise KeyError(f"unknown model spec '{name}'. Known: {sorted(SPECS)}. "
+                       "Add a QSPModelSpec to SPECS in qsp_model.py.")
+    return SPECS[key]

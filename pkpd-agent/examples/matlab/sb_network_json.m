@@ -57,6 +57,7 @@ function sb_network_json(outJson)
         r = struct();
         r.name = pp(i).Name;
         try, r.value = pp(i).Value;            catch, r.value = NaN;   end
+        try, r.units = pp(i).ValueUnits;       catch, r.units = '';    end
         try, r.constant = logical(pp(i).ConstantValue); catch, r.constant = true; end
         ppc{i} = r;
     end
