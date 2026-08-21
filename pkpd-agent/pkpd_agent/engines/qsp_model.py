@@ -286,10 +286,15 @@ VANTAGE_RA_SPEC = QSPModelSpec(
              "endo": "Endothelial", "endothelial": "Endothelial",
              "bcell": "BCells", "plasmacell": "PlasmaCells", "plasmacells": "PlasmaCells",
              "fls": "FLS", "fibroblastlikesynoviocyte": "FLS", "synoviocyte": "FLS",
-             "cd8": "CTL", "regulatorytcell": "Treg", "acpa": "AutoAb",
-             "autoantibody": "AutoAb", "ccl2": "MCP1", "ccl5": "RANTES", "ccl20": "MIP3"},
+             "cd8": "CTL", "cd8tcell": "CTL", "cd8tcells": "CTL", "cytotoxictcell": "CTL",
+             "regulatorytcell": "Treg", "regulatorytcells": "Treg", "tregs": "Treg",
+             "acpa": "AutoAb", "autoantibody": "AutoAb", "autoantibodies": "AutoAb",
+             "tnfalpha": "TNFa", "tnf": "TNFa", "il1beta": "IL1b", "il17a": "IL17",
+             "icam": "CAM", "vcam": "CAM", "adhesionmolecule": "CAM",
+             "ccl2": "MCP1", "ccl5": "RANTES", "ccl20": "MIP3"},
     readout_name="DAS28-CRP (a composite of tender/swollen joint counts, CRP, and "
                  "patient global assessment)",
+    # (extra clinical synonyms an agent uses, mirroring the specialized resolve_node)
     gsa_top=[  # Fig 9 global sensitivity top-20 for DAS28-CRP (external: from the paper)
         "kg_FLS_Baseline", "F_CAM", "kg_BCells_Baseline", "kg_Macrophage_Baseline",
         "F_GMCSF", "kg_Th1_Baseline", "F_TNFa", "kIn_Th1_Baseline", "LeukoInflux_MaxbyCAM",

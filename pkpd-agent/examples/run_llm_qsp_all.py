@@ -117,6 +117,14 @@ def main() -> None:
                 if v is not None:
                     vals.append(v)
                     print(f"  run {i + 1}: {label} {v}", flush=True)
+                if i == 0:                       # diagnose the first run's proposal
+                    for dk in ("missed", "extra", "missed_top", "precision", "n_picked"):
+                        if dk in final:
+                            val = final[dk]
+                            print(f"      {dk}: {val if not isinstance(val, list) else val[:15]}",
+                                  flush=True)
+            else:
+                print(f"  run {i + 1}: did not finalize", flush=True)
         if vals:
             report.append((name, label, _mean(vals), min(vals), max(vals), len(vals)))
 
