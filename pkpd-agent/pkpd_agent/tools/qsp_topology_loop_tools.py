@@ -6,7 +6,7 @@ from network.json + a spec. Point at any QSP model and the topology benchmark ru
 
 from __future__ import annotations
 
-from ..engines import ra_network as N
+from ..engines import qsp_core as N
 from ..engines.qsp_model import QSPModel
 from .registry import Tool, ToolRegistry, ToolResult
 

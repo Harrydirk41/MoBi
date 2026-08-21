@@ -7,8 +7,8 @@ qsp_topology_loop_tools these let the whole suite run on any QSP model.
 
 from __future__ import annotations
 
-from ..engines import ra_network as N
-from ..engines import ra_params as RP
+from ..engines import qsp_core as N
+from ..engines import qsp_core as RP
 from ..engines.qsp_model import QSPModel
 from .registry import Tool, ToolRegistry, ToolResult
 

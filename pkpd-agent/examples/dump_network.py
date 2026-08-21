@@ -6,7 +6,7 @@ MATLAB prompt. Do this ONCE; then run the reconstruction benchmark against the r
     python -m examples.dump_network ^
         --sbproj "..\RA-QSP-Model\Vantage RA QSP Model v1.0.sbproj" ^
         --out network.json
-    python -m examples.run_llm_ra_network --network network.json
+    python -m examples.run_llm_qsp_all --network network.json --model ra
 
 No API key needed here - it is pure model extraction, no LLM.
 """
@@ -15,7 +15,7 @@ from __future__ import annotations
 
 import argparse
 
-from pkpd_agent.engines import ra_network as N
+from pkpd_agent.engines.qsp_model import QSPModel
 from pkpd_agent.engines.simbiology import SimBiologyEngine
 
 
@@ -38,8 +38,9 @@ def main() -> None:
     c = s.get("counts", {})
     print(f"wrote {args.out}: {c.get('species')} species, {c.get('reactions')} "
           f"reactions, {c.get('rules')} rules, {c.get('parameters')} parameters")
-    edges = N.parse_truth(args.out)
-    print(f"parsed {len(edges)} regulatory edges (the reconstruction answer key)")
+    model = QSPModel.inferred(args.out, "auto")
+    print(f"derived {len(model.nodes)} nodes, {len(model.edges)} regulatory edges, "
+          f"{len(model.readout_drivers)} readout drivers (the reconstruction answer key)")
 
 
 if __name__ == "__main__":

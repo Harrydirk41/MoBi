@@ -26,8 +26,8 @@ import os
 import re
 from dataclasses import dataclass, field
 
-from .ra_network import Edge, _SIGN, _split_target  # reuse the edge dataclass + helpers
-from .ra_params import _MODEL_SCALING_UNITS
+from .qsp_core import Edge, _SIGN
+from .qsp_core import _MODEL_SCALING_UNITS
 
 _TOKEN = re.compile(r"[A-Za-z_][A-Za-z0-9_]*")
 _RULE_RE = re.compile(r"^\s*(Pro|Anti|Hill)_([A-Za-z0-9]+?)_effect\s*=\s*(.*)$")
