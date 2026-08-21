@@ -89,13 +89,24 @@ def extract_edges(bio_species: list[str], rules: list[str], call, batch: int = 2
     for k in range(0, len(rules), batch):
         chunk = rules[k:k + batch]
         user = (
-            "From each rule, extract the regulatory edges it encodes. A rule governs some "
-            "TARGET species' process (proliferation / influx / apoptosis / secretion); the "
-            "SOURCE species are the drivers appearing in the expression (e.g. the first "
-            "argument of an MM()/Hill term, or any species multiplied in). sign = +1 if the "
-            "rule increases the target (promoting/Pro), -1 if it decreases it (inhibiting/"
-            "Anti). Use ONLY these biology species names as source/target; map any "
-            "abbreviation in the rule name to them. Ignore drug and readout terms.\n"
+            "From each rule, extract the regulatory edges it encodes, using this EXACT edge "
+            "convention (match it precisely):\n"
+            "- A rule governs a TARGET species' PROCESS. The process is named in the rule's "
+            "left-hand side: Prolif/Growth/Influx/Apop for a CELL, or Sec (secretion) for a "
+            "MEDIATOR.\n"
+            "- SECRETION rule for mediator C (e.g. 'C_Sec...' or 'CSecK...'): emit the edge "
+            "from the PRODUCING CELL K (named in the LHS, e.g. 'IL6SecFLS' -> FLS) to C, AND "
+            "an edge from each DRIVER species D appearing in the expression (the first arg of "
+            "each MM()/Hill term) to C.\n"
+            "- CELL-process rule for cell K (Prolif/Influx/Apop of K): emit an edge from each "
+            "DRIVER D to K.\n"
+            "- Prefer these cell<->mediator edges; do NOT invent cytokine->cytokine shortcuts "
+            "unless a cytokine literally appears as the MM() driver of another mediator's "
+            "secretion rule.\n"
+            "- sign = +1 if the rule increases the target (Pro/promoting), -1 if it decreases "
+            "it (Anti/inhibiting).\n"
+            "Use ONLY these biology species names; map abbreviations in the rule name to "
+            "them. Ignore drug/readout terms.\n"
             'Return JSON [{"source": "...", "target": "...", "sign": 1 or -1}, ...].\n\n'
             f"BIOLOGY SPECIES:\n{json.dumps(bio_species)}\n\nRULES:\n"
             + "\n".join(chunk))
