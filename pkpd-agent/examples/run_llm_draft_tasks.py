@@ -69,15 +69,20 @@ def main() -> None:
                 print(f"      missed: {d['missed']}")
             if d["extra"]:
                 print(f"      extra:  {d['extra']}")
-        print("\nRead: high recall means the drafter reproduces the known role assignments, "
-              "so it can be trusted on a NEW model. Low recall = review the draft by hand.")
+        print("\nRead: RECALL is the metric that matters here - the readout states are "
+              "structural and reproduce well (high F1), but which PARAMETERS to expose "
+              "for a Vpop / design / calibration task is the modeler's COMMITTED CHOICE, "
+              "not derivable from the model. So the parameter fields are best read as "
+              "high-recall CANDIDATE POOLS the author prunes (low precision is expected: "
+              "the drafter finds every candidate but cannot guess the author's selection).")
     except KeyError:
         print(f"(no known-good project '{args.model}' to regress against - draft only)")
 
-    print("\nNOTE: drugs / timeline / vpop_target / clinical_trials / refractory_target are "
-          "left as TODO stubs - external data or .sbproj dose names the drafter cannot "
-          "invent. Fill those in, review the TODO meanings, then save as "
-          "projects/<name>/tasks.json.")
+    print("\nNOTE: readout_states is a real draft; vpop_drivers / design_targets / "
+          "fit_params are candidate POOLS to prune down to the ones your task exposes. "
+          "drugs / timeline / vpop_target / clinical_trials / refractory_target are TODO "
+          "stubs (external data or .sbproj dose names the drafter cannot invent). Prune + "
+          "fill, then save as projects/<name>/tasks.json.")
 
     if args.out:
         with open(args.out, "w", encoding="utf-8") as fh:

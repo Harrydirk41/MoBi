@@ -79,15 +79,22 @@ def classify_parameters(params: list[dict], rules: list[str], call,
         compact = [{"name": p.get("name"), "units": p.get("units"),
                     "value": p.get("value")} for p in chunk]
         user = (
-            "Assign each parameter to any of these roles (a parameter may take more than "
-            "one, or none - most parameters take NONE, so return only the clear cases):\n"
-            "- 'disease_drivers': pro-inflammatory amplification factors / baseline growth "
-            "rates that set disease SEVERITY - the knobs you would vary to build a virtual "
-            "population (e.g. pathway amplification factors, cell baseline growth rates).\n"
-            "- 'druggable': the subset of disease drivers a drug could plausibly SUPPRESS "
-            "(a pathway knob a therapeutic targets).\n"
-            "- 'calibratable': PD / binding constants you would FIT to reproduce an "
-            "observed drug response (e.g. a dissociation constant KD, an EC50, kon/koff).\n"
+            "Assign each parameter to any of these roles. Be STRICT: the vast majority of "
+            "parameters take NONE. Return a parameter ONLY if it is a top-level knob for "
+            "that role, never a per-reaction mechanistic coefficient.\n"
+            "- 'disease_drivers': GLOBAL, model-wide amplification factors or baseline "
+            "growth/production rates that set overall disease SEVERITY - the handful of "
+            "knobs you would vary to build a virtual population. EXCLUDE per-interaction "
+            "coefficients (a parameter naming two specific species, a max-effect strength, "
+            "a Hill/EC50/half-effect constant, a rule-intermediate 'effect' term).\n"
+            "- 'druggable': the subset of those GLOBAL disease drivers a therapeutic could "
+            "suppress. Same exclusions.\n"
+            "- 'calibratable': target-binding or potency constants of a DRUG you would FIT "
+            "to reproduce an observed response (a dissociation constant KD, an EC50, a "
+            "kon/koff). EXCLUDE PK disposition parameters (clearance CL, volume, "
+            "bioavailability F, absorption) and endogenous-biology coefficients.\n"
+            "When unsure, leave it out - a short high-precision list is the goal, and the "
+            "author will add anything you missed.\n"
             'Return JSON {"disease_drivers": [...], "druggable": [...], "calibratable": '
             "[...]} using the exact parameter names from THIS batch.\n\n"
             f"PARAMETERS:\n{json.dumps(compact)}\n\nRULES (context):\n" + rule_ctx)
@@ -155,6 +162,10 @@ def draft_tasks(data: dict, call, name: str = "QSP model") -> dict:
     return {
         "name": name,
         "_derived_from": "network.json (llm_tasks.draft_tasks) - REVIEW before use",
+        "_review": ("readout_states is a structural draft; vpop_drivers / design_targets "
+                    "/ fit_params are high-recall CANDIDATE POOLS - prune to the knobs "
+                    "your task actually exposes (which params to expose is a modeler's "
+                    "choice, not derivable from the model)."),
         "readout_states": _readout_states(ro),
         "readout_roles": ro,
         "vpop_drivers": {n: {"nominal": None, "span": None,
