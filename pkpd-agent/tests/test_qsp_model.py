@@ -95,6 +95,37 @@ class TestMatcher(unittest.TestCase):
         self.assertIn("ASPIRIN", s["extra"])
 
 
+class TestInferSpec(unittest.TestCase):
+    def _data(self):
+        return {
+            "species": [{"name": n} for n in _BIO + _NONBIO],
+            "rules": [{"rule": _DAS28},
+                      {"rule": "ACR_Perc = 100*delta_DAS28_CRP/DAS28_BL"},
+                      {"rule": "delta_DAS28_CRP = DAS28_BL-DAS28_CRP"},
+                      {"rule": "Pro_FLSProlif_effect = min(10,MM(TNFa,a,b,c)+MM(IL6,a,b,c))"},
+                      {"rule": "Anti_EndoInflux_effect = min(0.9,MM(TGFb,a,b,c))"}],
+            "parameters": [{"name": "kd_FLS_Baseline", "units": "1/day", "value": 0.1}],
+        }
+
+    def test_inferred_recovers_nodes_and_readout(self):
+        from pkpd_agent.engines.qsp_model import infer_spec
+        data = self._data()
+        m = QSPModel(data, infer_spec(data, "auto"))
+        # all 26 biological nodes recovered (may add a drug-conjugate false positive)
+        for bio in _BIO:
+            self.assertIn(bio, m.nodes)
+        self.assertEqual(set(m.readout_drivers),
+                         {"FLS", "Endothelial", "Th1", "Th17", "Treg", "CTL", "BCells",
+                          "PlasmaCells", "Macrophages"})
+
+    def test_short_token_not_matched_midword(self):
+        # 'ACR' must not exclude 'Macrophages' (M-acr-o)
+        from pkpd_agent.engines.qsp_model import infer_spec
+        data = self._data()
+        m = QSPModel(data, infer_spec(data, "auto"))
+        self.assertIn("Macrophages", m.nodes)
+
+
 class TestSpecs(unittest.TestCase):
     def test_get_spec(self):
         self.assertIs(get_spec("ra"), VANTAGE_RA_SPEC)

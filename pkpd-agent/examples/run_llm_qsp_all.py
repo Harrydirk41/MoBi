@@ -68,15 +68,21 @@ def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--network", required=True)
-    ap.add_argument("--model", default="ra")
+    ap.add_argument("--model", default="ra", help="spec name in SPECS")
+    ap.add_argument("--infer", action="store_true",
+                    help="heuristically infer the spec from the dump (no hand config); "
+                         "skips sensitivity (needs the external GSA list)")
     ap.add_argument("--repeat", type=int, default=1)
     ap.add_argument("--max-steps", type=int, default=20)
     ap.add_argument("--show-key", action="store_true")
     ap.add_argument("--only", help="comma-list of benchmarks to run (default all)")
     args = ap.parse_args()
 
-    model = QSPModel.from_network_json(args.network, get_spec(args.model))
-    print(f"== model '{model.spec.name}' (all keys DERIVED from {args.network}) ==")
+    model = (QSPModel.inferred(args.network, "auto-inferred") if args.infer
+             else QSPModel.from_network_json(args.network, get_spec(args.model)))
+    print(f"== model '{model.spec.name}'"
+          f"{' [SPEC AUTO-INFERRED]' if args.infer else ''} "
+          f"(all keys DERIVED from {args.network}) ==")
     print(f"   {len(model.nodes)} nodes, {len(model.edges)} edges, {len(model.params)} "
           f"params, {len(model.readout_drivers)} readout drivers, "
           f"{len(model.spec.gsa_top)} GSA params\n")

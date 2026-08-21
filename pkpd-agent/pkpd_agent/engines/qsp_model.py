@@ -74,8 +74,8 @@ class QSPModel:
     def __init__(self, data: dict, spec: QSPModelSpec):
         self.spec = spec
         self.species = [s["name"] for s in data.get("species", [])]
-        drug = [re.compile(p) for p in spec.drug_patterns]
-        rdt = [re.compile(p) for p in spec.readout_patterns]
+        drug = [re.compile(p, re.IGNORECASE) for p in spec.drug_patterns]
+        rdt = [re.compile(p, re.IGNORECASE) for p in spec.readout_patterns]
         self.nodes = [s for s in self.species
                       if not any(p.search(s) for p in drug + rdt)]
         self._norm2node = {_norm(n): n for n in self.nodes}
@@ -238,6 +238,15 @@ class QSPModel:
         with open(path, encoding="utf-8") as fh:
             return cls(json.load(fh), spec)
 
+    @classmethod
+    def inferred(cls, path: str, name: str = "QSP model") -> "QSPModel":
+        """Build with a HEURISTICALLY inferred spec - no hand config. Best-effort: it can
+        over-include drug-conjugate species that carry no generic token, and cannot supply
+        the external GSA list (sensitivity is skipped). Validate before trusting."""
+        with open(path, encoding="utf-8") as fh:
+            data = json.load(fh)
+        return cls(data, infer_spec(data, name))
+
 
 def _split_target_general(core: str, canon):
     """Strip a process suffix and canon the target, using the model's own matcher."""
@@ -280,6 +289,82 @@ VANTAGE_RA_SPEC = QSPModelSpec(
         "F_IL17", "F_IL6", "kg_CTL_Baseline", "F_BAFF", "BCellApop_MaxbyBAFF",
         "MacroApop_MaxbyGMCSF"],
 )
+
+_READOUT_TOKENS = ["DAS", "ACR", "SCORE", "ACTIVITY", "REMISSION", "RESPONSE",
+                   "NONRESP", "DELTA", "PASI", "SLEDAI", "EULAR"]
+# PK-compartment tokens. Deliberately NOT 'PLASMA' (collides with PlasmaCells) - the
+# residual drug-conjugate species (e.g. TNFa_Ada) that carry no generic token are the
+# known blind spot of heuristic inference, and are what an LLM classifier would catch.
+_DRUG_TOKENS = ["DRUG", "DOSE", "CENTRAL", "PERIPHERAL", "AVAILABLE", "DEPOT", "GI",
+                "SUBCUT"]
+
+
+def _auto_aliases(rules: list, params: list, species: list) -> dict:
+    """Recover naming abbreviations (Endo->Endothelial, Macro->Macrophages) by matching
+    the tokens that appear in rule/param names against the species by normalized prefix."""
+    snorm = {_norm(s): s for s in species}
+    toks: set[str] = set()
+    for r in rules or []:
+        expr = r.get("rule", "") if isinstance(r, dict) else str(r)
+        for m in re.finditer(r"(?:Pro|Anti|Hill)_([A-Za-z0-9]+?)_(?:effect|by([A-Za-z0-9]+))",
+                             expr or ""):
+            toks.add(m.group(1))
+            if m.group(2):
+                toks.add(m.group(2))
+        for m in _MM_SRC.finditer(expr or ""):
+            toks.add(m.group(1))
+    for p in params or []:
+        m = _NAME_RE.match(p.get("name", "") or "")
+        if m:
+            toks.add(m.group(2)); toks.add(m.group(3))
+    out = {}
+    for t in toks:
+        # strip a trailing process word so 'FLSProlif' -> 'FLS'
+        core = t
+        for suf in ("SecMacro", "SecFLS", "Sec", "Prolif", "Influx", "Apop", "Death", "Prod"):
+            if core.endswith(suf):
+                core = core[: -len(suf)]
+                break
+        n = _norm(core)
+        if not n or n in snorm:
+            continue
+        # prefix match to a species (Endo -> Endothelial); shortest species wins
+        cands = sorted((s for k, s in snorm.items() if k.startswith(n)), key=len)
+        if cands:
+            out[n.lower()] = cands[0]
+    return out
+
+
+def infer_spec(data: dict, name: str = "QSP model") -> QSPModelSpec:
+    """Heuristically infer a QSPModelSpec from a network.json dump - no hand config.
+    Classifies species into readout/drug/biology by token, finds the readout rules, and
+    auto-derives naming aliases. The one thing it cannot invent is the external GSA list."""
+    species = [s["name"] for s in data.get("species", [])]
+    rules = data.get("rules", [])
+    rule_lhs = []
+    for r in rules or []:
+        expr = r.get("rule", "") if isinstance(r, dict) else str(r)
+        if "=" in expr:
+            rule_lhs.append(expr.split("=", 1)[0].strip().split(".")[-1])
+
+    # readout rules: the composite score, matched by PREFIX (so 'ACR' hits 'ACR_Perc'
+    # but not 'Macro'); the derivation walks intermediates like delta_ from there.
+    readout_targets = [l for l in rule_lhs
+                       if any(l.upper().startswith(t) for t in ["DAS", "ACR", "SCORE"])]
+
+    def _pat(tok: str) -> str:
+        # short/ambiguous tokens (ACR, DAS, GI) are anchored at a word boundary to avoid
+        # matching inside a species name (ACR in Macro); longer tokens can be substrings.
+        return rf"(^|_){tok}" if len(tok) <= 3 else tok
+
+    drug_pat = sorted({_pat(t) for s in species for t in _DRUG_TOKENS if t in s.upper()})
+    rdt_pat = sorted({_pat(t) for s in species for t in _READOUT_TOKENS
+                      if re.search(rf"(^|_){t}" if len(t) <= 3 else t, s, re.IGNORECASE)})
+    return QSPModelSpec(
+        name=name, readout_targets=readout_targets or ["DAS28_CRP"],
+        drug_patterns=drug_pat, readout_patterns=rdt_pat,
+        aliases=_auto_aliases(rules, data.get("parameters", []), species))
+
 
 # Named specs - add a new QSP model by adding its spec here (and passing its network.json).
 SPECS = {"ra": VANTAGE_RA_SPEC, "vantage_ra": VANTAGE_RA_SPEC}
