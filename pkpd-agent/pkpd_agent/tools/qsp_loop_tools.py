@@ -118,10 +118,19 @@ def register_qsp_params_loop_tools(registry: ToolRegistry, config, ctx: dict) ->
     model: QSPModel = ctx["model"]
 
     def inspect(a, s):
+        # a large model can have hundreds of params; present an evenly-spaced, deterministic
+        # subset so the agent can actually finish (order-of-magnitude scoring is over
+        # whatever it predicts). Prefer the units where physiology helps.
+        ps = model.params
+        if len(ps) > 150:
+            phys = [p for p in ps if p.physiological()]
+            rest = [p for p in ps if not p.physiological()]
+            step = max(1, len(rest) // (150 - len(phys))) if len(phys) < 150 else 1
+            ps = phys + rest[::step]
         return ToolResult.success(
             f"{model.spec.name} parameter task: predict each parameter's value from its "
-            "name and units (order-of-magnitude scoring).",
-            parameters=[{"name": p.name, "units": p.units} for p in model.params])
+            f"name and units (order-of-magnitude scoring). {len(ps)} shown.",
+            parameters=[{"name": p.name, "units": p.units} for p in ps])
 
     def estimate(a, s):
         acc = dict(s.get("qsp_params") or {})
