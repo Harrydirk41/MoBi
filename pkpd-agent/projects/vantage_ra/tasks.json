@@ -112,7 +112,7 @@
 
   "validate_arms": {
     "prior_therapies": ["MTX_15mg_Q1W_SC_t200", "ADA40mg_Q2W_SC_t200"],
-    "tcz_arm": "MTX_15mg_Q1W_SC_t200;TCZ8mgkg_Q4W_IV_t200@285"
+    "test_arm": "MTX_15mg_Q1W_SC_t200;TCZ8mgkg_Q4W_IV_t200@285"
   },
   "clinical_trials": {
     "MTX": {

@@ -94,8 +94,8 @@ class QSPTaskConfig:
     def summarize_run(self, res: dict) -> dict:
         return qsp_tasks.summarize_run(res, self.run_columns)
 
-    def ir_mask(self, run: dict, acr_key: str = None, threshold: float = 3.2) -> dict:
-        return qsp_tasks.ir_mask(run, self.run_columns, acr_key, threshold)
+    def ir_mask(self, run: dict, response_key: str = None, threshold: float = 3.2) -> dict:
+        return qsp_tasks.ir_mask(run, self.run_columns, response_key, threshold)
 
     def response_in_subgroup(self, run: dict, ids: set, roles=None) -> dict:
         return qsp_tasks.response_in_subgroup(run, ids, self.run_columns, roles)

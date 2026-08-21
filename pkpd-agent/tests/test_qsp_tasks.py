@@ -38,15 +38,15 @@ class TestConfigLoading(unittest.TestCase):
 
     def test_clinical_weeks_are_int_keyed(self):
         self.assertEqual(CFG.trial_target("TCZ", 24, "raw"),
-                         {"ACR20": 45.0, "ACR50": 29.0, "ACR70": 13.9})
+                         {"ACR20": 45.0, "ACR50": 29.0, "ACR70": 13.9, "rem": 38.0})
 
 
 class TestClinicalReference(unittest.TestCase):
     def test_raw_and_pcorr(self):
         raw = CFG.trial_target("TCZ", 24, "raw")
-        self.assertEqual(raw, {"ACR20": 45.0, "ACR50": 29.0, "ACR70": 13.9})
+        self.assertEqual(raw, {"ACR20": 45.0, "ACR50": 29.0, "ACR70": 13.9, "rem": 38.0})
         pcorr = CFG.trial_target("TCZ", 24, "pcorr")
-        self.assertEqual(pcorr, {"ACR20": 20.0, "ACR50": 19.0, "ACR70": 12.0})
+        self.assertEqual(pcorr, {"ACR20": 20.0, "ACR50": 19.0, "ACR70": 12.0, "rem": 36.0})
 
     def test_pcorr_floored(self):
         mtx = CFG.trial_target("MTX", 12, "pcorr")
@@ -166,8 +166,8 @@ class TestValidationHelpers(unittest.TestCase):
                    DAS28_read=[2.5, 4.0, 5.0, 3.5, 3.0])
         ada = _run(patient=[1, 2, 3, 4, 5], ACR50=[0, 0, 1, 0, 0],
                    DAS28_read=[3.0, 4.5, 2.8, 3.6, 3.1])
-        mm = CFG.ir_mask(mtx, acr_key="ACR50")
-        am = CFG.ir_mask(ada, acr_key="ACR50")
+        mm = CFG.ir_mask(mtx, response_key="ACR50")
+        am = CFG.ir_mask(ada, response_key="ACR50")
         self.assertTrue(mm[2] and mm[3] and mm[4])
         self.assertFalse(mm[1] or mm[5])
         self.assertEqual({p for p in mm if mm[p] and am.get(p)}, {2, 4})

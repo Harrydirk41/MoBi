@@ -85,20 +85,20 @@ def summarize_run(res: dict, columns: dict) -> dict[str, Any]:
     return {"first_line": first, "second_line": second, "severity": sev}
 
 
-def ir_mask(run: dict, columns: dict, acr_key: str = None,
+def ir_mask(run: dict, columns: dict, response_key: str = None,
             threshold: float = 3.2) -> dict:
     """Classify inadequate responders from a run: a patient is an IR if they did NOT
     reach the response flag (== 0) AND still have active disease (severity readout >
     threshold). Returns {patient_id: bool}, keyed by patient so arms align.
 
-    ``columns`` supplies patient / first_line role->col / severity.readout; ``acr_key``
-    is a first_line ROLE (e.g. 'ACR50') resolved through the column map, defaulting
+    ``columns`` supplies patient / first_line role->col / severity.readout; ``response_key``
+    is a first_line ROLE (e.g. the second response level) resolved through the column map, defaulting
     to the second first_line role if omitted.
     """
     cols = run.get("columns") or {}
     fl = columns.get("first_line") or {}
     roles = list(fl.keys())
-    role = acr_key if acr_key in fl else (roles[1] if len(roles) > 1 else roles[0])
+    role = response_key if response_key in fl else (roles[1] if len(roles) > 1 else roles[0])
     pcol = columns.get("patient", "patient")
     acol = fl[role]
     dcol = (columns.get("severity") or {}).get("readout", "")
@@ -350,7 +350,9 @@ def trial_target(trials: dict, drug: str, week: int,
     if not arm:
         return None
     drug_arm = arm["drug"]
-    keys = [k for k in drug_arm if k.upper().startswith("ACR")]
+    # endpoints are whatever response keys the trial reports (ACR20.., PASI75.., Mayo..) -
+    # any numeric-valued key; no disease-specific endpoint name is assumed
+    keys = [k for k in drug_arm if isinstance(drug_arm[k], (int, float))]
     if correction == "raw":
         return {k: drug_arm[k] for k in keys}
     pl = arm.get("placebo", {})

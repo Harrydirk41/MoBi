@@ -29,7 +29,7 @@ def register_qsp_validate_loop_tools(registry: ToolRegistry, config, ctx: dict) 
     limit: int = int(ctx.get("limit") or 60)
     comparator: dict = ctx.get("comparator") or cfg.refractory_target
     arms = cfg.validate_arms
-    default_test_arm = arms.get("tcz_arm", "")
+    default_test_arm = arms.get("test_arm") or arms.get("tcz_arm", "")
     second_readout = cfg.timeline.get("second_line_readout_day", 600.0)
     first_readout = cfg.timeline.get("first_line_readout_day", 284.0)
     fl_roles = [r for r in cfg.run_columns.get("first_line", {})]
@@ -48,21 +48,21 @@ def register_qsp_validate_loop_tools(registry: ToolRegistry, config, ctx: dict) 
                       "test therapy and read its response in that subgroup",
             available_arms=arms,
             inadequate_responder_convention=(
-                "clinically, an inadequate responder did not reach the ACR level AND "
-                "still has active disease after therapy; you may set the criteria"),
+                "clinically, an inadequate responder did not reach the response level "
+                "AND still has active disease after therapy; you may set the criteria"),
             comparator=f"real trial {comparator.get('trial')}",
             edit_spec_help={
                 "prior_arms": "[dose, ...] - each therapy whose non-responders define "
                               "the refractory population (intersection of failures)",
                 "test_arm": "the arm to read the refractory response from",
-                "acr_key": f"first-line response role for non-response (default '{default_acr}')",
-                "das_threshold": "severity above which disease is active (default 3.2)"})
+                "response_key": f"first-line response role for non-response (default '{default_acr}')",
+                "severity_threshold": "severity above which disease is active (default 3.2)"})
 
     def run(args: dict, session) -> ToolResult:
         prior = args.get("prior_arms") or arms.get("prior_therapies") or []
-        test_arm = args.get("test_arm") or args.get("tcz_arm") or default_test_arm
-        acr_key = args.get("acr_key") or default_acr
-        das_thr = float(args.get("das_threshold") or 3.2)
+        test_arm = args.get("test_arm") or default_test_arm
+        response_key = args.get("response_key") or default_acr
+        das_thr = float(args.get("severity_threshold") or 3.2)
         if len(prior) < 1:
             return ToolResult.error("give prior_arms - the therapies whose non-responders "
                                     "define the refractory population.")
@@ -72,7 +72,7 @@ def register_qsp_validate_loop_tools(registry: ToolRegistry, config, ctx: dict) 
         for dose in prior:
             r = sb.run_vpop(vpop, dose=dose, stop_time=400.0, readout_day=first_readout,
                             limit=limit)
-            m = cfg.ir_mask(r, acr_key=acr_key, threshold=das_thr)
+            m = cfg.ir_mask(r, response_key=response_key, threshold=das_thr)
             masks.append(m)
             counts[dose] = sum(1 for v in m.values() if v)
         common = set.intersection(*[set(m) for m in masks]) if masks else set()
@@ -86,8 +86,8 @@ def register_qsp_validate_loop_tools(registry: ToolRegistry, config, ctx: dict) 
         mae = score.get("mae_pp")
 
         hist = session.get("val_history") or []
-        hist.append({"prior_arms": prior, "test_arm": test_arm, "acr_key": acr_key,
-                     "das_threshold": das_thr, "n_refractory": len(refractory),
+        hist.append({"prior_arms": prior, "test_arm": test_arm, "response_key": response_key,
+                     "severity_threshold": das_thr, "n_refractory": len(refractory),
                      "predicted": pred, "mae": mae})
         session.put("val_history", hist)
 
@@ -125,14 +125,14 @@ def register_qsp_validate_loop_tools(registry: ToolRegistry, config, ctx: dict) 
     registry.register(Tool(
         name="validate_run",
         description=("ACT: run the prior therapies, classify each arm's inadequate "
-                     "responders (below the ACR level AND still active), INTERSECT them "
+                     "responders (below the response level AND still active), INTERSECT them "
                      "to build the refractory population, then run the test arm and "
                      "return its response in that subgroup vs the real comparator (MAE). "
                      "Design the selection: which prior therapies, and the IR criteria."),
         input_schema={"type": "object", "properties": {
             "prior_arms": {"type": "array", "items": {"type": "string"}},
-            "test_arm": {"type": "string"}, "acr_key": {"type": "string"},
-            "das_threshold": {"type": "number"}}},
+            "test_arm": {"type": "string"}, "response_key": {"type": "string"},
+            "severity_threshold": {"type": "number"}}},
         handler=run, phase="act"))
     registry.register(Tool(
         name="validate_finalize",
