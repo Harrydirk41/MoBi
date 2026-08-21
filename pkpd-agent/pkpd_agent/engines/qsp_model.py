@@ -239,6 +239,14 @@ class QSPModel:
             return cls(json.load(fh), spec)
 
     @classmethod
+    def from_sbml(cls, path: str, spec: QSPModelSpec = None, name: str = "QSP model"):
+        """Build directly from a standard SBML export - no MATLAB. If no spec is given the
+        spec is heuristically inferred from the parsed structure."""
+        from .sbml_import import sbml_to_network
+        data = sbml_to_network(path)
+        return cls(data, spec or infer_spec(data, name))
+
+    @classmethod
     def inferred(cls, path: str, name: str = "QSP model") -> "QSPModel":
         """Build with a HEURISTICALLY inferred spec - no hand config. Best-effort: it can
         over-include drug-conjugate species that carry no generic token, and cannot supply
