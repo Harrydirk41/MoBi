@@ -183,6 +183,27 @@ class SimBiologyEngine:
         finally:
             _quiet_rm(out)
 
+    def fit_native(self, param_spec: str, data_csv: str, response_map: str,
+                   method: str = "lsqnonlin", doses: str = "") -> dict[str, Any]:
+        """Calibrate parameters using SimBiology's NATIVE estimator (sbiofit) - the
+        numerical optimization runs inside MATLAB, not over the bridge. ``param_spec``
+        is ';'-joined 'name,lo,hi,scale' (scale 'lin'/'log'); ``data_csv`` is the
+        observed data table (a Time column + one column per observed component);
+        ``response_map`` is ';'-joined 'ModelComponent = DataColumn'; ``method`` is the
+        sbiofit optimizer ('lsqnonlin'/'fmincon'/'particleswarm'/'ga'/...). Returns
+        {columns: {parameter: [...], estimate: [...]}, matlab_log}."""
+        import io
+        out = _tmp(".csv")
+        so = io.StringIO()
+        try:
+            self.eng.sb_fit(param_spec, os.path.abspath(data_csv), response_map,
+                            method, doses or "", out, nargout=1, stdout=so, stderr=so)
+            res = _read_csv(out)
+            res["matlab_log"] = so.getvalue()
+            return res
+        finally:
+            _quiet_rm(out)
+
 
 def _quiet_rm(path: str) -> None:
     try:

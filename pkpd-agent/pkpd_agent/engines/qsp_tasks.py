@@ -293,6 +293,89 @@ def select_to_moments(das_values, target: dict) -> dict[str, Any]:
     }
 
 
+def select_multi_anchor(candidates: list, anchors: list,
+                        max_iter: int = 400) -> dict[str, Any]:
+    """Select a virtual population from an already-simulated cohort by optimizing
+    per-candidate WEIGHTS so the weighted population matches SEVERAL clinical anchors
+    at once - the gQSPsim-style prevalence weighting the paper's genetic algorithm
+    implements, generalized from one marginal to a multi-anchor objective.
+
+    ``candidates`` is a list of dicts, each one virtual patient's simulated outputs
+    (e.g. {"severity": 5.1, "MTX_ACR20": 1, "TCZ_ACR20": 0, ...}); the cohort is
+    simulated ONCE, so this optimization is cheap post-processing (no re-simulation,
+    no MATLAB in the loop). ``anchors`` is a list of targets, each either:
+      * a rate anchor   {"key": "MTX_ACR20", "target": 33.7}  -> match weighted %(flag==1)
+      * a moment anchor {"key": "severity", "mean": 5.12, "sd": 1.24}
+
+    Weights are softmax-parameterized (>=0, sum 1) and optimized by scipy L-BFGS to
+    minimize the summed squared anchor error. Returns the achieved value per anchor,
+    the total error, the effective sample size, and the weights."""
+    import math
+    from scipy.optimize import minimize
+
+    n = len(candidates)
+    if n < 2 or not anchors:
+        return {"ok": False, "reason": "need >=2 candidates and >=1 anchor"}
+
+    def _num(x):
+        return x if isinstance(x, (int, float)) and x == x else None
+
+    def achieved(w, a):
+        key = a["key"]
+        vals = [_num(c.get(key)) for c in candidates]
+        idx = [i for i, v in enumerate(vals) if v is not None]
+        if not idx:
+            return None
+        sw = sum(w[i] for i in idx) or 1e-12
+        if "target" in a:                                  # rate anchor (% of flag==1)
+            return 100.0 * sum(w[i] for i in idx if vals[i] >= 0.5) / sw
+        mean = sum(w[i] * vals[i] for i in idx) / sw       # moment anchor
+        return mean
+
+    def target_err(w):
+        e = 0.0
+        for a in anchors:
+            got = achieved(w, a)
+            if got is None:
+                continue
+            if "target" in a:
+                e += ((got - a["target"]) / 100.0) ** 2
+            else:
+                e += ((got - a["mean"]) / max(a.get("sd", 1.0), 1e-6)) ** 2
+                # match sd too when given
+                key = a["key"]
+                vals = [_num(c.get(key)) for c in candidates]
+                idx = [i for i, v in enumerate(vals) if v is not None]
+                sw = sum(w[i] for i in idx) or 1e-12
+                sd = (sum(w[i] * (vals[i] - got) ** 2 for i in idx) / sw) ** 0.5
+                if a.get("sd"):
+                    e += ((sd - a["sd"]) / a["sd"]) ** 2
+        return e
+
+    def softmax(z):
+        z = z - max(z)
+        ex = [math.exp(v) for v in z]
+        s = sum(ex) or 1e-12
+        return [v / s for v in ex]
+
+    def obj(z):
+        return target_err(softmax(z))
+
+    res = minimize(obj, [0.0] * n, method="L-BFGS-B",
+                   options={"maxiter": max_iter})
+    w = softmax(list(res.x))
+    ess = 1.0 / sum(wi * wi for wi in w)
+    report = []
+    for a in anchors:
+        got = achieved(w, a)
+        tgt = a.get("target", a.get("mean"))
+        report.append({"key": a["key"], "target": tgt,
+                       "achieved": round(got, 2) if got is not None else None})
+    return {"ok": True, "n": n, "total_error": round(float(res.fun), 5),
+            "anchors": report, "effective_sample_size": round(ess, 1),
+            "ess_fraction": round(ess / n, 3), "weights": w}
+
+
 def numeric_fit_1d(evaluate, lo: float, hi: float, log: bool = True,
                    max_evals: int = 20) -> dict[str, Any]:
     """Minimize a scalar objective over ONE parameter with a bounded numerical

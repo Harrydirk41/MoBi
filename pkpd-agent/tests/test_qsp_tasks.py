@@ -154,6 +154,32 @@ class TestVpop(unittest.TestCase):
         self.assertTrue(sel["ok"])
         self.assertLess(abs(sel["weighted_mean"] - 5.12), 0.6)
 
+    def test_multi_anchor_selection(self):
+        # a cohort with severity + two therapy-response flags; select weights to match
+        # THREE anchors at once (a moment + two response rates)
+        import random
+        random.seed(3)
+        cohort = []
+        for _ in range(200):
+            sev = random.uniform(2.0, 8.0)
+            cohort.append({"severity": sev,
+                           "MTX_ACR20": 1 if sev < 4.5 else 0,   # milder respond to MTX
+                           "TCZ_ACR20": 1 if sev < 6.5 else 0})  # more respond to TCZ
+        anchors = [{"key": "severity", "mean": 5.0, "sd": 1.3},
+                   {"key": "MTX_ACR20", "target": 35.0},
+                   {"key": "TCZ_ACR20", "target": 70.0}]
+        r = T.select_multi_anchor(cohort, anchors)
+        self.assertTrue(r["ok"])
+        by = {a["key"]: a["achieved"] for a in r["anchors"]}
+        # each anchor is matched within a few units (a feasible weighting exists)
+        self.assertLess(abs(by["severity"] - 5.0), 0.6)
+        self.assertLess(abs(by["MTX_ACR20"] - 35.0), 8.0)
+        self.assertLess(abs(by["TCZ_ACR20"] - 70.0), 8.0)
+        self.assertGreater(r["effective_sample_size"], 5)
+
+    def test_multi_anchor_needs_candidates(self):
+        self.assertFalse(T.select_multi_anchor([], [{"key": "x", "target": 1}])["ok"])
+
     def test_drivers_have_spans(self):
         for name, p in CFG.vpop_drivers.items():
             self.assertEqual(len(p["span"]), 2, name)
