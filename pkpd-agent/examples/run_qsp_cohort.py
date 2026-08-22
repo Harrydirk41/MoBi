@@ -26,6 +26,11 @@ def main() -> None:
     ap.add_argument("--sbproj", required=True)
     ap.add_argument("--n", type=int, default=40, help="cohort size")
     ap.add_argument("--seed", type=int, default=1)
+    ap.add_argument("--narrow", type=float, default=None, metavar="K",
+                    help="instead of each driver's full observed span, sample a band "
+                         "[nominal/K, nominal*K] (clipped to the span). K>1; smaller K = "
+                         "tighter band around the literature nominal. Use it to test the "
+                         "hypothesis that narrower/less-severe bounds raise the ESS.")
     args = ap.parse_args()
 
     cfg = qsp_config.get(args.model)
@@ -36,9 +41,22 @@ def main() -> None:
         print(f"project '{args.model}' declares no vpop_anchors.arms - nothing to do.")
         return
 
-    # sample every disease driver over its observed span (log scale)
+    # sample every disease driver over its observed span (log scale) -- or, with
+    # --narrow K, over a tight band [nominal/K, nominal*K] clipped to the span, to
+    # test whether less-severe bounds raise the effective sample size.
+    def _bounds(p: dict) -> tuple:
+        lo, hi = p["span"][0], p["span"][1]
+        if args.narrow and args.narrow > 1 and p.get("nominal"):
+            nom = float(p["nominal"])
+            lo = max(lo, nom / args.narrow)
+            hi = min(hi, nom * args.narrow)
+        return (lo, hi, "log")
+
+    if args.narrow:
+        print(f"== narrowing driver bounds to nominal/{args.narrow:g} .. "
+              f"nominal*{args.narrow:g} (clipped to span) ==")
     spec = qsp_tasks.build_sample_spec(
-        {n: (p["span"][0], p["span"][1], "log") for n, p in cfg.vpop_drivers.items()})
+        {n: _bounds(p) for n, p in cfg.vpop_drivers.items()})
     arms_spec = ";;".join(f"{lab}:{dose}" for lab, dose in arms.items())
     baseline_day = cfg.timeline.get("baseline_day", 200.0)
     readout_day = cfg.timeline.get("first_line_readout_day", 284.0)
