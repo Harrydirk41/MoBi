@@ -183,6 +183,29 @@ class SimBiologyEngine:
         finally:
             _quiet_rm(out)
 
+    def cohort_multi_arm(self, param_spec: str, arms_spec: str, baseline_day: float,
+                         readout_day: float, n_samples: int, seed: int = 1,
+                         states: "list | None" = None) -> dict[str, Any]:
+        """Sample a virtual cohort and record each candidate's untreated baseline
+        severity AND its primary response flag under several therapy arms - the rich
+        cohort the multi-anchor Vpop selection needs. ``arms_spec`` is arms joined by
+        ';;', each 'label:dose1,dose2'. Returns {columns:{sample, <params>, sev_base,
+        <arm labels>}, matlab_log}. Each candidate is simulated once per arm in MATLAB
+        (no bridge in the loop); the weight optimization afterwards is cheap."""
+        import io
+        out = _tmp(".csv")
+        so = io.StringIO()
+        try:
+            self.eng.sb_cohort(param_spec, arms_spec or "", float(baseline_day),
+                               float(readout_day), float(n_samples), float(seed),
+                               ";".join(states) if states else "", out,
+                               nargout=0, stdout=so, stderr=so)
+            res = _read_csv(out)
+            res["matlab_log"] = so.getvalue()
+            return res
+        finally:
+            _quiet_rm(out)
+
     def fit_native(self, param_spec: str, data_csv: str, response_map: str,
                    method: str = "lsqnonlin", doses: str = "") -> dict[str, Any]:
         """Calibrate parameters using SimBiology's NATIVE estimator (sbiofit) - the

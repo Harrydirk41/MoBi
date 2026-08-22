@@ -132,6 +132,45 @@ def register_qsp_vpop_loop_tools(registry: ToolRegistry, config, ctx: dict) -> N
             f"committed vpop design ({match.get('via', 'raw')}): {sev} {mean}/{sd}, "
             f"distance {s.get('distribution_distance')}, {extra}", bounds=bounds, score=s)
 
+    # -- multi-anchor selection (the paper's method: match SEVERAL clinical anchors) -- #
+    anchors_cfg = cfg.vpop_anchors or {}
+
+    def select_multi(args, s):
+        bounds = args.get("bounds") or {}
+        if not bounds:
+            return ToolResult.error("no bounds given - pass {bounds:{param:[lo,hi,scale]}}.")
+        arms = anchors_cfg.get("arms") or {}
+        rate_targets = anchors_cfg.get("rate_targets") or {}
+        spec = qsp_tasks.build_sample_spec(bounds)
+        arms_spec = ";;".join(f"{lab}:{dose}" for lab, dose in arms.items())
+        pool_n = int(args.get("n_pool") or n_pool)
+        readout_day = cfg.timeline.get("first_line_readout_day", 284.0)
+        r = sb.cohort_multi_arm(spec, arms_spec, baseline_day, readout_day, pool_n,
+                                seed, states=cfg.readout_states or None)
+        cols = r.get("columns") or {}
+        sevs = cols.get("sev_base", [])
+        candidates = []
+        for i in range(len(sevs)):
+            c = {"severity": sevs[i]}
+            for lab in arms:
+                col = cols.get(lab, [])
+                if i < len(col):
+                    c[lab] = col[i]
+            candidates.append(c)
+        anchors = [{"key": "severity", "mean": target["mean"], "sd": target.get("sd")}]
+        anchors += [{"key": lab, "target": rate} for lab, rate in rate_targets.items()]
+        sel = qsp_tasks.select_multi_anchor(candidates, anchors)
+        if not sel.get("ok"):
+            return ToolResult.error(f"multi-anchor selection failed: {sel.get('reason')}", **sel)
+        s.put("vpop_history", (s.get("vpop_history") or [])
+              + [{"bounds": bounds, "score": sel, "via": "multi_anchor"}])
+        s.put("vpop_best_bounds", bounds)
+        return ToolResult.success(
+            f"multi-anchor selection over {sel['n']} candidates matched "
+            f"{len(anchors)} anchors: {sel['anchors']}; total error {sel['total_error']}, "
+            f"ESS {sel['effective_sample_size']} ({int(sel['ess_fraction']*100)}%).",
+            bounds=bounds, **sel)
+
     registry.register(Tool(
         name="vpop_inspect",
         description=("OBSERVE the virtual-population task: the disease-driver parameters "
@@ -159,6 +198,19 @@ def register_qsp_vpop_loop_tools(registry: ToolRegistry, config, ctx: dict) -> N
             input_schema={"type": "object", "properties": {
                 "bounds": {"type": "object"}, "n_pool": {"type": "number"}}},
             handler=select, phase="act"))
+    if anchors_cfg.get("arms"):
+        registry.register(Tool(
+            name="vpop_select_multi",
+            description=("ACT: build the population to match SEVERAL clinical anchors at "
+                         "once (the paper's method) - the baseline severity distribution "
+                         "AND each therapy arm's response rate. Samples a cohort (each "
+                         "candidate simulated under every arm in MATLAB), then optimizes "
+                         "selection weights so the weighted population matches all "
+                         "anchors. Returns the achieved value per anchor + the effective "
+                         "sample size. Choose drivers + WIDE bounds spanning the targets."),
+            input_schema={"type": "object", "properties": {
+                "bounds": {"type": "object"}, "n_pool": {"type": "number"}}},
+            handler=select_multi, phase="act"))
     registry.register(Tool(
         name="vpop_finalize",
         description=("COMMIT the sampling design you recommend (already run). Scores the "

@@ -78,6 +78,7 @@ class QSPTaskConfig:
     drugs: dict[str, Any]
     vpop_drivers: dict[str, Any]
     vpop_target: dict[str, Any]
+    vpop_anchors: dict[str, Any]
     fit_params: dict[str, Any]
     design_targets: dict[str, Any]
     clinical_trials: dict[str, Any]
@@ -128,6 +129,7 @@ def config_from_dict(d: dict) -> QSPTaskConfig:
         drugs=dict(d.get("drugs", {})),
         vpop_drivers=dict(d.get("vpop_drivers", {})),
         vpop_target=dict(d.get("vpop_target", {})),
+        vpop_anchors=dict(d.get("vpop_anchors", {})),
         fit_params=dict(d.get("fit_params", {})),
         design_targets=dict(d.get("design_targets", {})),
         clinical_trials=_int_keys(d.get("clinical_trials", {})),

@@ -109,6 +109,10 @@
     "kg_Macrophage_Baseline": {"nominal": 342000.0, "span": [8000.0, 7500000.0],  "meaning": "macrophage baseline growth"}
   },
   "vpop_target": {"mean": 5.12, "sd": 1.24, "band": [3.2, 8.0]},
+  "vpop_anchors": {
+    "arms": {"MTX": "MTX_15mg_Q1W_SC_t200"},
+    "rate_targets": {"MTX": 33.7}
+  },
 
   "validate_arms": {
     "prior_therapies": ["MTX_15mg_Q1W_SC_t200", "ADA40mg_Q2W_SC_t200"],

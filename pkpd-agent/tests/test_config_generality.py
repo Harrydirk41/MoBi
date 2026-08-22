@@ -222,5 +222,36 @@ class TestSameModelDifferentEndpoint(unittest.TestCase):
         self.assertEqual(rem_t, {"remission": 38.0})
 
 
+class _FakeCohortEngine:
+    """Returns a synthetic cohort table (as sb_cohort.m would) so the multi-anchor
+    tool path is testable without MATLAB."""
+    def cohort_multi_arm(self, spec, arms_spec, bday, rday, n, seed, states=None):
+        import random
+        random.seed(1)
+        sev, mtx = [], []
+        for _ in range(int(n)):
+            s = random.uniform(2.0, 8.0)
+            sev.append(s)
+            mtx.append(1 if s < 4.5 else 0)          # milder respond to MTX
+        return {"columns": {"sample": list(range(int(n))), "sev_base": sev, "MTX": mtx},
+                "matlab_log": ""}
+
+
+class TestVpopMultiAnchorTool(unittest.TestCase):
+    def test_multi_anchor_tool_matches_config_anchors(self):
+        from pkpd_agent.tools.qsp_vpop_loop_tools import register_qsp_vpop_loop_tools
+        reg = ToolRegistry()
+        register_qsp_vpop_loop_tools(reg, None, {
+            "cfg": C.get("ra"), "sb": _FakeCohortEngine(), "n_pool": 200})
+        self.assertIn("vpop_select_multi", reg)        # registered because RA has anchors
+        res = reg.dispatch("vpop_select_multi",
+                           {"bounds": {"F_TNFa": [0.1, 50, "log"]}}, _FakeSession())
+        self.assertTrue(res.ok, res.message)
+        keys = {a["key"] for a in res.data["anchors"]}
+        self.assertIn("severity", keys)               # baseline moment anchor
+        self.assertIn("MTX", keys)                     # the MTX response-rate anchor
+        self.assertGreater(res.data["effective_sample_size"], 5)
+
+
 if __name__ == "__main__":
     unittest.main()
