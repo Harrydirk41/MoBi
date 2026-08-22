@@ -221,9 +221,24 @@ class SimBiologyEngine:
         try:
             self.eng.sb_fit(param_spec, os.path.abspath(data_csv), response_map,
                             method, doses or "", out, nargout=1, stdout=so, stderr=so)
-            res = _read_csv(out)
-            res["matlab_log"] = so.getvalue()
-            return res
+            # The result table is "parameter,estimate": the first column is a NAME
+            # (a string), so it must not be float-coerced the way _read_csv does.
+            names, ests = [], []
+            try:
+                with open(out, newline="", encoding="utf-8") as fh:
+                    rdr = csv.reader(fh)
+                    next(rdr, None)  # header
+                    for row in rdr:
+                        if len(row) >= 2:
+                            names.append(row[0].strip())
+                            try:
+                                ests.append(float(row[1]))
+                            except (ValueError, TypeError):
+                                ests.append(None)
+            except OSError:
+                pass
+            return {"columns": {"parameter": names, "estimate": ests},
+                    "matlab_log": so.getvalue()}
         finally:
             _quiet_rm(out)
 
