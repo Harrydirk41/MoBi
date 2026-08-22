@@ -31,6 +31,11 @@ def main() -> None:
                          "[nominal/K, nominal*K] (clipped to the span). K>1; smaller K = "
                          "tighter band around the literature nominal. Use it to test the "
                          "hypothesis that narrower/less-severe bounds raise the ESS.")
+    ap.add_argument("--low", type=float, default=None, metavar="FRAC",
+                    help="sample only the LOWER FRAC fraction of each driver's log-span "
+                         "([lo, lo*(hi/lo)^FRAC]). FRAC in (0,1]; the low end = low "
+                         "amplification = milder disease = the MTX responders. Overrides "
+                         "--narrow.")
     args = ap.parse_args()
 
     cfg = qsp_config.get(args.model)
@@ -42,17 +47,22 @@ def main() -> None:
         return
 
     # sample every disease driver over its observed span (log scale) -- or, with
-    # --narrow K, over a tight band [nominal/K, nominal*K] clipped to the span, to
-    # test whether less-severe bounds raise the effective sample size.
+    # --low FRAC, only the lower fraction of the span (milder = the responders); or,
+    # with --narrow K, a tight band [nominal/K, nominal*K] around the literature nominal.
     def _bounds(p: dict) -> tuple:
         lo, hi = p["span"][0], p["span"][1]
-        if args.narrow and args.narrow > 1 and p.get("nominal"):
+        if args.low and 0 < args.low <= 1 and hi > lo > 0:
+            hi = lo * (hi / lo) ** args.low
+        elif args.narrow and args.narrow > 1 and p.get("nominal"):
             nom = float(p["nominal"])
             lo = max(lo, nom / args.narrow)
             hi = min(hi, nom * args.narrow)
         return (lo, hi, "log")
 
-    if args.narrow:
+    if args.low:
+        print(f"== sampling the lower {args.low:g} fraction of each driver's log-span "
+              f"(milder disease) ==")
+    elif args.narrow:
         print(f"== narrowing driver bounds to nominal/{args.narrow:g} .. "
               f"nominal*{args.narrow:g} (clipped to span) ==")
     spec = qsp_tasks.build_sample_spec(
