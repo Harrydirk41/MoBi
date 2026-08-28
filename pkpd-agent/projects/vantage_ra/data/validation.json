@@ -1,0 +1,9 @@
+{
+  "_comment": "HELD-OUT observations for qualification: a trial the model is NOT fit to. Used only to validate predictions -- agreement here is what licenses using the model for decisions. Kept strictly separate from data/calibration.json.",
+
+  "refractory_target": {
+    "trial": "RADIATE (Emery et al. 2008, TCZ 8mg/kg in anti-TNF inadequate responders)",
+    "week": 24,
+    "ACR20": 50.0, "ACR50": 28.8, "ACR70": 12.4
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "_comment": "Protocols / scenarios to SIMULATE -- experiment specifications, not observational data. The flagship treat-to-target sequence (what the prediction runs), and the pathway targets to probe for drug-design exploration.",
+
+  "flagship_protocol": {
+    "first_line": ["MTX_15mg_Q1W_SC_t200"],
+    "second_line": ["TCZ8mgkg_Q4W_IV_t200"],
+    "switch_day": 285,
+    "dose_string": "MTX_15mg_Q1W_SC_t200;TCZ8mgkg_Q4W_IV_t200@285"
+  },
+
+  "design_targets": {
+    "F_IL6":    {"pathway": "IL-6 signaling", "analogue": "tocilizumab (anti-IL-6R)", "note": "IL-6 drives the CRP arm of DAS28-CRP directly"},
+    "F_TNFa":   {"pathway": "TNF-alpha", "analogue": "adalimumab/etanercept (anti-TNF)", "note": "a dominant pro-inflammatory cytokine in RA"},
+    "F_IL17":   {"pathway": "IL-17A", "analogue": "secukinumab (anti-IL-17A)", "note": "central in psoriatic disease; historically weak in RA"},
+    "F_RANTES": {"pathway": "RANTES/CCL5 chemokine", "analogue": "(no approved RA drug)", "note": "chemokine recruiting leukocytes to the synovium"},
+    "F_GMCSF":  {"pathway": "GM-CSF", "analogue": "otilimab (anti-GM-CSF, investigational)", "note": "myeloid-driver, an emerging RA target"}
+  },
+  "design_background": "MTX_15mg_Q1W_SC_t200"
+}

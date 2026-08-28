@@ -143,11 +143,42 @@ def config_from_dict(d: dict) -> QSPTaskConfig:
         fit_target=dict(d.get("fit_target", {})))
 
 
+# optional split data files, merged into the tasks.json dict when present. This lets a
+# real project keep facts where they belong -- the parameter catalog with the MODEL,
+# the trial observations under DATA, the protocols under SCENARIOS -- while a project
+# that keeps everything in tasks.json still loads unchanged (all files are optional).
+_SPLIT_FILES = (
+    os.path.join("model", "parameters.json"),   # parameter catalog + physiological ranges
+    os.path.join("data", "calibration.json"),   # training trials + baseline-severity target
+    os.path.join("data", "validation.json"),    # held-out trial
+    "scenarios.json",                            # protocols to simulate
+)
+
+
+def _merge_split_files(base: str, name: str, d: dict) -> dict:
+    """Merge optional split data files into the config dict. Each file supplies its own
+    (disjoint) top-level keys; '_'-prefixed keys are treated as comments and dropped."""
+    for rel in _SPLIT_FILES:
+        path = os.path.join(base, name, rel)
+        if not os.path.isfile(path):
+            continue
+        try:
+            with open(path, encoding="utf-8") as fh:
+                extra = json.load(fh)
+        except (OSError, json.JSONDecodeError):
+            continue
+        d.update({k: v for k, v in extra.items() if not k.startswith("_")})
+    return d
+
+
 def load_tasks(name: str, projects_dir: str = None) -> QSPTaskConfig:
-    """Load a project's tasks.json into a QSPTaskConfig. `name` is the folder."""
+    """Load a project's tasks.json (plus any split model/data/scenarios files) into a
+    QSPTaskConfig. `name` is the folder."""
     base = projects_dir or _PROJECTS_DIR
     with open(os.path.join(base, name, "tasks.json"), encoding="utf-8") as fh:
-        return config_from_dict(json.load(fh))
+        d = json.load(fh)
+    d = _merge_split_files(base, name, d)
+    return config_from_dict(d)
 
 
 def get(name: str = "vantage_ra", projects_dir: str = None) -> QSPTaskConfig:

@@ -5,6 +5,8 @@
   "readout_desc": "first-line ACR20/50/70 + remission",
   "severity_readout": "DAS28-CRP",
 
+  "_data_layout": "This file holds TASK SETUP only. The data is split out: model/parameters.json (parameter catalog + physiological ranges), data/calibration.json (training trials + baseline-severity target), data/validation.json (held-out trial), scenarios.json (protocols to simulate). The loader (qsp_config.load_tasks) merges them back in; a project that keeps everything here still loads unchanged. See DATA.md.",
+
   "readout_states": [
     "ACR20", "ACR50", "ACR70", "Remission",
     "MTX_NonResp", "MTX_NonResp_TCZ_ACR20", "MTX_NonResp_TCZ_ACR50",
@@ -28,21 +30,7 @@
     "severity": {"baseline": "DAS28_base", "readout": "DAS28_read"}
   },
 
-  "flagship_protocol": {
-    "first_line": ["MTX_15mg_Q1W_SC_t200"],
-    "second_line": ["TCZ8mgkg_Q4W_IV_t200"],
-    "switch_day": 285,
-    "dose_string": "MTX_15mg_Q1W_SC_t200;TCZ8mgkg_Q4W_IV_t200@285"
-  },
-
   "trial_objective": "Predict the second-line response in MTX-inadequate responders.",
-  "calibrated_arms": [
-    {
-      "arm": "MTX first-line monotherapy",
-      "protocol": {"first_line": ["MTX_15mg_Q1W_SC_t200"]},
-      "known_rates_day284_full_pop_n300": {"ACR20": 33.7, "ACR50": 17.7, "ACR70": 2.3, "remission": 18.0}
-    }
-  ],
 
   "drugs": {
     "MTX": {
@@ -77,38 +65,9 @@
     }
   },
 
-  "fit_params": {
-    "KD_TCZ": {
-      "unit": "M (molar)",
-      "reference": 2.5e-12,
-      "meaning": "tocilizumab-IL-6R dissociation constant (binding affinity). LOWER KD = tighter binding = more potent IL-6R blockade = higher ACR response.",
-      "search_range": [1e-13, 1e-9],
-      "log_scale": true,
-      "source": "ESM2 PD parameters (reference 2.5e-12 M)"
-    }
-  },
   "fit_default_arm": "MTX_15mg_Q1W_SC_t200;TCZ8mgkg_Q4W_IV_t200@285",
   "fit_target": {"drug": "TCZ", "week": 24, "correction": "raw"},
 
-  "design_targets": {
-    "F_IL6":    {"pathway": "IL-6 signaling", "analogue": "tocilizumab (anti-IL-6R)", "note": "IL-6 drives the CRP arm of DAS28-CRP directly"},
-    "F_TNFa":   {"pathway": "TNF-alpha", "analogue": "adalimumab/etanercept (anti-TNF)", "note": "a dominant pro-inflammatory cytokine in RA"},
-    "F_IL17":   {"pathway": "IL-17A", "analogue": "secukinumab (anti-IL-17A)", "note": "central in psoriatic disease; historically weak in RA"},
-    "F_RANTES": {"pathway": "RANTES/CCL5 chemokine", "analogue": "(no approved RA drug)", "note": "chemokine recruiting leukocytes to the synovium"},
-    "F_GMCSF":  {"pathway": "GM-CSF", "analogue": "otilimab (anti-GM-CSF, investigational)", "note": "myeloid-driver, an emerging RA target"}
-  },
-  "design_background": "MTX_15mg_Q1W_SC_t200",
-
-  "vpop_drivers": {
-    "F_TNFa":   {"nominal": 10.0,   "span": [0.034, 55.9], "meaning": "TNF-alpha amplification factor"},
-    "F_IL6":    {"nominal": 8.39,   "span": [0.035, 44.4], "meaning": "IL-6 amplification factor"},
-    "F_IL17":   {"nominal": 13.1,   "span": [0.071, 99.8], "meaning": "IL-17 amplification factor"},
-    "F_RANTES": {"nominal": 3.47,   "span": [0.024, 28.3], "meaning": "RANTES/CCL5 amplification factor"},
-    "F_GMCSF":  {"nominal": 5.54,   "span": [0.027, 37.1], "meaning": "GM-CSF amplification factor"},
-    "kg_FLS_Baseline":        {"nominal": 518000.0, "span": [21000.0, 4500000.0], "meaning": "fibroblast-like synoviocyte baseline growth"},
-    "kg_Macrophage_Baseline": {"nominal": 342000.0, "span": [8000.0, 7500000.0],  "meaning": "macrophage baseline growth"}
-  },
-  "vpop_target": {"mean": 5.12, "sd": 1.24, "band": [3.2, 8.0]},
   "vpop_anchors": {
     "arms": {"MTX": "MTX_15mg_Q1W_SC_t200"},
     "rate_targets": {"MTX": 33.7}
@@ -117,38 +76,5 @@
   "validate_arms": {
     "prior_therapies": ["MTX_15mg_Q1W_SC_t200", "ADA40mg_Q2W_SC_t200"],
     "test_arm": "MTX_15mg_Q1W_SC_t200;TCZ8mgkg_Q4W_IV_t200@285"
-  },
-  "clinical_trials": {
-    "MTX": {
-      "trial": "Strand et al. 1999 (MTX monotherapy)",
-      "population": "MTX-naive RA",
-      "weeks": {
-        "12": {"drug": {"ACR20": 46.0, "ACR50": 23.0, "ACR70": 9.0},
-               "placebo": {"ACR20": 26.0, "ACR50": 8.0, "ACR70": 4.0}}
-      }
-    },
-    "ADA": {
-      "trial": "OPTIMA / Kavanaugh et al. (ADA 40mg Q2W + MTX)",
-      "population": "MTX-background, biologic-naive",
-      "weeks": {
-        "24": {"drug": {"ACR20": 70.0, "ACR50": 52.0, "ACR70": 35.0, "rem": 34.0},
-               "placebo": {"ACR20": 57.0, "ACR50": 34.0, "ACR70": 17.0, "rem": 17.0}}
-      }
-    },
-    "TCZ": {
-      "trial": "ROSE / Yazici et al. 2012 (TCZ 8mg/kg Q4W + DMARDs)",
-      "population": "DMARD-IR (~38% prior anti-TNF)",
-      "weeks": {
-        "12": {"drug": {"ACR20": 50.0, "ACR50": 25.0, "ACR70": 12.0, "rem": 22.0},
-               "placebo": {"ACR20": 29.0, "ACR50": 12.0, "ACR70": 5.0, "rem": 3.0}},
-        "24": {"drug": {"ACR20": 45.0, "ACR50": 29.0, "ACR70": 13.9, "rem": 38.0},
-               "placebo": {"ACR20": 25.0, "ACR50": 10.0, "ACR70": 1.9, "rem": 2.0}}
-      }
-    }
-  },
-  "refractory_target": {
-    "trial": "RADIATE (Emery et al. 2008, TCZ 8mg/kg in anti-TNF inadequate responders)",
-    "week": 24,
-    "ACR20": 50.0, "ACR50": 28.8, "ACR70": 12.4
   }
 }

@@ -1,0 +1,42 @@
+{
+  "_comment": "TRAINING / calibration observations: aggregate clinical-trial outcomes the model is FIT to (mean response for calibration; ACR20/50/70 + remission rates and the baseline severity spread for the virtual population). Real published-trial summaries -- NOT individual patient data. Swapping these for new trials changes the fit, not the model. Sources cited per entry.",
+
+  "calibrated_arms": [
+    {
+      "arm": "MTX first-line monotherapy",
+      "protocol": {"first_line": ["MTX_15mg_Q1W_SC_t200"]},
+      "known_rates_day284_full_pop_n300": {"ACR20": 33.7, "ACR50": 17.7, "ACR70": 2.3, "remission": 18.0}
+    }
+  ],
+
+  "vpop_target": {"mean": 5.12, "sd": 1.24, "band": [3.2, 8.0]},
+
+  "clinical_trials": {
+    "MTX": {
+      "trial": "Strand et al. 1999 (MTX monotherapy)",
+      "population": "MTX-naive RA",
+      "weeks": {
+        "12": {"drug": {"ACR20": 46.0, "ACR50": 23.0, "ACR70": 9.0},
+               "placebo": {"ACR20": 26.0, "ACR50": 8.0, "ACR70": 4.0}}
+      }
+    },
+    "ADA": {
+      "trial": "OPTIMA / Kavanaugh et al. (ADA 40mg Q2W + MTX)",
+      "population": "MTX-background, biologic-naive",
+      "weeks": {
+        "24": {"drug": {"ACR20": 70.0, "ACR50": 52.0, "ACR70": 35.0, "rem": 34.0},
+               "placebo": {"ACR20": 57.0, "ACR50": 34.0, "ACR70": 17.0, "rem": 17.0}}
+      }
+    },
+    "TCZ": {
+      "trial": "ROSE / Yazici et al. 2012 (TCZ 8mg/kg Q4W + DMARDs)",
+      "population": "DMARD-IR (~38% prior anti-TNF)",
+      "weeks": {
+        "12": {"drug": {"ACR20": 50.0, "ACR50": 25.0, "ACR70": 12.0, "rem": 22.0},
+               "placebo": {"ACR20": 29.0, "ACR50": 12.0, "ACR70": 5.0, "rem": 3.0}},
+        "24": {"drug": {"ACR20": 45.0, "ACR50": 29.0, "ACR70": 13.9, "rem": 38.0},
+               "placebo": {"ACR20": 25.0, "ACR50": 10.0, "ACR70": 1.9, "rem": 2.0}}
+      }
+    }
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "_comment": "Model parameter catalog: nominal values and plausible PHYSIOLOGICAL ranges. These are intrinsic to the mechanistic model (sourced from the paper's supplementary material, ESM), independent of any clinical dataset -- swapping the clinical data does NOT change them. Which subset is fit or varied, and how far the search bounds are narrowed for a particular analysis, is a TASK decision and lives in tasks.json (fit_default_arm, vpop_anchors) -- not here.",
+
+  "vpop_drivers": {
+    "F_TNFa":   {"nominal": 10.0,   "span": [0.034, 55.9], "meaning": "TNF-alpha amplification factor"},
+    "F_IL6":    {"nominal": 8.39,   "span": [0.035, 44.4], "meaning": "IL-6 amplification factor"},
+    "F_IL17":   {"nominal": 13.1,   "span": [0.071, 99.8], "meaning": "IL-17 amplification factor"},
+    "F_RANTES": {"nominal": 3.47,   "span": [0.024, 28.3], "meaning": "RANTES/CCL5 amplification factor"},
+    "F_GMCSF":  {"nominal": 5.54,   "span": [0.027, 37.1], "meaning": "GM-CSF amplification factor"},
+    "kg_FLS_Baseline":        {"nominal": 518000.0, "span": [21000.0, 4500000.0], "meaning": "fibroblast-like synoviocyte baseline growth"},
+    "kg_Macrophage_Baseline": {"nominal": 342000.0, "span": [8000.0, 7500000.0],  "meaning": "macrophage baseline growth"}
+  },
+
+  "fit_params": {
+    "KD_TCZ": {
+      "unit": "M (molar)",
+      "reference": 2.5e-12,
+      "meaning": "tocilizumab-IL-6R dissociation constant (binding affinity). LOWER KD = tighter binding = more potent IL-6R blockade = higher ACR response.",
+      "search_range": [1e-13, 1e-9],
+      "log_scale": true,
+      "source": "ESM2 PD parameters (reference 2.5e-12 M)"
+    }
+  }
+}
