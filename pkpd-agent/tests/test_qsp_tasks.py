@@ -272,6 +272,19 @@ class TestLoopToolRegistration(unittest.TestCase):
         self.assertFalse(reg.dispatch(
             "design_try", {"target": "F_XYZ", "efficacy": 0.8}, _FakeSession()).ok)
 
+    def test_realize_vpop(self):
+        from pkpd_agent.engines import qsp_tasks
+        # patient 3 carries almost all the weight -> the realized Vpop is enriched in it
+        w = [0.0, 0.01, 0.01, 0.98]
+        vp = qsp_tasks.realize_vpop(w, size=200, seed=1)
+        self.assertEqual(vp["size"], 200)
+        self.assertTrue(vp["unique"] <= 4)
+        frac3 = sum(1 for i in vp["indices"] if i == 3) / len(vp["indices"])
+        self.assertGreater(frac3, 0.8)          # high-weight patient dominates
+        self.assertNotIn(0, vp["indices"])      # zero-weight patient never drawn
+        # degenerate input -> empty, no crash
+        self.assertEqual(qsp_tasks.realize_vpop([0, 0], 10)["size"], 0)
+
     def test_filter_columns_to_band(self):
         from pkpd_agent.engines import qsp_tasks
         cols = {"sev_base": [2.0, 3.5, 5.0, 8.5, 6.0], "MTX": [1, 0, 1, 1, 0],

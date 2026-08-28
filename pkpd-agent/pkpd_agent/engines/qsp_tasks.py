@@ -293,6 +293,27 @@ def select_to_moments(das_values, target: dict) -> dict[str, Any]:
     }
 
 
+def realize_vpop(weights: list, size: int, seed: int = 1) -> dict[str, Any]:
+    """Turn prevalence weights into a DISCRETE virtual population - the paper's final step
+    ('used the patients with very high prevalence weights to be enriched'). Resamples
+    ``size`` patient indices with replacement, each drawn with probability proportional to
+    its weight, so high-weight patients are enriched into an actual population. Returns
+    {indices, size, unique} (unique = distinct patients realized)."""
+    import bisect
+    import random
+    w = [max(0.0, float(x)) for x in (weights or [])]
+    tot = sum(w)
+    if tot <= 0:
+        return {"indices": [], "size": 0, "unique": 0}
+    cum, c = [], 0.0
+    for x in w:
+        c += x
+        cum.append(c)
+    rnd = random.Random(seed)
+    idx = [bisect.bisect_left(cum, rnd.random() * tot) for _ in range(max(0, int(size)))]
+    return {"indices": idx, "size": len(idx), "unique": len(set(idx))}
+
+
 def filter_columns_to_band(cols: dict, sev_key: str, band: list) -> dict[str, Any]:
     """The paper's physiological-plausibility gate: keep only cohort rows whose baseline
     severity (the ``sev_key`` column) falls inside the active-disease band [lo, hi], so

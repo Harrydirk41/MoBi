@@ -176,6 +176,25 @@ def main() -> None:
                 else:
                     print("   GA selected nobody - check the MATLAB log.")
 
+        # realize a discrete Vpop from the prevalence weights (the paper's final step)
+        if wsel.get("ok") and wsel.get("weights"):
+            vp = qsp_tasks.realize_vpop(wsel["weights"], size=300, seed=args.seed)
+            idx = vp["indices"]
+            if idx:
+                rsev = [sevs[i] for i in idx if i < len(sevs)]
+                rmean = sum(rsev) / len(rsev) if rsev else 0
+                print("== [5] realized Vpop (enrich high-weight patients) ==")
+                print(f"   drew {vp['size']} patients ({vp['unique']} distinct) from the "
+                      f"weighted pool")
+                print(f"   {'severity':>10}: target {cfg.vpop_target['mean']}  ->  "
+                      f"realized {round(rmean,2)}")
+                for lab in rate_targets:
+                    rc = [cols.get(lab, [None]*len(sevs))[i] for i in idx if i < len(sevs)]
+                    rc = [v for v in rc if isinstance(v, (int, float)) and v == v]
+                    rr = 100.0 * sum(1 for v in rc if v >= 0.5) / len(rc) if rc else None
+                    print(f"   {lab:>10}: target {rate_targets[lab]}  ->  realized "
+                          f"{round(rr,1) if rr is not None else None}")
+
         print("\n== verdict ==")
         ess = wsel.get("ess_fraction") if wsel.get("ok") else 0
         raw = None
