@@ -238,6 +238,44 @@ class SimBiologyEngine:
             _quiet_rm(cohort)
             _quiet_rm(out)
 
+    def list_parameters(self) -> dict[str, Any]:
+        """Enumerate every parameter in the loaded model (name, value, constant) via
+        sb_params.m - the full candidate set for driver selection, straight from the
+        model rather than a pre-curated config. Returns {parameters:[{name,value,
+        constant}], matlab_log}."""
+        import io
+        out = _tmp(".csv")
+        so = io.StringIO()
+        try:
+            self.eng.sb_params(out, nargout=0, stdout=so, stderr=so)
+            params = []
+            try:
+                with open(out, newline="", encoding="utf-8") as fh:
+                    rdr = csv.reader(fh)
+                    next(rdr, None)
+                    for row in rdr:
+                        if not row or not row[0].strip():
+                            continue
+                        val = None
+                        const = None
+                        if len(row) > 1:
+                            try:
+                                val = float(row[1])
+                            except (ValueError, TypeError):
+                                pass
+                        if len(row) > 2:
+                            try:
+                                const = bool(int(row[2])) if int(row[2]) >= 0 else None
+                            except (ValueError, TypeError):
+                                pass
+                        params.append({"name": row[0].strip(), "value": val,
+                                       "constant": const})
+            except OSError:
+                pass
+            return {"parameters": params, "matlab_log": so.getvalue()}
+        finally:
+            _quiet_rm(out)
+
     def gsa(self, param_spec: str, observable: str, readout_day: float,
             n_samples: int = 1000) -> dict[str, Any]:
         """Rank candidate parameters by global (Sobol) sensitivity on a readout, computed

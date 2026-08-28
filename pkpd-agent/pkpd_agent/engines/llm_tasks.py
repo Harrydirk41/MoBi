@@ -102,6 +102,58 @@ def classify_parameters(params: list[dict], rules: list[str], call,
     return out
 
 
+_VPOP_SYS = (
+    "You are a QSP-model analyst. From a model's full parameter list you choose the "
+    "subset to VARY across a virtual population: the parameters that plausibly differ "
+    "between patients and shape disease severity - typically cell growth / turnover / "
+    "migration rates, mediator secretion rates, and pathway up/down-regulation factors. "
+    "You EXCLUDE parameters that are structurally fixed across patients - clearance, "
+    "decay, and binding/potency constants fixed from data, and pure PK disposition. You "
+    "infer each parameter's mechanistic category from its NAME alone, for THIS model - do "
+    "not assume any particular disease's vocabulary. Use the EXACT names given. Output "
+    "JSON only, no prose.")
+
+
+def propose_vpop_set(params: list[dict], call, batch: int = 120) -> dict:
+    """Select the virtual-population VARIED set from the full model parameter list - the
+    paper's category-based approach (a broad set grouped by mechanistic class, not a
+    strict handful like ``classify_parameters``). ``params`` is [{name, value, units?},
+    ...] (e.g. from ``SimBiologyEngine.list_parameters``). Returns {selected:[names],
+    categories:{name: inferred category}, rationale, n_candidates, n_selected}. General:
+    categories are inferred per-model from the names, with no fixed disease vocabulary."""
+    named = [p for p in params if p.get("name")]
+    selected: list[str] = []
+    categories: dict[str, str] = {}
+    rationale = ""
+    for k in range(0, len(named), batch):
+        chunk = named[k:k + batch]
+        compact = [{"name": p.get("name"), "units": p.get("units"),
+                    "value": p.get("value")} for p in chunk]
+        batch_names = {p["name"] for p in compact}
+        user = (
+            "From these model parameters, select the ones to VARY across a virtual "
+            "population (patient-to-patient variability that drives severity), grouped by "
+            "the mechanistic category you infer from each NAME. Exclude fixed constants "
+            "(clearance / decay / binding / PK disposition).\n"
+            'Return JSON {"selected": [names], "categories": {name: short category}, '
+            '"rationale": "one sentence on your grouping"} using EXACT names from THIS '
+            f"batch only.\n\nPARAMETERS:\n{json.dumps(compact)}")
+        try:
+            d = _parse_json(call(_VPOP_SYS, user))
+        except Exception:
+            continue
+        for n in (d.get("selected") or []):
+            if n in batch_names and n not in selected:
+                selected.append(n)
+        for n, c in (d.get("categories") or {}).items():
+            if n in batch_names:
+                categories[n] = c
+        if not rationale and d.get("rationale"):
+            rationale = str(d["rationale"])
+    return {"selected": selected, "categories": categories, "rationale": rationale,
+            "n_candidates": len(named), "n_selected": len(selected)}
+
+
 def classify_readout_states(species: list[str], rules: list[str], call) -> dict:
     """Identify the clinical-readout states and their trial roles. Returns
     {first_line_flags, subgroup_flag, second_line_flags, severity_states} using exact
