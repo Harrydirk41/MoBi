@@ -321,11 +321,22 @@ def spec_from_dict(d: dict) -> QSPModelSpec:
         gsa_top=list(d.get("gsa_top", [])))
 
 
+def _spec_path(base: str, name: str) -> str:
+    """spec.json is a model-side description, so it lives under model/; fall back to the
+    project root for projects that keep it there (both locations supported)."""
+    p = os.path.join(base, name, "model", "spec.json")
+    return p if os.path.isfile(p) else os.path.join(base, name, "spec.json")
+
+
+def _has_spec(base: str, name: str) -> bool:
+    return (os.path.isfile(os.path.join(base, name, "model", "spec.json"))
+            or os.path.isfile(os.path.join(base, name, "spec.json")))
+
+
 def load_spec(name: str, projects_dir: str = None) -> QSPModelSpec:
     """Load a project's spec.json into a QSPModelSpec. `name` is the project folder."""
     base = projects_dir or _PROJECTS_DIR
-    path = os.path.join(base, name, "spec.json")
-    with open(path, encoding="utf-8") as fh:
+    with open(_spec_path(base, name), encoding="utf-8") as fh:
         return spec_from_dict(json.load(fh))
 
 _READOUT_TOKENS = ["DAS", "ACR", "SCORE", "ACTIVITY", "REMISSION", "RESPONSE",
@@ -407,15 +418,14 @@ def infer_spec(data: dict, name: str = "QSP model") -> QSPModelSpec:
 # Add a new model = add a projects/<name>/ folder with a spec.json. Short aliases live in
 # each project's own spec.json ("aliases": [...]); no model name is hardcoded here.
 def _resolve_spec_folder(name: str, base: str) -> str:
-    if os.path.isfile(os.path.join(base, name, "spec.json")):
+    if _has_spec(base, name):
         return name
     if os.path.isdir(base):
         for folder in sorted(os.listdir(base)):
-            path = os.path.join(base, folder, "spec.json")
-            if not os.path.isfile(path):
+            if not _has_spec(base, folder):
                 continue
             try:
-                with open(path, encoding="utf-8") as fh:
+                with open(_spec_path(base, folder), encoding="utf-8") as fh:
                     if name in (json.load(fh).get("project_aliases") or []):
                         return folder
             except (OSError, json.JSONDecodeError):
@@ -426,7 +436,7 @@ def _resolve_spec_folder(name: str, base: str) -> str:
 def get_spec(name: str, projects_dir: str = None) -> QSPModelSpec:
     base = projects_dir or _PROJECTS_DIR
     folder = _resolve_spec_folder(name or "vantage_ra", base)
-    if not os.path.isfile(os.path.join(base, folder, "spec.json")):
+    if not _has_spec(base, folder):
         known = sorted(d for d in os.listdir(base)
                        if os.path.isfile(os.path.join(base, d, "spec.json"))) \
             if os.path.isdir(base) else []

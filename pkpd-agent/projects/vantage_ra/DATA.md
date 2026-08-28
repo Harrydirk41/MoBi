@@ -8,13 +8,13 @@ in `tasks.json` still loads unchanged.
 ```
 vantage_ra/
 ├── model/
+│   ├── spec.json         # model-structure description (readout targets/aliases/GSA)
 │   └── parameters.json   # parameter catalog: nominal values + plausible PHYSIOLOGICAL ranges
 ├── data/
 │   ├── calibration.json  # TRAINING trials the model is fit to + baseline-severity target
 │   └── validation.json   # HELD-OUT trial, used only to qualify predictions
 ├── scenarios.json        # protocols to SIMULATE (treat-to-target sequence, target probes)
 ├── tasks.json            # TASK SETUP: readout mapping, timeline, endpoints, objectives
-├── spec.json             # model-structure description (readout/aliases/GSA); model-side
 └── DATA.md               # this file
 ```
 
@@ -22,6 +22,7 @@ vantage_ra/
 
 | File | Holds | Changes when… |
 |---|---|---|
+| `model/spec.json` | model-structure description: readout targets, node aliases, top GSA parameters | the **model** changes |
 | `model/parameters.json` | each parameter's nominal + plausible physiological range | the **model** changes (not the clinical data) |
 | `data/calibration.json` | aggregate outcomes of the trials the model is **fit** to; the clinical baseline-severity distribution | you use **different training trials** |
 | `data/validation.json` | the **held-out** trial's aggregate outcomes | you use a **different qualification trial** |
