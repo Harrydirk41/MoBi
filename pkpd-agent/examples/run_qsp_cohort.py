@@ -36,6 +36,12 @@ def main() -> None:
                          "([lo, lo*(hi/lo)^FRAC]). FRAC in (0,1]; the low end = low "
                          "amplification = milder disease = the MTX responders. Overrides "
                          "--narrow.")
+    ap.add_argument("--ga", action="store_true",
+                    help="also select a Vpop with the NATIVE genetic algorithm "
+                         "(sb_select_ga.m) - picks a real subset of candidates, the "
+                         "paper's method, to compare against the weighting.")
+    ap.add_argument("--pop-target", type=int, default=0,
+                    help="desired GA-selected population size (0 = unconstrained).")
     args = ap.parse_args()
 
     cfg = qsp_config.get(args.model)
@@ -107,6 +113,31 @@ def main() -> None:
                 print(f"  {a['key']:>10}: target {a['target']}  ->  achieved {a['achieved']}")
             print(f"  total error {sel['total_error']}, ESS {sel['effective_sample_size']} "
                   f"({int(sel['ess_fraction']*100)}% of {sel['n']})")
+
+        # -- native GA subset selection (the paper's method): pick a real Vpop -- #
+        if args.ga:
+            spec = [f"moment:sev_base:{cfg.vpop_target['mean']}:{cfg.vpop_target.get('sd','')}"]
+            spec += [f"rate:{lab}:{rate_targets[lab]}" for lab in rate_targets]
+            g = sb.select_ga(cols, ";".join(spec), pop_target=args.pop_target)
+            gml = (g.get("matlab_log") or "").strip()
+            if gml:
+                print("   [MATLAB] " + gml.replace("\n", "\n   [MATLAB] "))
+            gcols = g.get("columns") or {}
+            gsev = gcols.get("sev_base", [])
+            ns = g.get("n_selected", len(gsev))
+            print("\n== native GA selection ==")
+            if not ns:
+                print("  GA selected nobody - check the MATLAB log above.")
+            else:
+                gm = sum(gsev) / len(gsev) if gsev else 0
+                print(f"  selected {ns} / {len(sevs)} candidates")
+                print(f"  {'severity':>10}: target {cfg.vpop_target['mean']}  ->  "
+                      f"achieved {round(gm, 2)}")
+                for lab in rate_targets:
+                    gc = [v for v in gcols.get(lab, []) if isinstance(v, (int, float)) and v == v]
+                    gr = 100.0 * sum(1 for v in gc if v >= 0.5) / len(gc) if gc else None
+                    print(f"  {lab:>10}: target {rate_targets[lab]}  ->  achieved "
+                          f"{round(gr, 1) if gr is not None else None}")
     finally:
         sb.stop()
 

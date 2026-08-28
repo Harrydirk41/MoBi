@@ -206,6 +206,38 @@ class SimBiologyEngine:
         finally:
             _quiet_rm(out)
 
+    def select_ga(self, cohort_columns: dict, anchor_spec: str,
+                  pop_target: float = 0) -> dict[str, Any]:
+        """Select a virtual population from an already-simulated cohort with SimBiology's
+        native genetic algorithm (sb_select_ga.m) - the paper's Vpop method. It picks a
+        SUBSET of real candidates whose aggregate matches the anchors, returning an actual
+        population (not fractional weights). ``cohort_columns`` is the {name:[...]} dict
+        from ``cohort_multi_arm``; ``anchor_spec`` is ';'-joined 'moment:COL:MEAN:SD' /
+        'rate:COL:TARGET'. Returns {columns (the selected rows), n_selected, matlab_log}."""
+        import io
+        cohort = _tmp(".csv")
+        out = _tmp(".csv")
+        so = io.StringIO()
+        try:
+            names = list(cohort_columns.keys())
+            nrows = max((len(v) for v in cohort_columns.values()), default=0)
+            with open(cohort, "w", newline="", encoding="utf-8") as fh:
+                w = csv.writer(fh)
+                w.writerow(names)
+                for i in range(nrows):
+                    w.writerow(["" if i >= len(cohort_columns[nm]) or cohort_columns[nm][i]
+                                is None else cohort_columns[nm][i] for nm in names])
+            self.eng.sb_select_ga(cohort, anchor_spec, float(pop_target), out,
+                                  nargout=0, stdout=so, stderr=so)
+            res = _read_csv(out)
+            res["n_selected"] = len(next(iter(res["columns"].values()), [])) \
+                if res.get("columns") else 0
+            res["matlab_log"] = so.getvalue()
+            return res
+        finally:
+            _quiet_rm(cohort)
+            _quiet_rm(out)
+
     def fit_native(self, param_spec: str, data_csv: str, response_map: str,
                    method: str = "lsqnonlin", doses: str = "") -> dict[str, Any]:
         """Calibrate parameters using SimBiology's NATIVE estimator (sbiofit) - the
