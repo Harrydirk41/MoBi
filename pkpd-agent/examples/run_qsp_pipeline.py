@@ -147,26 +147,34 @@ def main() -> None:
         if args.ga:
             spec_a = [f"moment:sev_base:{cfg.vpop_target['mean']}:{cfg.vpop_target.get('sd','')}"]
             spec_a += [f"rate:{lab}:{rate_targets[lab]}" for lab in rate_targets]
-            g = sb.select_ga(cols, ";".join(spec_a), pop_target=0)
-            gml = (g.get("matlab_log") or "").strip()
-            if gml:
-                print("   [MATLAB] " + gml.replace("\n", "\n   [MATLAB] "))
-            gcols = g.get("columns") or {}
-            gsev = gcols.get("sev_base", [])
-            ns = g.get("n_selected", len(gsev))
             print("== [4b] Vpop selection (native GA) ==")
-            if ns:
-                gm = sum(gsev) / len(gsev) if gsev else 0
-                print(f"   selected {ns} / {len(sevs)} candidates")
-                print(f"   {'severity':>10}: target {cfg.vpop_target['mean']}  ->  "
-                      f"achieved {round(gm,2)}")
-                for lab in rate_targets:
-                    gc = [v for v in gcols.get(lab, []) if isinstance(v, (int, float)) and v == v]
-                    gr = 100.0 * sum(1 for v in gc if v >= 0.5) / len(gc) if gc else None
-                    print(f"   {lab:>10}: target {rate_targets[lab]}  ->  achieved "
-                          f"{round(gr,1) if gr is not None else None}")
-            else:
-                print("   GA selected nobody - check the MATLAB log.")
+            g = None
+            try:
+                g = sb.select_ga(cols, ";".join(spec_a), pop_target=0)
+            except Exception as e:
+                print(f"   GA unavailable/failed: {e}")
+                print("   (needs the Global Optimization Toolbox; the weighting result "
+                      "above still stands)")
+            if g is not None:
+                gml = (g.get("matlab_log") or "").strip()
+                if gml:
+                    print("   [MATLAB] " + gml.replace("\n", "\n   [MATLAB] "))
+                gcols = g.get("columns") or {}
+                gsev = gcols.get("sev_base", [])
+                ns = g.get("n_selected", len(gsev))
+                if ns:
+                    gm = sum(gsev) / len(gsev) if gsev else 0
+                    print(f"   selected {ns} / {len(sevs)} candidates")
+                    print(f"   {'severity':>10}: target {cfg.vpop_target['mean']}  ->  "
+                          f"achieved {round(gm,2)}")
+                    for lab in rate_targets:
+                        gc = [v for v in gcols.get(lab, [])
+                              if isinstance(v, (int, float)) and v == v]
+                        gr = 100.0 * sum(1 for v in gc if v >= 0.5) / len(gc) if gc else None
+                        print(f"   {lab:>10}: target {rate_targets[lab]}  ->  achieved "
+                              f"{round(gr,1) if gr is not None else None}")
+                else:
+                    print("   GA selected nobody - check the MATLAB log.")
 
         print("\n== verdict ==")
         ess = wsel.get("ess_fraction") if wsel.get("ok") else 0

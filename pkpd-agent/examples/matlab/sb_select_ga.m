@@ -88,19 +88,15 @@ function nSel = sb_select_ga(cohortCsv, anchorSpec, popTarget, outCsv)
     end
 
     % -- native genetic algorithm over the binary inclusion vector ----------- %
-    optsArgs = {'PopulationType','bitstring', ...
-                'PopulationSize', min(200, max(50, 2*round(sqrt(n))*5)), ...
-                'MaxGenerations', 300, 'FunctionTolerance', 1e-6, ...
-                'MaxStallGenerations', 40, 'Display','off'};
-    try
-        opts = optimoptions('ga', optsArgs{:});
-        [x, fval] = ga(@fitness, n, [],[],[],[],[],[],[], opts);
-    catch ME
-        % older releases: gaoptimset + no bitstring type -> fall back to IntCon binary
-        fprintf('sb_select_ga: %s; retrying with IntCon binary\n', ME.message);
-        opts = gaoptimset('PopulationSize', 100, 'Generations', 200, 'Display','off');
-        [x, fval] = ga(@fitness, n, [],[],[],[], zeros(1,n), ones(1,n), [], 1:n, opts);
+    if isempty(which('ga'))
+        error('sb_select_ga:noGA', ['ga is unavailable (Global Optimization Toolbox ' ...
+            'not installed). Use the weighting selector (select_multi_anchor) instead.']);
     end
+    opts = optimoptions('ga', 'PopulationType', 'bitstring', ...
+                        'PopulationSize', min(200, max(50, 10*round(sqrt(n)))), ...
+                        'MaxGenerations', 300, 'MaxStallGenerations', 40, ...
+                        'FunctionTolerance', 1e-6, 'Display', 'off');
+    [x, fval] = ga(@fitness, n, [], [], [], [], [], [], [], opts);
 
     sel = x > 0.5;
     nSel = sum(sel);
