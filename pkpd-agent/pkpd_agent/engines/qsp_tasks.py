@@ -293,6 +293,19 @@ def select_to_moments(das_values, target: dict) -> dict[str, Any]:
     }
 
 
+def filter_columns_to_band(cols: dict, sev_key: str, band: list) -> dict[str, Any]:
+    """The paper's physiological-plausibility gate: keep only cohort rows whose baseline
+    severity (the ``sev_key`` column) falls inside the active-disease band [lo, hi], so
+    implausible patients are dropped BEFORE the population is matched. Filters every column
+    in lockstep. Returns {columns, n_kept, n_total}."""
+    sev = cols.get(sev_key, [])
+    lo, hi = band[0], band[1]
+    keep = [i for i, s in enumerate(sev)
+            if isinstance(s, (int, float)) and s == s and lo <= s <= hi]
+    out = {k: [v[i] for i in keep if i < len(v)] for k, v in cols.items()}
+    return {"columns": out, "n_kept": len(keep), "n_total": len(sev)}
+
+
 def select_multi_anchor(candidates: list, anchors: list,
                         max_iter: int = 400) -> dict[str, Any]:
     """Select a virtual population from an already-simulated cohort by optimizing

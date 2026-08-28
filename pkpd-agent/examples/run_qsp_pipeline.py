@@ -109,10 +109,23 @@ def main() -> None:
             print("   cohort returned no rows - check the MATLAB log."); return
         print(f"   cohort: {len(sevs)} candidates, sev_base range "
               f"{min(sevs):.2f}..{max(sevs):.2f}")
+
+        # plausibility gate (the paper's): keep only patients whose baseline severity is in
+        # the active-disease band, dropping implausible ones BEFORE matching.
+        band = cfg.vpop_target.get("band")
+        if band:
+            f = qsp_tasks.filter_columns_to_band(cols, "sev_base", band)
+            cols = f["columns"]
+            sevs = cols.get("sev_base", [])
+            print(f"   plausibility gate [{band[0]}, {band[1]}]: kept {f['n_kept']} / "
+                  f"{f['n_total']} candidates")
+            if not sevs:
+                print("   nobody plausible - widen bounds or the band."); return
+
         for lab in arms:
             col = [v for v in cols.get(lab, []) if isinstance(v, (int, float)) and v == v]
             rate = 100.0 * sum(1 for v in col if v >= 0.5) / len(col) if col else None
-            print(f"   arm {lab}: raw response rate {rate}%")
+            print(f"   arm {lab}: raw response rate {rate}% (of plausible)")
 
         # 5. select a Vpop to match the anchors (weighting), and optionally native GA
         anchors = [{"key": "severity", "mean": cfg.vpop_target["mean"],

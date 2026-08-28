@@ -272,6 +272,18 @@ class TestLoopToolRegistration(unittest.TestCase):
         self.assertFalse(reg.dispatch(
             "design_try", {"target": "F_XYZ", "efficacy": 0.8}, _FakeSession()).ok)
 
+    def test_filter_columns_to_band(self):
+        from pkpd_agent.engines import qsp_tasks
+        cols = {"sev_base": [2.0, 3.5, 5.0, 8.5, 6.0], "MTX": [1, 0, 1, 1, 0],
+                "sample": [0, 1, 2, 3, 4]}
+        f = qsp_tasks.filter_columns_to_band(cols, "sev_base", [3.2, 8.0])
+        # 2.0 (too low) and 8.5 (too high) dropped; 3.5/5.0/6.0 kept, in lockstep
+        self.assertEqual(f["n_kept"], 3)
+        self.assertEqual(f["n_total"], 5)
+        self.assertEqual(f["columns"]["sev_base"], [3.5, 5.0, 6.0])
+        self.assertEqual(f["columns"]["MTX"], [0, 1, 0])
+        self.assertEqual(f["columns"]["sample"], [1, 2, 4])
+
     def test_validate_tools(self):
         from pkpd_agent.tools.qsp_validate_loop_tools import \
             register_qsp_validate_loop_tools
