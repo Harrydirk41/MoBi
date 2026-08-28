@@ -238,6 +238,40 @@ class SimBiologyEngine:
             _quiet_rm(cohort)
             _quiet_rm(out)
 
+    def gsa(self, param_spec: str, observable: str, readout_day: float,
+            n_samples: int = 1000) -> dict[str, Any]:
+        """Rank candidate parameters by global (Sobol) sensitivity on a readout, computed
+        natively (sb_gsa.m) - the numerical half of choosing which parameters to vary.
+        ``param_spec`` is ';'-joined 'name,lo,hi'; ``observable`` is the model readout.
+        Returns {columns: {parameter, first_order, total_order}, matlab_log}, ranked by
+        total order (most influential first)."""
+        import io
+        out = _tmp(".csv")
+        so = io.StringIO()
+        try:
+            self.eng.sb_gsa(param_spec, observable, float(readout_day), float(n_samples),
+                            out, nargout=0, stdout=so, stderr=so)
+            names, fo, to = [], [], []
+            try:
+                with open(out, newline="", encoding="utf-8") as fh:
+                    rdr = csv.reader(fh)
+                    next(rdr, None)
+                    for row in rdr:
+                        if len(row) < 3:
+                            continue
+                        names.append(row[0].strip())
+                        for dst, cell in ((fo, row[1]), (to, row[2])):
+                            try:
+                                dst.append(float(cell))
+                            except (ValueError, TypeError):
+                                dst.append(None)
+            except OSError:
+                pass
+            return {"columns": {"parameter": names, "first_order": fo, "total_order": to},
+                    "matlab_log": so.getvalue()}
+        finally:
+            _quiet_rm(out)
+
     def fit_native(self, param_spec: str, data_csv: str, response_map: str,
                    method: str = "lsqnonlin", doses: str = "") -> dict[str, Any]:
         """Calibrate parameters using SimBiology's NATIVE estimator (sbiofit) - the
