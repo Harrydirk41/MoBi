@@ -132,12 +132,28 @@ def main() -> None:
             rate = 100.0 * sum(1 for v in col if v >= 0.5) / len(col) if col else None
             print(f"   arm {lab}: raw response rate {rate}% (of plausible)")
 
-        # 5. select a Vpop to match the anchors (weighting), and optionally native GA
+        # 5. select a Vpop to match the anchors (weighting), and optionally native GA.
+        #    Match the full response DISTRIBUTION per arm when rate_targets_full is given
+        #    (primary threshold = readout_states[0] lives in the '<arm>' column; other
+        #    thresholds in '<arm>__<state>'), else just the primary rate per arm.
+        full = anchors_cfg.get("rate_targets_full")
+        primary_thr = (cfg.readout_states or [None])[0]
+        resp = {}   # column name -> target rate
+        if full:
+            for lab, thrs in full.items():
+                for thr, tgt in thrs.items():
+                    colname = lab if thr == primary_thr else f"{lab}__{thr}"
+                    if colname in cols:
+                        resp[colname] = tgt
+        else:
+            resp = {lab: rate_targets[lab] for lab in rate_targets if lab in cols}
+        print(f"   matching {len(resp)} response anchors: {sorted(resp)}")
+
         anchors = [{"key": "severity", "mean": cfg.vpop_target["mean"],
                     "sd": cfg.vpop_target.get("sd")}]
-        anchors += [{"key": lab, "target": rate_targets[lab]} for lab in rate_targets]
+        anchors += [{"key": c, "target": t} for c, t in resp.items()]
         candidates = [{"severity": sevs[i],
-                       **{lab: cols.get(lab, [None] * len(sevs))[i] for lab in arms}}
+                       **{c: (cols[c][i] if i < len(cols[c]) else None) for c in resp}}
                       for i in range(len(sevs))]
         wsel = qsp_tasks.select_multi_anchor(candidates, anchors)
         print("== [4] Vpop selection (weighting) ==")

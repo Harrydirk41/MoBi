@@ -78,11 +78,23 @@ function nDone = sb_cohort(paramSpec, armsSpec, baselineDay, readoutDay, ...
     fprintf('cohort: %d candidates x %d params, %d arms, readout day %g\n', ...
             nSamples, nP, nArms, readoutDay);
 
+    % extra first-line response roles (2,3 = ACR50/70) recorded per arm alongside the
+    % primary (role 1), so Python can match the full response DISTRIBUTION, not just the
+    % primary rate. Column '<label>' stays the primary (backward compatible); the extras
+    % are '<label>__<state>'.
+    extraRoles = {};
+    for r = 2:min(3, numel(st)), extraRoles{end+1} = char(st{r}); end %#ok<AGROW>
+
     fid = fopen(outCsv, 'w', 'n', 'UTF-8');
     hdr = 'sample';
     for j = 1:nP, hdr = [hdr ',' names{j}]; end %#ok<AGROW>
     hdr = [hdr ',sev_base'];
-    for a = 1:nArms, hdr = [hdr ',' armLabels{a}]; end %#ok<AGROW>
+    for a = 1:nArms
+        hdr = [hdr ',' armLabels{a}]; %#ok<AGROW>
+        for r = 1:numel(extraRoles)
+            hdr = [hdr ',' armLabels{a} '__' extraRoles{r}]; %#ok<AGROW>
+        end
+    end
     fprintf(fid, '%s\n', hdr);
 
     for i = 1:nSamples
@@ -108,7 +120,8 @@ function nDone = sb_cohort(paramSpec, armsSpec, baselineDay, readoutDay, ...
             fprintf('candidate %d baseline FAILED: %s\n', i, ME.message);
         end
 
-        armResp = nan(1, nArms);
+        armResp  = nan(1, nArms);
+        armExtra = nan(nArms, numel(extraRoles));
         for a = 1:nArms
             dn = strsplit(string(armDoses{a}), ',');
             d = [];
@@ -123,8 +136,16 @@ function nDone = sb_cohort(paramSpec, armsSpec, baselineDay, readoutDay, ...
             try
                 sd = sbiosimulate(m, cs, v, d);
                 [~, ir] = min(abs(sd.Time - readoutDay));
+                ir = max(1, ir);
                 y = selectbyname(sd, primaryFlag).Data;
-                if ~isempty(y), armResp(a) = y(max(1, min(ir, numel(y)))); end
+                if ~isempty(y), armResp(a) = y(min(ir, numel(y))); end
+                for r = 1:numel(extraRoles)
+                    try
+                        yr = selectbyname(sd, extraRoles{r}).Data;
+                        if ~isempty(yr), armExtra(a, r) = yr(min(ir, numel(yr))); end
+                    catch
+                    end
+                end
             catch ME
                 fprintf('candidate %d arm %s FAILED: %s\n', i, armLabels{a}, ME.message);
             end
@@ -133,7 +154,10 @@ function nDone = sb_cohort(paramSpec, armsSpec, baselineDay, readoutDay, ...
         fprintf(fid, '%d', i);
         for j = 1:nP, fprintf(fid, ',%g', vals(j)); end
         fprintf(fid, ',%g', sevBase);
-        for a = 1:nArms, fprintf(fid, ',%g', armResp(a)); end
+        for a = 1:nArms
+            fprintf(fid, ',%g', armResp(a));
+            for r = 1:numel(extraRoles), fprintf(fid, ',%g', armExtra(a, r)); end
+        end
         fprintf(fid, '\n');
         nDone = nDone + 1;
     end
