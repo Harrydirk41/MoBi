@@ -69,8 +69,9 @@
   "fit_target": {"drug": "TCZ", "week": 24, "correction": "raw"},
 
   "vpop_anchors": {
-    "arms": {"MTX": "MTX_15mg_Q1W_SC_t200"},
-    "rate_targets": {"MTX": 33.7}
+    "_comment": "First-line ACR20 response rates measured from the shipped Vpop at day 284 (run_qsp_arm_targets), all on the same day so they are self-consistent multi-arm targets. MTX reproduces the calibrated_arms value exactly.",
+    "arms": {"MTX": "MTX_15mg_Q1W_SC_t200", "ADA": "ADA40mg_Q2W_SC_t200", "TCZ": "TCZ8mgkg_Q4W_IV_t200"},
+    "rate_targets": {"MTX": 33.7, "ADA": 29.3, "TCZ": 31.7}
   },
 
   "validate_arms": {
