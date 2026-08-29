@@ -206,17 +206,17 @@ def main() -> None:
                 print("== [6] qualify: predict the held-out trial with this Vpop ==",
                       flush=True)
                 try:
-                    import openpyxl
+                    import csv as _csv
                     counts = collections.Counter(idx)          # weight = times drawn
                     uidx = sorted(counts)
                     pnames = list(bounds.keys())
-                    wb = openpyxl.Workbook(); ws = wb.active
-                    ws.append(pnames)
-                    for i in uidx:
-                        ws.append([cols[p][i] if i < len(cols.get(p, [])) else ""
-                                   for p in pnames])
-                    xlsx = os.path.join(tempfile.gettempdir(), "vpop_realized.xlsx")
-                    wb.save(xlsx)
+                    xlsx = os.path.join(tempfile.gettempdir(), "vpop_realized.csv")
+                    with open(xlsx, "w", newline="", encoding="utf-8") as fh:
+                        wtr = _csv.writer(fh)
+                        wtr.writerow(pnames)
+                        for i in uidx:
+                            wtr.writerow([cols[p][i] if i < len(cols.get(p, [])) else ""
+                                          for p in pnames])
                     dose = ";".join(cfg.flagship_protocol.get("first_line", []) +
                                     cfg.flagship_protocol.get("second_line", []))
                     stop = cfg.timeline.get("second_line_readout_day", 600.0) + 100

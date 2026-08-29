@@ -40,7 +40,12 @@ function nDone = sb_run_vpop(vpopXlsx, doseNames, stopTime, baselineDay, readout
         end
     end
 
-    raw   = readcell(vpopXlsx, 'Sheet', 1);
+    [~, ~, vext] = fileparts(char(vpopXlsx));
+    if strcmpi(vext, '.csv')
+        raw = readcell(vpopXlsx);              % a CSV needs no 'Sheet'
+    else
+        raw = readcell(vpopXlsx, 'Sheet', 1);
+    end
     names = raw(1, :);
     keep  = cellfun(@(x) (ischar(x) || isstring(x)) && strlength(string(x)) > 0, names);
     names = names(keep);
