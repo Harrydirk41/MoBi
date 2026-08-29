@@ -209,21 +209,40 @@ class SimBiologyEngine:
         ';;', each 'label:dose1,dose2'. Returns {columns:{sample, <params>, sev_base,
         <arm labels>}, matlab_log}. Each candidate is simulated once per arm in MATLAB
         (no bridge in the loop); the weight optimization afterwards is cheap."""
+        import time
         out = _tmp(".csv")
-        # stream=True echoes MATLAB's fprintf (incl. the periodic progress lines) to the
-        # console as it runs (via a StringIO subclass, which matlab.engine accepts), so a
-        # long cohort shows a live trace instead of going silent.
-        sink = _TeeStringIO() if stream else io.StringIO()
+        prog = out + ".prog"
+        so = io.StringIO()
+        args = (param_spec, arms_spec or "", float(baseline_day), float(readout_day),
+                float(n_samples), float(seed), ";".join(states) if states else "", out,
+                float(n_extra))
         try:
-            self.eng.sb_cohort(param_spec, arms_spec or "", float(baseline_day),
-                               float(readout_day), float(n_samples), float(seed),
-                               ";".join(states) if states else "", out, float(n_extra),
-                               nargout=0, stdout=sink, stderr=sink)
+            if stream:
+                # matlab.engine buffers stdout until the call returns, so live progress
+                # can't come through it; instead run the call in the BACKGROUND and poll
+                # the .prog file sb_cohort writes as it goes.
+                fut = self.eng.sb_cohort(*args, nargout=0, stdout=so, stderr=so,
+                                         background=True)
+                last = ""
+                while not fut.done():
+                    try:
+                        with open(prog, encoding="utf-8") as fh:
+                            cur = fh.read().strip()
+                        if cur and cur != last:
+                            print(f"   cohort progress: {cur}", flush=True)
+                            last = cur
+                    except OSError:
+                        pass
+                    time.sleep(2)
+                fut.result()
+            else:
+                self.eng.sb_cohort(*args, nargout=0, stdout=so, stderr=so)
             res = _read_csv(out)
-            res["matlab_log"] = "" if stream else sink.getvalue()
+            res["matlab_log"] = so.getvalue()
             return res
         finally:
             _quiet_rm(out)
+            _quiet_rm(prog)
 
     def select_ga(self, cohort_columns: dict, anchor_spec: str,
                   pop_target: float = 0) -> dict[str, Any]:

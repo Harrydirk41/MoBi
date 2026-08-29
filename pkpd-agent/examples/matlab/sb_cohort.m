@@ -161,8 +161,13 @@ function nDone = sb_cohort(paramSpec, armsSpec, baselineDay, readoutDay, ...
         end
         fprintf(fid, '\n');
         nDone = nDone + 1;
-        if mod(i, max(1, round(nSamples / 20))) == 0
+        if mod(i, max(1, round(nSamples / 50))) == 0
             fprintf('  cohort progress: %d/%d candidates\n', i, nSamples);
+            try                                   % progress file for a Python poller
+                pf = fopen([outCsv '.prog'], 'w');
+                if pf > 0, fprintf(pf, '%d/%d candidates', i, nSamples); fclose(pf); end
+            catch
+            end
         end
     end
     fclose(fid);
