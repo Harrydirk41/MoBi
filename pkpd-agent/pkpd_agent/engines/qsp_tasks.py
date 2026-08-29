@@ -293,6 +293,66 @@ def select_to_moments(das_values, target: dict) -> dict[str, Any]:
     }
 
 
+def elite_mask(cols: dict, response_keys: list, band: list,
+               sev_key: str = "sev_base") -> list:
+    """Indices of the 'elite' candidates for enrichment: baseline severity inside the
+    active band AND responding (flag >= 0.5) on at least one response column. General -
+    the response columns and band come from the config, nothing disease-specific."""
+    sev = cols.get(sev_key, [])
+    lo, hi = (band[0], band[1]) if band else (float("-inf"), float("inf"))
+    elite = []
+    for i in range(len(sev)):
+        s = sev[i]
+        if not (isinstance(s, (int, float)) and s == s and lo <= s <= hi):
+            continue
+        if any(i < len(cols.get(k, [])) and isinstance(cols[k][i], (int, float))
+               and cols[k][i] >= 0.5 for k in response_keys):
+            elite.append(i)
+    return elite
+
+
+def refit_bounds(cols: dict, bounds: dict, elite_idx: list, pad: float = 0.25) -> dict:
+    """Narrow each parameter's sampling bounds to the range the ELITE candidates span
+    (with a little padding, clipped to the original bounds), so the next round samples
+    where responders live - the cross-entropy / adaptive-importance-sampling idea.
+    ``bounds`` is {param: [lo, hi, scale]}. A parameter with too little elite spread keeps
+    its bounds. General: operates on whatever parameters are in bounds."""
+    out = {}
+    for p, spec in bounds.items():
+        lo, hi = spec[0], spec[1]
+        scale = spec[2] if len(spec) > 2 else "log"
+        vals = [cols[p][i] for i in elite_idx
+                if p in cols and i < len(cols[p]) and isinstance(cols[p][i], (int, float))
+                and cols[p][i] == cols[p][i]]
+        new = list(spec)
+        if len(vals) >= 2:
+            vlo, vhi = min(vals), max(vals)
+            if vhi > vlo:
+                if scale == "log" and vlo > 0 and vhi > 0:
+                    f = (vhi / vlo) ** pad
+                    vlo, vhi = vlo / f, vhi * f
+                else:
+                    d = (vhi - vlo) * pad
+                    vlo, vhi = vlo - d, vhi + d
+                vlo, vhi = max(lo, vlo), min(hi, vhi)
+                if vhi > vlo:
+                    new = [vlo, vhi, scale]
+        out[p] = new
+    return out
+
+
+def concat_columns(a: dict, b: dict) -> dict:
+    """Concatenate two cohort column dicts (same columns) row-wise - used to accumulate an
+    enriched pool across sampling rounds."""
+    if not a:
+        return {k: list(v) for k, v in b.items()}
+    out = {k: list(v) for k, v in a.items()}
+    for k, v in b.items():
+        out.setdefault(k, [None] * (len(next(iter(a.values()), []))))
+        out[k].extend(v)
+    return out
+
+
 def realize_vpop(weights: list, size: int, seed: int = 1) -> dict[str, Any]:
     """Turn prevalence weights into a DISCRETE virtual population - the paper's final step
     ('used the patients with very high prevalence weights to be enriched'). Resamples

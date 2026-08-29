@@ -272,6 +272,34 @@ class TestLoopToolRegistration(unittest.TestCase):
         self.assertFalse(reg.dispatch(
             "design_try", {"target": "F_XYZ", "efficacy": 0.8}, _FakeSession()).ok)
 
+    def test_enrichment_elite_and_refit(self):
+        from pkpd_agent.engines import qsp_tasks
+        # 4 candidates; F over a wide log span; only in-band responders are elite
+        cols = {"sev_base": [2.0, 4.0, 5.0, 9.0],   # #0 too mild, #3 too severe
+                "MTX":      [1,   1,   0,   1],       # #0,1,3 respond; #2 doesn't
+                "F":        [0.1, 8.0, 50.0, 90.0]}
+        elite = qsp_tasks.elite_mask(cols, ["MTX"], [3.2, 8.0])
+        self.assertEqual(elite, [1])                 # only #1 is in-band AND responds
+        bounds = {"F": [0.01, 100.0, "log"]}
+        nb = qsp_tasks.refit_bounds(cols, bounds, [1, 2])  # elites span F 8..50
+        lo, hi, scale = nb["F"]
+        self.assertEqual(scale, "log")
+        self.assertLess(lo, 8.0)                      # padded below the elite min
+        self.assertGreater(hi, 50.0)                  # padded above the elite max
+        self.assertGreaterEqual(lo, 0.01)             # clipped to original
+        self.assertLessEqual(hi, 100.0)
+        # too few elites -> bounds unchanged
+        self.assertEqual(qsp_tasks.refit_bounds(cols, bounds, [1])["F"], [0.01, 100.0, "log"])
+
+    def test_concat_columns(self):
+        from pkpd_agent.engines import qsp_tasks
+        a = {"x": [1, 2], "y": [3, 4]}
+        b = {"x": [5], "y": [6]}
+        c = qsp_tasks.concat_columns(a, b)
+        self.assertEqual(c["x"], [1, 2, 5])
+        self.assertEqual(c["y"], [3, 4, 6])
+        self.assertEqual(qsp_tasks.concat_columns({}, b)["x"], [5])
+
     def test_realize_vpop(self):
         from pkpd_agent.engines import qsp_tasks
         # patient 3 carries almost all the weight -> the realized Vpop is enriched in it

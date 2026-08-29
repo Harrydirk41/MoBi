@@ -41,6 +41,10 @@ def main() -> None:
     ap.add_argument("--k", type=float, default=10.0,
                     help="default bound fold: vary each param over [v/k, v*k] (log)")
     ap.add_argument("--seed", type=int, default=1)
+    ap.add_argument("--enrich", type=int, default=0, metavar="R",
+                    help="adaptive-importance sampling: R rounds, each narrowing the bounds "
+                         "toward the responders found, to enrich the pool in rare strong "
+                         "responders with far fewer sims than brute scale (0 = brute-force).")
     ap.add_argument("--ga", action="store_true", help="also select a Vpop via native GA")
     ap.add_argument("--qualify", action="store_true",
                     help="predict the held-out trial: run the realized Vpop under the "
@@ -96,18 +100,41 @@ def main() -> None:
         if not bounds:
             print("   no varyable parameters - aborting."); return
 
-        # 4. sample a high-dimensional cohort under the arm(s)
-        spec = qsp_tasks.build_sample_spec(bounds)
+        # 4. sample a cohort under the arm(s). Brute-force by default; with --enrich R,
+        #    run R rounds of adaptive-importance sampling (cross-entropy): after each round
+        #    narrow the bounds toward the responders found, so later rounds are enriched in
+        #    (rare) strong responders - reaching a rich pool with far fewer sims than brute.
         arms_spec = ";;".join(f"{lab}:{dose}" for lab, dose in arms.items())
         baseline_day = cfg.timeline.get("baseline_day", 200.0)
         readout_day = cfg.timeline.get("first_line_readout_day", 284.0)
-        print(f"== [3] sb_cohort: {args.n} candidates x {len(bounds)} params, "
-              f"arms {list(arms)} ==", flush=True)
         full_cfg = anchors_cfg.get("rate_targets_full") or {}
         n_extra = max((len(v) for v in full_cfg.values()), default=1) - 1  # roles beyond primary
-        r = sb.cohort_multi_arm(spec, arms_spec, baseline_day, readout_day, args.n,
-                                args.seed, states=cfg.readout_states or None,
-                                n_extra=n_extra, stream=True)
+        band = cfg.vpop_target.get("band")
+
+        def _cohort(bnds, seed):
+            return sb.cohort_multi_arm(qsp_tasks.build_sample_spec(bnds), arms_spec,
+                                       baseline_day, readout_day, args.n, seed,
+                                       states=cfg.readout_states or None,
+                                       n_extra=n_extra, stream=True)
+
+        if args.enrich and args.enrich > 1:
+            print(f"== [3] enriched sampling: {args.enrich} rounds x {args.n} candidates, "
+                  f"arms {list(arms)} ==", flush=True)
+            pool, cur = {}, dict(bounds)
+            for rd in range(args.enrich):
+                cc = (_cohort(cur, args.seed + rd).get("columns") or {})
+                pool = qsp_tasks.concat_columns(pool, cc)
+                elite = qsp_tasks.elite_mask(cc, list(arms), band)
+                print(f"   round {rd + 1}/{args.enrich}: "
+                      f"{len(cc.get('sev_base', []))} sampled, {len(elite)} elite responders "
+                      f"-> pool {len(pool.get('sev_base', []))}")
+                if len(elite) >= 5 and rd < args.enrich - 1:
+                    cur = qsp_tasks.refit_bounds(cc, cur, elite)
+            r = {"columns": pool}
+        else:
+            print(f"== [3] sb_cohort: {args.n} candidates x {len(bounds)} params, "
+                  f"arms {list(arms)} ==", flush=True)
+            r = _cohort(bounds, args.seed)
         ml = (r.get("matlab_log") or "").strip()
         if ml:
             print("   [MATLAB] " + ml.replace("\n", "\n   [MATLAB] "))
