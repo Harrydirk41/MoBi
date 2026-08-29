@@ -103,8 +103,11 @@ def main() -> None:
         readout_day = cfg.timeline.get("first_line_readout_day", 284.0)
         print(f"== [3] sb_cohort: {args.n} candidates x {len(bounds)} params, "
               f"arms {list(arms)} ==", flush=True)
+        full_cfg = anchors_cfg.get("rate_targets_full") or {}
+        n_extra = max((len(v) for v in full_cfg.values()), default=1) - 1  # roles beyond primary
         r = sb.cohort_multi_arm(spec, arms_spec, baseline_day, readout_day, args.n,
-                                args.seed, states=cfg.readout_states or None)
+                                args.seed, states=cfg.readout_states or None,
+                                n_extra=n_extra, stream=True)
         ml = (r.get("matlab_log") or "").strip()
         if ml:
             print("   [MATLAB] " + ml.replace("\n", "\n   [MATLAB] "))

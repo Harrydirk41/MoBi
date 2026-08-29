@@ -185,7 +185,8 @@ class SimBiologyEngine:
 
     def cohort_multi_arm(self, param_spec: str, arms_spec: str, baseline_day: float,
                          readout_day: float, n_samples: int, seed: int = 1,
-                         states: "list | None" = None) -> dict[str, Any]:
+                         states: "list | None" = None, n_extra: int = 2,
+                         stream: bool = False) -> dict[str, Any]:
         """Sample a virtual cohort and record each candidate's untreated baseline
         severity AND its primary response flag under several therapy arms - the rich
         cohort the multi-anchor Vpop selection needs. ``arms_spec`` is arms joined by
@@ -193,15 +194,18 @@ class SimBiologyEngine:
         <arm labels>}, matlab_log}. Each candidate is simulated once per arm in MATLAB
         (no bridge in the loop); the weight optimization afterwards is cheap."""
         import io
+        import sys
         out = _tmp(".csv")
-        so = io.StringIO()
+        # stream=True sends MATLAB's fprintf (incl. the periodic progress lines) to the
+        # console as it runs, so a long cohort shows a live trace instead of going silent.
+        sink = sys.stdout if stream else io.StringIO()
         try:
             self.eng.sb_cohort(param_spec, arms_spec or "", float(baseline_day),
                                float(readout_day), float(n_samples), float(seed),
-                               ";".join(states) if states else "", out,
-                               nargout=0, stdout=so, stderr=so)
+                               ";".join(states) if states else "", out, float(n_extra),
+                               nargout=0, stdout=sink, stderr=sink)
             res = _read_csv(out)
-            res["matlab_log"] = so.getvalue()
+            res["matlab_log"] = "" if stream else sink.getvalue()
             return res
         finally:
             _quiet_rm(out)

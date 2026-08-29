@@ -1,5 +1,5 @@
 function nDone = sb_cohort(paramSpec, armsSpec, baselineDay, readoutDay, ...
-                           nSamples, seed, stateSpec, outCsv)
+                           nSamples, seed, stateSpec, outCsv, nExtra)
 %SB_COHORT Sample a virtual COHORT and record each candidate's untreated baseline
 %   severity AND its primary response flag under several therapy ARMS. This is the
 %   richer cohort the multi-anchor Vpop selection needs: with per-candidate response
@@ -29,6 +29,7 @@ function nDone = sb_cohort(paramSpec, armsSpec, baselineDay, readoutDay, ...
     cs = getconfigset(m);
     try, cs.RuntimeOptions.StatesToLog = 'all'; catch, end
     if nargin < 6 || isempty(seed), seed = 1; end
+    if nargin < 9 || isempty(nExtra), nExtra = 2; end   % extra response roles per arm
     rng(double(seed), 'twister');
 
     % -- role-ordered state names (primary flag + severity) ---------------- %
@@ -83,7 +84,7 @@ function nDone = sb_cohort(paramSpec, armsSpec, baselineDay, readoutDay, ...
     % primary rate. Column '<label>' stays the primary (backward compatible); the extras
     % are '<label>__<state>'.
     extraRoles = {};
-    for r = 2:min(3, numel(st)), extraRoles{end+1} = char(st{r}); end %#ok<AGROW>
+    for r = 2:min(1 + round(nExtra), numel(st)), extraRoles{end+1} = char(st{r}); end %#ok<AGROW>
 
     fid = fopen(outCsv, 'w', 'n', 'UTF-8');
     hdr = 'sample';
@@ -160,6 +161,9 @@ function nDone = sb_cohort(paramSpec, armsSpec, baselineDay, readoutDay, ...
         end
         fprintf(fid, '\n');
         nDone = nDone + 1;
+        if mod(i, max(1, round(nSamples / 20))) == 0
+            fprintf('  cohort progress: %d/%d candidates\n', i, nSamples);
+        end
     end
     fclose(fid);
     fprintf('cohort done: %d candidates written\n', nDone);
