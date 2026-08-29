@@ -23,8 +23,9 @@ Needs ANTHROPIC_API_KEY and the MATLAB engine.
 from __future__ import annotations
 
 import argparse
-import math
+import collections
 import os
+import tempfile
 
 from pkpd_agent.config import AgentConfig
 from pkpd_agent.engines.simbiology import SimBiologyEngine
@@ -41,6 +42,10 @@ def main() -> None:
                     help="default bound fold: vary each param over [v/k, v*k] (log)")
     ap.add_argument("--seed", type=int, default=1)
     ap.add_argument("--ga", action="store_true", help="also select a Vpop via native GA")
+    ap.add_argument("--qualify", action="store_true",
+                    help="predict the held-out trial: run the realized Vpop under the "
+                         "flagship switch protocol and compare the second-line response to "
+                         "the refractory target (an extra ~Vpop-size long simulations).")
     ap.add_argument("--llm-model", default=None)
     args = ap.parse_args()
 
@@ -194,6 +199,55 @@ def main() -> None:
                     rr = 100.0 * sum(1 for v in rc if v >= 0.5) / len(rc) if rc else None
                     print(f"   {lab:>10}: target {rate_targets[lab]}  ->  realized "
                           f"{round(rr,1) if rr is not None else None}")
+
+            # [6] QUALIFY: run the realized Vpop under the flagship switch protocol and
+            # compare its second-line (held-out) response to the refractory target.
+            if args.qualify and idx and cfg.refractory_target:
+                print("== [6] qualify: predict the held-out trial with this Vpop ==",
+                      flush=True)
+                try:
+                    import openpyxl
+                    counts = collections.Counter(idx)          # weight = times drawn
+                    uidx = sorted(counts)
+                    pnames = list(bounds.keys())
+                    wb = openpyxl.Workbook(); ws = wb.active
+                    ws.append(pnames)
+                    for i in uidx:
+                        ws.append([cols[p][i] if i < len(cols.get(p, [])) else ""
+                                   for p in pnames])
+                    xlsx = os.path.join(tempfile.gettempdir(), "vpop_realized.xlsx")
+                    wb.save(xlsx)
+                    dose = ";".join(cfg.flagship_protocol.get("first_line", []) +
+                                    cfg.flagship_protocol.get("second_line", []))
+                    stop = cfg.timeline.get("second_line_readout_day", 600.0) + 100
+                    print(f"   running {len(uidx)} distinct patients under '{dose}' to "
+                          f"day {stop:g} ...", flush=True)
+                    rv = sb.run_vpop(xlsx, dose=dose, stop_time=stop,
+                                     baseline_day=baseline_day, readout_day=readout_day,
+                                     states=cfg.readout_states or None)
+                    rml = (rv.get("matlab_log") or "").strip()
+                    if rml:
+                        print("   [MATLAB] " + rml.replace("\n", "\n   [MATLAB] "))
+                    rc = rv.get("columns") or {}
+                    flag = cfg.run_columns.get("subgroup_flag")
+                    second = cfg.run_columns.get("second_line") or {}
+                    sub = rc.get(flag, [])
+                    w = [counts[i] for i in uidx]      # multiplicity, aligned to output rows
+                    m = min(len(w), len(sub))
+                    print("   second-line response in the subgroup vs the held-out trial:")
+                    for role, tgt in cfg.refractory_target.items():
+                        colname = second.get(role)
+                        if not colname or colname not in rc or not isinstance(tgt, (int, float)):
+                            continue
+                        resp = rc[colname]
+                        mm = min(m, len(resp))
+                        den = sum(w[j] * (sub[j] or 0) for j in range(mm))
+                        num = sum(w[j] * (sub[j] or 0) * (resp[j] or 0) for j in range(mm))
+                        pred = 100.0 * num / den if den else None
+                        print(f"   {role:>7}: predicted "
+                              f"{round(pred,1) if pred is not None else None}  vs observed {tgt}")
+                except Exception as e:
+                    print(f"   qualify failed: {e}")
 
         print("\n== verdict ==")
         ess = wsel.get("ess_fraction") if wsel.get("ok") else 0
