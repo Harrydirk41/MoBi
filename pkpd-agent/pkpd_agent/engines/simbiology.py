@@ -17,11 +17,27 @@ pattern. Only scalars/strings go through the engine directly.
 from __future__ import annotations
 
 import csv
+import io
 import json
 import os
+import sys
 import tempfile
 from dataclasses import dataclass
 from typing import Any
+
+
+class _TeeStringIO(io.StringIO):
+    """An io.StringIO that ALSO echoes each write to the real console. matlab.engine
+    requires stdout to be an io.StringIO (a subclass passes the isinstance check), so this
+    lets a long MATLAB call show its fprintf progress live instead of only on return."""
+
+    def write(self, s):
+        try:
+            sys.__stdout__.write(s)
+            sys.__stdout__.flush()
+        except Exception:
+            pass
+        return super().write(s)
 
 # where the sb_*.m helpers live (examples/matlab, alongside this package)
 _DEFAULT_MATLAB_DIR = os.path.abspath(os.path.join(
@@ -193,12 +209,11 @@ class SimBiologyEngine:
         ';;', each 'label:dose1,dose2'. Returns {columns:{sample, <params>, sev_base,
         <arm labels>}, matlab_log}. Each candidate is simulated once per arm in MATLAB
         (no bridge in the loop); the weight optimization afterwards is cheap."""
-        import io
-        import sys
         out = _tmp(".csv")
-        # stream=True sends MATLAB's fprintf (incl. the periodic progress lines) to the
-        # console as it runs, so a long cohort shows a live trace instead of going silent.
-        sink = sys.stdout if stream else io.StringIO()
+        # stream=True echoes MATLAB's fprintf (incl. the periodic progress lines) to the
+        # console as it runs (via a StringIO subclass, which matlab.engine accepts), so a
+        # long cohort shows a live trace instead of going silent.
+        sink = _TeeStringIO() if stream else io.StringIO()
         try:
             self.eng.sb_cohort(param_spec, arms_spec or "", float(baseline_day),
                                float(readout_day), float(n_samples), float(seed),
