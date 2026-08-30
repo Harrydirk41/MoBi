@@ -121,7 +121,10 @@ def build_subsystem(cell: str, base_param: str, apop_param: str, regulators: lis
         species.append({"name": r["species"], "initial": clamp.get(r["species"], 0.0),
                         "boundary": True})
     params = [{"name": k, "value": v} for k, v in values.items() if not k.endswith("_init")]
-    rate = combined_effect(base_param, regulators) + f" * {cell}"
+    # proliferation is ZEROTH-order (a constant influx modulated by the regulators), the motif
+    # this model uses to hold a steady state: rate = kg * fold-changes, NOT kg * fold * cell.
+    # Balanced by first-order apoptosis (kd * cell), the steady state is kg*folds/kd - stable.
+    rate = combined_effect(base_param, regulators)
     return {"name": cell + "_subsystem", "species": species, "parameters": params,
             "reactions": [
                 {"id": cell + "_prolif", "reactants": [], "products": [cell], "rate": rate},
