@@ -227,6 +227,32 @@ class SimBiologyEngine:
             if pcsv:
                 _quiet_rm(pcsv)
 
+    def knockout_profile(self, param_names: "list | None", readout_day: float,
+                         stop_time: float = 700.0) -> dict[str, float]:
+        """Freeze the named rule-parameters and return every species' disease-steady-state value
+        (no drug) at ``readout_day`` - the ablated-model observable profile. Empty list = the
+        intact baseline profile. Used to form the structure-discovery symptom (species that
+        moved). The model is restored afterwards."""
+        import io
+        names = list(param_names or [])
+        pcsv = ""
+        if names:
+            pcsv = _tmp(".txt")
+            with open(pcsv, "w", encoding="utf-8") as fh:
+                fh.write("\n".join(names))
+        out = _tmp(".csv")
+        so = io.StringIO()
+        try:
+            self.eng.sb_knockout_profile(pcsv or "", float(readout_day), float(stop_time),
+                                         out, nargout=0, stdout=so, stderr=so)
+            res = _read_csv(out)
+            cols = res.get("columns", {})
+            return {k: (v[0] if v else None) for k, v in cols.items() if k != "Time"}
+        finally:
+            if pcsv:
+                _quiet_rm(pcsv)
+            _quiet_rm(out)
+
     def cohort_multi_arm(self, param_spec: str, arms_spec: str, baseline_day: float,
                          readout_day: float, n_samples: int, seed: int = 1,
                          states: "list | None" = None, n_extra: int = 2,
