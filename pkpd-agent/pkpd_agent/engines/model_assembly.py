@@ -137,8 +137,10 @@ def propose_motif(cell: str, regulators: list, reference_rate: str, call) -> dic
     d = _parse_json(call(_MOTIF_SYS, user))
     if not isinstance(d, dict):
         d = {}
+    # fallbacks are GENERIC priors (product, not this model's capped_sum) so a non-answering LLM
+    # never silently injects the known answer - the real form must come from the LLM's choice.
     return {"proliferation_order": d.get("proliferation_order", "zeroth"),
-            "combination": d.get("combination", "capped_sum"),
+            "combination": d.get("combination", "product"),
             "cap": d.get("cap"), "per_regulator": d.get("per_regulator", "hill"),
             "reason": d.get("reason")}
 
@@ -166,8 +168,11 @@ def build_subsystem(cell: str, base_param: str, apop_param: str, regulators: lis
     by its regulators and balanced by first-order apoptosis, with the regulator cytokines
     clamped at ``clamp`` levels (boundary species). ``regulators`` is [{species, max_param,
     k_param}]; ``values`` maps every parameter name to its known value (the 'assume parameters
-    known' path). ``motif`` (from ``propose_motif``) sets the rate-law FORM; without it the
-    default is zeroth-order + capped_sum (this model's convention). Returns a ``to_sbml`` spec."""
+    known' path). ``motif`` (from ``propose_motif``) sets the rate-law FORM. Without it the
+    default is a GENERIC a-priori prior - zeroth-order production (the general requirement for a
+    stable homeostatic steady state) with a product-of-fold-changes combination (the naive
+    default), deliberately NOT this model's actual capped-sum rule: choosing the real form is
+    the agent's job (--llm-motif), never hardcoded from having seen the answer."""
     species = [{"name": cell, "initial": values.get(cell + "_init", 1e6)}]
     for r in regulators:
         species.append({"name": r["species"], "initial": clamp.get(r["species"], 0.0),
