@@ -40,6 +40,7 @@ def main() -> None:
     ap.add_argument("--distractors", type=int, default=8)
     ap.add_argument("--readout-day", type=float, default=199.0)
     ap.add_argument("--top-symptom", type=int, default=6, help="how many moved species to show")
+    ap.add_argument("--min-move", type=float, default=0.005, help="min relative move to report")
     ap.add_argument("--llm", action="store_true")
     ap.add_argument("--llm-model", default=None)
     ap.add_argument("--seed", type=int, default=0)
@@ -67,31 +68,55 @@ def main() -> None:
             for e in list(medges)[:20]:
                 print(f"    {e[0]} -> {e[1]}   ({medges[e]})")
             return
-        if not true_edge:
-            true_edge = next(iter(medges))
-        knob = medges[true_edge]
-        p0 = next((float(p["value"]) for p in sb.list_parameters().get("parameters", [])
-                   if p["name"] == knob), 1.0)
-        print(f"removing edge {true_edge[0]} -> {true_edge[1]} "
-              f"(set {knob} {p0:g} -> 1.0 = no effect)")
+        def pval(name):
+            return next((float(p["value"]) for p in sb.list_parameters().get("parameters", [])
+                         if p["name"] == name), 1.0)
 
-        # symptom: species that move between intact and ablated disease steady state
-        base = {k: v[-1] for k, v in sb.simulate(stop_time=args.readout_day + 1.0)
-                .get("columns", {}).items() if v}
-        sb.set_parameter(knob, 1.0)
-        abl = {k: v[-1] for k, v in sb.simulate(stop_time=args.readout_day + 1.0)
-               .get("columns", {}).items() if v}
-        sb.set_parameter(knob, p0)                      # restore
-        moved = []
-        for sp in base:
-            b, a = base.get(sp), abl.get(sp)
-            if b and a is not None and sp in nset and b != 0:
-                rel = (a - b) / abs(b)
-                if abs(rel) > 0.02:
-                    moved.append({"species": sp, "direction": "too low" if rel < 0 else "too high",
-                                  "rel_change": f"{rel:+.0%}"})
-        moved.sort(key=lambda m: abs(float(m["rel_change"].rstrip("%")) / 100), reverse=True)
-        symptom = moved[: args.top_symptom]
+        def profile():
+            return {k: v[-1] for k, v in sb.simulate(stop_time=args.readout_day + 1.0)
+                    .get("columns", {}).items() if v}
+
+        def symptom_of(edge):
+            """Ablate one edge's knob to 1.0, return the moved species (vs intact)."""
+            knob, p0 = medges[edge], pval(medges[edge])
+            sb.set_parameter(knob, 1.0)
+            abl = profile()
+            sb.set_parameter(knob, p0)
+            out = []
+            for sp in base:
+                b, a = base.get(sp), abl.get(sp)
+                if b and a is not None and sp in nset and b != 0:
+                    rel = (a - b) / abs(b)
+                    if abs(rel) > args.min_move:
+                        out.append({"species": sp, "rel": rel,
+                                    "direction": "too low" if rel < 0 else "too high",
+                                    "rel_change": f"{rel:+.0%}"})
+            out.sort(key=lambda m: abs(m["rel"]), reverse=True)
+            return out
+
+        base = profile()
+        if not true_edge:                               # scan: pick the most OBSERVABLE clean edge
+            print(f"scanning {len(medges)} cleanly-ablatable edges for an observable one ...",
+                  flush=True)
+            scored = []
+            for e in medges:
+                s = symptom_of(e)
+                mag = abs(s[0]["rel"]) if s else 0.0
+                scored.append((mag, e))
+            scored.sort(reverse=True)
+            print("  most observable clean edges (top species move on removal):")
+            for mag, e in scored[:6]:
+                print(f"    {e[0]:6} -> {e[1]:12} {mag:+.0%}")
+            true_edge = scored[0][1]
+            if scored[0][0] < 0.02:
+                print("\n  NOTE: even the most observable cleanly-removable edge barely moves "
+                      "anything\n  at steady state - homeostasis absorbs single peripheral edges. "
+                      "The high-impact\n  edges (cytokine<->cytokine hub) are the ones that are "
+                      "NOT cleanly removable.")
+        knob, p0 = medges[true_edge], pval(medges[true_edge])
+        print(f"\nremoving edge {true_edge[0]} -> {true_edge[1]} "
+              f"(set {knob} {p0:g} -> 1.0 = no effect)")
+        symptom = symptom_of(true_edge)[: args.top_symptom]
         print(f"\n== symptom (ablated vs intact disease steady state) ==")
         for s in symptom:
             print(f"    {s['species']:12} {s['direction']:9} {s['rel_change']}")
