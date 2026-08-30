@@ -5,6 +5,13 @@ function nCols = sb_simulate_csv(doseName, variantName, stopTime, outCsv)
 %   which marshals fine). Empty doseName/variantName mean "none"; stopTime <= 0
 %   means "use the model's configured StopTime".
 
+    % The Vantage model's Hill/MM terms (X^n) go briefly complex when a state overshoots
+    % slightly negative; SimBiology discards the imaginary part and warns on nearly every
+    % solver step, burying real output. Suppress the flood for this call (our diagnostics
+    % use fprintf, not warning); the state is restored automatically on return.
+    origWarn = warning('off', 'all');
+    cleanupWarn = onCleanup(@() warning(origWarn)); %#ok<NASGU>
+
     m  = evalin('base', 'sbmodel');
     cs = getconfigset(m);
     if stopTime > 0
