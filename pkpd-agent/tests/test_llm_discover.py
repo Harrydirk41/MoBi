@@ -15,6 +15,18 @@ class TestCandidateSet(unittest.TestCase):
         self.assertNotIn(("IL12", "IL6"), pool)        # pool untouched by dedup
 
 
+class TestMaxbyEdges(unittest.TestCase):
+    def test_parses_edges_and_knobs(self):
+        species = {"FLS", "IL6", "IL1b", "TNFa"}
+        names = ["FLSProlif_MaxbyIL6", "IL6SecFLS_MaxbyIL1b", "kg_FLS_Baseline",
+                 "FLSProlif_MaxbyTNFa"]
+        e = D.maxby_edges(names, species)
+        self.assertEqual(e[("IL6", "FLS")], "FLSProlif_MaxbyIL6")   # IL6 -> FLS proliferation
+        self.assertEqual(e[("IL1b", "IL6")], "IL6SecFLS_MaxbyIL1b")  # IL1b -> IL6 secretion
+        self.assertEqual(e[("TNFa", "FLS")], "FLSProlif_MaxbyTNFa")
+        self.assertNotIn(("FLS", "FLS"), e)            # kg_FLS_Baseline has no Maxby
+
+
 class TestRankCandidates(unittest.TestCase):
     def test_llm_ranking_respected_and_completed(self):
         cands = [("IL12", "IL6"), ("A", "B"), ("C", "D")]

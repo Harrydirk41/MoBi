@@ -52,22 +52,36 @@ def main() -> None:
         net = sb.network_json(_tmp := os.path.join(os.getcwd(), "network.json"))
         model = QSPModel(net, get_spec(args.model))
         nset = set(model.nodes)
-        prov = {e: v for e, v in TOP.edge_provenance(net).items()
-                if e[0] in nset and e[1] in nset and v["rule_params"]}
+
+        # clean per-edge knobs: '<Dest>...Maxby<Src>' fold-change constants. Setting one to 1.0
+        # removes exactly that edge (not the whole combined-effect rule), so the symptom is
+        # localized instead of a runaway - the only cleanly ablatable edges in this model.
+        pnames = [p["name"] for p in sb.list_parameters().get("parameters", [])]
+        medges = D.maxby_edges(pnames, nset)
+        if not medges:
+            print("no Maxby per-edge knobs found in the model."); return
 
         true_edge = _parse_edge(args.edge) if args.edge else None
-        if true_edge and true_edge not in prov:
-            print(f"edge {true_edge} is not a rule-parameter edge; choose from e.g. "
-                  f"{list(prov)[:6]}"); return
+        if true_edge and true_edge not in medges:
+            print(f"edge {true_edge} has no clean per-edge knob. Cleanly ablatable edges:")
+            for e in list(medges)[:20]:
+                print(f"    {e[0]} -> {e[1]}   ({medges[e]})")
+            return
         if not true_edge:
-            true_edge = next(iter(prov))               # first regulatory edge as default
-        params = sorted(prov[true_edge]["rule_params"])
+            true_edge = next(iter(medges))
+        knob = medges[true_edge]
+        p0 = next((float(p["value"]) for p in sb.list_parameters().get("parameters", [])
+                   if p["name"] == knob), 1.0)
         print(f"removing edge {true_edge[0]} -> {true_edge[1]} "
-              f"(freezing {params})")
+              f"(set {knob} {p0:g} -> 1.0 = no effect)")
 
         # symptom: species that move between intact and ablated disease steady state
-        base = sb.knockout_profile([], args.readout_day)
-        abl = sb.knockout_profile(params, args.readout_day)
+        base = {k: v[-1] for k, v in sb.simulate(stop_time=args.readout_day + 1.0)
+                .get("columns", {}).items() if v}
+        sb.set_parameter(knob, 1.0)
+        abl = {k: v[-1] for k, v in sb.simulate(stop_time=args.readout_day + 1.0)
+               .get("columns", {}).items() if v}
+        sb.set_parameter(knob, p0)                      # restore
         moved = []
         for sp in base:
             b, a = base.get(sp), abl.get(sp)
@@ -85,7 +99,7 @@ def main() -> None:
             print("  (no species moved > 2% - this edge is not observable at steady state)")
             return
 
-        candidates = D.candidate_set(true_edge, list(prov), args.distractors, args.seed)
+        candidates = D.candidate_set(true_edge, list(medges), args.distractors, args.seed)
         print(f"\n== {len(candidates)} candidate missing edges (true one hidden among them) ==")
         for s, d in candidates:
             print(f"    {s} -> {d}")

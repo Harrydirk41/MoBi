@@ -12,8 +12,29 @@ The ablation + observable read live in the runner (MATLAB).
 from __future__ import annotations
 
 import random
+import re
 
 from .llm_structure import _parse_json
+
+
+def maxby_edges(param_names: list, species: set) -> dict:
+    """Map the model's per-edge fold-change knobs to the edge each removes cleanly. A parameter
+    named '<Dest><process>Maxby<Src>' (e.g. FLSProlif_MaxbyIL6, IL6SecFLS_MaxbyIL1b) is the
+    isolated strength of Src's effect on Dest - setting it to 1.0 (no fold-change) removes just
+    that edge, without touching the other regulators bundled into the same combined-effect rule.
+    Returns {(src, dst): param_name}. Only these edges are cleanly ablatable in this model."""
+    spec = {s.lower(): s for s in species}
+    by_len = sorted(species, key=len, reverse=True)
+    out = {}
+    for n in param_names:
+        m = re.search(r"(?i)maxby([A-Za-z0-9]+)$", n)
+        if not m:
+            continue
+        src = spec.get(m.group(1).lower())
+        dst = next((s for s in by_len if n.lower().startswith(s.lower())), None)
+        if src and dst and src != dst:
+            out[(src, dst)] = n
+    return out
 
 
 def candidate_set(true_edge: tuple, all_edges: list, n_distractors: int = 8,
