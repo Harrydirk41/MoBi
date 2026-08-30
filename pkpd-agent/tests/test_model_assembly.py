@@ -51,6 +51,32 @@ class TestAssembleRoundTrip(unittest.TestCase):
         self.assertIn("IL6", prolif["rate"])
 
 
+class TestMotif(unittest.TestCase):
+    REGS = [{"species": "IL6", "max_param": "M6", "k_param": "K6"},
+            {"species": "TNFa", "max_param": "MT", "k_param": "KT"}]
+
+    def test_propose_motif_parses(self):
+        call = lambda s, u: ('{"proliferation_order":"zeroth","combination":"capped_sum",'
+                             '"cap":10,"per_regulator":"hill","reason":"saturating sum"}')
+        m = MA.propose_motif("FLS", self.REGS, "ref rate", call)
+        self.assertEqual(m["proliferation_order"], "zeroth")
+        self.assertEqual(m["combination"], "capped_sum")
+        self.assertEqual(m["cap"], 10)
+
+    def test_rate_capped_sum_form(self):
+        m = {"proliferation_order": "zeroth", "combination": "capped_sum", "cap": 10}
+        r = MA.rate_from_motif(m, "kg", self.REGS, "FLS")
+        self.assertIn("min(10, 1 +", r)
+        self.assertIn("(M6 - 1) * IL6 / (K6 + IL6)", r)
+        self.assertNotIn("* FLS", r)                   # zeroth order
+
+    def test_rate_first_order_product(self):
+        m = {"proliferation_order": "first", "combination": "product", "cap": None}
+        r = MA.rate_from_motif(m, "kg", self.REGS, "FLS")
+        self.assertTrue(r.rstrip().endswith("* FLS"))  # first order
+        self.assertIn(") * (1 +", r)                   # product of folds
+
+
 def sbml_to_network_from_str(xml: str):
     import os, tempfile
     p = os.path.join(tempfile.gettempdir(), "asm_test.xml")

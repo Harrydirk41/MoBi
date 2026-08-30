@@ -34,6 +34,13 @@ def main() -> None:
     ap.add_argument("--fit-k", action="store_true",
                     help="calibrate each half-effect K from a per-cytokine isolating experiment "
                          "on the real model (closes the residual gap the guessed K leaves)")
+    ap.add_argument("--llm-motif", action="store_true",
+                    help="let the LLM choose the rate-law form (order + how regulators combine) "
+                         "from the biology + the reference rate law - the agent picks the motif")
+    ap.add_argument("--blind", action="store_true",
+                    help="with --llm-motif, do NOT show the LLM the reference rate law "
+                         "(test whether it infers the form from biology alone)")
+    ap.add_argument("--llm-model", default=None)
     args = ap.parse_args()
 
     sb = SimBiologyEngine()
@@ -60,14 +67,17 @@ def main() -> None:
         # show the REAL rate law + effect rule governing this cell's proliferation, so the
         # combination rule (how the regulators actually combine) is visible - our library motif
         # is only a guess for it.
+        ref_rate = ""
         for rx in net.get("reactions", []):
             if args.cell in (rx.get("products") or []) and "prolif" in (rx.get("rate", "")
                                                                         + str(rx.get("reaction"))).lower():
                 print(f"  REAL proliferation rate law: {rx.get('rate')}")
+                ref_rate += (rx.get("rate") or "") + "\n"
         for ru in net.get("rules", []):
             expr = ru.get("rule", "") if isinstance(ru, dict) else str(ru)
             if re.search(rf"(?i){args.cell}.*prolif.*effect\s*=", expr):
                 print(f"  REAL effect rule: {expr}")
+                ref_rate += expr + "\n"
 
         # real model's steady-state cytokine levels (the clamp) and the real cell value (truth)
         prof = {k: v[-1] for k, v in sb.simulate(stop_time=args.readout_day + 1.0)
@@ -107,7 +117,25 @@ def main() -> None:
             values[k_name] = fittedK.get(src, max(prof.get(src, 1.0), 1e-9))  # fitted, or baseline
             clamp[src] = prof.get(src, 0.0)
 
-        spec = MA.build_subsystem(args.cell, base_p, apop_p, regulators, values, clamp)
+        motif = None
+        if args.llm_motif:
+            from pkpd_agent.config import AgentConfig
+            from pkpd_agent.engines import llm_tasks as LT
+            cfg = AgentConfig(mock=False)
+            if args.llm_model:
+                cfg.model = args.llm_model
+            if not cfg.anthropic_key_present():
+                print("ANTHROPIC_API_KEY not set for --llm-motif."); return
+            print("== LLM choosing the rate-law form (motif) "
+                  + ("from biology alone ==" if args.blind else "from biology + reference ==") )
+            motif = MA.propose_motif(args.cell, regulators,
+                                     "" if args.blind else ref_rate, LT.default_call(cfg))
+            print(f"  LLM motif: order={motif['proliferation_order']}, "
+                  f"combine={motif['combination']}, cap={motif.get('cap')}"
+                  + (f"  ({motif['reason']})" if motif.get('reason') else ""))
+
+        spec = MA.build_subsystem(args.cell, base_p, apop_p, regulators, values, clamp,
+                                  motif=motif)
         sbml = os.path.join(tempfile.gettempdir(), f"{args.cell}_assembled.sbml")
         with open(sbml, "w", encoding="utf-8") as fh:
             fh.write(MA.to_sbml(spec))

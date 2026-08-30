@@ -18,6 +18,8 @@ from __future__ import annotations
 import re
 import xml.sax.saxutils as _sx
 
+from .llm_structure import _parse_json
+
 _TOKEN = re.compile(r"\s*(\d+\.?\d*(?:[eE][-+]?\d+)?|[A-Za-z_]\w*|[()+\-*/^,]|\S)")
 
 
@@ -109,22 +111,72 @@ def combined_effect(base_param: str, regulators: list) -> str:
     return " * ".join(terms)
 
 
+_MOTIF_SYS = (
+    "You are choosing the RATE-LAW FORM for a cell's proliferation in a QSP model - the "
+    "modelling convention, not the parameter values. Decide: (1) the order of the proliferation "
+    "term - 'zeroth' (a constant influx, rate = k, which lets apoptosis set a stable steady "
+    "state) or 'first' (rate = k * cell, unbounded unless capped); (2) how the regulator "
+    "fold-changes COMBINE - 'product' (multiply, effects compound) or 'capped_sum' (add the "
+    "excess-over-1 and cap, effects saturate); (3) the cap if capped_sum; (4) the per-regulator "
+    "form - 'hill' (X/(K+X)). Reason from biology and from any reference rate law shown. "
+    "Output JSON only.")
+
+
+def propose_motif(cell: str, regulators: list, reference_rate: str, call) -> dict:
+    """The LLM chooses the proliferation rate-law FORM (order + how regulators combine) - the
+    modelling convention that a generic library would only guess. ``reference_rate`` is the real
+    rate law/effect rule if shown (may be ''). Returns
+    {proliferation_order, combination, cap, per_regulator}. Pluggable ``call`` for tests."""
+    regs = ", ".join(r["species"] for r in regulators)
+    user = (f"Cell: {cell}. Its proliferation is up/down-regulated by: {regs}.\n" +
+            (f"Reference rate law / effect rule from the model:\n  {reference_rate}\n"
+             if reference_rate else "No reference rate law given - infer from biology.\n") +
+            '\nReturn JSON {"proliferation_order": "zeroth"|"first", "combination": '
+            '"product"|"capped_sum", "cap": number|null, "per_regulator": "hill", '
+            '"reason": "one phrase"}.')
+    d = _parse_json(call(_MOTIF_SYS, user))
+    if not isinstance(d, dict):
+        d = {}
+    return {"proliferation_order": d.get("proliferation_order", "zeroth"),
+            "combination": d.get("combination", "capped_sum"),
+            "cap": d.get("cap"), "per_regulator": d.get("per_regulator", "hill"),
+            "reason": d.get("reason")}
+
+
+def rate_from_motif(motif: dict, base_param: str, regulators: list, cell: str) -> str:
+    """Build a proliferation rate expression from an LLM-chosen motif spec."""
+    def h(r):
+        return f"{r['species']} / ({r['k_param']} + {r['species']})"
+    excess = [f"({r['max_param']} - 1) * {h(r)}" for r in regulators]
+    if motif.get("combination") == "product":
+        g = " * ".join(f"(1 + {e})" for e in excess) or "1"
+    else:                                              # capped_sum: saturating combination
+        s = " + ".join(excess) or "0"
+        cap = motif.get("cap")
+        g = f"min({cap}, 1 + {s})" if cap not in (None, "", 0) else f"(1 + {s})"
+    rate = f"{base_param} * ({g})"
+    if motif.get("proliferation_order") == "first":
+        rate += f" * {cell}"
+    return rate
+
+
 def build_subsystem(cell: str, base_param: str, apop_param: str, regulators: list,
-                    values: dict, clamp: dict) -> dict:
+                    values: dict, clamp: dict, motif: dict = None) -> dict:
     """Assemble a self-contained runnable subsystem: one cell whose proliferation is modulated
-    by its regulators (combined_effect motif) and balanced by first-order apoptosis, with the
-    regulator cytokines clamped at ``clamp`` levels (boundary species). ``regulators`` is
-    [{species, max_param, k_param}]; ``values`` maps every parameter name to its known value
-    (the 'assume parameters known' path). Returns a spec for ``to_sbml``."""
+    by its regulators and balanced by first-order apoptosis, with the regulator cytokines
+    clamped at ``clamp`` levels (boundary species). ``regulators`` is [{species, max_param,
+    k_param}]; ``values`` maps every parameter name to its known value (the 'assume parameters
+    known' path). ``motif`` (from ``propose_motif``) sets the rate-law FORM; without it the
+    default is zeroth-order + capped_sum (this model's convention). Returns a ``to_sbml`` spec."""
     species = [{"name": cell, "initial": values.get(cell + "_init", 1e6)}]
     for r in regulators:
         species.append({"name": r["species"], "initial": clamp.get(r["species"], 0.0),
                         "boundary": True})
     params = [{"name": k, "value": v} for k, v in values.items() if not k.endswith("_init")]
-    # proliferation is ZEROTH-order (a constant influx modulated by the regulators), the motif
-    # this model uses to hold a steady state: rate = kg * fold-changes, NOT kg * fold * cell.
-    # Balanced by first-order apoptosis (kd * cell), the steady state is kg*folds/kd - stable.
-    rate = combined_effect(base_param, regulators)
+    if motif:
+        rate = rate_from_motif(motif, base_param, regulators, cell)
+    else:                                              # default: zeroth-order product (legacy)
+        rate = combined_effect(base_param, regulators)
     return {"name": cell + "_subsystem", "species": species, "parameters": params,
             "reactions": [
                 {"id": cell + "_prolif", "reactants": [], "products": [cell], "rate": rate},
