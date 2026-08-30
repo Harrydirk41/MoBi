@@ -49,6 +49,9 @@ def main() -> None:
                     help="elevate each cytokine to this multiple of its baseline for the "
                          "isolating experiment")
     ap.add_argument("--readout-day", type=float, default=199.0)
+    ap.add_argument("--decouple", action="store_true",
+                    help="clamp the OTHER regulators' cytokines to ~0 during each experiment "
+                         "(in-vitro condition: the cell + only one cytokine, no feedback)")
     ap.add_argument("--llm", action="store_true", help="let the LLM pick each experiment")
     ap.add_argument("--llm-model", default=None)
     args = ap.parse_args()
@@ -85,14 +88,22 @@ def main() -> None:
             else:
                 high[n] = float(base[c][-1]) * args.high_fold or args.high_fold
 
+        all_cyt = {cyt[n] for n in names}
+
+        def others_of(n):                              # cytokines to clamp to ~0 (decouple)
+            return sorted(all_cyt - {cyt[n]}) if args.decouple else None
+
         # truth targets: the isolating experiment run on the shipped (calibrated) model
         print(f"\n== generating isolating-experiment data from the shipped model "
-              f"(elevate each cytokine {args.high_fold:g}x) ==", flush=True)
+              f"(elevate each cytokine {args.high_fold:g}x"
+              + (", others clamped to 0 = in-vitro) ==" if args.decouple else ") =="),
+              flush=True)
         target = {}
         for n in names:
             if n not in high:
                 continue
-            target[n] = sb.perturb_response(cyt[n], high[n], args.cell, args.readout_day)
+            target[n] = sb.perturb_response(cyt[n], high[n], args.cell, args.readout_day,
+                                            decouple=others_of(n))
             print(f"    {cyt[n]} elevated -> {args.cell} = {target[n]:g}")
         names = [n for n in names if n in target]
 
@@ -135,7 +146,8 @@ def main() -> None:
             # isolating solve: pin this regulator from its single-cytokine experiment
             def evaluator(m, _n=chosen):
                 sb.set_parameter(_n, m)
-                return sb.perturb_response(cyt[_n], high[_n], args.cell, args.readout_day)
+                return sb.perturb_response(cyt[_n], high[_n], args.cell, args.readout_day,
+                                           decouple=others_of(_n))
             solved = CL.solve_1d(evaluator, target[chosen], lo=0.1, hi=20.0)
             sb.set_parameter(chosen, solved)
             est[chosen] = solved

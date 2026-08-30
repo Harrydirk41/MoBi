@@ -310,14 +310,17 @@ class SimBiologyEngine:
         return float(self.eng.sb_set_param(name, float(value), nargout=1))
 
     def perturb_response(self, species: str, high_value: float, readout_state: str,
-                         readout_day: float, stop_time: float = 200.0) -> float:
+                         readout_day: float, stop_time: float = 200.0,
+                         decouple: "list | None" = None, decouple_value: float = 0.0) -> float:
         """Isolating perturbation: clamp ``species`` (a cytokine) at ``high_value`` and read
         ``readout_state`` (a cell) at ``readout_day`` - the single-cytokine experiment that
-        pins one coupled regulator. Everything else stays at the model's current values; the
-        model is restored afterwards."""
-        return float(self.eng.sb_perturb_response(species, float(high_value), readout_state,
-                                                  float(readout_day), float(stop_time),
-                                                  nargout=1))
+        pins one coupled regulator. ``decouple`` names other species to hold at
+        ``decouple_value`` (~0), reproducing an in-vitro condition (the cell + only this
+        cytokine, no network feedback) so the response isolates one regulator cleanly.
+        Everything else stays at the model's current values; the model is restored afterwards."""
+        return float(self.eng.sb_perturb_response(
+            species, float(high_value), readout_state, float(readout_day), float(stop_time),
+            ";".join(decouple or []), float(decouple_value), nargout=1))
 
     def list_parameters(self) -> dict[str, Any]:
         """Enumerate every parameter in the loaded model (name, value, constant) via
