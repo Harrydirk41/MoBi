@@ -48,6 +48,33 @@ class TestTitle(unittest.TestCase):
         self.assertEqual(t, "Population PK of tocilizumab")
 
 
+class TestMatchGate(unittest.TestCase):
+    def test_ligatures_normalized_in_sig_words(self):
+        # 'ﬁbroblast' (fi ligature) must tokenize the same as 'fibroblast'
+        self.assertIn("fibroblast", R._sig_words("Fibroblast-like synoviocytes"))
+        self.assertEqual(R._sig_words("ﬁbroblast"), R._sig_words("fibroblast"))
+
+    def test_identical_short_title_accepted(self):
+        w = R._sig_words("Cytokines in the pathogenesis of rheumatoid arthritis")
+        self.assertGreater(R._same_paper(w, w, 0.6), 0)
+
+    def test_generic_short_query_rejects_unrelated(self):
+        # same 4 common words, but candidate is a different, longer paper -> low Jaccard -> reject
+        want = R._sig_words("Cytokines in the pathogenesis of rheumatoid arthritis")
+        cand = R._sig_words("Understanding the molecular signalling drivers of cytokines "
+                            "in rheumatoid arthritis pathogenesis via multi-omics profiling")
+        self.assertEqual(R._same_paper(want, cand, 0.6), 0.0)
+
+    def test_long_query_truncated_still_accepts(self):
+        # a long specific query almost fully contained in a longer candidate title is accepted
+        want = R._sig_words("IL-6 receptor inhibition with tocilizumab improves treatment "
+                            "outcomes in patients with rheumatoid arthritis refractory")
+        cand = R._sig_words("IL-6 receptor inhibition with tocilizumab improves treatment "
+                            "outcomes in patients with rheumatoid arthritis refractory to "
+                            "anti-tumour necrosis factor biologicals: 24-week trial")
+        self.assertGreater(R._same_paper(want, cand, 0.6), 0)
+
+
 class TestFetchAbstracts(unittest.TestCase):
     def test_pluggable_fetch_fills_abstracts(self):
         calls = []

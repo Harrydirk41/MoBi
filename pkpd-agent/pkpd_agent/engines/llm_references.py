@@ -93,28 +93,80 @@ def _title_of(citation_text: str) -> str:
     return rest.split(". ")[0].strip(" .,")
 
 
-def pubmed_fetch(title: str, timeout: float = 20.0) -> str:
-    """Look a title up in PubMed (E-utilities esearch) and return its abstract text (efetch).
-    Stdlib urllib over the environment's HTTPS proxy. Returns '' on any miss or error - a
-    fetcher must never break the assembly of the rest of the material."""
-    base = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils"
+_LIGATURES = {"ﬁ": "fi", "ﬂ": "fl", "ﬀ": "ff", "ﬃ": "ffi", "ﬄ": "ffl",
+              "–": "-", "—": "-", "’": "'", "‘": "'", "“": '"', "”": '"'}
+
+
+def _clean(s: str) -> str:
+    for k, v in _LIGATURES.items():
+        s = s.replace(k, v)
+    return s
+
+
+def _sig_words(s: str) -> set:
+    return {w for w in re.findall(r"[a-z0-9]+", _clean(s).lower()) if len(w) > 3}
+
+
+def _same_paper(want: set, cand: set, min_overlap: float) -> float:
+    """Is candidate title ``cand`` the same paper as query title ``want`` (both sig-word sets)?
+    Returns a match score (0 = reject). A long, specific query (>=5 words) almost entirely
+    contained in the candidate is accepted even if the extracted query title was truncated; a
+    short/generic query must match tightly (Jaccard) so an unrelated recent paper repeating a
+    few common words does not false-match."""
+    if not want or not cand:
+        return 0.0
+    inter = len(want & cand)
+    cont = inter / len(want)
+    jac = inter / len(want | cand)
+    if jac >= min_overlap or (len(want) >= 5 and cont >= 0.85):
+        return jac
+    return 0.0
+
+
+_EUTILS = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils"
+
+
+def _get_json(path: str, params: dict, timeout: float):
+    import json
+    q = urllib.parse.urlencode(params)
+    with urllib.request.urlopen(f"{_EUTILS}/{path}?{q}", timeout=timeout) as r:
+        return json.load(r)
+
+
+def pubmed_fetch(title: str, timeout: float = 20.0, min_overlap: float = 0.6) -> str:
+    """Look a title up in PubMed and return its abstract text, or '' on any miss/error - a
+    fetcher must never break the assembly of the rest of the material. Stdlib urllib over the
+    environment's HTTPS proxy.
+
+    Correctness over coverage: PubMed's phrase index is quirky (hyphens like 'IL-6', British
+    spelling, ligatures), so a strict phrase query misses real papers, while a loose query
+    silently returns an unrelated recent one - a wrong match corrupts the reading material far
+    worse than an honest miss. So we search by relevance for a few candidates, then VERIFY:
+    accept a candidate only if it contains at least ``min_overlap`` of the query title's
+    significant words. Unverifiable -> '' (miss), never a guess."""
+    want = _sig_words(title)
+    if len(want) < 3:                            # too little to identify a paper -> skip
+        return ""
     try:
-        q = urllib.parse.urlencode({"db": "pubmed", "term": title + "[Title]",
-                                    "retmax": "1", "retmode": "json"})
-        with urllib.request.urlopen(f"{base}/esearch.fcgi?{q}", timeout=timeout) as r:
-            import json
-            ids = json.load(r).get("esearchresult", {}).get("idlist", [])
-        if not ids:                             # retry without the [Title] field restriction
-            q = urllib.parse.urlencode({"db": "pubmed", "term": title,
-                                        "retmax": "1", "retmode": "json"})
-            with urllib.request.urlopen(f"{base}/esearch.fcgi?{q}", timeout=timeout) as r:
-                import json
-                ids = json.load(r).get("esearchresult", {}).get("idlist", [])
+        res = _get_json("esearch.fcgi", {"db": "pubmed", "term": _clean(title),
+                                         "retmax": "5", "sort": "relevance",
+                                         "retmode": "json"}, timeout)
+        ids = res.get("esearchresult", {}).get("idlist", [])
         if not ids:
             return ""
-        q = urllib.parse.urlencode({"db": "pubmed", "id": ids[0],
+        summ = _get_json("esummary.fcgi", {"db": "pubmed", "id": ",".join(ids),
+                                           "retmode": "json"}, timeout).get("result", {})
+        best, best_score = "", 0.0
+        for pid in ids:
+            cand = _sig_words(summ.get(pid, {}).get("title", ""))
+            score = _same_paper(want, cand, min_overlap)
+            if score > best_score:
+                best, best_score = pid, score
+        if not best:                             # no candidate is confidently the same paper
+            return ""
+        q = urllib.parse.urlencode({"db": "pubmed", "id": best,
                                     "rettype": "abstract", "retmode": "text"})
-        with urllib.request.urlopen(f"{base}/efetch.fcgi?{q}", timeout=timeout) as r:
+        with urllib.request.urlopen(f"{_EUTILS}/efetch.fcgi?{q}", timeout=timeout) as r:
             return re.sub(r"\s+", " ", r.read().decode("utf-8", "replace")).strip()
     except Exception:
         return ""
