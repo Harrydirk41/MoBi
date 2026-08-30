@@ -57,6 +57,18 @@ def main() -> None:
         print(f"assembling {args.cell}: growth {base_p}={pv[base_p]:g}, death {apop_p}="
               f"{pv[apop_p]:g}, {len(regs)} proliferation regulators")
 
+        # show the REAL rate law + effect rule governing this cell's proliferation, so the
+        # combination rule (how the regulators actually combine) is visible - our library motif
+        # is only a guess for it.
+        for rx in net.get("reactions", []):
+            if args.cell in (rx.get("products") or []) and "prolif" in (rx.get("rate", "")
+                                                                        + str(rx.get("reaction"))).lower():
+                print(f"  REAL proliferation rate law: {rx.get('rate')}")
+        for ru in net.get("rules", []):
+            expr = ru.get("rule", "") if isinstance(ru, dict) else str(ru)
+            if re.search(rf"(?i){args.cell}.*prolif.*effect\s*=", expr):
+                print(f"  REAL effect rule: {expr}")
+
         # real model's steady-state cytokine levels (the clamp) and the real cell value (truth)
         prof = {k: v[-1] for k, v in sb.simulate(stop_time=args.readout_day + 1.0)
                 .get("columns", {}).items() if v}
