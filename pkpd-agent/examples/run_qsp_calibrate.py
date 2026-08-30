@@ -53,21 +53,32 @@ def _sim_cell(sb, cell, steady_day):
     return float(sb.simulate(stop_time=steady_day + 1.0)["columns"][cell][-1])
 
 
-def _recover_multi(sb, names, truths, cell, s0, steady_day, restarts, perturb, seed):
+def _recover_multi(sb, names, truths, cell, s0, steady_day, restarts, perturb, seed,
+                   bounds=None):
     """Jointly fit several coupled parameters to the SAME single steady-state target, from
     several random starts. One scalar target cannot pin many parameters, so each restart lands
     a DIFFERENT parameter vector that reproduces the target equally well - that spread IS the
-    non-identifiability. Returns (per-restart fitted vectors, per-restart output value)."""
+    non-identifiability. ``bounds`` optionally overrides the wide default with per-parameter
+    [lo,hi] (the LLM's biological priors) to test whether judgment regularizes the fit.
+    Returns (per-restart fitted vectors, per-restart output value)."""
     rng = random.Random(seed)
     data = os.path.join(tempfile.gettempdir(), "calib_multi_target.csv")
     with open(data, "w", newline="", encoding="utf-8") as fh:
         w = csv.writer(fh)
         w.writerow(["Time", cell]); w.writerow([steady_day, s0])
-    spec = ";".join(f"{n},{t/50:g},{t*50:g},log" for n, t in zip(names, truths))
+
+    def bnd(n, t):
+        if bounds and n in bounds:
+            return bounds[n]
+        return (t / 50, t * 50)                       # wide default (uninformative)
+    spec = ";".join(f"{n},{bnd(n, t)[0]:g},{bnd(n, t)[1]:g},log"
+                    for n, t in zip(names, truths))
     fits, outs = [], []
     for r in range(restarts):
-        for n, t in zip(names, truths):                # random start in [1/perturb, perturb]*truth
-            sb.set_parameter(n, t * (perturb ** rng.uniform(-1, 1)))
+        for n, t in zip(names, truths):                # random start (clamped into bounds)
+            lo, hi = bnd(n, t)
+            start = min(max(t * (perturb ** rng.uniform(-1, 1)), lo * 1.01), hi * 0.99)
+            sb.set_parameter(n, start)
         res = sb.fit_native(spec, data, f"{cell} = {cell}", method="lsqnonlin")
         est = res.get("columns", {}).get("estimate", [])
         fitted = [float(x) for x in est] if len(est) == len(names) else [float("nan")] * len(names)
@@ -97,6 +108,10 @@ def main() -> None:
                          "and jointly fit them - the identifiability experiment")
     ap.add_argument("--restarts", type=int, default=4,
                     help="joint fit from N random starts (spread of fits = non-identifiability)")
+    ap.add_argument("--llm-priors", action="store_true",
+                    help="ask the LLM for plausible per-parameter bounds (biological judgment) "
+                         "and use them to constrain the joint fit - does judgment fix it?")
+    ap.add_argument("--llm-model", default=None)
     ap.add_argument("--seed", type=int, default=1)
     ap.add_argument("--perturb", type=float, default=3.0,
                     help="factor to perturb the rate by before refitting")
@@ -167,25 +182,53 @@ def main() -> None:
             if len(jnames) < 2:
                 print(f"need >=2 joint parameters; found {jnames}. Pass --params a,b,c.")
                 return
+            bounds = None
+            if args.llm_priors:
+                from pkpd_agent.config import AgentConfig
+                from pkpd_agent.engines import llm_tasks as LT
+                cfg = AgentConfig(mock=False)
+                if args.llm_model:
+                    cfg.model = args.llm_model
+                if not cfg.anthropic_key_present():
+                    print("ANTHROPIC_API_KEY not set (needed for --llm-priors)."); return
+                info = [{"name": n, "units": "dimensionless",
+                         "meaning": f"max fold-change of {args.cell} proliferation due to a "
+                                    f"cytokine ({n.split('by')[-1]})"} for n in jnames]
+                print("== asking the LLM for plausible bounds (biological judgment) ==",
+                      flush=True)
+                bounds = LT.propose_bounds(info, LT.default_call(cfg))
+                for n in jnames:
+                    b = bounds.get(n)
+                    print(f"    {n}: prior {('[%.2g, %.2g]' % b) if b else '(none - wide default)'}")
+
             print(f"\n== identifiability experiment: jointly fit {len(jnames)} coupled "
-                  f"regulators to ONE target ({args.cell}={s0:g}), {args.restarts} restarts ==")
+                  f"regulators to ONE target ({args.cell}={s0:g}), {args.restarts} restarts"
+                  + (" + LLM priors ==" if args.llm_priors else " ==") )
             for n, t in zip(jnames, truths):
                 print(f"    {n} (truth {t:g})")
             fits, outs = _recover_multi(sb, jnames, truths, args.cell, s0, args.steady_day,
-                                        args.restarts, args.perturb, args.seed)
+                                        args.restarts, args.perturb, args.seed, bounds=bounds)
             print(f"\n== result: output fits, parameters DON'T (non-identifiability) ==")
             out_ok = sum(1 for o in outs if s0 and abs(o - s0) / s0 < 0.05)
             print(f"  output match: {out_ok}/{len(outs)} restarts reproduce {args.cell} "
                   f"within 5%")
-            print(f"  {'parameter':32} {'truth':>10}  {'fitted range across restarts':>28}"
-                  f"  spread")
+            print(f"  {'parameter':30} {'truth':>9}  {'fitted range':>22}  {'spread':>6}"
+                  f"  {'median err':>10}")
+            errs = []
             for j, (n, t) in enumerate(zip(jnames, truths)):
-                col = [f[j] for f in fits if f[j] == f[j]]
+                col = sorted(f[j] for f in fits if f[j] == f[j])
                 if not col:
                     continue
-                lo, hi = min(col), max(col)
+                lo, hi = col[0], col[-1]
+                med = col[len(col) // 2]
                 spread = (hi - lo) / t if t else float("nan")
-                print(f"  {n:32} {t:10.3g}  [{lo:10.3g}, {hi:10.3g}]  {spread:5.1f}x")
+                err = abs(med - t) / t if t else float("nan")
+                errs.append(err)
+                print(f"  {n:30} {t:9.3g}  [{lo:9.3g},{hi:9.3g}]  {spread:5.1f}x  {err:9.0%}")
+            if errs:
+                print(f"  mean parameter recovery error across the {len(errs)} regulators: "
+                      f"{sum(errs)/len(errs):.0%}"
+                      + ("  (with LLM priors)" if args.llm_priors else "  (wide bounds)"))
             print("\n  -> many parameter sets reproduce the one target equally well: a single "
                   "steady-state\n     value cannot pin coupled regulators. THIS is why the full "
                   "527-param fit needs\n     many constraints + biological judgment, not a "

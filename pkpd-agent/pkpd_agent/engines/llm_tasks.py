@@ -89,6 +89,41 @@ def default_web_call(config, max_searches: int = 8, tool_version: str = "web_sea
     return call
 
 
+_BOUNDS_SYS = (
+    "You are a systems-biology modeller setting PHYSIOLOGICALLY PLAUSIBLE bounds for model "
+    "parameters before calibration. For each parameter, give a lower and upper bound that a "
+    "reasonable modeller would allow it to vary within - tight enough to reflect biology "
+    "(e.g. a cytokine's fold-change effect on a cell rate is modest, not 100x), wide enough "
+    "not to exclude the true value. Reason ONLY from the parameter's name/meaning and general "
+    "biology, NOT from any specific number you might recall. Output JSON only.")
+
+
+def propose_bounds(params: list, call) -> dict:
+    """Ask the LLM for plausible [lo, hi] bounds per parameter - the 'biological judgment' that
+    regularizes an ill-posed calibration. ``params`` is [{name, units, meaning?}]; returns
+    {name: (lo, hi)} for the entries the LLM bounded sensibly (lo>0, hi>lo). Pluggable ``call``
+    so tests use a stub."""
+    lines = "\n".join(
+        f"- {p['name']} ({p.get('units', '?')}): {p.get('meaning', '')}".rstrip()
+        for p in params)
+    user = ("Give plausible calibration bounds for these parameters:\n" + lines +
+            '\n\nReturn JSON {"bounds": [{"name": ..., "lo": number, "hi": number, '
+            '"basis": "one phrase"}]}. Bounds must be positive with hi > lo.')
+    d = _parse_json(call(_BOUNDS_SYS, user))
+    out: dict = {}
+    for b in (d.get("bounds") or []):
+        if not isinstance(b, dict):
+            continue
+        name, lo, hi = b.get("name"), b.get("lo"), b.get("hi")
+        try:
+            lo, hi = float(lo), float(hi)
+        except (TypeError, ValueError):
+            continue
+        if name and 0 < lo < hi:
+            out[name] = (lo, hi)
+    return out
+
+
 def _merge_roles(dst: dict, src: dict) -> None:
     for k in ("disease_drivers", "druggable", "calibratable"):
         for n in src.get(k, []):

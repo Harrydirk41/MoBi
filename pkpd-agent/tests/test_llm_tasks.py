@@ -96,3 +96,15 @@ class TestCompareTasks(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class TestProposeBounds(unittest.TestCase):
+    def test_parses_and_filters_bounds(self):
+        from pkpd_agent.engines import llm_tasks as LT
+        call = lambda s, u: ('{"bounds": ['
+                             '{"name": "A", "lo": 1, "hi": 3, "basis": "modest"},'
+                             '{"name": "B", "lo": 5, "hi": 2, "basis": "bad (hi<lo)"},'
+                             '{"name": "C", "lo": 0, "hi": 1, "basis": "bad (lo=0)"},'
+                             '{"name": "D", "lo": "x", "hi": 2, "basis": "nonnum"}]}')
+        out = LT.propose_bounds([{"name": n} for n in "ABCD"], call)
+        self.assertEqual(out, {"A": (1.0, 3.0)})       # only the valid one survives
