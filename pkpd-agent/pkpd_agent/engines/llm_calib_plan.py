@@ -41,6 +41,68 @@ def propose_plan(known: list, missing: list, available_data: list, call) -> dict
     return {"plan": out}
 
 
+_SYS_OPEN = (
+    "You are planning to build and calibrate a QSP model subsystem from the data you actually "
+    "have. You are given the full parameter list (some parameters have a literature value, some "
+    "do not) and a list of the datasets available. Plan the calibration: for each parameter "
+    "WITHOUT a literature value, decide whether the AVAILABLE data can identify it; if it "
+    "cannot, state what experiment WOULD identify it and whether that experiment is in your "
+    "available data. Be rigorous about identifiability and about what you are missing - do NOT "
+    "assume a dataset exists unless it is listed. JSON only.")
+
+
+def propose_plan_open(params: list, available_data: list, call) -> dict:
+    """Harder, un-scaffolded plan: ``params`` is [{name, has_literature_value}]; the agent must
+    itself work out which unknowns the data can pin, what experiment each needs, and whether that
+    experiment is present in ``available_data`` (which may contain distractors and does NOT
+    announce what is missing). Returns {plan: {param: {determinable, needs, needs_available}}}."""
+    plist = "\n".join(f"  {p['name']} "
+                      f"({'has literature value' if p.get('has_literature_value') else 'NO value'})"
+                      for p in params)
+    user = ("Full parameter list:\n" + plist +
+            "\n\nDatasets available to you:\n  - " + "\n  - ".join(available_data) +
+            '\n\nFor each parameter with NO literature value, return JSON {"plan": [{"param": '
+            'name, "determinable": true|false, "needs": "the experiment that would identify it", '
+            '"needs_available": true|false (is that experiment in your available datasets?)}]}.')
+    d = _parse_json(call(_SYS_OPEN, user))
+    out = {}
+    for e in (d.get("plan") or []):
+        if isinstance(e, dict) and e.get("param"):
+            out[e["param"]] = {"determinable": bool(e.get("determinable")),
+                               "needs": e.get("needs"),
+                               "needs_available": e.get("needs_available")}
+    return {"plan": out}
+
+
+def grade_open(plan: dict, truth: dict, needs_kw: list) -> dict:
+    """Grade the un-scaffolded plan on three axes: identifiability accuracy, and - for the
+    NOT-identifiable params - whether the agent (a) named the right missing experiment (a keyword
+    in ``needs_kw``, e.g. 'dose', 'perturb', 'titration') and (b) correctly flagged it as NOT in
+    the available data. The un-scaffolded win is realising, unprompted, that the identifying data
+    is absent."""
+    p = plan.get("plan", plan)
+    id_correct, named_need, flagged_absent, overclaim = 0, 0, 0, []
+    non_ident = [k for k, v in truth.items() if not v]
+    for param, is_det in truth.items():
+        v = p.get(param, {})
+        got = v.get("determinable")
+        if got == is_det:
+            id_correct += 1
+        if got and not is_det:
+            overclaim.append(param)
+        if not is_det:                                 # should need an absent perturbation exp
+            needs = (v.get("needs") or "").lower()
+            if any(kw in needs for kw in needs_kw):
+                named_need += 1
+            if v.get("needs_available") is False:
+                flagged_absent += 1
+    n, m = len(truth) or 1, len(non_ident) or 1
+    return {"id_accuracy": round(id_correct / n, 3),
+            "named_missing_experiment": f"{named_need}/{len(non_ident)}",
+            "flagged_data_absent": f"{flagged_absent}/{len(non_ident)}",
+            "overclaimed": overclaim}
+
+
 def grade_plan(plan: dict, truth: dict) -> dict:
     """Compare the agent's determinable/not verdicts to the known truth ``{param: bool}``.
     Returns accuracy plus the parameters it got wrong (a false 'determinable' is the dangerous

@@ -23,3 +23,25 @@ class TestCalibPlan(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class TestOpenPlan(unittest.TestCase):
+    def test_grade_open_rewards_naming_and_flagging_absence(self):
+        call = lambda s, u: ('{"plan":[{"param":"kg","determinable":true,"needs":"steady state",'
+                             '"needs_available":true},'
+                             '{"param":"K6","determinable":false,"needs":"IL6 dose-response",'
+                             '"needs_available":false}]}')
+        plan = CP.propose_plan_open([{"name":"kg","has_literature_value":False},
+                                     {"name":"K6","has_literature_value":False}], ["steady state"], call)
+        g = CP.grade_open(plan, {"kg":True,"K6":False}, needs_kw=["dose"])
+        self.assertEqual(g["id_accuracy"], 1.0)
+        self.assertEqual(g["named_missing_experiment"], "1/1")   # named 'dose-response'
+        self.assertEqual(g["flagged_data_absent"], "1/1")        # flagged it MISSING
+        self.assertEqual(g["overclaimed"], [])
+
+    def test_grade_open_catches_overclaim_on_shape(self):
+        call = lambda s, u: ('{"plan":[{"param":"K6","determinable":true,'
+                             '"needs":"none","needs_available":true}]}')
+        plan = CP.propose_plan_open([{"name":"K6","has_literature_value":False}], ["x"], call)
+        g = CP.grade_open(plan, {"K6":False}, needs_kw=["dose"])
+        self.assertEqual(g["overclaimed"], ["K6"])
