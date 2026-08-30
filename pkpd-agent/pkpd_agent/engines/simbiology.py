@@ -304,6 +304,11 @@ class SimBiologyEngine:
             _quiet_rm(cohort)
             _quiet_rm(out)
 
+    def set_parameter(self, name: str, value: float) -> float:
+        """Set a model parameter's value, returning its previous value. A general
+        perturb/restore primitive (used by the calibration recover demo)."""
+        return float(self.eng.sb_set_param(name, float(value), nargout=1))
+
     def list_parameters(self) -> dict[str, Any]:
         """Enumerate every parameter in the loaded model (name, value, constant) via
         sb_params.m - the full candidate set for driver selection, straight from the

@@ -1,0 +1,245 @@
+[
+  {
+    "name": "Fibrocytes Like Synoviocytes (FLS)",
+    "model_species": "FLS",
+    "kind": "cell",
+    "mean_reported": 441.0,
+    "units_reported": "cells/mm2",
+    "target_model_unit": 22800000.0,
+    "target_units": "cells/mL"
+  },
+  {
+    "name": "T cells ( all CD3+)",
+    "model_species": null,
+    "kind": "cell",
+    "mean_reported": 480.0,
+    "units_reported": "cells/mm2",
+    "target_model_unit": 78700000.0,
+    "target_units": "cells/mL"
+  },
+  {
+    "name": "CD4",
+    "model_species": null,
+    "kind": "cell",
+    "mean_reported": 403.0,
+    "units_reported": "cells/mm2",
+    "target_model_unit": 66100000.0,
+    "target_units": "cells/mL"
+  },
+  {
+    "name": "Th1",
+    "model_species": "Th1",
+    "kind": "cell",
+    "mean_reported": 61.0,
+    "units_reported": "% of CD4",
+    "target_model_unit": 40321000.0,
+    "target_units": "cells/mL"
+  },
+  {
+    "name": "Th17",
+    "model_species": "Th17",
+    "kind": "cell",
+    "mean_reported": 2.19,
+    "units_reported": "% of CD4",
+    "target_model_unit": 1447590.0,
+    "target_units": "cells/mL"
+  },
+  {
+    "name": "Treg",
+    "model_species": "Treg",
+    "kind": "cell",
+    "mean_reported": 19.6,
+    "units_reported": "% of CD4",
+    "target_model_unit": 7902916.0,
+    "target_units": "cells/mL"
+  },
+  {
+    "name": "CD8 cells",
+    "model_species": "CTL",
+    "kind": "cell",
+    "mean_reported": 8.0,
+    "units_reported": "cells/mm2",
+    "target_model_unit": 1310000.0,
+    "target_units": "cells/mL"
+  },
+  {
+    "name": "B cells",
+    "model_species": "BCells",
+    "kind": "cell",
+    "mean_reported": 182.0,
+    "units_reported": "cells/mm2",
+    "target_model_unit": 14200000.0,
+    "target_units": "cells/mL"
+  },
+  {
+    "name": "Plasma cells",
+    "model_species": "PlasmaCells",
+    "kind": "cell",
+    "mean_reported": 410.0,
+    "units_reported": "cells/mm2",
+    "target_model_unit": 31900000.0,
+    "target_units": "cells/mL"
+  },
+  {
+    "name": "Macrophages",
+    "model_species": "Macrophages",
+    "kind": "cell",
+    "mean_reported": 2190.0,
+    "units_reported": "cells/mm2",
+    "target_model_unit": 49400000.0,
+    "target_units": "cells/mL"
+  },
+  {
+    "name": "Endothelial cells( sum of mature and immature vessels)",
+    "model_species": "Endothelial",
+    "kind": "cell",
+    "mean_reported": 319.0,
+    "units_reported": "vessels/mm2",
+    "target_model_unit": 62100000.0,
+    "target_units": "cells/mL"
+  },
+  {
+    "name": "IL-10",
+    "model_species": "IL10",
+    "kind": "cytokine",
+    "mean_reported": 1408.16,
+    "units_reported": "pg/mL",
+    "target_model_unit": 1.40816,
+    "target_units": "ng/mL"
+  },
+  {
+    "name": "TGF-beta@ time 0",
+    "model_species": "TGFb",
+    "kind": "cytokine",
+    "mean_reported": 1.1,
+    "units_reported": "pM",
+    "target_model_unit": 35.0,
+    "target_units": "ng/mL"
+  },
+  {
+    "name": "TNF-alpha",
+    "model_species": "TNFa",
+    "kind": "cytokine",
+    "mean_reported": 904.0,
+    "units_reported": "pg/mL",
+    "target_model_unit": 0.904,
+    "target_units": "ng/mL"
+  },
+  {
+    "name": "IL-6",
+    "model_species": "IL6",
+    "kind": "cytokine",
+    "mean_reported": 289.0,
+    "units_reported": "ng/mL",
+    "target_model_unit": 289.0,
+    "target_units": "ng/mL"
+  },
+  {
+    "name": "IL-1 beta",
+    "model_species": "IL1b",
+    "kind": "cytokine",
+    "mean_reported": 1208.0,
+    "units_reported": "pg/mL",
+    "target_model_unit": 1.208,
+    "target_units": "ng/mL"
+  },
+  {
+    "name": "IL-17",
+    "model_species": "IL17",
+    "kind": "cytokine",
+    "mean_reported": 7.02,
+    "units_reported": "pg/mL",
+    "target_model_unit": 0.00702,
+    "target_units": "ng/mL"
+  },
+  {
+    "name": "IFN-gamma",
+    "model_species": "IFNg",
+    "kind": "cytokine",
+    "mean_reported": 142.0,
+    "units_reported": "pg/mL",
+    "target_model_unit": 0.142,
+    "target_units": "ng/mL"
+  },
+  {
+    "name": "IL-12",
+    "model_species": "IL12",
+    "kind": "cytokine",
+    "mean_reported": 20.3,
+    "units_reported": "pg/mL",
+    "target_model_unit": 0.012,
+    "target_units": "ng/mL"
+  },
+  {
+    "name": "VEGF",
+    "model_species": "VEGF",
+    "kind": "cytokine",
+    "mean_reported": null,
+    "units_reported": "pg/mL",
+    "target_model_unit": 118.0,
+    "target_units": "ng/mL"
+  },
+  {
+    "name": "RF-IgM",
+    "model_species": "AutoAb",
+    "kind": "cytokine",
+    "mean_reported": 70.0,
+    "units_reported": "U/mg protein",
+    "target_model_unit": null,
+    "target_units": "ng/mL"
+  },
+  {
+    "name": "GM-CSF",
+    "model_species": "GMCSF",
+    "kind": "cytokine",
+    "mean_reported": 40.0,
+    "units_reported": "U/mL",
+    "target_model_unit": null,
+    "target_units": "ng/mL"
+  },
+  {
+    "name": "RANTES",
+    "model_species": "RANTES",
+    "kind": "cytokine",
+    "mean_reported": 145.0,
+    "units_reported": "pg/mL",
+    "target_model_unit": 0.145,
+    "target_units": "ng/mL"
+  },
+  {
+    "name": "BAFF",
+    "model_species": "BAFF",
+    "kind": "cytokine",
+    "mean_reported": 0.9,
+    "units_reported": "ng/mL",
+    "target_model_unit": 0.9,
+    "target_units": "ng/mL"
+  },
+  {
+    "name": "MCP-1",
+    "model_species": "MCP1",
+    "kind": "cytokine",
+    "mean_reported": 25.0,
+    "units_reported": "ng/mL",
+    "target_model_unit": 25.0,
+    "target_units": "ng/mL"
+  },
+  {
+    "name": "IL23",
+    "model_species": "IL23",
+    "kind": "cytokine",
+    "mean_reported": 20.0,
+    "units_reported": "pg/ml",
+    "target_model_unit": 0.02,
+    "target_units": "ng/mL"
+  },
+  {
+    "name": "MIP3a",
+    "model_species": "MIP3",
+    "kind": "cytokine",
+    "mean_reported": 3000.0,
+    "units_reported": "pg/mL",
+    "target_model_unit": 3.0,
+    "target_units": "ng/mL"
+  }
+]
