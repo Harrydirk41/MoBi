@@ -14,9 +14,17 @@ from .llm_structure import _parse_json
 
 _SYS = ("You are extracting a specific quantitative value from a cited biology paper, to "
         "reproduce a QSP model parameter. Search for the exact paper, read it, and report the "
-        "number the modellers would have used. Be honest: if the value is only in a figure "
-        "image you cannot read, or you cannot find the paper, say so - a wrong guess is worse "
-        "than admitting you could not get it. Output JSON only.")
+        "number the modellers would have used.\n"
+        "CRITICAL HONESTY RULES:\n"
+        "- You do NOT have any figure image unless one is explicitly attached to this message. "
+        "You CANNOT see, digitise, or pixel-read a figure from a web page or PDF you fetched as "
+        "text. If the value exists only in a figure image and none is attached, you MUST return "
+        'value=null and set in_figure_only=true - do NOT invent or estimate a bar height.\n'
+        "- A value you can compute from the paper's TEXT/legend/table (e.g. a stated % converted "
+        "by a formula) is allowed; say so in the note.\n"
+        "- Report a fold-change the way a modeller would: treated relative to the same-timepoint "
+        "control (not relative to day 0), and note if that convention was ambiguous.\n"
+        "- A wrong guess is worse than admitting you could not get it. Output JSON only.")
 
 
 def build_prompt(prov: dict) -> str:
