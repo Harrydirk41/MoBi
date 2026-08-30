@@ -81,6 +81,11 @@ def main() -> None:
     ap.add_argument("--web", action="store_true",
                     help="Route B: give the drafter web search so it reads references itself")
     ap.add_argument("--out", default="network.json", help="where to dump the answer key")
+    ap.add_argument("--functional", action="store_true",
+                    help="also weight each edge by its clinical impact (knockout ablation on "
+                         "the real model) and report functional-weight recall")
+    ap.add_argument("--max-knockouts", type=int, default=0,
+                    help="cap the number of edge knockouts (0 = all weighable edges)")
     ap.add_argument("--llm-model", default=None)
     args = ap.parse_args()
 
@@ -100,53 +105,93 @@ def main() -> None:
     else:
         print("no references: LLM works from node names + biological priors alone")
 
+    spec = get_spec(args.model)
     sb = SimBiologyEngine()
     try:
         print("== starting MATLAB engine =="); sb.start()
         print(f"== loading {os.path.basename(args.sbproj)} =="); sb.load_project(args.sbproj)
         print(f"== dumping network structure -> {args.out} (the answer key) ==", flush=True)
         network = sb.network_json(args.out)
+
+        model = QSPModel(network, spec)
+        nodes = list(model.nodes)                     # biological species = the given NODES
+        nset = set(nodes)
+        print(f"model has {len(network.get('species', []))} species; "
+              f"{len(nodes)} are biological nodes (drug/PK/readout excluded)")
+
+        # answer key: influence edges, restricted to pairs BOTH among the given nodes (fair -
+        # the LLM is only ever given the biological node list).
+        all_truth = TOP.ground_truth_edges(network)
+        truth = {(s, d) for s, d in all_truth if s in nset and d in nset}
+        print(f"answer key: {len(truth)} influence edges among the biological nodes "
+              f"({len(all_truth)} total including drug/readout)")
+
+        call = LT.default_web_call(cfg_llm) if args.web else LT.default_call(cfg_llm)
+        print(f"== LLM drafting the topology "
+              f"({'Route B: web' if args.web else 'Route A: cached'}) ==", flush=True)
+        draft = TOP.draft_topology(nodes, references, call)
+        print(f"LLM proposed {len(draft)} edges")
+
+        r = TOP.compare_topology(draft, truth)
+        print(f"\n== topology reconstruction (structural) ==")
+        print(f"  precision {r['precision']}   recall {r['recall']}   f1 {r['f1']}")
+        print(f"  {r['hit']} hit / {r['n_draft']} drafted / {r['n_truth']} in answer key")
+        _dump_edges("MISSED", "in the model, the LLM did not draw", r["missed"])
+        _dump_edges("EXTRA", "the LLM drew, not in the model (literature-plausible, "
+                    "not wired here)", r["extra"])
+
+        if args.functional:
+            _functional(sb, spec, network, nset, draft, args)
     finally:
         sb.stop()
 
-    spec = get_spec(args.model)
-    model = QSPModel(network, spec)
-    nodes = list(model.nodes)                         # biological species = the given NODES
-    print(f"model has {len(network.get('species', []))} species; "
-          f"{len(nodes)} are biological nodes (drug/PK/readout excluded)")
 
-    # answer key: influence edges, restricted to pairs BOTH among the given nodes (fair -
-    # the LLM is only ever given the biological node list).
-    all_truth = TOP.ground_truth_edges(network)
-    nset = set(nodes)
-    truth = {(s, d) for s, d in all_truth if s in nset and d in nset}
-    print(f"answer key: {len(truth)} influence edges among the biological nodes "
-          f"({len(all_truth)} total including drug/readout)")
+def _dump_edges(tag: str, why: str, edges: list, limit: int = 40) -> None:
+    if not edges:
+        return
+    print(f"\n  {tag} ({len(edges)}) - {why}:")
+    for s, d in edges[:limit]:
+        print(f"    {s} -> {d}")
+    if len(edges) > limit:
+        print(f"    ... and {len(edges) - limit} more")
 
-    call = LT.default_web_call(cfg_llm) if args.web else LT.default_call(cfg_llm)
-    print(f"== LLM drafting the topology ({'Route B: web' if args.web else 'Route A: cached'}) "
-          "==", flush=True)
-    draft = TOP.draft_topology(nodes, references, call)
-    print(f"LLM proposed {len(draft)} edges")
 
-    r = TOP.compare_topology(draft, truth)
-    print(f"\n== topology reconstruction ==")
-    print(f"  precision {r['precision']}   recall {r['recall']}   f1 {r['f1']}")
-    print(f"  {r['hit']} hit / {r['n_draft']} drafted / {r['n_truth']} in answer key")
+def _functional(sb, spec, network, nset, draft, args) -> None:
+    """Weight each regulatory edge by its clinical impact (knockout on the real model) and
+    score the draft by functional-weight recall - does getting the topology right matter?"""
+    from pkpd_agent.engines import qsp_config
+    cfg = qsp_config.get(args.model)
+    fp = cfg.flagship_protocol
+    dose = ";".join(fp.get("first_line", []) + fp.get("second_line", []))
+    rday = float(cfg.timeline.get("second_line_readout_day", 600.0))
 
-    if r["missed"]:
-        print(f"\n  MISSED ({len(r['missed'])}) - in the model, the LLM did not draw:")
-        for s, d in r["missed"][:40]:
-            print(f"    {s} -> {d}")
-        if len(r["missed"]) > 40:
-            print(f"    ... and {len(r['missed']) - 40} more")
-    if r["extra"]:
-        print(f"\n  EXTRA ({len(r['extra'])}) - the LLM drew, not in the model "
-              "(literature-plausible but not wired here):")
-        for s, d in r["extra"][:40]:
-            print(f"    {s} -> {d}")
-        if len(r["extra"]) > 40:
-            print(f"    ... and {len(r['extra']) - 40} more")
+    prov = {e: v for e, v in TOP.edge_provenance(network).items()
+            if e[0] in nset and e[1] in nset and v["rule_params"]}
+    if args.max_knockouts and len(prov) > args.max_knockouts:
+        prov = dict(list(prov.items())[: args.max_knockouts])
+    print(f"\n== functional weighting: {len(prov)} regulatory edges, "
+          f"flagship dose, readout DAS28_CRP @ day {rday:g} ==", flush=True)
+
+    baseline = sb.knockout_readout([], dose, rday)
+    print(f"  baseline DAS28_CRP = {baseline:.3f}")
+
+    def knockout(params):
+        return sb.knockout_readout(params, dose, rday)
+
+    def progress(i, n, edge):
+        print(f"  [{i:>3}/{n}] knockout {edge[0]} -> {edge[1]}", flush=True)
+
+    weights = TOP.functional_weights(prov, knockout, baseline, progress=progress)
+    fr = TOP.score_topology_functional(draft, weights)
+    print(f"\n== topology reconstruction (functional) ==")
+    print(f"  weight-recall {fr['weight_recall']}  (edge-recall {fr['edge_recall']}) - the "
+          "draft captured this fraction of the total clinical signal")
+    print(f"  {fr['hit_weight']} / {fr['total_weight']} DAS28 impact over "
+          f"{fr['n_weighable']} weighable edges")
+    if fr["missed_ranked"]:
+        print("\n  highest-impact edges the LLM MISSED (DAS28 shift when knocked out):")
+        for w, (s, d) in fr["missed_ranked"]:
+            print(f"    {w:6.3f}  {s} -> {d}")
 
 
 if __name__ == "__main__":

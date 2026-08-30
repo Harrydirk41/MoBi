@@ -51,6 +51,46 @@ class TestGroundTruthEdges(unittest.TestCase):
         self.assertNotIn("Drug", {s for s, _ in self.edges} | {d for _, d in self.edges})
 
 
+class TestProvenance(unittest.TestCase):
+    def setUp(self):
+        self.prov = LT.edge_provenance(_NETWORK)
+
+    def test_edges_match_ground_truth(self):
+        self.assertEqual(set(self.prov), LT.ground_truth_edges(_NETWORK))
+
+    def test_regulatory_edge_carries_rule_param(self):
+        # TNFa -> FLS is created by the Pro_FLSProlif_byTNFa_effect intermediate
+        self.assertIn("Pro_FLSProlif_byTNFa_effect", self.prov[("TNFa", "FLS")]["rule_params"])
+
+    def test_mass_flow_edge_flagged_no_rule_param(self):
+        e = self.prov[("FLS", "FLS_active")]
+        self.assertTrue(e["mass_flow"])
+        self.assertFalse(e["rule_params"])
+
+    def test_direct_modifier_edge_no_rule_param(self):
+        # IL6 modifies the FLS reaction directly (not via a rule param)
+        self.assertFalse(self.prov[("IL6", "FLS")]["rule_params"])
+
+
+class TestFunctionalWeights(unittest.TestCase):
+    def test_only_ruleparam_edges_weighed_and_scored(self):
+        prov = LT.edge_provenance(_NETWORK)
+        # stub knockout: freezing the TNFa intermediate moves readout by 5 from baseline 20
+        def knockout(params):
+            return 15.0 if "Pro_FLSProlif_byTNFa_effect" in params else 20.0
+        w = LT.functional_weights(prov, knockout, baseline=20.0)
+        self.assertEqual(set(w), {("TNFa", "FLS")})        # only the rule-param edge is weighable
+        self.assertAlmostEqual(w[("TNFa", "FLS")], 5.0)
+
+    def test_weight_recall_rewards_high_impact_hits(self):
+        weights = {("A", "B"): 9.0, ("C", "D"): 1.0}
+        # draft found only the high-impact edge -> 50% of edges, 90% of weight
+        r = LT.score_topology_functional([{"src": "A", "dst": "B"}], weights)
+        self.assertEqual(r["edge_recall"], 0.5)
+        self.assertEqual(r["weight_recall"], 0.9)
+        self.assertEqual(r["missed_ranked"][0], (1.0, ("C", "D")))
+
+
 class TestDraftTopology(unittest.TestCase):
     def test_filters_to_real_node_pairs(self):
         call = lambda s, u: (

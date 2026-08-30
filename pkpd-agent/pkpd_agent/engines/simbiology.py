@@ -199,6 +199,34 @@ class SimBiologyEngine:
         finally:
             _quiet_rm(out)
 
+    def knockout_readout(self, param_names: "list | None", dose: str,
+                         readout_day: float, readout_state: str = "DAS28_CRP",
+                         stop_time: float = 700.0) -> float:
+        """Ablate a regulatory edge and read the clinical readout off the REAL model. Freezes
+        the named rule-parameters (deactivates their assigning rules, holds them constant),
+        severing their source-dependence, then simulates under ``dose`` and returns
+        ``readout_state`` (default DAS28_CRP) at ``readout_day``. Empty ``param_names`` = the
+        baseline run (nothing knocked out). The model is restored afterwards, so this can be
+        called repeatedly against one loaded project. This is the knob behind
+        ``llm_topology.functional_weights``: |readout(knockout) - readout(baseline)| weights an
+        edge by its clinical impact."""
+        import io
+        names = list(param_names or [])
+        pcsv = ""
+        if names:
+            pcsv = _tmp(".txt")
+            with open(pcsv, "w", encoding="utf-8") as fh:
+                fh.write("\n".join(names))
+        so = io.StringIO()
+        try:
+            val = self.eng.sb_knockout_readout(pcsv, dose or "", float(stop_time),
+                                               float(readout_day), readout_state,
+                                               nargout=1, stdout=so, stderr=so)
+            return float(val)
+        finally:
+            if pcsv:
+                _quiet_rm(pcsv)
+
     def cohort_multi_arm(self, param_spec: str, arms_spec: str, baseline_day: float,
                          readout_day: float, n_samples: int, seed: int = 1,
                          states: "list | None" = None, n_extra: int = 2,
