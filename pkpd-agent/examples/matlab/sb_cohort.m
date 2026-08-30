@@ -1,5 +1,5 @@
 function nDone = sb_cohort(paramSpec, armsSpec, baselineDay, readoutDay, ...
-                           nSamples, seed, stateSpec, outCsv, nExtra)
+                           nSamples, seed, stateSpec, outCsv, nExtra, seedCsv)
 %SB_COHORT Sample a virtual COHORT and record each candidate's untreated baseline
 %   severity AND its primary response flag under several therapy ARMS. This is the
 %   richer cohort the multi-anchor Vpop selection needs: with per-candidate response
@@ -61,6 +61,25 @@ function nDone = sb_cohort(paramSpec, armsSpec, baselineDay, readoutDay, ...
     nP = numel(names);
     if nP == 0, error('sb_cohort:noparams', 'no valid parameters to sample'); end
 
+    % -- optional seed vectors: simulate GIVEN parameter vectors instead of sampling ---- %
+    % (enrichment resamples around elite vectors, preserving correlations). The CSV's
+    % columns must be the same parameters in the same order as paramSpec.
+    seedVals = [];
+    if nargin >= 10 && ~isempty(strtrim(char(string(seedCsv)))) && exist(char(seedCsv), 'file')
+        try
+            seedVals = readmatrix(char(seedCsv), 'NumHeaderLines', 1);
+            if size(seedVals, 2) ~= nP
+                fprintf('WARNING: seedCsv has %d cols, expected %d - ignoring\n', ...
+                        size(seedVals, 2), nP);
+                seedVals = [];
+            else
+                nSamples = size(seedVals, 1);
+            end
+        catch ME
+            fprintf('WARNING: could not read seedCsv: %s\n', ME.message); seedVals = [];
+        end
+    end
+
     % -- parse arms "label:doseA,doseB" ;; ... ----------------------------- %
     armLabels = {}; armDoses = {};
     if ~isempty(strtrim(char(string(armsSpec))))
@@ -101,7 +120,9 @@ function nDone = sb_cohort(paramSpec, armsSpec, baselineDay, readoutDay, ...
     for i = 1:nSamples
         vals = zeros(1, nP); content = {};
         for j = 1:nP
-            if logs(j)
+            if ~isempty(seedVals)
+                vals(j) = seedVals(i, j);              % given vector (enrichment)
+            elseif logs(j)
                 vals(j) = 10 ^ (log10(los(j)) + rand() * (log10(his(j)) - log10(los(j))));
             else
                 vals(j) = los(j) + rand() * (his(j) - los(j));
@@ -161,7 +182,7 @@ function nDone = sb_cohort(paramSpec, armsSpec, baselineDay, readoutDay, ...
         end
         fprintf(fid, '\n');
         nDone = nDone + 1;
-        if mod(i, max(1, round(nSamples / 50))) == 0
+        if mod(i, max(1, round(nSamples / 10))) == 0
             fprintf('  cohort progress: %d/%d candidates\n', i, nSamples);
             try                                   % progress file for a Python poller
                 pf = fopen([outCsv '.prog'], 'w');

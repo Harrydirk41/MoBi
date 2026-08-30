@@ -202,7 +202,7 @@ class SimBiologyEngine:
     def cohort_multi_arm(self, param_spec: str, arms_spec: str, baseline_day: float,
                          readout_day: float, n_samples: int, seed: int = 1,
                          states: "list | None" = None, n_extra: int = 2,
-                         stream: bool = False) -> dict[str, Any]:
+                         stream: bool = False, seed_csv: str = "") -> dict[str, Any]:
         """Sample a virtual cohort and record each candidate's untreated baseline
         severity AND its primary response flag under several therapy arms - the rich
         cohort the multi-anchor Vpop selection needs. ``arms_spec`` is arms joined by
@@ -215,7 +215,7 @@ class SimBiologyEngine:
         so = io.StringIO()
         args = (param_spec, arms_spec or "", float(baseline_day), float(readout_day),
                 float(n_samples), float(seed), ";".join(states) if states else "", out,
-                float(n_extra))
+                float(n_extra), seed_csv or "")
         try:
             if stream:
                 # matlab.engine buffers stdout until the call returns, so live progress

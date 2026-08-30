@@ -341,6 +341,36 @@ def refit_bounds(cols: dict, bounds: dict, elite_idx: list, pad: float = 0.25) -
     return out
 
 
+def resample_around_elites(cols: dict, param_names: list, elite_idx: list, n: int,
+                           scales: dict, sigma: float = 0.3, seed: int = 1) -> list:
+    """Kernel resampling that PRESERVES parameter correlations: each new vector bootstraps
+    a whole ELITE candidate's parameter vector, then perturbs every parameter a little
+    (log-normal for log-scale params, additive-normal otherwise). Unlike narrowing each
+    parameter's marginal bounds independently, this keeps the joint structure that defines
+    a responder. Returns a list of {param: value} vectors (n of them). General."""
+    import math
+    import random
+    if not elite_idx:
+        return []
+    rnd = random.Random(seed)
+    out = []
+    for _ in range(int(n)):
+        e = rnd.choice(elite_idx)
+        vec = {}
+        for p in param_names:
+            col = cols.get(p, [])
+            v = col[e] if e < len(col) and isinstance(col[e], (int, float)) else None
+            if v is None:
+                vec[p] = None
+                continue
+            if scales.get(p, "log") == "log" and v > 0:
+                vec[p] = v * math.exp(rnd.gauss(0, sigma))
+            else:
+                vec[p] = v + rnd.gauss(0, sigma * (abs(v) if v else 1.0))
+        out.append(vec)
+    return out
+
+
 def concat_columns(a: dict, b: dict) -> dict:
     """Concatenate two cohort column dicts (same columns) row-wise - used to accumulate an
     enriched pool across sampling rounds."""

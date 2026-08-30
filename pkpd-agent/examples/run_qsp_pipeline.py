@@ -111,30 +111,43 @@ def main() -> None:
         n_extra = max((len(v) for v in full_cfg.values()), default=1) - 1  # roles beyond primary
         band = cfg.vpop_target.get("band")
 
-        def _cohort(bnds, seed):
-            return sb.cohort_multi_arm(qsp_tasks.build_sample_spec(bnds), arms_spec,
-                                       baseline_day, readout_day, args.n, seed,
-                                       states=cfg.readout_states or None,
-                                       n_extra=n_extra, stream=True)
+        param_names = list(bounds.keys())
+        scales = {p: (bounds[p][2] if len(bounds[p]) > 2 else "log") for p in param_names}
+        spec0 = qsp_tasks.build_sample_spec(bounds)
+
+        def _cohort(seed, seed_csv=""):
+            return sb.cohort_multi_arm(spec0, arms_spec, baseline_day, readout_day, args.n,
+                                       seed, states=cfg.readout_states or None,
+                                       n_extra=n_extra, stream=True, seed_csv=seed_csv)
 
         if args.enrich and args.enrich > 1:
             print(f"== [3] enriched sampling: {args.enrich} rounds x {args.n} candidates, "
-                  f"arms {list(arms)} ==", flush=True)
-            pool, cur = {}, dict(bounds)
+                  f"arms {list(arms)} (kernel resampling around elites) ==", flush=True)
+            pool = {}
+            seed_csv = ""   # round 0 samples over the bounds; later rounds use elite vectors
             for rd in range(args.enrich):
-                cc = (_cohort(cur, args.seed + rd).get("columns") or {})
+                cc = (_cohort(args.seed + rd, seed_csv=seed_csv).get("columns") or {})
                 pool = qsp_tasks.concat_columns(pool, cc)
                 elite = qsp_tasks.elite_mask(cc, list(arms), band)
                 print(f"   round {rd + 1}/{args.enrich}: "
                       f"{len(cc.get('sev_base', []))} sampled, {len(elite)} elite responders "
                       f"-> pool {len(pool.get('sev_base', []))}")
+                seed_csv = ""
                 if len(elite) >= 5 and rd < args.enrich - 1:
-                    cur = qsp_tasks.refit_bounds(cc, cur, elite)
+                    vecs = qsp_tasks.resample_around_elites(cc, param_names, elite, args.n,
+                                                            scales, seed=args.seed + rd)
+                    if vecs:
+                        seed_csv = os.path.join(tempfile.gettempdir(), "sb_seed.csv")
+                        with open(seed_csv, "w", newline="", encoding="utf-8") as fh:
+                            import csv as _csv
+                            w = _csv.writer(fh); w.writerow(param_names)
+                            for vec in vecs:
+                                w.writerow([vec.get(p, "") for p in param_names])
             r = {"columns": pool}
         else:
             print(f"== [3] sb_cohort: {args.n} candidates x {len(bounds)} params, "
                   f"arms {list(arms)} ==", flush=True)
-            r = _cohort(bounds, args.seed)
+            r = _cohort(args.seed)
         ml = (r.get("matlab_log") or "").strip()
         if ml:
             print("   [MATLAB] " + ml.replace("\n", "\n   [MATLAB] "))

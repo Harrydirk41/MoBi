@@ -291,6 +291,22 @@ class TestLoopToolRegistration(unittest.TestCase):
         # too few elites -> bounds unchanged
         self.assertEqual(qsp_tasks.refit_bounds(cols, bounds, [1])["F"], [0.01, 100.0, "log"])
 
+    def test_resample_around_elites(self):
+        from pkpd_agent.engines import qsp_tasks
+        # two elite vectors with CORRELATED params (both high or both low); resampling must
+        # keep them near an elite, not mix the marginals into an unseen combination
+        cols = {"A": [1.0, 100.0, 0.5], "B": [1.0, 100.0, 0.5]}   # #0 low-low, #1 high-high
+        scales = {"A": "log", "B": "log"}
+        vecs = qsp_tasks.resample_around_elites(cols, ["A", "B"], [0, 1], 200, scales,
+                                                sigma=0.1, seed=3)
+        self.assertEqual(len(vecs), 200)
+        # every vector stays correlated (near an elite): A and B on the same side, never the
+        # low-A/high-B combination that independent marginals would produce
+        bad = [v for v in vecs if (v["A"] < 3 and v["B"] > 30) or (v["A"] > 30 and v["B"] < 3)]
+        self.assertEqual(bad, [])
+        # empty elites -> empty
+        self.assertEqual(qsp_tasks.resample_around_elites(cols, ["A"], [], 10, scales), [])
+
     def test_concat_columns(self):
         from pkpd_agent.engines import qsp_tasks
         a = {"x": [1, 2], "y": [3, 4]}
