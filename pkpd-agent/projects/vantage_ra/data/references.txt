@@ -1,0 +1,99 @@
+1. Almutairi, K. A.-O. et al. The Prevalence of Rheumatoid Arthritis: A Systematic Review of Population-based Studies. J. Rheumatol. 48, 669–676 (2021). (0315-162X (Print)).
+2. Smolen, J. S. et al. Rheumatoid arthritis. Nat. Rev. Dis. Prim. 4, 18001 (2018).
+3. van Riel, P. L., The development of the disease activity score (DAS) and the disease activity score using 28 joint counts (DAS28). Clin Exp Rheumatol, 32: p. S-65–74. 2014)
+4. Kay, J. & Upchurch, K. S. ACR/EULAR 2010 rheumatoid arthritis classiﬁcation criteria. Rheumatology 51, vi5–vi9 (2012).
+5. Singh, J. A. et al. 2015 American College of Rheumatology Guideline for the Treatment of Rheumatoid Arthritis. Arthritis Care Res (Hoboken) 68, 1–25 (2016).
+6. Smolen, J. S., Aletaha, D. & McInnes,I. B. Rheumatoidarthritis. Lancet 388, 2023–2038 (2016).
+7. Ochi, S. et al. Insensitivity versus poor response to tumour necrosis factor inhibitors in rheumatoid arthritis: a retrospective cohort study. Arthritis Res. Ther. 22, 41 (2020).
+8. Wijbrandts, C. A. & Tak, P. P. Prediction of Response to Targeted Treatment in Rheumatoid Arthritis. Mayo Clin. Proc. 92, 1129–1143 (2017).
+9. Shakhnovich, V. It’s Time to Reverse our Thinking: The Reverse Translation Research Paradigm. Clin. Transl. Sci. 11, 98–99 (2018).
+10. Ray, T., Channavazzala,M., Bedathuru, D., Rengaswamy, M. and Kumar, R., QSP Model of Rheumatoid Arthritis, capturing range of clinical responses to Methotrexate and anti-TNF-a therapies, (PAGE. Stockholm, Sweden. 2019).
+11. Bedathuru, D. et al. Comparing Multiple Virtual Population Generation approaches using as a base, a QSP Model of Rheumatoid Arthritis (PAGE. Coruna, Spain. 2023).
+12. Gadkar, K. et al. A Six-Stage Workﬂow for Robust Application of Systems Pharmacology. CPT Pharmacomet. Syst. Pharm. 5, 235–249 (2016).
+13. Weis, M., Baillie, R. & Friedrich, C. Considerations for Adapting Pre- existing Mechanistic Quantitative Systems Pharmacology Models for New Research Contexts. Front Pharm. 10, 416 (2019).
+14. Friedrich, C. M. A model qualiﬁcation method for mechanistic physiological QSP models to support model-informed drug development. CPT Pharmacomet. Syst. Pharm. 5, 43–53 (2016).
+15. Hitchon, C. A. & El-Gabalawy, H. S. The synovium in rheumatoid arthritis. Open Rheumatol. J. 5, 107–114 (2011).
+16. Kavanaugh, A. et al. Clinical, functional and radiographic consequences of achieving stable low disease activity and remission with adalimumab plus methotrexate or methotrexate alone in early rheumatoid arthritis: 26-week results from the randomised, controlled OPTIMA study. Ann. Rheum. Dis. 72, 64–71 (2013).
+17. Yazici, Y. et al. Efﬁcacy of tocilizumab in patients with moderate to severe active rheumatoid arthritis and a previous inadequate response to disease-modifying antirheumatic drugs: the ROSE study. Ann. Rheum. Dis. 71, 198–205 (2012).
+18. Strand, V. et al. Treatment of active rheumatoid arthritis with leﬂunomide compared with placebo and methotrexate. Leﬂunomide Rheumatoid Arthritis Investigators Group. Arch. Intern Med 159, 2542–2550 (1999).
+19. Wang, E. B. et al. Incorporating Placebo Response in Quantitative Systems Pharmacology Models. CPT Pharmacomet. Syst. Pharm. 8, 344–346 (2019).
+20. Emery, P. et al. IL-6 receptor inhibition with tocilizumab improves treatment outcomes in patients with rheumatoid arthritis refractory to anti-tumour necrosis factor biologicals: results from a 24-week multicentre randomisedplacebo-controlled trial.Ann. Rheum.Dis.67, 1516–1523 (2008).
+21. Witten, T. M., del Rincon, I. & Escalante, A. Modeling the progression of articular erosion in rheumatoid arthritis (RA): Initial mathematical models. Math. Comput. Model. 31, 31–38 (2000).
+22. Moise, N. & Friedman, A. Rheumatoid arthritis - a mathematical model. J. Theor. Biol. 461, 17–33 (2019).
+23. Friedman, A. & Lam, K. Y. Analysis of a mathematical model of rheumatoid arthritis. J. Math. Biol. 80, 1857–1883 (2020).
+24. Rullmann, J. A. et al. Systems biology for battling rheumatoid arthritis: application of the Entelos PhysioLab platform. Syst. Biol. (Stevenage) 152, 256–262 (2005).
+25. Meeuwisse, C. M. et al. Identiﬁcation of CXCL13 as a marker for rheumatoid arthritis outcome using an in silico model of the rheumatic joint. Arthritis Rheum. 63, 1265–1273 (2011).
+26. Schmidt, B. J. et al. Alternate virtual populations elucidate the type I interferon signature predictive of the response to rituximab in rheumatoid arthritis. BMC Bioinforma. 14, 221 (2013).
+27. Hurez, V. et al, Evaluation of Novel Anti-TNFα and IL-6R Therapies in a Rheumatoid Arthritis (RA) Quantitative Systems Pharmacology (QSP) Platform In ASCPT. Washington DC. 2019).
+28. Susilo, M. E. et al. Systems-based digital twins to help characterize clinicaldose-responseandproposepredictivebiomarkersina PhaseI study of bispeciﬁc antibody, mosunetuzumab, in NHL. Clin. Transl. Sci. 16, 1134–1148 (2023).
+29. Paul, J. R. & Ranganathan, P. Clinical trials in rheumatoid arthritis: a status report from the ClinicalTrials.gov website. Rheumatol. Int 32, 1831–1835 (2012).
+30. Bartok, B. & Firestein, G. S. Fibroblast-like synoviocytes: key effector cells in rheumatoid arthritis. Immunol. Rev. 233, 233–255 (2010).
+31. Firestein, G. S. & McInnes, I. B. Immunopathogenesis of Rheumatoid Arthritis. Immunity 46, 183–196 (2017).
+32. Williams, H. J. et al. Comparison of low-dose oral pulse methotrexate and placebo in the treatment of rheumatoid arthritis. A controlled clinical trial. Arthritis Rheum. 28, 721–730 (1985).
+33. Oton, T. & Carmona, L. The epidemiology of established rheumatoid arthritis. Best. Pr. Res Clin. Rheumatol. 33, 101477 (2019).
+34. Fox, D. A. et al. Cell-cell interactions in rheumatoid arthritis synovium. Rheum. Dis. Clin. North Am. 36, 311–323 (2010).
+35. Page, A., Fusil, F. & Cosset, F. L. Antigen-speciﬁc tolerance approach for rheumatoid arthritis: Past, present and future. Jt. Bone Spine 88, 105164 (2021).
+36. Bustamante, M. F. et al. Fibroblast-like synoviocyte metabolism in the pathogenesis of rheumatoid arthritis. Arthritis Res Ther. 19, 110 (2017).
+37. Middleton, J. et al. Endothelial cell phenotypes in the rheumatoid synovium: activated, angiogenic, apoptotic and leaky. Arthritis Res Ther. 6, 60–72 (2004). https://doi.org/10.1038/s41540-024-00454-1 Article npj Systems Biology and Applications | (2024) 10:126 20 ===== PAGE 21 =====
+38. Udalova, I. A., Mantovani, A. & Feldmann, M. Macrophage heterogeneity in the context of rheumatoid arthritis. Nat. Rev. Rheumatol. 12, 472–485 (2016).
+39. Yap, H. Y., et al., Pathogenic Role of Immune Cells in Rheumatoid Arthritis: Implications in Clinical Treatment and Biomarker Development. Cells, 7. 2018)
+40. Chen, Z. et al. Anti-inﬂammatory and immune-regulatory cytokines in rheumatoid arthritis. Nat. Rev. Rheumatol. 15, 9–17 (2019).
+41. Byng-Maddick, R. & Ehrenstein, M. R. The impact of biological therapy on regulatory T cells in rheumatoid arthritis. Rheumatol. (Oxf.) 54, 768–775 (2015).
+42. McInnes, I. B. & Schett, G. Cytokines in the pathogenesis of rheumatoid arthritis. Nat. Rev. Immunol. 7, 429–442 (2007).
+43. McInnes, I. B., Buckley, C. D. & Isaacs, J. D. Cytokines in rheumatoid arthritis - shaping the immunological landscape.Nat. Rev. Rheumatol. 12, 63–68 (2016).
+44. Dayer, J. M., Oliviero,F. & Punzi,L. A Brief History of IL-1 andIL-1 Ra in Rheumatology. Front Pharm. 8, 293 (2017).
+45. Bykerk, V. P. The efﬁcacy and safety of targeting GM-CSF in arthritis. Lancet Rheumatol. 2, e648–e650 (2020).
+46. Wei, F., Chang, Y. & Wei, W. The role of BAFF in the progression of rheumatoid arthritis. Cytokine 76, 537–544 (2015).
+47. Aletaha, D. & Bluml, S. Therapeutic implications of autoantibodies in rheumatoid arthritis. RMD Open 2, e000009 (2016).
+48. Haringman, J. J., Ludikhuize, J. & Tak, P. P. Chemokines in joint disease: the key to inﬂammation? Ann. Rheum. Dis. 63, 1186–1194 (2004).
+49. Szekanecz, Z. & Koch, A. E. Cell-cell interactions in synovitis. Endothelial cells and immune cell migration. Arthritis Res 2, 368–373 (2000).
+50. Yoo, S. A., Kwok, S. K. & Kim, W. U. Proinﬂammatory role of vascular endothelial growth factor in the pathogenesis of rheumatoid arthritis: prospects for therapeutic intervention. Mediat. Inﬂamm. 2008, 129873 (2008).
+51. Burska, A., Boissinot, M. & Ponchel, F. Cytokines as biomarkers in rheumatoid arthritis. Mediat. Inﬂamm. 2014, 545493 (2014).
+52. Morel, P. A., Lee, R. E. C. & Faeder, J. R. Demystifying the cytokine network: Mathematical models point the way. Cytokine 98, 115–123 (2017).
+53. Minas, G. et al. Multiplexing information ﬂow through dynamic signalling systems. PLoS Comput Biol. 16, e1008076 (2020).
+54. Shoda, L. et al. The Type 1 Diabetes PhysioLab Platform: a validated physiologically based mathematical model of pathogenesis in the non-obese diabetic mouse. Clin. Exp. Immunol. 161, 250–267 (2010).
+55. Morris, M. K. et al. Querying quantitative logic models (Q2LM) to study intracellular signaling networks and cell-cytokine interactions. Biotechnol. J. 7, 374–386 (2012).
+56. Palsson, S. et al. The development of a fully-integrated immune response model (FIRM) simulator of the immune response through integration of multiple subset models. BMC Syst. Biol. 7, 95 (2013).
+57. Gaudet, S. et al. A compendium of signals and responses triggered by prodeath and prosurvival cytokines. Mol. Cell Proteom. 4, 1569–1590 (2005).
+58. Preza, G. C. et al. T lymphocyte density and distribution in human colorectal mucosa, and inefﬁciency of current cell isolation protocols. PLoS One 10, e0122723 (2015).
+59. Bonaterra, G. A. et al. Anti-inﬂammatory effectsof Phytodolor(R) (STW 1) and components (poplar, ash and goldenrod) on human monocytes/macrophages. Phytomedicine 58, 152868 (2019).
+60. Hobson, B. & Denekamp, J. Endothelial proliferation in tumours and normal tissues: continuous labelling studies. Br. J. Cancer 49, 405–413 (1984).
+61. Garcia, S. et al. Akt activity protects rheumatoid synovial ﬁbroblasts from Fas-induced apoptosis by inhibition of Bid cleavage. Arthritis Res Ther. 12, R33 (2010).
+62. Gorak-Stolinska, P. et al. Activation-induced cell death of human T-cell subsets is mediated by Fas and granzyme B but is independent of TNF-alpha. J. Leukoc. Biol. 70, 756–766 (2001).
+63. Zhang, X. et al. Tissue trafﬁcking patterns of effector memory CD4+ T cells in rheumatoid arthritis. Arthritis Rheum. 52, 3839–3849 (2005).
+64. Thurlings, R. M. et al. Monocyte scintigraphy in rheumatoid arthritis: the dynamics of monocyte migration in immune-mediated inﬂammatory disease. PLoS One 4, e7865 (2009).
+65. Elemam, N. M., Hannawi, S. & Maghazachi, A. A. Role of Chemokines and Chemokine Receptors in Rheumatoid Arthritis. Immunotargets Ther. 9, 43–56 (2020).
+66. Sherrer, Y. Abatacept in biologic-naïve patients and TNF inadequate responders: clinical data in focus. Curr. Med Res Opin. 24, 2283–2294 (2008).
+67. Chu, C. Q. et al. Localization of tumor necrosis factor alpha in synovial tissues and at the cartilage-pannus junction in patients with rheumatoid arthritis. Arthritis Rheum. 34, 1125–1132 (1991).
+68. Firestein, G. S., Alvaro-Gracia, J. M. & Maki, R. Quantitative analysis of cytokine gene expression in rheumatoid arthritis. J. Immunol. 144, 3347–3353 (1990).
+69. Athie-Morales, V. et al. Sustained IL-12 Signaling Is Required for Th1 Development 1. J. Immunol. 172, 61–69 (2004).
+70. Pincus, T. The American College of Rheumatology (ACR) Core Data Set and derivative “patient only” indices to assess rheumatoid arthritis. Clin. Exp. Rheumatol. 23, S109–S113 (2005).
+71. Ingegnoli, F., Castelli, R. & Gualtierotti, R. Rheumatoid factors: clinical applications. Dis. Markers 35, 727–734 (2013).
+72. Mun, S. et al. Proteomics Approach for the Discovery of Rheumatoid Arthritis Biomarkers Using Mass Spectrometry. Int J Mol Sci, 20. 2019)
+73. Curtis, J. R. et al. Validation of a novel multibiomarker test to assess rheumatoid arthritis disease activity. Arthritis Care Res (Hoboken) 64, 1794–1803 (2012).
+74. Segurado, O. G. and E. H. Sasso, Vectra DA for the objective measurement of disease activity in patients with rheumatoid arthritis. Clin Exp Rheumatol, 32: p. S-29-34. 2014)
+75. Huizinga, T. Predicting Risk of Radiographic Progression for Patients with Rheumatoid Arthritis. ACR Meeting Abstract 466 2019).
+76. Orr, C. K. et al. The Utility and Limitations of CRP, ESR and DAS28- CRP in Appraising Disease Activity in Rheumatoid Arthritis. Front Med (Lausanne) 5, 185 (2018).
+77. Gavrila, B. I., Ciofu, C. & Stoica, V. Biomarkers in Rheumatoid Arthritis, what is new? J. Med Life 9, 144–148 (2016).
+78. Shapiro, S. C. Biomarkers in Rheumatoid Arthritis. Cureus 13, e15063 (2021).
+79. Salafﬁ, F. et al. Relationship between time-integrated disease activity estimated by DAS28-CRP and radiographic progression of anatomical damage in patients with early rheumatoid arthritis. BMC Musculoskelet. Disord. 12, 120 (2011).
+80. McWilliams, D. F. et al. Interpretation of DAS28 and its components in the assessment of inﬂammatory and non-inﬂammatory aspects of rheumatoid arthritis. BMC Rheumatol. 2, 8 (2018).
+81. Alishiri, G. H. et al. Health-related quality of life and disease activity in rheumatoid arthritis. J. Res Med Sci. 16, 897–903 (2011).
+82. Smolen, J. S. et al. Treating rheumatoid arthritis to target: 2014 update of the recommendations of an international task force. Ann. Rheum. Dis. 75, 3–15 (2016).
+83. Smolen, J. S. et al. EULAR recommendations for the management of rheumatoid arthritis with synthetic and biological disease-modifying antirheumatic drugs: 2019 update. Ann. Rheum. Dis. 79, 685–699 (2020).
+84. Köhler, B. M. et al. Current Therapeutic Options in the Treatment of Rheumatoid Arthritis. J Clin Med 8. (2019)
+85. Ma, X. & Xu, S. TNF inhibitor therapy for rheumatoid arthritis. Biomed. Rep. 1, 177–184 (2013). https://doi.org/10.1038/s41540-024-00454-1 Article npj Systems Biology and Applications | (2024) 10:126 21 ===== PAGE 22 =====
+86. JM, K. Designing a research project: randomised controlled trials and their principles. Emerg. Med. J. 20, 164–168 (2003).
+87. Kaymakcalan, Z. et al. Comparisons of afﬁnities, avidities, and complement activation of adalimumab, inﬂiximab, and etanercept in binding to soluble and membrane tumor necrosis factor. Clin. Immunol. 131, 308–316 (2009).
+88. Mihara, M. et al. Tocilizumab inhibits signal transduction mediated by both mIL-6R and sIL-6R, but not by the receptors of other members of IL-6 cytokine family. Int Immunopharmacol. 5, 1731–1740 (2005).
+89. Dolhain, R. J. et al. Methotrexate reduces inﬂammatory cell numbers, expression of monokines andofadhesionmoleculesinsynovialtissue of patients with rheumatoid arthritis. Br. J. Rheumatol. 37, 502–508 (1998).
+90. Smith, M. D. et al. Successful treatment of rheumatoid arthritis is associated with a reduction in synovial membrane cytokines and cell adhesion molecule expression. Rheumatology 40, 965–977 (2001).
+91. Cribbs, A. P. et al. Methotrexate Restores Regulatory T Cell Function Through Demethylation of the FoxP3 Upstream Enhancer in Patients With Rheumatoid Arthritis. Arthritis Rheumatol. 67, 1182–1192 (2015).
+92. Municio, C. et al. Methotrexate limits inﬂammation through an A20- dependent cross-tolerance mechanism. Ann. Rheum. Dis. 77, 752–759 (2018).
+93. Joshi, T. et al. Considerations for calibrating a virtual patient population with QSP models for auto-immune diseases. in AcoP. 12. Virtual. (2021)
+94. Hosseini, I. et al. gQSPSim: A SimBiology-Based GUI for Standardized QSP Model Development and Application. CPT Pharmacomet. Syst. Pharm. 9, 165–176 (2020).
+95. Allen, R. J., Rieger, T. R. & Musante, C. J. Efﬁcient Generation and Selection of Virtual Populations in Quantitative Systems Pharmacology Models. CPT Pharmacomet. Syst. Pharm. 5, 140–146 (2016).
+96. Zhang, X. Y. et al. Sobol Sensitivity Analysis: A Tool to Guide the Development and Evaluation of Systems Pharmacology Models. CPT Pharmacomet. Syst. Pharm. 4, 69–79 (2015).
+97. Godfrey, C. et al. The population pharmacokinetics of long-term methotrexate in rheumatoid arthritis. Br J Clin Pharmacol. 46, 369–376 (1998).
+98. Ternant, D. et al. Pharmacokinetics and concentration-effect relationship of adalimumab in rheumatoid arthritis. Br J Clin Pharmacol. 79, 286–297 (2015).
+99. Frey, N., Grange, S. & Woodworth, T. Population pharmacokinetic analysis of tocilizumab in patients with rheumatoid arthritis. J Clin Pharmacol. 50, 754–766 (2010).

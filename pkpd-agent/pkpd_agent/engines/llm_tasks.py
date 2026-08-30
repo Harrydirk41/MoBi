@@ -58,6 +58,37 @@ def default_call(config):
     return call
 
 
+def default_web_call(config, max_searches: int = 8, tool_version: str = "web_search_20260209"):
+    """Like ``default_call`` but with the server-side web-search tool enabled, so the model
+    reads the literature ITSELF during the call (Route B) instead of being handed pre-fetched
+    text. The search runs on Anthropic's infrastructure and loops server-side; we just read the
+    final text blocks. Non-deterministic by nature (live search) - that is the trade vs the
+    cached Route-A material. Falls back to the older tool id if the newer one is rejected."""
+    import anthropic
+    client = anthropic.Anthropic()
+
+    def call(system: str, user: str) -> str:
+        for ver in (tool_version, "web_search_20250305"):
+            try:
+                resp = client.messages.create(
+                    model=config.model, max_tokens=16000, system=system,
+                    tools=[{"type": ver, "name": "web_search", "max_uses": max_searches}],
+                    messages=[{"role": "user", "content": user}])
+                break
+            except anthropic.BadRequestError:
+                if ver == "web_search_20250305":
+                    raise
+        text = "".join(getattr(b, "text", "") for b in resp.content
+                       if getattr(b, "type", None) == "text")
+        if not text.strip():
+            kinds = [getattr(b, "type", "?") for b in resp.content]
+            raise RuntimeError(
+                f"web-enabled LLM returned no text (stop_reason={resp.stop_reason}, "
+                f"content blocks={kinds}).")
+        return text
+    return call
+
+
 def _merge_roles(dst: dict, src: dict) -> None:
     for k in ("disease_drivers", "druggable", "calibratable"):
         for n in src.get(k, []):
