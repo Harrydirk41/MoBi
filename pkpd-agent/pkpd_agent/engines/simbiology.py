@@ -348,6 +348,16 @@ class SimBiologyEngine:
             species, float(high_value), readout_state, float(readout_day), float(stop_time),
             ";".join(decouple or []), float(decouple_value), nargout=1))
 
+    def import_simulate(self, sbml_path: str, readout_state: str,
+                        stop_time: float = 200.0) -> float:
+        """Import an SBML file (an assembled model), simulate it, and return ``readout_state``
+        at the end - runs a from-scratch assembled subsystem to compare against the real model."""
+        import io
+        so = io.StringIO()
+        return float(self.eng.sb_import_simulate(os.path.abspath(sbml_path), readout_state,
+                                                 float(stop_time), nargout=1,
+                                                 stdout=so, stderr=so))
+
     def list_parameters(self) -> dict[str, Any]:
         """Enumerate every parameter in the loaded model (name, value, constant) via
         sb_params.m - the full candidate set for driver selection, straight from the
