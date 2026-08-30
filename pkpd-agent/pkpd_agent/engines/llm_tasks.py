@@ -26,6 +26,7 @@ The drafter is pluggable via ``call_fn(system, user) -> str`` (tests use a stub)
 from __future__ import annotations
 
 import json
+import os
 
 from .llm_structure import _parse_json  # reuse the tolerant JSON extractor
 
@@ -58,6 +59,33 @@ def default_call(config):
     return call
 
 
+def default_vision_call(config):
+    """A multimodal call: (system, user, image_paths) -> text. Reads local image files, embeds
+    them as base64 blocks, and asks the extraction question against them - the honest way to test
+    'given the figure image, can the model read the value' (auto-fetching the exact figure from
+    the web is unreliable, so images are supplied)."""
+    import base64
+    import anthropic
+    client = anthropic.Anthropic()
+    mt = {".png": "image/png", ".jpg": "image/jpeg", ".jpeg": "image/jpeg",
+          ".gif": "image/gif", ".webp": "image/webp"}
+
+    def call(system: str, user: str, image_paths: list) -> str:
+        content = []
+        for p in image_paths:
+            ext = os.path.splitext(p)[1].lower()
+            with open(p, "rb") as fh:
+                content.append({"type": "image", "source": {
+                    "type": "base64", "media_type": mt.get(ext, "image/png"),
+                    "data": base64.standard_b64encode(fh.read()).decode()}})
+        content.append({"type": "text", "text": user})
+        resp = client.messages.create(model=config.model, max_tokens=4000, system=system,
+                                      messages=[{"role": "user", "content": content}])
+        return "".join(getattr(b, "text", "") for b in resp.content
+                       if getattr(b, "type", None) == "text")
+    return call
+
+
 def default_web_call(config, max_searches: int = 8, tool_version: str = "web_search_20260209"):
     """Like ``default_call`` but with the server-side web-search tool enabled, so the model
     reads the literature ITSELF during the call (Route B) instead of being handed pre-fetched
@@ -69,10 +97,13 @@ def default_web_call(config, max_searches: int = 8, tool_version: str = "web_sea
 
     def call(system: str, user: str) -> str:
         for ver in (tool_version, "web_search_20250305"):
+            fetch_ver = "web_fetch_20260209" if ver.endswith("20260209") else None
+            tools = [{"type": ver, "name": "web_search", "max_uses": max_searches}]
+            if fetch_ver:                              # let it READ pages, not just search
+                tools.append({"type": fetch_ver, "name": "web_fetch", "max_uses": max_searches})
             try:
                 resp = client.messages.create(
-                    model=config.model, max_tokens=16000, system=system,
-                    tools=[{"type": ver, "name": "web_search", "max_uses": max_searches}],
+                    model=config.model, max_tokens=16000, system=system, tools=tools,
                     messages=[{"role": "user", "content": user}])
                 break
             except anthropic.BadRequestError:

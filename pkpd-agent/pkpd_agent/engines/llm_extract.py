@@ -48,6 +48,24 @@ def extract_value(prov: dict, call) -> dict:
             "in_figure_only": d.get("in_figure_only"), "note": d.get("note")}
 
 
+def extract_value_vision(prov: dict, image_paths: list, call) -> dict:
+    """Extraction given the actual FIGURE IMAGE(S): pass the images to a multimodal
+    ``call(system, user, image_paths)->str`` and read the value off the chart. Tests the true
+    capability once the modality gap (figure vs text) is removed."""
+    user = build_prompt(prov) + ("\n\nThe cited figure image(s) are attached above. Read the "
+                                 "value directly from the chart/table.")
+    d = _parse_json(call(_SYS, user, image_paths))
+    if not isinstance(d, dict):
+        return {"found_paper": True, "value": None, "in_figure_only": True, "note": "parse fail"}
+    v = d.get("value")
+    try:
+        v = float(v) if v is not None else None
+    except (TypeError, ValueError):
+        v = None
+    return {"found_paper": True, "value": v, "in_figure_only": d.get("in_figure_only"),
+            "note": d.get("note")}
+
+
 def grade(pred_value, truth_value, tol: float = 0.25) -> dict:
     """Compare an extracted value to the reference value: a hit if within ``tol`` relative
     error. Returns {extracted, hit, rel_err}."""

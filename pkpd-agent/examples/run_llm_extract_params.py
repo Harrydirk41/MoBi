@@ -26,7 +26,9 @@ def main() -> None:
     ap.add_argument("--provenance", required=True)
     ap.add_argument("--limit", type=int, default=0, help="0 = all parameters with a reference")
     ap.add_argument("--tol", type=float, default=0.25)
-    ap.add_argument("--web", action="store_true", help="give the LLM web search (recommended)")
+    ap.add_argument("--web", action="store_true", help="give the LLM web search + fetch")
+    ap.add_argument("--figures", default="", help="dir of figure images named <param>.png/.jpg; "
+                    "when present, use VISION (read the value off the figure image)")
     ap.add_argument("--llm-model", default=None)
     args = ap.parse_args()
 
@@ -43,20 +45,30 @@ def main() -> None:
         items = items[: args.limit]
     print(f"grading extraction on {len(items)} parameters that cite a reference\n")
 
-    call = LT.default_web_call(cfg) if args.web else LT.default_call(cfg)
-    found = extracted = hit = figonly = 0
+    import glob
+    web_call = LT.default_web_call(cfg) if args.web else LT.default_call(cfg)
+    vis_call = LT.default_vision_call(cfg) if args.figures else None
+    found = extracted = hit = figonly = vis_used = 0
     for i, p in enumerate(items, 1):
+        imgs = []
+        if args.figures:
+            imgs = sorted(glob.glob(os.path.join(args.figures, p["name"] + ".*")))
         try:
-            r = EX.extract_value(p, call)
+            if imgs:
+                r = EX.extract_value_vision(p, imgs, vis_call); vis_used += 1
+            else:
+                r = EX.extract_value(p, web_call)
         except Exception as e:
             print(f"[{i}/{len(items)}] {p['name'][:26]:26} ERROR {e}"); continue
         g = EX.grade(r["value"], p["value_from_reference"], tol=args.tol)
         found += r["found_paper"]; extracted += g["extracted"]; hit += g["hit"]
         figonly += 1 if r.get("in_figure_only") else 0
         mark = "HIT " if g["hit"] else ("MISS" if g["extracted"] else "----")
+        via = "vision" if imgs else ("fig-only" if r.get("in_figure_only") else "text")
         print(f"[{i}/{len(items)}] {mark} {p['name'][:24]:24} "
-              f"got={r['value']} truth={p['value_from_reference']} "
-              f"({'fig-only' if r.get('in_figure_only') else 'text'}) {p['reference']}")
+              f"got={r['value']} truth={p['value_from_reference']} ({via}) {p['reference']}")
+        if r.get("note"):
+            print(f"          reason: {r['note']}")
 
     n = len(items) or 1
     print(f"\n== data-acquisition scorecard ==")
@@ -64,9 +76,11 @@ def main() -> None:
     print(f"  extraction (returned any value):     {extracted}/{n} = {extracted/n:.0%}")
     print(f"  accuracy   (within {args.tol:.0%} of truth):    {hit}/{n} = {hit/n:.0%}")
     print(f"  value was figure-only (needs vision): {figonly}/{n} = {figonly/n:.0%}")
+    if vis_used:
+        print(f"  (of these, {vis_used} used a supplied figure image via VISION)")
     print("  -> the gap between retrieval and accuracy is the data-acquisition bottleneck: "
-          "reaching\n     a paper is not reading its figures. Feeding figure IMAGES (vision) "
-          "is the next lever.")
+          "reaching\n     a paper is not reading its figures. Supply figures (--figures) to "
+          "test the vision ceiling.")
 
 
 if __name__ == "__main__":
