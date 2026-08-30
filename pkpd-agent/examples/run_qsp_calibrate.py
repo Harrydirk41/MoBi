@@ -27,6 +27,7 @@ import argparse
 import csv
 import json
 import os
+import random
 import re
 import tempfile
 
@@ -48,6 +49,40 @@ def _discover_prolif(params: list, cell: str, override: str) -> list:
     return []
 
 
+def _sim_cell(sb, cell, steady_day):
+    return float(sb.simulate(stop_time=steady_day + 1.0)["columns"][cell][-1])
+
+
+def _recover_multi(sb, names, truths, cell, s0, steady_day, restarts, perturb, seed):
+    """Jointly fit several coupled parameters to the SAME single steady-state target, from
+    several random starts. One scalar target cannot pin many parameters, so each restart lands
+    a DIFFERENT parameter vector that reproduces the target equally well - that spread IS the
+    non-identifiability. Returns (per-restart fitted vectors, per-restart output value)."""
+    rng = random.Random(seed)
+    data = os.path.join(tempfile.gettempdir(), "calib_multi_target.csv")
+    with open(data, "w", newline="", encoding="utf-8") as fh:
+        w = csv.writer(fh)
+        w.writerow(["Time", cell]); w.writerow([steady_day, s0])
+    spec = ";".join(f"{n},{t/50:g},{t*50:g},log" for n, t in zip(names, truths))
+    fits, outs = [], []
+    for r in range(restarts):
+        for n, t in zip(names, truths):                # random start in [1/perturb, perturb]*truth
+            sb.set_parameter(n, t * (perturb ** rng.uniform(-1, 1)))
+        res = sb.fit_native(spec, data, f"{cell} = {cell}", method="lsqnonlin")
+        est = res.get("columns", {}).get("estimate", [])
+        fitted = [float(x) for x in est] if len(est) == len(names) else [float("nan")] * len(names)
+        for n, v in zip(names, fitted):                # apply the fit, read the output it gives
+            if v == v:
+                sb.set_parameter(n, v)
+        outs.append(_sim_cell(sb, cell, steady_day))
+        fits.append(fitted)
+        print(f"  restart {r+1}/{restarts}: output {cell} = {outs[-1]:g} "
+              f"(target {s0:g})", flush=True)
+    for n, t in zip(names, truths):
+        sb.set_parameter(n, t)                         # restore
+    return fits, outs
+
+
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -56,6 +91,13 @@ def main() -> None:
     ap.add_argument("--targets", required=True, help="steady_state_targets.json")
     ap.add_argument("--cell", default="FLS", help="model species to calibrate (a cell)")
     ap.add_argument("--param", default="", help="override the proliferation parameter name")
+    ap.add_argument("--params", default="", help="comma list: JOINTLY fit these (identifiability)")
+    ap.add_argument("--regulators", action="store_true",
+                    help="auto-pick the cell's proliferation regulators (<cell>Prolif_Maxby*) "
+                         "and jointly fit them - the identifiability experiment")
+    ap.add_argument("--restarts", type=int, default=4,
+                    help="joint fit from N random starts (spread of fits = non-identifiability)")
+    ap.add_argument("--seed", type=int, default=1)
     ap.add_argument("--perturb", type=float, default=3.0,
                     help="factor to perturb the rate by before refitting")
     ap.add_argument("--steady-day", type=float, default=199.0,
@@ -110,6 +152,45 @@ def main() -> None:
         print(f"  ratio model/target = {ratio:.3g}  "
               + ("(same unit, close)" if 0.2 < ratio < 5 else
                  "(differ - likely a unit/compartment scaling; recover demo is unit-safe)"))
+
+        # ---- Phase 2b: identifiability experiment (joint fit of coupled params) ----
+        if args.params or args.regulators:
+            if args.params:
+                jnames = [n.strip() for n in args.params.split(",") if n.strip()]
+            else:                                      # auto: the cell's proliferation regulators
+                rgx = re.compile(rf"(?i){args.cell}.*prolif.*max")
+                jnames = [p["name"] for p in params if rgx.search(p["name"])]
+            truths = [next((float(p["value"]) for p in params if p["name"] == n), None)
+                      for n in jnames]
+            jnames = [n for n, t in zip(jnames, truths) if t is not None]
+            truths = [t for t in truths if t is not None]
+            if len(jnames) < 2:
+                print(f"need >=2 joint parameters; found {jnames}. Pass --params a,b,c.")
+                return
+            print(f"\n== identifiability experiment: jointly fit {len(jnames)} coupled "
+                  f"regulators to ONE target ({args.cell}={s0:g}), {args.restarts} restarts ==")
+            for n, t in zip(jnames, truths):
+                print(f"    {n} (truth {t:g})")
+            fits, outs = _recover_multi(sb, jnames, truths, args.cell, s0, args.steady_day,
+                                        args.restarts, args.perturb, args.seed)
+            print(f"\n== result: output fits, parameters DON'T (non-identifiability) ==")
+            out_ok = sum(1 for o in outs if s0 and abs(o - s0) / s0 < 0.05)
+            print(f"  output match: {out_ok}/{len(outs)} restarts reproduce {args.cell} "
+                  f"within 5%")
+            print(f"  {'parameter':32} {'truth':>10}  {'fitted range across restarts':>28}"
+                  f"  spread")
+            for j, (n, t) in enumerate(zip(jnames, truths)):
+                col = [f[j] for f in fits if f[j] == f[j]]
+                if not col:
+                    continue
+                lo, hi = min(col), max(col)
+                spread = (hi - lo) / t if t else float("nan")
+                print(f"  {n:32} {t:10.3g}  [{lo:10.3g}, {hi:10.3g}]  {spread:5.1f}x")
+            print("\n  -> many parameter sets reproduce the one target equally well: a single "
+                  "steady-state\n     value cannot pin coupled regulators. THIS is why the full "
+                  "527-param fit needs\n     many constraints + biological judgment, not a "
+                  "push-button optimizer.")
+            return
 
         # ---- Phase 2: recover demo (unit-safe: fit back to the model's own S0) -----
         print(f"\n== recover demo: perturb {pname} x{args.perturb:g}, then fit it back ==")
