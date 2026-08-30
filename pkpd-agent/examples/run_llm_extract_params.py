@@ -29,6 +29,9 @@ def main() -> None:
     ap.add_argument("--web", action="store_true", help="give the LLM web search + fetch")
     ap.add_argument("--figures", default="", help="dir of figure images named <param>.png/.jpg; "
                     "when present, use VISION (read the value off the figure image)")
+    ap.add_argument("--papers", default="", help="dir of paper PDFs named by author+year "
+                    "(e.g. Hashizume2008.pdf); matched to each parameter's reference and read "
+                    "whole (figures included) via VISION")
     ap.add_argument("--llm-model", default=None)
     args = ap.parse_args()
 
@@ -46,13 +49,33 @@ def main() -> None:
     print(f"grading extraction on {len(items)} parameters that cite a reference\n")
 
     import glob
+    import re as _re
     web_call = LT.default_web_call(cfg) if args.web else LT.default_call(cfg)
-    vis_call = LT.default_vision_call(cfg) if args.figures else None
+    vis_call = LT.default_vision_call(cfg) if (args.figures or args.papers) else None
+    pdfs = sorted(glob.glob(os.path.join(args.papers, "*.pdf"))) if args.papers else []
+
+    def match_pdf(ref):
+        """Match a parameter's reference ('Hashizume et al, 2018') to a PDF filename by the
+        first-author surname (and year when both carry one)."""
+        if not ref or not pdfs:
+            return None
+        surname = _re.split(r"[ ,]", ref.strip())[0].lower()
+        yr = _re.search(r"(19|20)\d\d", ref)
+        cands = [f for f in pdfs if surname and surname in os.path.basename(f).lower()]
+        if yr:
+            y = [f for f in cands if yr.group(0) in os.path.basename(f)]
+            if y:
+                return y[0]
+        return cands[0] if cands else None
+
     found = extracted = hit = figonly = vis_used = 0
     for i, p in enumerate(items, 1):
         imgs = []
         if args.figures:
             imgs = sorted(glob.glob(os.path.join(args.figures, p["name"] + ".*")))
+        if not imgs and args.papers:
+            m = match_pdf(p.get("reference"))
+            imgs = [m] if m else []
         try:
             if imgs:
                 r = EX.extract_value_vision(p, imgs, vis_call); vis_used += 1

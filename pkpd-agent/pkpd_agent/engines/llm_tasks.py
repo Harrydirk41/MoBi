@@ -75,9 +75,13 @@ def default_vision_call(config):
         for p in image_paths:
             ext = os.path.splitext(p)[1].lower()
             with open(p, "rb") as fh:
+                data = base64.standard_b64encode(fh.read()).decode()
+            if ext == ".pdf":                          # whole paper (figures included)
+                content.append({"type": "document", "source": {
+                    "type": "base64", "media_type": "application/pdf", "data": data}})
+            else:
                 content.append({"type": "image", "source": {
-                    "type": "base64", "media_type": mt.get(ext, "image/png"),
-                    "data": base64.standard_b64encode(fh.read()).decode()}})
+                    "type": "base64", "media_type": mt.get(ext, "image/png"), "data": data}})
         content.append({"type": "text", "text": user})
         resp = client.messages.create(model=config.model, max_tokens=4000, system=system,
                                       messages=[{"role": "user", "content": content}])
