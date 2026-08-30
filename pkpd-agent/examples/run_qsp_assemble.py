@@ -31,6 +31,9 @@ def main() -> None:
     ap.add_argument("--sbproj", required=True)
     ap.add_argument("--cell", default="FLS")
     ap.add_argument("--readout-day", type=float, default=199.0)
+    ap.add_argument("--fit-k", action="store_true",
+                    help="calibrate each half-effect K from a per-cytokine isolating experiment "
+                         "on the real model (closes the residual gap the guessed K leaves)")
     args = ap.parse_args()
 
     sb = SimBiologyEngine()
@@ -62,12 +65,34 @@ def main() -> None:
         # build the regulator list + parameter values; K (half-effect) defaults to the cytokine's
         # own steady-state level (Hill at 0.5) - the library default, since a per-edge K is not
         # separately exposed. This is the standard-motif approximation the comparison measures.
-        regulators, values, clamp = [], {base_p: pv[base_p], apop_p: pv[apop_p]}, {}
+        kg, kd = pv[base_p], pv[apop_p]
+
+        # optional: calibrate each K from a per-cytokine ISOLATING experiment on the real model.
+        # 5 K's cannot be pinned from one FLS target (under-determined), so isolate: set the
+        # OTHER regulators' Maxby to 1.0 (no effect), read the real FLS driven by only this
+        # cytokine -> its fold, then solve K analytically for the motif to reproduce it.
+        fittedK = {}
+        if args.fit_k:
+            print("== calibrating each K from a per-cytokine isolating experiment ==", flush=True)
+            for src, dst, knob in regs:
+                saved = {k2: sb.set_parameter(k2, 1.0) for _, _, k2 in regs if k2 != knob}
+                only = {k: v[-1] for k, v in sb.simulate(stop_time=args.readout_day + 1.0)
+                        .get("columns", {}).items() if v}
+                for k2, old in saved.items():
+                    sb.set_parameter(k2, old)              # restore
+                X, Max = max(prof.get(src, 0.0), 1e-12), pv[knob]
+                fold = (only.get(args.cell, 0.0) * kd / kg) if kg else 1.0   # real fold from src
+                frac = (fold - 1.0) / (Max - 1.0) if Max != 1 else 0.0        # = X/(K+X)
+                K = X * (1.0 / frac - 1.0) if 0 < frac < 1 else (1e-9 if frac >= 1 else 1e12)
+                fittedK[src] = max(K, 1e-9)
+                print(f"    {src}: real fold {fold:.3f} -> K = {fittedK[src]:.3g}")
+
+        regulators, values, clamp = [], {base_p: kg, apop_p: kd}, {}
         for src, dst, knob in regs:
             k_name = f"K_{dst}_{src}"
             regulators.append({"species": src, "max_param": knob, "k_param": k_name})
             values[knob] = pv[knob]
-            values[k_name] = max(prof.get(src, 1.0), 1e-9)   # K = baseline level -> Hill 0.5
+            values[k_name] = fittedK.get(src, max(prof.get(src, 1.0), 1e-9))  # fitted, or baseline
             clamp[src] = prof.get(src, 0.0)
 
         spec = MA.build_subsystem(args.cell, base_p, apop_p, regulators, values, clamp)
