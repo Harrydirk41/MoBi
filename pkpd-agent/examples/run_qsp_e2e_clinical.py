@@ -58,6 +58,9 @@ def main() -> None:
     ap.add_argument("--vpop", required=True)
     ap.add_argument("--pattern", default=r"(?i)IL6.*HalfEffect|HalfEffect.*IL6|IL6Sec.*HalfEffect",
                     help="regex selecting the IL-6-secretion half-effect params to override")
+    ap.add_argument("--kfac", type=float, default=1.0,
+                    help="scale the agent's K (= kfac * regulator level) to probe the sloppy range; "
+                         "1.0 = the agent's point choice, 0.1/10 = the unidentified K uncertainty")
     ap.add_argument("--limit", type=int, default=200)
     args = ap.parse_args()
 
@@ -85,9 +88,10 @@ def main() -> None:
             if cyt is None:
                 print(f"    {p['name']}  (no cytokine matched - left at calibrated value)")
                 continue
-            overrides.append(f"{p['name']}={levels[cyt]:g}")
-            mapped.append((p["name"], cyt, float(p["value"]) if p["value"] else None, levels[cyt]))
-            print(f"    {p['name']:40} -> K = level[{cyt}] = {levels[cyt]:g}  "
+            kval = levels[cyt] * args.kfac
+            overrides.append(f"{p['name']}={kval:g}")
+            mapped.append((p["name"], cyt, float(p["value"]) if p["value"] else None, kval))
+            print(f"    {p['name']:40} -> K = {args.kfac:g}*level[{cyt}] = {kval:g}  "
                   f"(calibrated was {p['value']})")
         if not overrides:
             print("  no overridable params matched --pattern; refine it and re-run."); return
@@ -98,8 +102,8 @@ def main() -> None:
         for d, r in base.items():
             print(f"  {d:<5} " + " ".join(f"{role}={r.get(role)}" for role in first_line))
 
-        print(f"\n== agent's IL-6 hub (K = regulator level) dropped into the full model ==",
-              flush=True)
+        print(f"\n== agent's IL-6 hub (K = {args.kfac:g}*regulator level) dropped into the full "
+              f"model ==", flush=True)
         agent = _arm_rates(sb, cfg, args.vpop, first_line, readout_day, args.limit,
                            overrides=";".join(overrides))
         for d, r in agent.items():
