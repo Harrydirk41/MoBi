@@ -94,6 +94,49 @@ def lookup_max(prov, node, cyt):
     return None
 
 
+def max_provenance(prov, node, cyt):
+    """Return (value, from_literature) for the node<-cyt strength, or (None, None)."""
+    for n, p in prov.items():
+        m = _SEC.search(n)
+        if m and m.group(1) == node and m.group(2) == cyt:
+            return p.get("value_from_reference"), p.get("from_literature")
+    return None, None
+
+
+def report_fit(node, chosen, prov, levels, info):
+    """A) Honest parameter origin for ANY node: look up literature-cited strengths, fit the rest.
+    kg is identifiable from the steady-state target; the half-effects K are not (two K-sets match
+    training yet diverge on a held-out knockdown of the strongest regulator)."""
+    regs = [c for c in chosen if c in levels and c != node and lookup_max(prov, node, c) is not None]
+    lit = [c for c in regs if max_provenance(prov, node, c)[1]]
+    fitted = [c for c in regs if not max_provenance(prov, node, c)[1]]
+    print(f"\n== A) parameter origin split for '{node}' ==")
+    print(f"  LOOK UP (literature-cited Max): {lit}")
+    print(f"  MUST FIT (no citation): Max{fitted or '[]'}, kg_{node}, and every K_<reg>")
+    maxes = {c: lookup_max(prov, node, c) for c in regs}
+
+    def eff(kfac, x):
+        p = 1.0
+        for c in regs:
+            K = levels[c] * kfac
+            p *= 1.0 + (maxes[c] - 1.0) * x[c] / (K + x[c])
+        return p
+
+    base = {c: levels[c] for c in regs}
+    strong = max(regs, key=lambda c: abs(maxes[c] - 1))     # held-out: knock the strongest driver
+    held = dict(base); held[strong] = levels[strong] * 0.1
+    print(f"  kg is IDENTIFIABLE (one steady-state target pins one baseline rate).")
+    print(f"  K is UNDER-DETERMINED - two K-sets, both matched to train, on held-out (anti-{strong}):")
+    preds = {}
+    for lab, kf in [("K=0.1x level", 0.1), ("K=10x level", 10.0)]:
+        preds[lab] = info["level"] * eff(kf, held) / eff(kf, base)   # kg refit -> train exact
+        print(f"    {lab:14} train {info['level']:.4g}  held-out {preds[lab]:.4g}")
+    a, b = preds.values()
+    print(f"  -> the two agree on training but differ {abs(a-b)/max(a,b):.0%} on held-out: K needs "
+          f"per-cytokine\n     dose-response to pin (operating-point dependent). Data, not the table,"
+          " is what's missing.")
+
+
 def assemble_node(node, chosen, prov, levels, clearance, motif, clamp=None):
     """Node-agnostic assembly: same machinery as the IL-6 driver, parameterised by node name."""
     regs = [c for c in chosen if c in levels and c != node]
@@ -131,6 +174,8 @@ def main() -> None:
     ap.add_argument("--node", default=None, help="which node to build; default = first discovered")
     ap.add_argument("--list", action="store_true", help="list buildable nodes and exit")
     ap.add_argument("--live", action="store_true", help="agent proposes the structure via the LLM")
+    ap.add_argument("--fit", action="store_true",
+                    help="A) also report the honest parameter-origin split for this node")
     args = ap.parse_args()
 
     prov, levels, cytokines = load_model(args.model)
@@ -200,6 +245,9 @@ def main() -> None:
     print(f"\n  -> same code, node '{node}', zero IL-6 scaffolding: discovered the node, its "
           "regulators,\n     its clearance and target from the model; assembled, fit, emitted "
           "SBML, and simulated.")
+
+    if args.fit:
+        report_fit(node, chosen, prov, levels, info)
 
 
 if __name__ == "__main__":

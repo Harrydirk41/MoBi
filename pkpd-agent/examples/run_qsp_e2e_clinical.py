@@ -56,8 +56,10 @@ def main() -> None:
     ap.add_argument("--model", default="ra")
     ap.add_argument("--sbproj", required=True)
     ap.add_argument("--vpop", required=True)
-    ap.add_argument("--pattern", default=r"(?i)IL6.*HalfEffect|HalfEffect.*IL6|IL6Sec.*HalfEffect",
-                    help="regex selecting the IL-6-secretion half-effect params to override")
+    ap.add_argument("--node", default="IL6",
+                    help="which node's secretion half-effects to override (any node, not just IL6)")
+    ap.add_argument("--pattern", default=None,
+                    help="regex for the half-effect params; default built from --node")
     ap.add_argument("--kfac", type=float, default=1.0,
                     help="scale the agent's K (= kfac * regulator level) to probe the sloppy range; "
                          "1.0 = the agent's point choice, 0.1/10 = the unidentified K uncertainty")
@@ -77,10 +79,11 @@ def main() -> None:
         print("== starting MATLAB =="); sb.start()
         print(f"== loading {os.path.basename(args.sbproj)} =="); sb.load_project(args.sbproj)
 
-        rgx = re.compile(args.pattern)
+        pattern = args.pattern or rf"(?i){args.node}.*HalfEffect|HalfEffect.*{args.node}"
+        rgx = re.compile(pattern)
         params = sb.list_parameters().get("parameters", [])
         hub = [p for p in params if rgx.search(p["name"])]
-        print(f"\n== IL-6-secretion half-effect params discovered ({len(hub)}) ==")
+        print(f"\n== {args.node}-related half-effect params discovered ({len(hub)}) ==")
         # agent's principled choice: K = the regulator cytokine's own baseline level (Hill 0.5).
         overrides, mapped = [], []
         for p in hub:
