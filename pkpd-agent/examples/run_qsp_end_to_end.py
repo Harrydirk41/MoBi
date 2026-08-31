@@ -86,7 +86,7 @@ def integrate(net, clamp, t_end=6.0, dt=1e-3):
     return state
 
 
-def assemble(regs, truth_maxes, levels, kcl, target, clamp=None):
+def assemble(regs, truth_maxes, levels, kcl, target, clamp=None, motif=None):
     """STAGE 2+4: turn a chosen regulator set into a fitted, runnable IL-6 subsystem spec.
     Look up each regulator's max fold-change in MOESM2; a direction prior if it is not there.
     K = its level (Hill half-saturation). Fit baseline secretion kg so the model hits `target`.
@@ -94,21 +94,28 @@ def assemble(regs, truth_maxes, levels, kcl, target, clamp=None):
     baseline levels. kg is always fit at BASELINE levels, so a held-out clamp changes only the
     operating point, not the fitted parameter."""
     regs = [r for r in regs if r["cytokine"] in levels and r["cytokine"] != "IL6"]
-    reg_specs, values, from_data, from_prior = [], {}, [], []
-    eff = 1.0
+    if motif is None:                                       # generic prior; --live lets agent pick
+        motif = {"proliferation_order": "zeroth", "combination": "product", "cap": None}
+    reg_specs, values, from_data, from_prior, excess = [], {}, [], [], []
     for r in regs:
         c = r["cytokine"]
         if c in truth_maxes:
             mx = truth_maxes[c]; from_data.append(c)
         else:
             mx = 1.5 if r.get("direction") == "up" else 0.6; from_prior.append(c)
-        L = levels[c]
         reg_specs.append({"species": c, "max_param": f"Mx_{c}", "k_param": f"K_{c}"})
-        values[f"Mx_{c}"] = mx; values[f"K_{c}"] = L
-        eff *= 1.0 + (mx - 1.0) * L / (L + L)               # K = L -> fold = (1+mx)/2
+        values[f"Mx_{c}"] = mx; values[f"K_{c}"] = levels[c]
+        excess.append((mx - 1.0) * 0.5)                     # K = L -> L/(K+L) = 0.5
+    # baseline effect matching the agent's chosen combination, so kg lands the target either way
+    if motif.get("combination") == "capped_sum":
+        s = sum(excess); cap = motif.get("cap")
+        eff = min(cap, 1.0 + s) if cap not in (None, "", 0) else 1.0 + s
+    else:
+        eff = 1.0
+        for e in excess:
+            eff *= 1.0 + e
     kg = target * kcl / eff                                 # STAGE 4: fit the one free parameter
     values["kg_IL6"] = kg; values["kcl_IL6"] = kcl; values["IL6_init"] = 0.0
-    motif = {"proliferation_order": "zeroth", "combination": "product", "cap": None}
     if clamp is None:
         clamp = {r["species"]: levels[r["species"]] for r in reg_specs}   # regulators, not IL6
     spec = MA.build_subsystem("IL6", "kg_IL6", "kcl_IL6", reg_specs, values,
@@ -192,18 +199,22 @@ def main() -> None:
     target = float(tg["IL6"]["target_model_unit"])
     cyts = sorted(c for c, t in tg.items() if t.get("kind") == "cytokine" and c in levels)
 
-    # ---- STAGE 1: the agent decides the structure ----
+    # ---- STAGE 1: the agent decides the structure (LIVE) ----
     print("== STAGE 1: agent decides IL-6 secretion structure from biology ==")
+    call = None
     if args.live:
         from pkpd_agent.config import AgentConfig
         from pkpd_agent.engines import llm_tasks as LT
         cfg = AgentConfig(mock=False)
         if not cfg.anthropic_key_present():
             print("  --live given but ANTHROPIC_API_KEY not set; falling back to recorded choice.")
-            chosen = _RECORDED_AGENT
         else:
-            chosen = MA.propose_regulators("IL6", cyts, "secretion", LT.default_call(cfg))
-            print("  (live LLM call)")
+            call = LT.default_call(cfg)
+    if call is not None:
+        chosen = MA.propose_regulators("IL6", cyts, "secretion", call)
+        print("  (LIVE LLM call) agent's structural reasoning:")
+        for r in chosen:
+            print(f"    {r['cytokine']:6} {(r.get('direction') or ''):4}  {r.get('basis') or ''}")
     else:
         chosen = _RECORDED_AGENT
         print("  (recorded clean-agent choice; pass --live to call the LLM)")
@@ -215,9 +226,22 @@ def main() -> None:
     print(f"  vs paper's {sorted(tset)}: recall {rec:.2f}, precision {prec:.2f}, "
           f"missed {sorted(tset - set(names))}, extra {sorted(set(names) - tset)}")
 
+    # ---- STAGE 1b: the agent decides the rate-law FORM (LIVE), not hardcoded ----
+    print("\n== STAGE 1b: agent decides the secretion rate-law form (motif) ==")
+    reg_nodes = [{"species": r["cytokine"]} for r in chosen if r["cytokine"] != "IL6"]
+    if call is not None:
+        motif = MA.propose_motif("IL6", reg_nodes, "", call)      # no reference rate shown
+        print(f"  (LIVE) order={motif.get('proliferation_order')}, "
+              f"combination={motif.get('combination')}, cap={motif.get('cap')}  "
+              f"-- {motif.get('reason') or ''}")
+    else:
+        motif = {"proliferation_order": "zeroth", "combination": "product", "cap": None}
+        print(f"  (generic prior: {motif['proliferation_order']}/{motif['combination']}; "
+              "pass --live for the agent's own choice)")
+
     # ---- STAGE 2+4: assemble + fit ----
     print("\n== STAGE 2: assemble structure into a model spec + look up strengths ==")
-    spec, fd, fp = assemble(chosen, truth_maxes, levels, kcl, target)
+    spec, fd, fp = assemble(chosen, truth_maxes, levels, kcl, target, motif=motif)
     print(f"  {len(spec['species'])} species, {len(spec['reactions'])} reactions, "
           f"{len(spec['parameters'])} parameters")
     print(f"  strengths: {fd} from MOESM2; {fp} from a direction prior")
@@ -253,7 +277,7 @@ def main() -> None:
 
     # ---- STAGE 6: held-out operating points vs the paper's own structure ----
     print("\n== STAGE 6: held-out operating points (real RA biologics) vs paper structure ==")
-    pspec, _, _ = assemble(truth, truth_maxes, levels, kcl, target)
+    pspec, _, _ = assemble(truth, truth_maxes, levels, kcl, target, motif=motif)
     pxml = os.path.join(tempfile.gettempdir(), "il6_hub_paper.xml")
     open(pxml, "w", encoding="utf-8").write(MA.to_sbml(pspec))
     pnet = sbml_to_network(pxml)
@@ -284,7 +308,8 @@ def main() -> None:
                 clamp_i = dict(clamp)
                 if cyt:
                     clamp_i[cyt] = levels[cyt] * fac
-                aspec, _, _ = assemble(chosen, truth_maxes, levels, kcl, target, clamp=clamp_i)
+                aspec, _, _ = assemble(chosen, truth_maxes, levels, kcl, target,
+                                       clamp=clamp_i, motif=motif)
                 axml = os.path.join(tempfile.gettempdir(),
                                     f"il6_hub_{cyt or 'base'}.xml")
                 open(axml, "w", encoding="utf-8").write(MA.to_sbml(aspec))
