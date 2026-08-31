@@ -1,0 +1,214 @@
+# Parameter-source papers cited in Vantage RA Supplementary Data 2 (MOESM2)
+# NOT the main paper's 99 references - these are the supplement's own citations.
+# 93 unique papers. Download a subset (favor these top ones); name each PDF
+# with author+year (e.g. Hashizume2018.pdf) for the extraction benchmark to match.
+
+[5] Rathnaswami et al, 1993
+       RANTESSecFLS_MaxbyTNFa
+       RANTESSecFLS_MaxbyIL1b
+       RANTESSecFLS_byTNFa_MaxbyIFNg
+       RANTESSecFLS_byTNFa_MaxbyIFNg
+[3] Migita et al, 2009
+       MIP3SecFLS_MaxbyTNFa
+       MIP3SecFLS_MaxbyIL1b
+       MIP3SecFLS_MaxbyIL17
+[3] Gorak-Stolinska et al, 2001
+       kd_Th1_Baseline
+       kd_Th17_Baseline
+       kd_CTL_Baseline
+[3] Zhang et al, 2005
+       kIn_Th1_Baseline
+       kIn_Th17_Baseline
+       kIn_Treg_Baseline
+[3] Jego et al., 2001
+       BCellProlif_MaxbyIL6
+       kdiff_BCells_PlasmaCells
+       BCellDiff_MaxbyIL6
+[2] Ryu et al 2006
+       VEGFSecFLS_MaxbyIL1b
+       VEGFSecFLS_MaxbyIL17
+[2] Li et al, 2012
+       MCP1SecFLS_MaxbyIL1b
+       MCP1SecFLS_MaxbyTNFa
+[2] Hillyer et al, 2005
+       kcl_RANTES
+       kcl_MIP3
+[2] Bussolino et al, 1991
+       EndoProlif_MaxbyGMCSF
+       Endoinflux_MaxbyGMCSF
+[2] Terada et al, 1996
+       RANTESSecEndo_byTNFa_MaxbyIFNg
+       RANTESSecEndo_MaxbyIL1b
+[2] Verrack et al, 2003
+       kp_IL12Sec_byMacro
+       kp_IL23Sec_byMacro
+[2] Franitza et al, 2000
+       TCellinflux_MaxbyRANTES
+       TCellinflux_MaxbyRANTES
+[2] Rossol et al, 2013
+       TCellinflux_MaxbyTNFa
+       TCellinflux_MaxbyTNFa
+[2] Wu et al, 2007
+       LymphoInflux_MaxbyMIP3
+       LymphoInflux_MaxbyMIP3
+[2] Acosta-Rodriguez et al.,2007
+       Th17Prolif_MaxbyIL1b
+       Th17Prolif_MaxbyIL6
+[2] Wilson et al, 2007
+       Th17Prolif_MaxbyIL23
+       IL17SecTh17_MaxbyIL23
+[2] Filippi et al, 2005
+       IFNgSecCTL_MaxbyTGFb
+       CTLApop_MaxbyTGFb
+[1] Garcia et al, 2010
+       kd_FLS_Baseline
+[1] Huang et al, 2019
+       FLSProlif_MaxbyTNFa
+[1] Hashizume et al, 2018
+       FLSProlif_MaxbyIL6
+[1] Audo et al, 2018
+       FLSProlif_MaxbyIL1b
+[1] Zhang et al, 2009
+       FLSProlif_MaxbyIL17
+[1] Yoo et al, 2015
+       FLSProlif_MaxbyTGFb
+[1] Nakahara et al, 2003
+       VEGFSecFLS_MaxbyIL6
+[1] Cho et al, 2006
+       VEGFSecFLS_MaxbyTNFa
+[1] Fischer et al 2015
+       IL6SecFLS_MaxbyIL17
+[1] Leizer et al, 1990
+       GMCSFSecFLS_MaxbyTNFa
+[1] Hwang et al, 2003
+       IL6SecFLS_MaxbyIFNg
+[1] Katsikis et al, 1994
+       IL1bSecFLS_MaxbyIL10
+[1] Berse et al, 1999
+       VEGFSecFLS_MaxbyTGFb
+[1] Broeren et al, 2016
+       TNFaSecFLS_MaxbyIL10
+[1] Nanki et al, 2001
+       IL6SecFLS_MaxbyRANTES
+[1] Wang et al, 2011
+       Endoinflux_MaxbyVEGF
+[1] Yoshida et al,1996
+       kIn_Endo_Baseline
+[1] Seghezzi et al, 1998
+       EndoProlif_MaxbyVEGF
+[1] Gao et al, 2002
+       Endoinflux_MaxbyTNFa
+[1] Hobson and Denekamp, 1984
+       kd_Endo_Baseline
+[1] Jiang et al, 2016
+       EndoApop_MaxbyTNFa
+[1] Munshi et al, 2002
+       EndoApop_MaxbyVEGF
+[1] Nilsson et al, 2005
+       Endoinflux_MaxbyIL6
+[1] Browning et al, 2008
+       EndoProlif_MaxbyIL1b
+[1] Pickens et al, 2010
+       Endoinflux_MaxbyIL17
+[1] Ma et al, 2006
+       Endoinflux_MaxbyTGFb
+[1] Krishnan et al, 2015
+       VEGFSecEndo_MaxbyTGFb
+[1] Hanlon et al, 2019
+       RANTESSecEndo_MaxbyTNFa
+[1] Bonaterra et al, 2019
+       kd_Macrophase_Baseline
+[1] Shahrara et al, 2009
+       MacroInflux_MaxbyIL17
+[1] Grabiec et al, 2010
+       IL6SecMacro_MaxbyTNFa
+[1] Draijer et al,2019
+       MacroProlif_MaxbyGMCSF
+[1] Macanas-Pirard et al, 2017
+       MacroInflux_MaxbyMCP1
+[1] Armstrong et al, 1996
+       TNFaSecMacro_MaxbyIL10
+[1] Williams et al, 2004
+       IL6SecMacro_MaxbyIL10
+[1] Kim et al, 2006
+       MacroInflux_MaxbyTGFb
+[1] Clavel et al, 2008
+       TNFaSecMacro_MaxbyAutoAb
+[1] Gavrilin et al, 2000
+       MCP1SecMacro_MaxbyIL1b
+[1] Bergamini et al, 2000
+       TNFaSecMacro_MaxbyGMCSF
+[1] Volin et al, 1998
+       MacroInflux_MaxbyRANTES
+[1] Santarlasci et al,JOI, 2009
+       Th1prolif_maxbyTGFb
+[1] Yamana et al, 2004
+       IFNgSecTh1_MaxbyIL10
+[1] Estaquier et al, 1995
+       Th1Apop_MaxbyIL12
+[1] Lin et al, 2012
+       TregProlif_MaxbyIL6
+[1] Stolinska et al, J Leukoc Biol. 2001
+       kd_Treg_Baseline
+[1] Schmidt et al, 2016
+       TregProlif_MaxbyTGFb
+[1] Olelekan et al, 2015
+       TregProlif_MaxbyIFNg
+[1] Karkada et al, 2002
+       kIn_CTL_Baseline
+[1] Yang et al, 2016
+       IFNgSecCTL_MaxbyIL6
+[1] Curtsinger et al, 2005
+       CTLProlif_MaxbyIL1b
+[1] Thomas et al,2005
+       CTLProlif_MaxbyTGFb
+[1] Rasouli et al, 2015
+       kp_GMCSF_byCTL
+[1] Vacaflores et al, 2017
+       CTLProlif_MaxbyIL12
+[1] Kondo et al, 2009
+       IL17SecCTL_MaxbyIL23
+[1] Galkin et al.,2005
+       CTLInflux_MaxbyRANTES
+[1] Bleuel et al, 1998
+       kIn_BCells_Baseline
+[1] Avery et al, 2003
+       BCellApop_MaxbyBAFF
+[1] Rousset et al, 1992
+       BCellProlif_MaxbyIL10
+[1] Kehrl et al, 1989
+       BCellProlif_MaxbyTGFb
+[1] Bagrou et al, 1995
+       kd_BCells_Baseline
+[1] Auner et al, 2010
+       kd_PlasmaCells_Baseline
+[1] Bracho et al, 2001
+       kcl_IL6
+[1] Hazuda et al, JBC, 1988
+       kcl_IL1b
+[1] Balestrino M, Master's Thesis
+       kcl_IL17
+[1] Huhn et al, 1997
+       kcl_IL10
+[1] Foon et al, 1985
+       kcl_IFNg
+[1] Wakefield et al, 1990
+       kcl_TGFb
+[1] Levy et al, 1970
+       kcl_AutoAb
+[1] Leihn et al, 2010
+       kcl_MCP1
+[1] Parry et al, 2001
+       kcl_BAFF
+[1] Cebon et al, 1988
+       kcl_GMCSF
+[1] Carreno et al, 2000
+       kcl_IL12
+[1] Meier et al, 2019
+       kcl_IL23
+[1] Eppler et al, 2002
+       kcl_VEGF
+[1] Oliver JC et al,1993
+       kcl_TNFa
+[1] Binidng of radiolabelled Toci to IL-6R on multiple myeloma cellline
+       KD_TCZ
