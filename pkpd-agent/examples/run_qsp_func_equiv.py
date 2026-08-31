@@ -163,24 +163,40 @@ def _price_real_agent(cyts, truth, truth_maxes, levels, ks, kcl, target, drop) -
     print(f"\n== real agent chooses IL-6 secretion regulators (from {len(cyts)} cytokines) ==")
     regs = MA.propose_regulators("IL6", cyts, "secretion", LT.default_call(cfg))
     chosen = [r["cytokine"] for r in regs]
+    dirn = {r["cytokine"]: (r.get("direction") or "up") for r in regs}
     missed = [c for c in truth if c not in chosen]
     spurious = [c for c in chosen if c not in truth]
+    prec = len(set(chosen) & set(truth)) / len(chosen) if chosen else 0
+    rec = len(set(chosen) & set(truth)) / len(truth) if truth else 0
     print(f"  chose: {chosen}")
-    print(f"  vs truth {sorted(truth)}: missed {missed}, spurious {spurious}")
-    # build the agent's ACTUAL reduced module (true value where known, prior 1.5 otherwise)
+    print(f"  vs truth {sorted(truth)}: recall {rec:.2f}, precision {prec:.2f}; "
+          f"missed {missed}, spurious {spurious}")
+    # Build the agent's ACTUAL reduced module: a real value where it can look one up (a true
+    # regulator, so the table pins it and even self-corrects a wrong direction guess); for a
+    # spurious edge there is no table entry, so it falls back to its OWN stated direction as a
+    # prior (up -> 1.5, down -> 0.6).
     akeys = [c for c in chosen if c in levels]
-    am = {c: truth_maxes.get(c, 1.5) for c in akeys}
+    am = {c: (truth_maxes[c] if c in truth_maxes
+              else (1.5 if dirn.get(c) == "up" else 0.6)) for c in akeys}
     ak = {c: levels[c] for c in akeys}
     kg_a = fit_kg(akeys, am, levels, ak, kcl, target)
-    # worst-case held-out error across perturbing every TRUE pathway (its real failure surface)
-    worst = 0.0
-    for miss in truth:
-        held = dict(levels); held[miss] = levels[miss] * drop
-        paper = il6(truth, truth_maxes, held, ks, fit_kg(truth, truth_maxes, levels, ks, kcl,
-                    target), kcl)
+    kg_full = fit_kg(truth, truth_maxes, levels, ks, kcl, target)
+    # Worst-case held-out error over BOTH failure surfaces: perturbing each true pathway (exposes
+    # a MISSED edge) AND each spurious pathway (exposes an OVER-INCLUDED edge that fabricates a
+    # response the true model does not have). Skipping the spurious sweep under-reports the error.
+    worst_name, worst = "", 0.0
+    for pert in sorted(set(truth) | set(spurious)):
+        if pert not in levels:
+            continue
+        held = dict(levels); held[pert] = levels[pert] * drop
+        paper = il6(truth, truth_maxes, held, ks, kg_full, kcl)
         agent = il6(akeys, am, held, ak, kg_a, kcl)
-        worst = max(worst, abs(agent - paper) / max(agent, paper))
-    print(f"  worst-case held-out IL-6 error of the agent's ACTUAL chosen structure: {worst:.0%}")
+        d = abs(agent - paper) / max(agent, paper)
+        if d > worst:
+            worst_name, worst = pert, d
+    where = "spurious edge" if worst_name in spurious else "missed/mis-set edge"
+    print(f"  worst-case held-out IL-6 error of the agent's ACTUAL chosen structure: "
+          f"{worst:.0%} (perturbing {worst_name or 'n/a'}, a {where})")
 
 
 if __name__ == "__main__":
