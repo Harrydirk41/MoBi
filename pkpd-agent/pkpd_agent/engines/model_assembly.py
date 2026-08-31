@@ -145,6 +145,34 @@ def propose_motif(cell: str, regulators: list, reference_rate: str, call) -> dic
             "reason": d.get("reason")}
 
 
+_REG_SYS = (
+    "You are deciding a QSP model's STRUCTURE from biology, before looking up any values. "
+    "Given a cell and the cytokines available as nodes, name which cytokines regulate that "
+    "cell's PROLIFERATION and whether each up- or down-regulates it. Reason from immunology; "
+    "do NOT assume a parameter table - you will look values up afterwards only for what you "
+    "propose here. Use ONLY the exact cytokine names given. JSON only.")
+
+
+def propose_regulators(cell: str, cytokines: list, process: str, call) -> list:
+    """The agent decides, from biology alone, which cytokines regulate a cell's process (e.g.
+    FLS proliferation) - BEFORE any value lookup. Returns [{cytokine, direction}] filtered to
+    the given cytokine names. This is the honest build order: choose structure first, then query
+    the data only for what you chose."""
+    user = (f"Cell: {cell}. Process: {process}. Available cytokine nodes: "
+            + ", ".join(cytokines) +
+            f'\n\nWhich of these regulate {cell} {process}? Return JSON {{"regulators": '
+            '[{"cytokine": name, "direction": "up"|"down", "basis": "one phrase"}]}. '
+            "Only cytokines from the list.")
+    d = _parse_json(call(_REG_SYS, user))
+    cset = set(cytokines)
+    out = []
+    for e in (d.get("regulators") or []):
+        if isinstance(e, dict) and e.get("cytokine") in cset:
+            out.append({"cytokine": e["cytokine"], "direction": e.get("direction"),
+                        "basis": e.get("basis")})
+    return out
+
+
 def rate_from_motif(motif: dict, base_param: str, regulators: list, cell: str) -> str:
     """Build a proliferation rate expression from an LLM-chosen motif spec."""
     def h(r):

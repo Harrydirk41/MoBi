@@ -87,3 +87,14 @@ def sbml_to_network_from_str(xml: str):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class TestProposeRegulators(unittest.TestCase):
+    def test_filters_to_given_cytokines(self):
+        call = lambda s, u: ('{"regulators":[{"cytokine":"IL6","direction":"up","basis":"x"},'
+                             '{"cytokine":"IL6","direction":"up"},'
+                             '{"cytokine":"NotACytokine","direction":"up"}]}')
+        out = MA.propose_regulators("FLS", ["IL6", "TNFa"], "proliferation", call)
+        names = [r["cytokine"] for r in out]
+        self.assertIn("IL6", names)
+        self.assertNotIn("NotACytokine", names)       # not in the given list -> dropped
