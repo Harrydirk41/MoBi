@@ -54,23 +54,30 @@ def main() -> None:
           f"precision {prec:.2f}, recall {rec:.2f}; "
           f"missed {sorted(truth - set(proposed))}, extra {sorted(set(proposed) - truth)}")
 
-    # look up values ONLY for what the agent proposed (by process+cytokine, not by grabbing)
-    maxes, levels, found, nodata = {}, {}, [], []
+    # FAIR: keep EVERY proposed regulator. Use the real value where MOESM2 has it; for the extras
+    # (proposed but not in the table) a real modeller would find literature or use a prior - so
+    # assign a direction-based prior (up -> 1.5, down -> 0.6), NOT drop them. This keeps the
+    # agent's over-inclusion in the model, so held-out shows its true cost.
+    dir_of = {r["cytokine"]: (r.get("direction") or "up") for r in regs}
+    maxes, levels, from_data, from_prior = {}, {}, [], []
     for c in proposed:
+        if c not in tg:                                # cytokine has no level -> can't include
+            continue
+        levels[c] = float(tg[c]["target_model_unit"])
         p = prov.get(f"FLSProlif_Maxby{c}")
-        if p and p.get("from_literature") and c in tg:
-            maxes[c] = float(p["value_from_reference"]); levels[c] = float(tg[c]["target_model_unit"])
-            found.append(c)
+        if p and p.get("from_literature"):
+            maxes[c] = float(p["value_from_reference"]); from_data.append(c)
         else:
-            nodata.append(c)
-    print(f"\n  looked up in MOESM2: found values for {found}; "
-          f"no data for {nodata} (agent-proposed but not measurable -> dropped)")
+            maxes[c] = 1.5 if dir_of.get(c) == "up" else 0.6   # prior, would refine from lit
+            from_prior.append(c)
+    print(f"\n  values: {from_data} from MOESM2; {from_prior} from a direction prior "
+          "(kept, not dropped - the agent would find literature for these)")
 
-    # assemble analytically (K fitted per the sloppy fair-fit; kg fit to the steady-state target)
-    ks = {c: levels[c] for c in found}                 # K = level (Hill 0.5), one plausible fit
+    kept = list(maxes)
+    ks = {c: levels[c] for c in kept}                  # K = level (Hill 0.5), one plausible fit
     kd = float(prov["kd_FLS_Baseline"]["value_from_reference"])
     fls_t = float(tg["FLS"]["target_model_unit"])
-    eff = effect(found, levels, maxes, ks)
+    eff = effect(kept, levels, maxes, ks)
     kg = fls_t * kd / eff
 
     # full-structure reference model (all TRUE regulators) fit the same way
@@ -82,15 +89,16 @@ def main() -> None:
     # held-out operating point (anti-IL6 therapy) - where structural errors show
     held = dict(levels); held["IL6"] = levels.get("IL6", 0) * 0.1
     theld = dict(tlev); theld["IL6"] = tlev.get("IL6", 0) * 0.1
-    a_fls = kg / kd * effect(found, held, maxes, ks)
+    a_fls = kg / kd * effect(kept, held, maxes, ks)
     t_fls = tkg / kd * effect(tmax.keys(), theld, tmax, tks)
-    print(f"\n== does the honestly-built model come out roughly right? ==")
+    print(f"\n== honestly-built (with the agent's extra edges kept) vs the real structure ==")
     print(f"  training (steady state): both match the target {fls_t:g} by construction")
-    print(f"  held-out (anti-IL6):  agent-built = {a_fls:.3g}   full-structure = {t_fls:.3g}   "
+    print(f"  held-out (anti-IL6):  agent-built = {a_fls:.3g}   real-structure = {t_fls:.3g}   "
           f"diff {abs(a_fls-t_fls)/max(a_fls,t_fls):.0%}")
-    print("\n  -> the agent chose the structure from biology (not by peeking at the model), "
-          "looked up\n     only what it proposed, and fit the rest. The gap is the cost of its "
-          "structural choices,\n     not of cheating.")
+    print("\n  -> the agent chose structure from biology (recall of the true regulators), kept "
+          "its\n     over-inclusions with priors, and fit the rest. The held-out gap is the cost "
+          "of its\n     structural choices (mostly OVER-inclusion) - not of cheating. Sloppiness "
+          "keeps it small.")
 
 
 if __name__ == "__main__":
