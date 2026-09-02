@@ -118,16 +118,26 @@ _MOTIF_COMBOS = ("product", "sum", "capped_sum", "min_gate", "mass_action", "mic
 
 _MOTIF_SYS = (
     "You are choosing the RATE-LAW FORM for a node's production/process in a QSP model - the "
-    "modelling convention, not the parameter values. Choose from the full menu; reason from "
-    "biology and steady-state stability. "
-    "ORDER of the production term: 'zeroth' (constant influx, rate=k, apoptosis/clearance sets a "
-    "stable steady state), 'first' (rate=k*X, unbounded unless capped), or 'saturable' "
-    "(logistic/carrying-capacity). "
-    "COMBINATION of the regulator effects: 'product' (multiply fold-changes, effects compound), "
-    "'sum' (add excess effects, unbounded), 'capped_sum' (add excess and saturate at a cap), "
-    "'min_gate' (a gate/essential factor: rate ~0 without it), 'mass_action' (linear in "
-    "concentrations), or 'michaelis_menten' (per-regulator saturable MM). "
-    "PER-REGULATOR shape: 'hill' or 'linear'. Output JSON only.")
+    "modelling convention, not the parameter values. Choose on the merits; do NOT assume any "
+    "particular published model uses a particular form. Weigh two standard modelling criteria "
+    "EXPLICITLY: (A) under STRONG combined stimulation, should the rate stay BOUNDED and let the "
+    "system settle to a stable steady state? (B) should lowering a SINGLE driver (e.g. an "
+    "anti-cytokine drug) still measurably change the rate? "
+    "ORDER of the production term: 'zeroth' (constant influx, rate=k; clearance/apoptosis then "
+    "sets a stable steady state), 'first' (rate=k*X; unbounded unless capped), 'saturable' "
+    "(logistic / carrying-capacity). "
+    "COMBINATION of the regulator effects, with their dynamical consequences: "
+    "'product' (fold-changes multiply; compounds with no intrinsic ceiling; any one factor -> its "
+    "baseline scales the whole term); "
+    "'sum' (excess effects add; unbounded as drivers rise); "
+    "'capped_sum' (excess effects add but saturate at a fixed ceiling; bounded, and each driver "
+    "still shifts the rate while below the cap); "
+    "'min_gate' (one essential factor gates the rate to ~0 without it; other drivers barely move "
+    "it); "
+    "'mass_action' (linear in concentrations; unbounded); "
+    "'michaelis_menten' (each regulator a saturable MM term; bounded). "
+    "PER-REGULATOR shape: 'hill' or 'linear'. Reason from biology and criteria (A) and (B). "
+    "Output JSON only.")
 
 
 def propose_motif(cell: str, regulators: list, reference_rate: str, call) -> dict:
