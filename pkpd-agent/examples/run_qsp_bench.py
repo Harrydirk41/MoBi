@@ -54,6 +54,24 @@ def score_topology(chosen, truth):
             "missed": missed, "extra": extra, "high_conf_extra": hi_extra}
 
 
+class Tracer:
+    """Wraps the single LLM `call` boundary and logs every (system, user, response) triple to a
+    JSONL file - the full, exact trace of what was sent to the model and what it returned. Lets you
+    verify no answer (truth edges / values / rate-law form) appears in any prompt."""
+    def __init__(self, path):
+        self.f = open(path, "w", encoding="utf-8"); self.node = None; self.i = 0
+
+    def wrap(self, call):
+        def traced(system, user):
+            resp = call(system, user)
+            self.i += 1
+            self.f.write(json.dumps({"seq": self.i, "node": self.node, "system": system,
+                                     "user": user, "response": resp}, ensure_ascii=False) + "\n")
+            self.f.flush()
+            return resp
+        return traced
+
+
 def score_form(motif, ref_order, ref_comb):
     return {"order": motif.get("proliferation_order"),
             "combination": motif.get("combination"),
@@ -70,6 +88,9 @@ def main() -> None:
     ap.add_argument("--ref-form", default="zeroth,capped_sum",
                     help="the model's documented rate-law form: <order>,<combination>")
     ap.add_argument("--out", default=None)
+    ap.add_argument("--trace", default=None,
+                    help="log every LLM call (system+user prompt and raw response) to this JSONL "
+                         "file - inspect it to verify no answer leaks into any prompt")
     args = ap.parse_args()
 
     prov, levels, cytokines = load_model(args.model)
@@ -85,6 +106,9 @@ def main() -> None:
         print("ANTHROPIC_API_KEY not set - this benchmark needs a live LLM. "
               "Set the key and re-run."); return
     call = LT.default_call(cfg)
+    tracer = Tracer(args.trace) if args.trace else None
+    if tracer:
+        call = tracer.wrap(call)
 
     print(f"== topology + form benchmark: {len(targets)} nodes x {args.samples} sample(s) "
           f"[{args.model}] ==\n")
@@ -97,6 +121,8 @@ def main() -> None:
         # (non-candidate regulators like AutoAb/GMCSF are not offered, so they can't count as misses)
         truth = {c for c in full_regulators(prov, node) if c != node and c in set(cands)}
         rows = []
+        if tracer:
+            tracer.node = node
         for _ in range(args.samples):
             regs = MA.propose_regulators(node, cands, "secretion", call)
             motif = MA.propose_motif(node, [{"species": r["cytokine"]} for r in regs], "", call)
