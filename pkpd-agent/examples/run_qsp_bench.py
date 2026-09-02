@@ -40,9 +40,26 @@ def full_regulators(prov, node):
     return out
 
 
-def score_topology(chosen, truth):
-    """chosen: [{cytokine, direction, confidence?}]; truth: set of regulator names."""
+def truth_directions(prov, node):
+    """The model's own edge signs for a node's PRIMARY secretion regulators, from the Max value
+    (Max>1 = up, <1 = down). Uses the same primary-edge pattern as full_regulators (no nested
+    _by<x> modifiers, whose signs are ambiguous) and skips near-neutral Max~1 edges (no real
+    effect). Returns {cytokine: 'up'|'down'}."""
+    out = {}
+    for n, p in prov.items():
+        mm = re.fullmatch(rf"(?i){node}Sec[A-Za-z0-9]*_Maxby([A-Za-z0-9]+)", n)
+        if mm:
+            v = p.get("value_from_reference")
+            if v is not None and abs(float(v) - 1.0) > 0.02 and mm.group(1) not in out:
+                out[mm.group(1)] = "up" if float(v) > 1 else "down"
+    return out
+
+
+def score_topology(chosen, truth, truth_dir=None):
+    """chosen: [{cytokine, direction, confidence?}]; truth: set of regulator names;
+    truth_dir: {cytokine: 'up'|'down'} for direction scoring on the recovered edges."""
     names = [c["cytokine"] for c in chosen]
+    dir_of = {c["cytokine"]: c.get("direction") for c in chosen}
     hit = [n for n in names if n in truth]
     recall = len(set(hit)) / len(truth) if truth else 0.0
     precision = len(set(hit)) / len(set(names)) if names else 0.0
@@ -50,8 +67,14 @@ def score_topology(chosen, truth):
     extra = sorted(set(names) - truth)
     hi_extra = sorted(c["cytokine"] for c in chosen
                       if c["cytokine"] in extra and (c.get("confidence") == "high"))
+    # direction accuracy on the recovered edges (those in both chosen and truth_dir)
+    dir_checked = [n for n in set(hit) if truth_dir and n in truth_dir]
+    dir_correct = [n for n in dir_checked if dir_of.get(n) == truth_dir[n]]
+    dir_wrong = sorted(n for n in dir_checked if dir_of.get(n) != truth_dir[n])
     return {"recall": round(recall, 3), "precision": round(precision, 3),
-            "missed": missed, "extra": extra, "high_conf_extra": hi_extra}
+            "missed": missed, "extra": extra, "high_conf_extra": hi_extra,
+            "dir_checked": len(dir_checked), "dir_correct": len(dir_correct),
+            "dir_wrong": dir_wrong}
 
 
 class Tracer:
@@ -112,40 +135,52 @@ def main() -> None:
 
     print(f"== topology + form benchmark: {len(targets)} nodes x {args.samples} sample(s) "
           f"[{args.model}] ==\n")
-    hdr = f"  {'node':7} {'recall':>7} {'prec':>6} {'dirErr':>7} {'order✓':>7} {'comb✓':>7}"
+    hdr = (f"  {'node':7} {'recall':>7} {'prec':>6} {'dirAcc':>7} {'hiExtra':>8} "
+           f"{'order✓':>7} {'comb✓':>7}")
     print(hdr)
-    raw, agg_recall, agg_prec, order_ok, comb_ok, comb_choices = {}, [], [], [], [], []
+    raw, agg_recall, agg_prec = {}, [], []
+    dir_tot, dir_ok_tot, hi_extra_tot, order_ok, comb_ok, comb_choices = 0, 0, 0, [], [], []
     for node in targets:
         cands = sorted(c for c in cytokines if c != node)
         # truth = the model's own regulators, restricted to what the agent could actually pick
         # (non-candidate regulators like AutoAb/GMCSF are not offered, so they can't count as misses)
         truth = {c for c in full_regulators(prov, node) if c != node and c in set(cands)}
+        tdir = truth_directions(prov, node)
         rows = []
         if tracer:
             tracer.node = node
         for _ in range(args.samples):
             regs = MA.propose_regulators(node, cands, "secretion", call)
             motif = MA.propose_motif(node, [{"species": r["cytokine"]} for r in regs], "", call)
-            t = score_topology(regs, truth)
+            t = score_topology(regs, truth, tdir)
             f = score_form(motif, ref_order, ref_comb)
             rows.append({"regulators": regs, "topology": t, "form": f})
             agg_recall.append(t["recall"]); agg_prec.append(t["precision"])
+            dir_tot += t["dir_checked"]; dir_ok_tot += t["dir_correct"]
+            hi_extra_tot += len(t["high_conf_extra"])
             order_ok.append(f["order_match"]); comb_ok.append(f["comb_match"])
             comb_choices.append(f["combination"])
-        raw[node] = {"truth": sorted(truth), "samples": rows}
+        raw[node] = {"truth": sorted(truth), "truth_dir": tdir, "samples": rows}
         rc = statistics.mean(r["topology"]["recall"] for r in rows)
         pr = statistics.mean(r["topology"]["precision"] for r in rows)
+        dch = sum(r["topology"]["dir_checked"] for r in rows)
+        dco = sum(r["topology"]["dir_correct"] for r in rows)
+        hix = sum(len(r["topology"]["high_conf_extra"]) for r in rows)
         om = sum(r["form"]["order_match"] for r in rows)
         cm = sum(r["form"]["comb_match"] for r in rows)
-        print(f"  {node:7} {rc:>7.2f} {pr:>6.2f} {'-':>7} "
+        da = f"{dco}/{dch}" if dch else "-"
+        print(f"  {node:7} {rc:>7.2f} {pr:>6.2f} {da:>7} {hix:>8} "
               f"{om:>4}/{len(rows)} {cm:>4}/{len(rows)}")
 
     n = len(agg_recall)
     print(f"\n== aggregate over {n} runs ==")
-    print(f"  topology recall   mean {statistics.mean(agg_recall):.2f}"
+    print(f"  topology recall    mean {statistics.mean(agg_recall):.2f}"
           f"  (min {min(agg_recall):.2f})")
     print(f"  topology precision mean {statistics.mean(agg_prec):.2f}  "
           f"[lower bound - over-inclusion of real edges the model pruned counts against it]")
+    print(f"  direction accuracy {dir_ok_tot}/{dir_tot} = "
+          f"{dir_ok_tot/dir_tot:.0%} (on recovered edges)" if dir_tot else "  direction: n/a")
+    print(f"  high-conf extras   {hi_extra_tot} total (self-flagged high-confidence over-inclusions)")
     print(f"  form order match   {sum(order_ok)}/{n} = {sum(order_ok)/n:.0%}")
     print(f"  form comb  match   {sum(comb_ok)}/{n} = {sum(comb_ok)/n:.0%}  "
           f"(choices: {dict((c, comb_choices.count(c)) for c in set(comb_choices))})")

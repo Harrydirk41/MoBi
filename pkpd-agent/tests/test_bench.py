@@ -10,6 +10,13 @@ PROV = {
     "TNFaSecMacro_MaxbyIL17": {}, "TNFaSecMacro_MaxbyAutoAb": {},        # non-cytokine regulator
 }
 
+PROV_DIR = {   # with values, for direction scoring
+    "IL6SecFLS_MaxbyIL1b": {"value_from_reference": 69.0},        # up
+    "IL6SecMacro_MaxbyIL10": {"value_from_reference": 0.8},       # down
+    "IL6SecFLS_MaxbyIL23": {"value_from_reference": 1.0},         # neutral -> excluded
+    "IL6SecFLS_byIL1b_MaxbyIFNg": {"value_from_reference": 0.5},  # nested -> excluded (not primary)
+}
+
 
 class TestTruth(unittest.TestCase):
     def test_full_regulators_catches_nested(self):
@@ -37,6 +44,26 @@ class TestScoreTopology(unittest.TestCase):
         s = B.score_topology([{"cytokine": "IL1b"}], {"IL1b", "IL17"})
         self.assertEqual(s["recall"], 0.5)
         self.assertEqual(s["missed"], ["IL17"])
+
+
+class TestDirection(unittest.TestCase):
+    def test_truth_directions_primary_only_and_neutral_excluded(self):
+        d = B.truth_directions(PROV_DIR, "IL6")
+        self.assertEqual(d.get("IL1b"), "up")
+        self.assertEqual(d.get("IL10"), "down")
+        self.assertNotIn("IL23", d)        # Max~1 neutral -> excluded
+        self.assertNotIn("IFNg", d)        # nested _by modifier -> not primary, excluded
+
+    def test_direction_scoring_on_recovered_edges(self):
+        truth = {"IL1b", "IL10"}
+        tdir = {"IL1b": "up", "IL10": "down"}
+        chosen = [{"cytokine": "IL1b", "direction": "up"},      # correct
+                  {"cytokine": "IL10", "direction": "up"},      # WRONG (should be down)
+                  {"cytokine": "IL6", "direction": "up"}]       # extra, not direction-checked
+        s = B.score_topology(chosen, truth, tdir)
+        self.assertEqual(s["dir_checked"], 2)
+        self.assertEqual(s["dir_correct"], 1)
+        self.assertEqual(s["dir_wrong"], ["IL10"])
 
 
 class TestScoreForm(unittest.TestCase):
