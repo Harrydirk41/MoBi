@@ -1,324 +1,163 @@
-r"""End-to-end virtual-population pipeline, from the model's parameters to a Vpop - no
-pre-curated driver list. Chains the general pieces:
+r"""Decomposable build: choose, per step, HOW it is filled - human/read/LLM/data - no scaffolding.
 
-  1. enumerate EVERY model parameter                         (sb_params)
-  2. LLM selects the varied set by inferred category          (propose_vpop_set)
-  3. assign default bounds (a +/- fold band around each       (heuristic: ranges are an
-     parameter's shipped value; log scale)                     input, so propose a default)
-  4. sample a cohort over that (high-dim) set under the arm   (sb_cohort)
-  5. select a Vpop to match the clinical anchors + ESS        (weighting, optional GA)
+Each modelling layer is a pluggable provider. Flags pick each layer's MODE independently:
 
-The question it answers: with the FULL (~200-parameter) driver set the LLM picks - rather
-than a 7-parameter toy - does the Vpop selection converge (healthy ESS, achieved rate near
-target)? Calibration is NOT re-done here: the .sbproj already ships a calibrated reference
-patient, so this uses it as-is (automated re-calibration to the clinical means is a
-separate, unbuilt step).
+    --frame     given | llm          (objective+acceptance human; scope+scale given or agent-proposed)
+    --target    given:<node> | llm   (which node to build: human names it, or the agent picks)
+    --topology  llm | given:a,b,c | data   (agent proposes edges / human lists / read model structure)
+    --form      llm | given          (agent picks the rate-law motif, or a stated default)
 
-    python -m examples.run_qsp_pipeline --model ra ^
-        --sbproj "..\RA-QSP-Model\Vantage RA QSP Model v1.0.sbproj" --n 400 --k 10 --ga
+Examples:
 
-Needs ANTHROPIC_API_KEY and the MATLAB engine.
+    # fully human-seeded except topology+form from the agent:
+    python -m examples.run_qsp_pipeline --model ra --target given:IL6 --topology llm --form llm
+
+    # no LLM at all (human/data baseline), runs anywhere:
+    python -m examples.run_qsp_pipeline --model ra --target given:IL6 --topology data --form given
+
+The model's own structure is just the `data` topology provider - one explicit choice, used as a
+baseline or for scoring, never a hidden default. Emits the assembled SBML and a provenance rollup.
 """
 
 from __future__ import annotations
 
 import argparse
-import collections
+import json
 import os
-import tempfile
 
-from pkpd_agent.config import AgentConfig
-from pkpd_agent.engines.simbiology import SimBiologyEngine
-from pkpd_agent.engines import qsp_config, qsp_tasks, llm_tasks as LT
+from pkpd_agent.engines import model_assembly as MA, model_spec as MS, pipeline as P
+from pkpd_agent.engines.sbml_import import sbml_to_network
+from examples.run_qsp_build_general import load_model, discover_nodes, _project_dir
+
+_DEFAULT_MOTIF = {"proliferation_order": "zeroth", "combination": "product", "cap": None}
+
+
+def frame_from_config(ctx):
+    t = ctx["tasks"]
+    return {"objective": t.get("trial_objective") or t.get("readout_desc"),
+            "acceptance": t.get("fit_target"),
+            "scope": {"drugs": list((t.get("drugs") or {}).keys())},
+            "scale": "single-compartment; concentrations; phenomenological Hill"}
+
+
+def parse_step(flag, default_mode):
+    """'given:IL6' -> (given, 'IL6'); 'llm' -> (llm, None); 'data' -> (data, None)."""
+    if flag is None:
+        return default_mode, None
+    if ":" in flag:
+        m, v = flag.split(":", 1)
+        return m, v
+    return flag, None
 
 
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--model", default="ra")
-    ap.add_argument("--sbproj", required=True)
-    ap.add_argument("--n", type=int, default=400, help="cohort size")
-    ap.add_argument("--k", type=float, default=10.0,
-                    help="default bound fold: vary each param over [v/k, v*k] (log)")
-    ap.add_argument("--seed", type=int, default=1)
-    ap.add_argument("--enrich", type=int, default=0, metavar="R",
-                    help="adaptive-importance sampling: R rounds, each narrowing the bounds "
-                         "toward the responders found, to enrich the pool in rare strong "
-                         "responders with far fewer sims than brute scale (0 = brute-force).")
-    ap.add_argument("--ga", action="store_true", help="also select a Vpop via native GA")
-    ap.add_argument("--qualify", action="store_true",
-                    help="predict the held-out trial: run the realized Vpop under the "
-                         "flagship switch protocol and compare the second-line response to "
-                         "the refractory target (an extra ~Vpop-size long simulations).")
-    ap.add_argument("--llm-model", default=None)
+    ap.add_argument("--frame", default="given")
+    ap.add_argument("--target", default=None, help="given:<node> | llm (default: first node)")
+    ap.add_argument("--topology", default="data", help="llm | given:a,b,c | data")
+    ap.add_argument("--form", default="given", help="llm | given")
+    ap.add_argument("--sbml", default=None)
     args = ap.parse_args()
 
-    cfg = qsp_config.get(args.model)
-    anchors_cfg = cfg.vpop_anchors or {}
-    arms = anchors_cfg.get("arms") or {}
-    rate_targets = anchors_cfg.get("rate_targets") or {}
-    if not arms:
-        print(f"project '{args.model}' declares no vpop_anchors.arms - nothing to match.")
-        return
+    prov, levels, cytokines = load_model(args.model)
+    nodes = discover_nodes(prov, levels, cytokines)
+    tasks = json.load(open(os.path.join(_project_dir(args.model), "tasks.json")))
 
-    cfg_llm = AgentConfig(mock=False)
-    if args.llm_model:
-        cfg_llm.model = args.llm_model
-    if not cfg_llm.anthropic_key_present():
-        print("ANTHROPIC_API_KEY not set.")
-        return
-
-    sb = SimBiologyEngine()
-    try:
-        print("== starting MATLAB engine =="); sb.start()
-        print(f"== loading {os.path.basename(args.sbproj)} =="); sb.load_project(args.sbproj)
-
-        # 1. enumerate every parameter
-        print("== [1] sb_params: enumerating every model parameter ==", flush=True)
-        params = (sb.list_parameters().get("parameters") or [])
-        print(f"   model exposes {len(params)} parameters")
-        if not params:
-            print("   no parameters - aborting."); return
-
-        # 2. LLM selects the varied set
-        print("== [2] LLM selecting the varied set by inferred category ==", flush=True)
-        sel = LT.propose_vpop_set(params, LT.default_call(cfg_llm))
-        chosen = set(sel["selected"])
-        print(f"   selected {sel['n_selected']} / {sel['n_candidates']} parameters")
-
-        # 3. default bounds: a +/- fold band around each shipped value (log), skipping
-        #    non-positive values (structurally inactive / not log-varyable)
-        value = {p["name"]: p.get("value") for p in params}
-        bounds = {}
-        for nm in sel["selected"]:
-            v = value.get(nm)
-            if isinstance(v, (int, float)) and v > 0:
-                bounds[nm] = (v / args.k, v * args.k, "log")
-        print(f"   assigned +/-{args.k:g}x log bounds to {len(bounds)} of them "
-              f"(dropped {len(chosen) - len(bounds)} non-positive/zero)")
-        print("   NOTE: calibration not re-done - using the model's shipped reference patient")
-        if not bounds:
-            print("   no varyable parameters - aborting."); return
-
-        # 4. sample a cohort under the arm(s). Brute-force by default; with --enrich R,
-        #    run R rounds of adaptive-importance sampling (cross-entropy): after each round
-        #    narrow the bounds toward the responders found, so later rounds are enriched in
-        #    (rare) strong responders - reaching a rich pool with far fewer sims than brute.
-        arms_spec = ";;".join(f"{lab}:{dose}" for lab, dose in arms.items())
-        baseline_day = cfg.timeline.get("baseline_day", 200.0)
-        readout_day = cfg.timeline.get("first_line_readout_day", 284.0)
-        full_cfg = anchors_cfg.get("rate_targets_full") or {}
-        n_extra = max((len(v) for v in full_cfg.values()), default=1) - 1  # roles beyond primary
-        band = cfg.vpop_target.get("band")
-
-        param_names = list(bounds.keys())
-        scales = {p: (bounds[p][2] if len(bounds[p]) > 2 else "log") for p in param_names}
-        spec0 = qsp_tasks.build_sample_spec(bounds)
-
-        def _cohort(seed, seed_csv=""):
-            return sb.cohort_multi_arm(spec0, arms_spec, baseline_day, readout_day, args.n,
-                                       seed, states=cfg.readout_states or None,
-                                       n_extra=n_extra, stream=True, seed_csv=seed_csv)
-
-        if args.enrich and args.enrich > 1:
-            print(f"== [3] enriched sampling: {args.enrich} rounds x {args.n} candidates, "
-                  f"arms {list(arms)} (kernel resampling around elites) ==", flush=True)
-            pool = {}
-            seed_csv = ""   # round 0 samples over the bounds; later rounds use elite vectors
-            for rd in range(args.enrich):
-                cc = (_cohort(args.seed + rd, seed_csv=seed_csv).get("columns") or {})
-                pool = qsp_tasks.concat_columns(pool, cc)
-                elite = qsp_tasks.elite_mask(cc, list(arms), band)
-                print(f"   round {rd + 1}/{args.enrich}: "
-                      f"{len(cc.get('sev_base', []))} sampled, {len(elite)} elite responders "
-                      f"-> pool {len(pool.get('sev_base', []))}")
-                seed_csv = ""
-                if len(elite) >= 5 and rd < args.enrich - 1:
-                    vecs = qsp_tasks.resample_around_elites(cc, param_names, elite, args.n,
-                                                            scales, seed=args.seed + rd)
-                    if vecs:
-                        seed_csv = os.path.join(tempfile.gettempdir(), "sb_seed.csv")
-                        with open(seed_csv, "w", newline="", encoding="utf-8") as fh:
-                            import csv as _csv
-                            w = _csv.writer(fh); w.writerow(param_names)
-                            for vec in vecs:
-                                w.writerow([vec.get(p, "") for p in param_names])
-            r = {"columns": pool}
+    # LLM boundary (only built if any step needs it)
+    call = None
+    need_llm = "llm" in (args.frame, args.target, args.topology, args.form)
+    if need_llm:
+        from pkpd_agent.config import AgentConfig
+        from pkpd_agent.engines import llm_tasks as LT
+        cfg = AgentConfig(mock=False)
+        if cfg.anthropic_key_present():
+            call = LT.default_call(cfg)
         else:
-            print(f"== [3] sb_cohort: {args.n} candidates x {len(bounds)} params, "
-                  f"arms {list(arms)} ==", flush=True)
-            r = _cohort(args.seed)
-        ml = (r.get("matlab_log") or "").strip()
-        if ml:
-            print("   [MATLAB] " + ml.replace("\n", "\n   [MATLAB] "))
-        cols = r.get("columns") or {}
-        sevs = cols.get("sev_base", [])
-        if not sevs:
-            print("   cohort returned no rows - check the MATLAB log."); return
-        print(f"   cohort: {len(sevs)} candidates, sev_base range "
-              f"{min(sevs):.2f}..{max(sevs):.2f}")
+            print("[no ANTHROPIC_API_KEY: llm steps fall back to given/data]")
 
-        # plausibility gate (the paper's): keep only patients whose baseline severity is in
-        # the active-disease band, dropping implausible ones BEFORE matching.
-        band = cfg.vpop_target.get("band")
-        if band:
-            f = qsp_tasks.filter_columns_to_band(cols, "sev_base", band)
-            cols = f["columns"]
-            sevs = cols.get("sev_base", [])
-            print(f"   plausibility gate [{band[0]}, {band[1]}]: kept {f['n_kept']} / "
-                  f"{f['n_total']} candidates")
-            if not sevs:
-                print("   nobody plausible - widen bounds or the band."); return
+    # ── resolve the target first (topology/candidates depend on it) ──
+    tmode, tval = parse_step(args.target, "given")
+    if tmode == "llm" and call:
+        sysp = "Pick ONE cytokine node to model from this disease's node list. JSON {\"node\": name}."
+        target_provider = P.from_llm(sysp, lambda c: "Nodes: " + ", ".join(sorted(nodes)),
+                                     lambda s: __import__("json").loads(s).get("node"))
+    else:
+        target_provider = P.given(tval or sorted(nodes)[0])
+    target = target_provider.fn({})
+    if target not in nodes:
+        print(f"'{target}' not buildable; discovered {sorted(nodes)}"); return
+    candidates = sorted(c for c in cytokines if c != target)
+    truth = set(nodes[target]["regulators"])
 
-        for lab in arms:
-            col = [v for v in cols.get(lab, []) if isinstance(v, (int, float)) and v == v]
-            rate = 100.0 * sum(1 for v in col if v >= 0.5) / len(col) if col else None
-            print(f"   arm {lab}: raw response rate {rate}% (of plausible)")
+    # ── frame provider ──
+    fmode, _ = parse_step(args.frame, "given")
+    if fmode == "llm" and call:
+        frame_provider = P.from_llm(
+            "Propose the scope+scale for this QSP node model. JSON {\"scale\": str, \"scope\": {}}.",
+            lambda c: f"Objective: {tasks.get('trial_objective')}. Node: {target}.",
+            lambda s: {**frame_from_config({"tasks": tasks}), **__import__("json").loads(s)})
+    else:
+        frame_provider = P.given(frame_from_config({"tasks": tasks}))
 
-        # 5. select a Vpop to match the anchors (weighting), and optionally native GA.
-        #    Match the full response DISTRIBUTION per arm when rate_targets_full is given
-        #    (primary threshold = readout_states[0] lives in the '<arm>' column; other
-        #    thresholds in '<arm>__<state>'), else just the primary rate per arm.
-        full = anchors_cfg.get("rate_targets_full")
-        primary_thr = (cfg.readout_states or [None])[0]
-        resp = {}   # column name -> target rate
-        if full:
-            for lab, thrs in full.items():
-                for thr, tgt in thrs.items():
-                    colname = lab if thr == primary_thr else f"{lab}__{thr}"
-                    if colname in cols:
-                        resp[colname] = tgt
-        else:
-            resp = {lab: rate_targets[lab] for lab in rate_targets if lab in cols}
-        print(f"   matching {len(resp)} response anchors: {sorted(resp)}")
+    # ── topology provider ──
+    top_mode, top_val = parse_step(args.topology, "data")
+    if top_mode == "llm" and call:
+        topology_provider = P.from_llm(
+            MA._REG_SYS,
+            lambda c: (f"Cell: {target}. Process: secretion. Available cytokine nodes: "
+                       + ", ".join(candidates) +
+                       '\n\nWhich regulate it? JSON {"regulators":[{"cytokine":n,"direction":'
+                       '"up"|"down","basis":"one phrase"}]}. Only from the list.'),
+            lambda s: [r for r in (MA._parse_json(s).get("regulators") or [])
+                       if isinstance(r, dict) and r.get("cytokine") in set(candidates)])
+    elif top_mode == "given" and top_val:
+        chosen = [c.strip() for c in top_val.split(",") if c.strip() in candidates]
+        topology_provider = P.given([{"cytokine": c, "direction": "up"} for c in chosen])
+    else:                                                  # data: read the model's own regulators
+        topology_provider = P.data(lambda c: [{"cytokine": r, "direction": "up"}
+                                              for r in nodes[target]["regulators"]])
 
-        anchors = [{"key": "severity", "mean": cfg.vpop_target["mean"],
-                    "sd": cfg.vpop_target.get("sd")}]
-        anchors += [{"key": c, "target": t} for c, t in resp.items()]
-        candidates = [{"severity": sevs[i],
-                       **{c: (cols[c][i] if i < len(cols[c]) else None) for c in resp}}
-                      for i in range(len(sevs))]
-        wsel = qsp_tasks.select_multi_anchor(candidates, anchors)
-        print("== [4] Vpop selection (weighting) ==")
-        if wsel.get("ok"):
-            for a in wsel["anchors"]:
-                print(f"   {a['key']:>10}: target {a['target']}  ->  achieved {a['achieved']}")
-            print(f"   ESS {wsel['effective_sample_size']} "
-                  f"({int(wsel['ess_fraction']*100)}% of {wsel['n']})")
-        else:
-            print("   failed:", wsel.get("reason"))
+    # ── form provider ──
+    form_mode, _ = parse_step(args.form, "given")
+    if form_mode == "llm" and call:
+        form_provider = P.from_llm(
+            MA._MOTIF_SYS if hasattr(MA, "_MOTIF_SYS") else "Choose the rate-law form. JSON only.",
+            lambda c: f"Cell: {target}. Regulators modulate its secretion. "
+                      '\nReturn JSON {"proliferation_order":"zeroth"|"first","combination":'
+                      '"product"|"capped_sum","cap":number|null,"per_regulator":"hill","reason":"..."}.',
+            lambda s: {**_DEFAULT_MOTIF, **MA._parse_json(s)})
+    else:
+        form_provider = P.given(dict(_DEFAULT_MOTIF))
 
-        if args.ga:
-            spec_a = [f"moment:sev_base:{cfg.vpop_target['mean']}:{cfg.vpop_target.get('sd','')}"]
-            spec_a += [f"rate:{lab}:{rate_targets[lab]}" for lab in rate_targets]
-            print("== [4b] Vpop selection (native GA) ==")
-            g = None
-            try:
-                g = sb.select_ga(cols, ";".join(spec_a), pop_target=0)
-            except Exception as e:
-                print(f"   GA unavailable/failed: {e}")
-                print("   (needs the Global Optimization Toolbox; the weighting result "
-                      "above still stands)")
-            if g is not None:
-                gml = (g.get("matlab_log") or "").strip()
-                if gml:
-                    print("   [MATLAB] " + gml.replace("\n", "\n   [MATLAB] "))
-                gcols = g.get("columns") or {}
-                gsev = gcols.get("sev_base", [])
-                ns = g.get("n_selected", len(gsev))
-                if ns:
-                    gm = sum(gsev) / len(gsev) if gsev else 0
-                    print(f"   selected {ns} / {len(sevs)} candidates")
-                    print(f"   {'severity':>10}: target {cfg.vpop_target['mean']}  ->  "
-                          f"achieved {round(gm,2)}")
-                    for lab in rate_targets:
-                        gc = [v for v in gcols.get(lab, [])
-                              if isinstance(v, (int, float)) and v == v]
-                        gr = 100.0 * sum(1 for v in gc if v >= 0.5) / len(gc) if gc else None
-                        print(f"   {lab:>10}: target {rate_targets[lab]}  ->  achieved "
-                              f"{round(gr,1) if gr is not None else None}")
-                else:
-                    print("   GA selected nobody - check the MATLAB log.")
+    providers = {"frame": frame_provider, "target": target_provider,
+                 "topology": topology_provider, "form": form_provider}
+    ctx = {"prov": prov, "levels": levels, "truth": truth, "call": call, "tasks": tasks}
+    spec = P.run(providers, ctx)
 
-        # realize a discrete Vpop from the prevalence weights (the paper's final step)
-        if wsel.get("ok") and wsel.get("weights"):
-            vp = qsp_tasks.realize_vpop(wsel["weights"], size=300, seed=args.seed)
-            idx = vp["indices"]
-            if idx:
-                rsev = [sevs[i] for i in idx if i < len(sevs)]
-                rmean = sum(rsev) / len(rsev) if rsev else 0
-                print("== [5] realized Vpop (enrich high-weight patients) ==")
-                print(f"   drew {vp['size']} patients ({vp['unique']} distinct) from the "
-                      f"weighted pool")
-                print(f"   {'severity':>10}: target {cfg.vpop_target['mean']}  ->  "
-                      f"realized {round(rmean,2)}")
-                for lab in rate_targets:
-                    rc = [cols.get(lab, [None]*len(sevs))[i] for i in idx if i < len(sevs)]
-                    rc = [v for v in rc if isinstance(v, (int, float)) and v == v]
-                    rr = 100.0 * sum(1 for v in rc if v >= 0.5) / len(rc) if rc else None
-                    print(f"   {lab:>10}: target {rate_targets[lab]}  ->  realized "
-                          f"{round(rr,1) if rr is not None else None}")
+    # ── report: each layer + HOW it was filled ──
+    print(f"== build of '{target}': per-layer mode ==")
+    for layer, mode in spec["modes"].items():
+        print(f"  {layer:9} <- {mode}")
+    print(f"\n② topology ({len(spec['edges'])} edges, [{spec['modes']['topology']}]):")
+    for e in spec["edges"]:
+        print(f"    {e['src']:6} {e['sign']:4} {'✓' if e['verify']['in_model'] else '✗'} "
+              f"{e['basis'] or ''}")
+    f = spec["forms"][0]
+    print(f"\n③ form [{spec['modes']['form']}]: {f['order']}/{f['combination']} "
+          f"responds={f['verify']['responds_to_single_knockdown']}")
+    roll = MS.provenance_rollup(spec)
+    print(f"\n④ constants: {roll['constants_by_source']}")
+    print(f"   needs-data params: {len(roll['needs_data'])}")
+    print(f"   edges matching model: {roll['edges_matching_model']}/{roll['edges_total']}")
 
-            # [6] QUALIFY: run the realized Vpop under the flagship switch protocol and
-            # compare its second-line (held-out) response to the refractory target.
-            if args.qualify and idx and cfg.refractory_target:
-                print("== [6] qualify: predict the held-out trial with this Vpop ==",
-                      flush=True)
-                try:
-                    import csv as _csv
-                    counts = collections.Counter(idx)          # weight = times drawn
-                    uidx = sorted(counts)
-                    pnames = list(bounds.keys())
-                    xlsx = os.path.join(tempfile.gettempdir(), "vpop_realized.csv")
-                    with open(xlsx, "w", newline="", encoding="utf-8") as fh:
-                        wtr = _csv.writer(fh)
-                        wtr.writerow(pnames)
-                        for i in uidx:
-                            wtr.writerow([cols[p][i] if i < len(cols.get(p, [])) else ""
-                                          for p in pnames])
-                    dose = ";".join(cfg.flagship_protocol.get("first_line", []) +
-                                    cfg.flagship_protocol.get("second_line", []))
-                    stop = cfg.timeline.get("second_line_readout_day", 600.0) + 100
-                    print(f"   running {len(uidx)} distinct patients under '{dose}' to "
-                          f"day {stop:g} ...", flush=True)
-                    rv = sb.run_vpop(xlsx, dose=dose, stop_time=stop,
-                                     baseline_day=baseline_day, readout_day=readout_day,
-                                     states=cfg.readout_states or None)
-                    rml = (rv.get("matlab_log") or "").strip()
-                    if rml:
-                        print("   [MATLAB] " + rml.replace("\n", "\n   [MATLAB] "))
-                    rc = rv.get("columns") or {}
-                    flag = cfg.run_columns.get("subgroup_flag")
-                    second = cfg.run_columns.get("second_line") or {}
-                    sub = rc.get(flag, [])
-                    w = [counts[i] for i in uidx]      # multiplicity, aligned to output rows
-                    m = min(len(w), len(sub))
-                    print("   second-line response in the subgroup vs the held-out trial:")
-                    for role, tgt in cfg.refractory_target.items():
-                        colname = second.get(role)
-                        if not colname or colname not in rc or not isinstance(tgt, (int, float)):
-                            continue
-                        resp = rc[colname]
-                        mm = min(m, len(resp))
-                        den = sum(w[j] * (sub[j] or 0) for j in range(mm))
-                        num = sum(w[j] * (sub[j] or 0) * (resp[j] or 0) for j in range(mm))
-                        pred = 100.0 * num / den if den else None
-                        print(f"   {role:>7}: predicted "
-                              f"{round(pred,1) if pred is not None else None}  vs observed {tgt}")
-                except Exception as e:
-                    print(f"   qualify failed: {e}")
-
-        print("\n== verdict ==")
-        ess = wsel.get("ess_fraction") if wsel.get("ok") else 0
-        raw = None
-        for lab in rate_targets:
-            col = [v for v in cols.get(lab, []) if isinstance(v, (int, float)) and v == v]
-            raw = 100.0 * sum(1 for v in col if v >= 0.5) / len(col) if col else None
-        print(f"   {len(bounds)}-parameter Vpop: raw arm response {raw}%, "
-              f"weighting ESS {int((ess or 0)*100)}%. "
-              f"{'converging' if (ess or 0) > 0.2 else 'still degenerate - responder pool too thin'}")
-    finally:
-        sb.stop()
+    if args.sbml:
+        sub = MS.to_subsystem(spec, prov, levels)
+        open(args.sbml, "w", encoding="utf-8").write(MA.to_sbml(sub))
+        net = sbml_to_network(args.sbml)
+        print(f"\nassembled SBML -> {args.sbml} ({len(net['species'])} species, "
+              f"{len(net['reactions'])} reactions)")
 
 
 if __name__ == "__main__":
