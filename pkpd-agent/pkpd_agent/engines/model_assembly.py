@@ -111,29 +111,38 @@ def combined_effect(base_param: str, regulators: list) -> str:
     return " * ".join(terms)
 
 
+# The realistic (still small) vocabulary of rate-law forms a QSP modeller would consider - offered
+# in full so the choice is 1-of-N over the real space, not a 2-way menu that names the answer.
+_MOTIF_ORDERS = ("zeroth", "first", "saturable")
+_MOTIF_COMBOS = ("product", "sum", "capped_sum", "min_gate", "mass_action", "michaelis_menten")
+
 _MOTIF_SYS = (
-    "You are choosing the RATE-LAW FORM for a cell's proliferation in a QSP model - the "
-    "modelling convention, not the parameter values. Decide: (1) the order of the proliferation "
-    "term - 'zeroth' (a constant influx, rate = k, which lets apoptosis set a stable steady "
-    "state) or 'first' (rate = k * cell, unbounded unless capped); (2) how the regulator "
-    "fold-changes COMBINE - 'product' (multiply, effects compound) or 'capped_sum' (add the "
-    "excess-over-1 and cap, effects saturate); (3) the cap if capped_sum; (4) the per-regulator "
-    "form - 'hill' (X/(K+X)). Reason from biology and from any reference rate law shown. "
-    "Output JSON only.")
+    "You are choosing the RATE-LAW FORM for a node's production/process in a QSP model - the "
+    "modelling convention, not the parameter values. Choose from the full menu; reason from "
+    "biology and steady-state stability. "
+    "ORDER of the production term: 'zeroth' (constant influx, rate=k, apoptosis/clearance sets a "
+    "stable steady state), 'first' (rate=k*X, unbounded unless capped), or 'saturable' "
+    "(logistic/carrying-capacity). "
+    "COMBINATION of the regulator effects: 'product' (multiply fold-changes, effects compound), "
+    "'sum' (add excess effects, unbounded), 'capped_sum' (add excess and saturate at a cap), "
+    "'min_gate' (a gate/essential factor: rate ~0 without it), 'mass_action' (linear in "
+    "concentrations), or 'michaelis_menten' (per-regulator saturable MM). "
+    "PER-REGULATOR shape: 'hill' or 'linear'. Output JSON only.")
 
 
 def propose_motif(cell: str, regulators: list, reference_rate: str, call) -> dict:
-    """The LLM chooses the proliferation rate-law FORM (order + how regulators combine) - the
-    modelling convention that a generic library would only guess. ``reference_rate`` is the real
-    rate law/effect rule if shown (may be ''). Returns
-    {proliferation_order, combination, cap, per_regulator}. Pluggable ``call`` for tests."""
+    """The LLM chooses the rate-law FORM (order + how regulators combine) from the full realistic
+    menu - the modelling convention a generic library would only guess. ``reference_rate`` is the
+    real rate law if shown (may be ''). Returns {proliferation_order, combination, cap,
+    per_regulator}. Pluggable ``call`` for tests."""
     regs = ", ".join(r["species"] for r in regulators)
-    user = (f"Cell: {cell}. Its proliferation is up/down-regulated by: {regs}.\n" +
+    orders = "|".join(f'"{o}"' for o in _MOTIF_ORDERS)
+    combos = "|".join(f'"{c}"' for c in _MOTIF_COMBOS)
+    user = (f"Node: {cell}. Its production is up/down-regulated by: {regs}.\n" +
             (f"Reference rate law / effect rule from the model:\n  {reference_rate}\n"
              if reference_rate else "No reference rate law given - infer from biology.\n") +
-            '\nReturn JSON {"proliferation_order": "zeroth"|"first", "combination": '
-            '"product"|"capped_sum", "cap": number|null, "per_regulator": "hill", '
-            '"reason": "one phrase"}.')
+            f'\nReturn JSON {{"proliferation_order": {orders}, "combination": {combos}, '
+            '"cap": number|null, "per_regulator": "hill"|"linear", "reason": "one phrase"}.')
     d = _parse_json(call(_MOTIF_SYS, user))
     if not isinstance(d, dict):
         d = {}
