@@ -1,0 +1,14 @@
+{
+  "_comment": "Model-data name normalization for the cell life-cycle (template A). The Vantage RA model names a cell's rate parameters with several inconsistent prefixes (abbreviations, a 'Macrophase' typo). This maps each canonical cell (steady_state_targets model_species) to the prefixes seen in parameter names, so the general engine needs no per-name hardcoding. TCell/Lympho are parent pools with no direct steady-state target and are intentionally omitted.",
+  "canonical_to_prefixes": {
+    "FLS": ["FLS"],
+    "Endothelial": ["Endo"],
+    "Macrophages": ["Macro", "Macrophage", "Macrophase"],
+    "Th1": ["Th1"],
+    "Th17": ["Th17"],
+    "Treg": ["Treg"],
+    "CTL": ["CTL"],
+    "BCells": ["BCell", "BCells"],
+    "PlasmaCells": ["PlasmaCell", "PlasmaCells"]
+  }
+}

@@ -68,8 +68,18 @@ def sbml_to_network(path: str) -> dict:
             out += [c for c in cont if _local(c.tag) == item_name]
         return out
 
-    species = [{"name": s.get("id") or s.get("name")}
-               for s in _list("listOfSpecies", "species")]
+    def _sp(s):
+        d = {"name": s.get("id") or s.get("name")}
+        amt = s.get("initialAmount")
+        if amt is None:
+            amt = s.get("initialConcentration")
+        if amt is not None:
+            d["initial"] = _num(amt)
+        if str(s.get("boundaryCondition")).lower() == "true":
+            d["boundary"] = True
+        return d
+
+    species = [_sp(s) for s in _list("listOfSpecies", "species")]
     parameters = [{"name": p.get("id") or p.get("name"),
                    "value": _num(p.get("value")),
                    "units": p.get("units") or "dimensionless"}
