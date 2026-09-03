@@ -215,14 +215,21 @@ _SECRETE_SYS = (
 
 def _propose_secreting_cells(cyt, cell_candidates, call):
     """Which cell types secrete this cytokine - a source (not regulator) question, so it gets its
-    own cell-appropriate prompt rather than the cytokine-regulator one."""
+    own cell-appropriate prompt. Returns [{cell, confidence}] so low-confidence sources can be
+    pruned later, mirroring propose_regulators' confidence field."""
     from pkpd_agent.engines.llm_structure import _parse_json
     user = (f"Cytokine: {cyt}. Candidate cell types: " + ", ".join(cell_candidates) +
             f'\n\nWhich of these cell types secrete {cyt}? Return JSON '
-            '{"cells": ["name", ...]}. Only names from the list.')
+            '{"cells": [{"name": ..., "confidence": "high"|"low"}]}. Only names from the list.')
     d = _parse_json(call(_SECRETE_SYS, user))
     cset = set(cell_candidates)
-    return [c for c in (d.get("cells") or []) if c in cset]
+    out = []
+    for e in (d.get("cells") or []):
+        if isinstance(e, str) and e in cset:                # tolerate a bare-name list too
+            out.append({"cell": e, "confidence": "high"})
+        elif isinstance(e, dict) and e.get("name") in cset:
+            out.append({"cell": e["name"], "confidence": e.get("confidence", "high")})
+    return out
 
 
 def propose_structure(prov, levels, cells, aliases, call, log=lambda *a: None):
@@ -240,21 +247,27 @@ def propose_structure(prov, levels, cells, aliases, call, log=lambda *a: None):
     # node with a note, rather than aborting the whole ~50-call pass and losing all progress.
     sec_struct = {}
     scores["failed"] = []
+    conf = {"sec_cell": {}, "sec_mod": {}, "flux": {}}     # per-edge confidence, for --prune
+    scores["confidence"] = conf
     for cyt in dyn_cyts:
         try:
             cell_cands = [c for c in dyn_cells]
             secreting = _propose_secreting_cells(cyt, cell_cands, call)
+            sec_names = [s["cell"] for s in secreting]
+            conf["sec_cell"][cyt] = {s["cell"]: s["confidence"] for s in secreting}
             truth_cells = [c for c in model_sec.get(cyt, {}) if c in dyn_cells]
-            scores["secreting_cells"][cyt] = _score(secreting, truth_cells)
+            scores["secreting_cells"][cyt] = _score(sec_names, truth_cells)
             mod_cands = [c for c in dyn_cyts if c != cyt]
             mregs = MA.propose_regulators(cyt, mod_cands, "secretion (which cytokines up/down-"
                                           "regulate how much of it is secreted)", call)
             mods = [r["cytokine"] for r in mregs if r["cytokine"] in mod_cands]
+            conf["sec_mod"][cyt] = {r["cytokine"]: r.get("confidence") for r in mregs
+                                    if r["cytokine"] in mod_cands}
             truth_mods = sorted({m for c in model_sec.get(cyt, {}).values()
                                  for m in c if m in levels})
             scores["secretion_mods"][cyt] = _score(mods, truth_mods)
-            if secreting:
-                sec_struct[cyt] = {cell: list(mods) for cell in secreting}
+            if sec_names:
+                sec_struct[cyt] = {cell: list(mods) for cell in sec_names}
             log(f"  cyt {cyt:7} cells r={scores['secreting_cells'][cyt]['recall']:.2f} "
                 f"p={scores['secreting_cells'][cyt]['precision']:.2f}  mods "
                 f"r={scores['secretion_mods'][cyt]['recall']:.2f} "
@@ -270,10 +283,13 @@ def propose_structure(prov, levels, cells, aliases, call, log=lambda *a: None):
     cyt_cands = list(dyn_cyts)
     for cell in dyn_cells:
         cell_struct[cell] = {}
+        conf["flux"][cell] = {}
         try:
             for flux, pname in proc.items():
                 regs = MA.propose_regulators(cell, cyt_cands, pname, call)
                 picks = [r["cytokine"] for r in regs if r["cytokine"] in cyt_cands]
+                conf["flux"][cell][flux] = {r["cytokine"]: r.get("confidence") for r in regs
+                                            if r["cytokine"] in cyt_cands}
                 truth = [c for c in cells[cell][flux] if c in levels]
                 scores["cell_flux"][f"{cell}.{flux}"] = _score(picks, truth)
                 cell_struct[cell][flux] = picks
@@ -283,6 +299,58 @@ def propose_structure(prov, levels, cells, aliases, call, log=lambda *a: None):
             scores["failed"].append(("cell", cell, str(e)[:80]))
             log(f"  cell {cell:11} SKIPPED (call failed: {str(e)[:60]})")
     return sec_struct, cell_struct, scores
+
+
+def prune_structure(sec_struct, cell_struct, conf, prov, aliases, model_cells):
+    """Drop the agent's LOW-CONFIDENCE and UNCITED edges - the spurious over-inclusions that a
+    from-scratch build has no support for. An edge is KEPT if the agent marked it high-confidence
+    OR the model literature cites a value for it (both signals are available in a real build: the
+    agent's own confidence, and whether a literature constant exists for the edge). ``model_cells``
+    is the model's discover_cells result (for edge citedness). Returns (sec2, cell2, dropped) with
+    the same shapes as propose_structure's outputs."""
+    model_sec = discover_secretion(prov, cell_token_map(aliases))
+
+    def cited_sec_cell(cyt, cell):
+        return cell in model_sec.get(cyt, {})
+
+    def cited_sec_mod(cyt, mod):
+        return any(mod in mods and mods[mod][1] for mods in model_sec.get(cyt, {}).values())
+
+    def cited_flux(cell, flux, cyt):
+        info = model_cells.get(cell, {})
+        return bool(info.get(flux, {}).get(cyt, (None, False))[1])
+
+    def keep(c):
+        return c == "high"
+
+    dropped = {"sec_cell": [], "sec_mod": [], "flux": []}
+    sec2 = {}
+    for cyt, per_cell in sec_struct.items():
+        cell_conf = conf["sec_cell"].get(cyt, {})
+        mod_conf = conf["sec_mod"].get(cyt, {})
+        for cell, mods in per_cell.items():
+            if not (keep(cell_conf.get(cell)) or cited_sec_cell(cyt, cell)):
+                dropped["sec_cell"].append(f"{cyt}<-{cell}"); continue
+            kept_mods = []
+            for m in mods:
+                if keep(mod_conf.get(m)) or cited_sec_mod(cyt, m):
+                    kept_mods.append(m)
+                else:
+                    dropped["sec_mod"].append(f"{cyt}.{m}")
+            sec2.setdefault(cyt, {})[cell] = kept_mods
+    cell2 = {}
+    for cell, fluxes in cell_struct.items():
+        cell2[cell] = {}
+        fc = conf["flux"].get(cell, {})
+        for flux, cyts in fluxes.items():
+            kept = []
+            for c in cyts:
+                if keep(fc.get(flux, {}).get(c)) or cited_flux(cell, flux, c):
+                    kept.append(c)
+                else:
+                    dropped["flux"].append(f"{cell}.{flux}.{c}")
+            cell2[cell][flux] = kept
+    return sec2, cell2, dropped
 
 
 def integrate_network(spec, clamp=None, t_end=60.0, dt=5e-3, diverge_fold=1e9):

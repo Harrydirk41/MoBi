@@ -55,6 +55,10 @@ def main() -> None:
     ap.add_argument("--live", action="store_true",
                     help="the AGENT proposes every edge of the whole network (topology + which "
                          "cells secrete what), scored against the model; needs ANTHROPIC_API_KEY")
+    ap.add_argument("--prune", action="store_true",
+                    help="with --live: drop the agent's low-confidence AND uncited edges (the "
+                         "spurious over-inclusions) before assembly, to test if precision buys "
+                         "dynamical stability")
     args = ap.parse_args()
 
     prov, levels, cells, aliases = _load(args.model)
@@ -72,8 +76,16 @@ def main() -> None:
                   "agent's job) ==")
             sec_struct, cell_struct, sc = NA.propose_structure(prov, levels, cells, aliases,
                                                                LT.default_call(cfg), log=print)
+            model_cells = cells
+            if args.prune:
+                sec_struct, cell_struct, dropped = NA.prune_structure(
+                    sec_struct, cell_struct, sc["confidence"], prov, aliases, model_cells)
+                nd = sum(len(v) for v in dropped.values())
+                print(f"  --prune: dropped {nd} low-confidence + uncited edges "
+                      f"({len(dropped['sec_cell'])} sources, {len(dropped['sec_mod'])} secretion "
+                      f"mods, {len(dropped['flux'])} cell-flux)")
             model_sec = NA.discover_secretion(prov, NA.cell_token_map(aliases))
-            sec2, cells2 = NA.apply_structure(model_sec, cells, sec_struct, cell_struct)
+            sec2, cells2 = NA.apply_structure(model_sec, model_cells, sec_struct, cell_struct)
             cells = cells2
             # aggregate ONLY over questions that have a model edge to recover: a node the model
             # sources from a constant input (no dynamic secreting cell) or a flux with no

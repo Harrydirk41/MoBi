@@ -113,6 +113,31 @@ class TestLivePathWithMock(unittest.TestCase):
             self.assertLess(abs(ss[k] - targ[k]) / targ[k], 1e-3)
 
 
+class TestPruneStructure(unittest.TestCase):
+    def test_drops_low_conf_uncited_keeps_cited_and_high(self):
+        cells = CL.discover_cells(PROV, TARGETS, {})
+        # agent structure: the real edges + spurious low-confidence uncited extras
+        sec_struct = {"C1": {"K1": ["C2", "Cfake"]}}       # C2 cited (keep), Cfake uncited
+        cell_struct = {"K1": {"prolif": ["C1", "C2"], "influx": [], "apop": []}}  # C1 cited, C2 not
+        conf = {"sec_cell": {"C1": {"K1": "high"}},
+                "sec_mod": {"C1": {"C2": "high", "Cfake": "low"}},
+                "flux": {"K1": {"prolif": {"C1": "high", "C2": "low"}}}}
+        sec2, cell2, dropped = NA.prune_structure(sec_struct, cell_struct, conf, PROV, {}, cells)
+        self.assertEqual(sec2["C1"]["K1"], ["C2"])          # Cfake (low+uncited) dropped
+        self.assertIn("C1.Cfake", dropped["sec_mod"])
+        self.assertEqual(cell2["K1"]["prolif"], ["C1"])     # C2 (low+uncited) dropped
+        self.assertIn("K1.prolif.C2", dropped["flux"])
+
+    def test_high_confidence_uncited_edge_is_kept(self):
+        cells = CL.discover_cells(PROV, TARGETS, {})
+        # an uncited edge the agent is HIGH-confidence about is kept (biology the sparse model pruned)
+        cell_struct = {"K1": {"prolif": ["C2"], "influx": [], "apop": []}}
+        conf = {"sec_cell": {}, "sec_mod": {}, "flux": {"K1": {"prolif": {"C2": "high"}}}}
+        _, cell2, dropped = NA.prune_structure({}, cell_struct, conf, PROV, {}, cells)
+        self.assertEqual(cell2["K1"]["prolif"], ["C2"])     # kept on high confidence
+        self.assertEqual(dropped["flux"], [])
+
+
 class TestDivergenceGuard(unittest.TestCase):
     def test_runaway_flags_diverged(self):
         # autocatalysis with no clearance: dX/dt = X -> unbounded -> must flag, not return garbage
