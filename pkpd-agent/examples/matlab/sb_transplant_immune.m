@@ -131,6 +131,14 @@ function report = sb_transplant_immune(sbmlFile, dryRun)
         addkineticlaw(nr, 'Unknown');
         nr.ReactionRate = i_qualifyRate(m, char(r.ReactionRate), i_reactionSpecies(r), defaultComp);
     end
+    % give the transplanted species the agent's CALIBRATED initial amounts (its steady-state
+    % target), so the network starts at the fixed point the free rates were fit to - not the paper's
+    % initial values, which the agent dynamics would otherwise pull away from.
+    for i = 1:numel(am.Species)
+        s = am.Species(i);
+        ps = sbioselect(m, 'Type', 'species', 'Name', s.Name);
+        if ~isempty(ps), ps(1).InitialAmount = s.InitialAmount; end
+    end
     fprintf('\n[APPLIED] removed %d pure-immune reactions, added %d agent reactions, %d params.\n', ...
             numel(toRemove), numel(am.Reactions), numel(am.Parameters));
     fprintf('Verify a baseline simulation before any fit: sbiosimulate(sbmodel).\n');

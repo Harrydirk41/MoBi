@@ -46,31 +46,44 @@ function sb_agent_clinical(sbprojPath, agentXml, outSbproj, checkReadout, checkD
     m = evalin('base', 'sbmodel');
     cs = getconfigset(m);
     try, cs.RuntimeOptions.StatesToLog = 'all'; catch, end
-    if ~isempty(checkDose)
-        d = i_getdoses(m, checkDose);
-        sd = sbiosimulate(m, cs, [], d);
-    else
-        sd = sbiosimulate(m, cs);
-    end
-    names = reshape(cellstr(sd.DataNames), 1, []);
-    col = find(strcmp(names, checkReadout), 1);
-    if isempty(col)
-        warning('readout "%s" not found after transplant (have %d states) - check names.', ...
-                checkReadout, numel(names));
-    else
-        v = sd.Data(end, col);
-        fprintf('  baseline %s at end of run: %g  (finite=%d)\n', checkReadout, v, isfinite(v));
-        if ~isfinite(v)
-            warning(['the readout is non-finite: the transplanted network likely diverged. ' ...
-                     'Prune the agent structure harder (run_qsp_build_network --prune) and re-emit.']);
+    % short-horizon diagnostic: distinguishes an IMMEDIATE NaN (a structural/rate-law problem) from
+    % a slow drift (the agent network's marginal cells wandering over the long clinical protocol).
+    for T = [1, 10, 50]
+        cs.StopTime = T;
+        try
+            if ~isempty(checkDose)
+                sd = sbiosimulate(m, cs, [], i_getdoses(m, checkDose));
+            else
+                sd = sbiosimulate(m, cs);
+            end
+        catch e
+            fprintf('  t=%-4g simulation FAILED: %s\n', T, e.message); break;
         end
+        names = reshape(cellstr(sd.DataNames), 1, []);
+        last = sd.Data(end, :);
+        bad = names(~isfinite(last));
+        col = find(strcmp(names, checkReadout), 1);
+        v = NaN; if ~isempty(col), v = last(col); end
+        fprintf('  t=%-4g  %s=%g (finite=%d)   non-finite states: %d %s\n', T, checkReadout, v, ...
+                isfinite(v), numel(bad), i_head(bad, 6));
+        if ~isempty(bad), break; end
     end
 
     fprintf('\n== 4. save the agent-based clinical sbproj ==\n');
-    sbsaveproject(char(outSbproj), m, 'sbmodel');
+    sbmodel = m; %#ok<NASGU>   % sbiosaveproject reads the caller workspace by variable name
+    sbiosaveproject(char(outSbproj), 'sbmodel');
     fprintf('  saved -> %s\n', outSbproj);
     fprintf(['\nNext: run sb_fit (train) / sb_run_vpop (test + simulate switch) / ' ...
              'sb_paper_compare on this project, exactly as for the paper model.\n']);
+end
+
+function s = i_head(c, n)
+%I_HEAD first n entries of a cellstr joined by commas (for a compact NaN-species preview).
+    if isempty(c), s = ''; return; end
+    k = min(n, numel(c));
+    s = ['[' strjoin(c(1:k), ', ')];
+    if numel(c) > k, s = [s ', ...']; end
+    s = [s ']'];
 end
 
 function d = i_getdoses(m, doseSpec)
