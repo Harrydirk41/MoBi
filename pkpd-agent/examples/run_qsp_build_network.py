@@ -91,6 +91,9 @@ def main() -> None:
                 note = f"  ({empty} nodes have no model edge - excluded)" if empty else ""
                 print(f"  AGENT topology [{label:16}] mean recall {r:.2f}  precision {p:.2f}"
                       f"  [on nodes with a model edge]{note}")
+            if sc.get("failed"):
+                print(f"  {len(sc['failed'])} node(s) SKIPPED after retries "
+                      f"(assembled without them): {[f[1] for f in sc['failed']]}")
             struct_src = "the AGENT's proposed edges"
             spec, meta = NA.assemble_network(prov, levels, cells, aliases, sec_override=sec2)
     if not args.live or struct_src == "the model's own edges":

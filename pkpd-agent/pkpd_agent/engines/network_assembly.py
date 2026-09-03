@@ -236,24 +236,32 @@ def propose_structure(prov, levels, cells, aliases, call, log=lambda *a: None):
     scores = {"secreting_cells": {}, "secretion_mods": {}, "cell_flux": {}}
 
     # --- per cytokine: which cells secrete it, and which cytokines modulate that secretion ---
+    # each node is wrapped so a hard call failure (after the boundary's own retries) skips THAT
+    # node with a note, rather than aborting the whole ~50-call pass and losing all progress.
     sec_struct = {}
+    scores["failed"] = []
     for cyt in dyn_cyts:
-        cell_cands = [c for c in dyn_cells]
-        secreting = _propose_secreting_cells(cyt, cell_cands, call)
-        truth_cells = [c for c in model_sec.get(cyt, {}) if c in dyn_cells]
-        scores["secreting_cells"][cyt] = _score(secreting, truth_cells)
-        mod_cands = [c for c in dyn_cyts if c != cyt]
-        mregs = MA.propose_regulators(cyt, mod_cands, "secretion (which cytokines up/down-regulate "
-                                      "how much of it is secreted)", call)
-        mods = [r["cytokine"] for r in mregs if r["cytokine"] in mod_cands]
-        truth_mods = sorted({m for c in model_sec.get(cyt, {}).values() for m in c if m in levels})
-        scores["secretion_mods"][cyt] = _score(mods, truth_mods)
-        if secreting:
-            sec_struct[cyt] = {cell: list(mods) for cell in secreting}
-        log(f"  cyt {cyt:7} cells r={scores['secreting_cells'][cyt]['recall']:.2f} "
-            f"p={scores['secreting_cells'][cyt]['precision']:.2f}  mods "
-            f"r={scores['secretion_mods'][cyt]['recall']:.2f} "
-            f"p={scores['secretion_mods'][cyt]['precision']:.2f}")
+        try:
+            cell_cands = [c for c in dyn_cells]
+            secreting = _propose_secreting_cells(cyt, cell_cands, call)
+            truth_cells = [c for c in model_sec.get(cyt, {}) if c in dyn_cells]
+            scores["secreting_cells"][cyt] = _score(secreting, truth_cells)
+            mod_cands = [c for c in dyn_cyts if c != cyt]
+            mregs = MA.propose_regulators(cyt, mod_cands, "secretion (which cytokines up/down-"
+                                          "regulate how much of it is secreted)", call)
+            mods = [r["cytokine"] for r in mregs if r["cytokine"] in mod_cands]
+            truth_mods = sorted({m for c in model_sec.get(cyt, {}).values()
+                                 for m in c if m in levels})
+            scores["secretion_mods"][cyt] = _score(mods, truth_mods)
+            if secreting:
+                sec_struct[cyt] = {cell: list(mods) for cell in secreting}
+            log(f"  cyt {cyt:7} cells r={scores['secreting_cells'][cyt]['recall']:.2f} "
+                f"p={scores['secreting_cells'][cyt]['precision']:.2f}  mods "
+                f"r={scores['secretion_mods'][cyt]['recall']:.2f} "
+                f"p={scores['secretion_mods'][cyt]['precision']:.2f}")
+        except Exception as e:                              # noqa: BLE001
+            scores["failed"].append(("cyt", cyt, str(e)[:80]))
+            log(f"  cyt {cyt:7} SKIPPED (call failed: {str(e)[:60]})")
 
     # --- per cell: proliferation / influx / apoptosis regulators ---
     cell_struct = {}
@@ -262,14 +270,18 @@ def propose_structure(prov, levels, cells, aliases, call, log=lambda *a: None):
     cyt_cands = list(dyn_cyts)
     for cell in dyn_cells:
         cell_struct[cell] = {}
-        for flux, pname in proc.items():
-            regs = MA.propose_regulators(cell, cyt_cands, pname, call)
-            picks = [r["cytokine"] for r in regs if r["cytokine"] in cyt_cands]
-            truth = [c for c in cells[cell][flux] if c in levels]
-            scores["cell_flux"][f"{cell}.{flux}"] = _score(picks, truth)
-            cell_struct[cell][flux] = picks
-        r = [scores["cell_flux"][f"{cell}.{f}"]["recall"] for f in proc]
-        log(f"  cell {cell:11} flux recall {['%.2f'%x for x in r]}")
+        try:
+            for flux, pname in proc.items():
+                regs = MA.propose_regulators(cell, cyt_cands, pname, call)
+                picks = [r["cytokine"] for r in regs if r["cytokine"] in cyt_cands]
+                truth = [c for c in cells[cell][flux] if c in levels]
+                scores["cell_flux"][f"{cell}.{flux}"] = _score(picks, truth)
+                cell_struct[cell][flux] = picks
+            r = [scores["cell_flux"][f"{cell}.{f}"]["recall"] for f in proc]
+            log(f"  cell {cell:11} flux recall {['%.2f'%x for x in r]}")
+        except Exception as e:                              # noqa: BLE001
+            scores["failed"].append(("cell", cell, str(e)[:80]))
+            log(f"  cell {cell:11} SKIPPED (call failed: {str(e)[:60]})")
     return sec_struct, cell_struct, scores
 
 

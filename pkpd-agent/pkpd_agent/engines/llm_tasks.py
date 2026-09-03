@@ -36,17 +36,49 @@ _SYS = ("You are a QSP-model analyst. You read a model's parameters, species and
         "clinical numbers. Output JSON only, no prose.")
 
 
+def _transient_types():
+    """The anthropic exception classes worth retrying (overload / rate-limit / 5xx / network /
+    timeout), resolved by name so a missing class in an older SDK is simply skipped."""
+    import anthropic
+    names = ("OverloadedError", "RateLimitError", "APITimeoutError", "InternalServerError",
+             "APIConnectionError", "APIStatusError")
+    return tuple(t for t in (getattr(anthropic, n, None) for n in names) if t is not None)
+
+
+def _retrying(fn, attempts=6, base=2.0, cap=32.0):
+    """Call fn(), retrying transient API errors with exponential backoff + jitter. A long
+    multi-call agent pass (the structure pass makes ~50 calls) must survive a single 529, not
+    lose the whole run to it. Non-transient errors (bad request, auth) propagate immediately."""
+    import random
+    import time
+    transient = _transient_types()
+    for i in range(attempts):
+        try:
+            return fn()
+        except transient as e:                              # noqa: PERF203
+            status = getattr(e, "status_code", None)
+            # APIStatusError covers many codes; only retry the transient ones (429 / >=500)
+            if status is not None and status not in (429,) and status < 500:
+                raise
+            if i == attempts - 1:
+                raise
+            time.sleep(min(cap, base * (2 ** i)) * (0.5 + random.random()))
+    raise RuntimeError("unreachable")
+
+
 def default_call(config):
     """A real Claude call: (system, user) -> text. Larger max_tokens than the structure
     extractor (role lists over hundreds of parameters), and a clear error on an empty
-    reply so a truncated/blocked response is diagnosable instead of a cryptic JSON error."""
+    reply so a truncated/blocked response is diagnosable instead of a cryptic JSON error.
+    Transient overload / rate-limit / 5xx errors are retried with exponential backoff so a
+    long multi-call agent pass is not killed by one 529."""
     import anthropic
     client = anthropic.Anthropic()
 
     def call(system: str, user: str) -> str:
-        resp = client.messages.create(
+        resp = _retrying(lambda: client.messages.create(
             model=config.model, max_tokens=16000, system=system,
-            messages=[{"role": "user", "content": user}])
+            messages=[{"role": "user", "content": user}]))
         text = "".join(getattr(b, "text", "") for b in resp.content
                        if getattr(b, "type", None) == "text")
         if not text.strip():
