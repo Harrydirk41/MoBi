@@ -43,17 +43,31 @@ function report = sb_transplant_immune(sbmlFile, dryRun)
               'no species name is shared between the agent SBML and the paper model.');
     end
 
-    % ---- classify paper reactions: pure-immune (remove) vs shell-touching (keep) ----
-    toRemove = {}; keptTouchingImmune = {};
+    % ---- classify paper reactions by STOICHIOMETRY OWNERSHIP ----
+    % The agent supplies the COMPLETE mass balance (production + clearance + every flux) for each of
+    % the 23 shared species. So any paper reaction that has a transplanted species as a REACTANT or
+    % PRODUCT is now redundant and must go, or the species is driven twice. A reaction is KEPT only
+    % if no transplanted species appears in its stoichiometry - transplanted species may still appear
+    % in its RATE LAW as a modifier (that is exactly the DAS28/CRP/PK shell reading the immune state,
+    % which we WANT to preserve).
+    toRemove = {}; removeDetails = {}; shellInRemoved = string.empty; clinicalCouplings = {};
     for i = 1:numel(m.Reactions)
         r = m.Reactions(i);
-        sp = i_reactionSpecies(r);
-        if isempty(sp), continue; end
-        allImmune = all(ismember(sp, immune));
-        if allImmune
+        sp = i_reactionSpecies(r);                           % reactants + products only
+        ownsTransplanted = any(ismember(sp, immune));
+        if ownsTransplanted
             toRemove{end+1} = r.Name; %#ok<AGROW>
-        elseif any(ismember(sp, immune))
-            keptTouchingImmune{end+1} = r.Name; %#ok<AGROW>
+            shellHere = setdiff(sp, immune);                 % non-immune species losing this term
+            if ~isempty(shellHere)
+                shellInRemoved = union(shellInRemoved, shellHere);
+                removeDetails{end+1} = sprintf('%s : %s', r.Name, char(r.Reaction)); %#ok<AGROW>
+            end
+        else
+            % kept: does its rate law READ a transplanted species (a clinical/PK coupling)?
+            rate = char(r.ReactionRate);
+            if any(arrayfun(@(s) i_wordIn(rate, char(s)), immune))
+                clinicalCouplings{end+1} = r.Name; %#ok<AGROW>
+            end
         end
     end
 
@@ -68,10 +82,12 @@ function report = sb_transplant_immune(sbmlFile, dryRun)
     report.immuneShared   = cellstr(immune(:).');
     report.nPaperReactions = numel(m.Reactions);
     report.removeReactions = toRemove;
+    report.removeMixedDetails = removeDetails;               % removed reactions that also touch shell
+    report.shellSpeciesInRemoved = cellstr(shellInRemoved(:).');  % non-immune species losing a term
+    report.clinicalCouplings = clinicalCouplings;            % kept reactions reading immune state (good)
     report.addReactions    = arrayfun(@(r) string(r.Reaction), am.Reactions(:).', 'uni', 1);
     report.addParameters   = string({am.Parameters.Name});
     report.uncovered       = cellstr(uncovered(:).');
-    report.doubleDriven    = keptTouchingImmune;             % review these for double-counting
     report.applied         = ~dryRun;
 
     i_printReport(report);
@@ -124,16 +140,30 @@ function i_printReport(rep)
     fprintf('== sb_transplant_immune report ==\n');
     fprintf('  shared immune species (%d): %s\n', numel(rep.immuneShared), strjoin(rep.immuneShared, ', '));
     fprintf('  paper reactions total: %d\n', rep.nPaperReactions);
-    fprintf('  WOULD REMOVE (pure-immune) %d: %s\n', numel(rep.removeReactions), ...
-            strjoin(rep.removeReactions, ', '));
+    fprintf('  WOULD REMOVE (any transplanted species in stoichiometry) %d: %s\n', ...
+            numel(rep.removeReactions), strjoin(rep.removeReactions, ', '));
     fprintf('  WOULD ADD agent reactions: %d ; agent parameters: %d\n', ...
             numel(rep.addReactions), numel(rep.addParameters));
+    fprintf('  KEEP - clinical/PK reactions that READ the immune state via their rate law (%d): %s\n', ...
+            numel(rep.clinicalCouplings), strjoin(rep.clinicalCouplings, ', '));
     if ~isempty(rep.uncovered)
         fprintf('  [!] immune species the agent does NOT drive (kept on paper dynamics): %s\n', ...
                 strjoin(rep.uncovered, ', '));
     end
-    if ~isempty(rep.doubleDriven)
-        fprintf(['  [!] kept reactions that still touch a transplanted species ' ...
-                 '(review for double-counting): %s\n'], strjoin(rep.doubleDriven, ', '));
+    if ~isempty(rep.shellSpeciesInRemoved)
+        fprintf(['  [!] NON-immune (shell) species that lose a reaction term because a removed ' ...
+                 'reaction\n      also touched them - verify their balance survives: %s\n'], ...
+                strjoin(rep.shellSpeciesInRemoved, ', '));
+        fprintf('  [!] the mixed removed reactions (name : stoichiometry):\n');
+        for i = 1:numel(rep.removeMixedDetails)
+            fprintf('        %s\n', rep.removeMixedDetails{i});
+        end
     end
+end
+
+function tf = i_wordIn(str, word)
+%I_WORDIN true if WORD appears in STR delimited by non-identifier chars (a real reference,
+%   not a substring of a longer name).
+    tf = ~isempty(regexp(str, ['(?<![A-Za-z0-9_])' regexptranslate('escape', word) ...
+                               '(?![A-Za-z0-9_])'], 'once'));
 end

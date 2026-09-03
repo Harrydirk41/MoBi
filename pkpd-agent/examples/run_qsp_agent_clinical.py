@@ -58,9 +58,10 @@ def main() -> None:
             # the .m already prints a human report via the captured MATLAB stdout; also dump the
             # struct fields so you (and I) can eyeball the seams programmatically.
             print("\n== transplant report (struct) ==")
-            for k in ("immuneShared", "removeReactions", "uncovered", "doubleDriven"):
+            for k in ("immuneShared", "uncovered", "shellSpeciesInRemoved", "clinicalCouplings",
+                      "removeMixedDetails"):
                 v = rep.get(k) if isinstance(rep, dict) else None
-                print(f"  {k}: {json.dumps(v, default=str)[:400] if v is not None else '(n/a)'}")
+                print(f"  {k}: {json.dumps(v, default=str)[:600] if v is not None else '(n/a)'}")
             print("\nDRY RUN only. Re-run with --apply once the report looks right.")
         else:
             print("== APPLY: transplant + baseline sim + save agent-based sbproj ==", flush=True)
