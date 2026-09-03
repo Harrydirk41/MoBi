@@ -46,9 +46,12 @@ function sb_agent_clinical(sbprojPath, agentXml, outSbproj, checkReadout, checkD
     m = evalin('base', 'sbmodel');
     cs = getconfigset(m);
     try, cs.RuntimeOptions.StatesToLog = 'all'; catch, end
-    % short-horizon diagnostic: distinguishes an IMMEDIATE NaN (a structural/rate-law problem) from
-    % a slow drift (the agent network's marginal cells wandering over the long clinical protocol).
-    for T = [1, 10, 50]
+    % Diagnostic across the clinical protocol's horizons. The response READOUTS (ACR_Perc, the ACR/
+    % Remission/NonResp flags, DAS28_BL) are set by EVENTS at day 199/284/600, so they are
+    % legitimately non-finite/zero before their event fires - they are excluded from the
+    % divergence check, which watches only the CONTINUOUS states (immune species + DAS28_CRP).
+    readoutPat = '^ACR|Remission|Response|NonResp|_BL$|^delta_';
+    for T = [50, 210, 285]
         cs.StopTime = T;
         try
             if ~isempty(checkDose)
@@ -61,11 +64,12 @@ function sb_agent_clinical(sbprojPath, agentXml, outSbproj, checkReadout, checkD
         end
         names = reshape(cellstr(sd.DataNames), 1, []);
         last = sd.Data(end, :);
-        bad = names(~isfinite(last));
+        isReadout = ~cellfun('isempty', regexp(names, readoutPat, 'once'));
+        bad = names(~isfinite(last) & ~isReadout);           % non-finite CONTINUOUS states
         col = find(strcmp(names, checkReadout), 1);
         v = NaN; if ~isempty(col), v = last(col); end
-        fprintf('  t=%-4g  %s=%g (finite=%d)   non-finite states: %d %s\n', T, checkReadout, v, ...
-                isfinite(v), numel(bad), i_head(bad, 6));
+        fprintf('  t=%-4g  %s=%g (finite=%d)   diverged continuous states: %d %s\n', T, ...
+                checkReadout, v, isfinite(v), numel(bad), i_head(bad, 6));
         if ~isempty(bad), break; end
     end
 
