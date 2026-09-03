@@ -59,6 +59,12 @@ def main() -> None:
                     help="with --live: drop the agent's low-confidence AND uncited edges (the "
                          "spurious over-inclusions) before assembly, to test if precision buys "
                          "dynamical stability")
+    ap.add_argument("--audit", action="store_true",
+                    help="with --live: capture every prompt sent to the agent and grep it for any "
+                         "leaked answer (edges / values / rate-law form); prints a PASS/FAIL table")
+    ap.add_argument("--trace", default=None,
+                    help="with --live: write every (system, user, response) triple to this JSONL "
+                         "file so you can inspect exactly what the agent was shown")
     args = ap.parse_args()
 
     prov, levels, cells, aliases = _load(args.model)
@@ -74,8 +80,31 @@ def main() -> None:
         else:
             print("== AGENT proposes the FULL network structure (nodes given; topology is the "
                   "agent's job) ==")
+            base_call = LT.default_call(cfg)
+            captured = []
+            tf = open(args.trace, "w", encoding="utf-8") if args.trace else None
+
+            def call(system, user):                        # capture every prompt for the audit
+                resp = base_call(system, user)
+                captured.append((system, user))
+                if tf:
+                    tf.write(json.dumps({"system": system, "user": user, "response": resp},
+                                        ensure_ascii=False) + "\n")
+                return resp
             sec_struct, cell_struct, sc = NA.propose_structure(prov, levels, cells, aliases,
-                                                               LT.default_call(cfg), log=print)
+                                                               call, log=print)
+            if tf:
+                tf.close(); print(f"  trace -> {os.path.abspath(args.trace)}")
+            if args.audit:
+                findings = NA.audit_prompts(captured)
+                bad = {k: v for k, v in findings.items() if v}
+                print(f"  AUDIT - leakage check over {len(captured)} prompts shown to the agent:")
+                for label, pat_hits in findings.items():
+                    status = f"LEAK {pat_hits[:5]}" if pat_hits else "clean"
+                    print(f"    [{'FAIL' if pat_hits else 'PASS'}] {label:44} {status}")
+                verdict = ("ALL CLEAN: no answer (edges/values/form) was shown to the agent"
+                           if not bad else "LEAK DETECTED - see above")
+                print(f"  -> {verdict}")
             model_cells = cells
             if args.prune:
                 sec_struct, cell_struct, dropped = NA.prune_structure(

@@ -138,6 +138,23 @@ class TestPruneStructure(unittest.TestCase):
         self.assertEqual(dropped["flux"], [])
 
 
+class TestAuditPrompts(unittest.TestCase):
+    def test_clean_prompts_pass(self):
+        prompts = [("You decide structure from biology. JSON only.",
+                    "Node: IL6. Available cytokine nodes: IL1b, TNFa. Which regulate IL6?"),
+                   ("Which cell types secrete this?", "Cytokine: IL6. Candidate cell types: FLS")]
+        findings = NA.audit_prompts(prompts)
+        self.assertTrue(all(not v for v in findings.values()), findings)
+
+    def test_planted_leak_is_flagged(self):
+        # a prompt that leaks the model's form, an edge param, and a value must FAIL
+        findings = NA.audit_prompts([("sys", "the model uses capped_sum, "
+                                      "IL6SecFLS_MaxbyIL1b = 69.0")])
+        self.assertTrue(findings["model rate-law form (answer)"])
+        self.assertTrue(findings["model edge encoding (Maxby/Sec/flux params)"])
+        self.assertTrue(findings["numeric parameter values"])
+
+
 class TestDivergenceGuard(unittest.TestCase):
     def test_runaway_flags_diverged(self):
         # autocatalysis with no clearance: dX/dt = X -> unbounded -> must flag, not return garbage

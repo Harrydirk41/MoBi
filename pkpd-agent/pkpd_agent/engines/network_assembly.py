@@ -172,6 +172,29 @@ def assemble_network(prov, levels, cells, aliases, prior=1.5, sec_override=None)
     return spec, meta
 
 
+# leakage probes: patterns that would mean the model's ANSWER (its edges / values / rate-law form)
+# leaked into a prompt shown to the agent. The agent is only ever given node names + the candidate
+# inventory (both GIVEN) and the question - never these.
+_LEAK_PROBES = {
+    "literature/citation markers": r"from_literature|\breference\b|citation|\bcited\b",
+    "model rate-law form (answer)": r"capped_sum|capped sum",
+    "model edge encoding (Maxby/Sec/flux params)":
+        r"Maxby|Sec[A-Z][a-z]|Prolif_|Apop_|Influx_",
+    "numeric parameter values": r"\b\d+\.\d+\b",
+    "rate parameter names": r"kcl_|kd_|kIn_|kg_|ksec|kprolif",
+    "scoring/answer words": r"\brecall\b|\bprecision\b|\btruth\b|answer key",
+}
+
+
+def audit_prompts(prompts):
+    """Given every (system, user) prompt shown to the agent, return {check: sorted(hits)} for each
+    leakage probe - all-empty means no answer (edges / values / form) leaked into any prompt. Lets a
+    --live run PROVE the agent's topology judgment was blind, not just assert it."""
+    import re
+    blob = "\n".join((s or "") + " ||| " + (u or "") for s, u in prompts)
+    return {label: sorted(set(re.findall(pat, blob))) for label, pat in _LEAK_PROBES.items()}
+
+
 def apply_structure(model_sec, cells, sec_struct, cell_struct, prior_flag=(None, False)):
     """Substitute an AGENT's chosen structure into the model-shaped dicts, keeping the constant
     VALUES from the model where the edge exists and marking the rest as uncited (prior at assembly).
