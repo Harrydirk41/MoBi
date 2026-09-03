@@ -114,17 +114,20 @@ function report = sb_transplant_immune(sbmlFile, dryRun)
             existing.Value = p.Value;                        % agent's calibrated value wins
         end
     end
+    % the paper model has >1 compartment, so species in reaction strings AND rate laws must be
+    % compartment-qualified (e.g. Synovium.IL6). Map every agent species to its compartment in m.
+    defaultComp = m.Compartments(1).Name;
     for i = 1:numel(am.Reactions)
         r = am.Reactions(i);
-        % ensure every species the agent reaction needs exists in the paper model
         for s = i_reactionSpecies(r)
             if isempty(sbioselect(m, 'Type', 'species', 'Name', char(s)))
-                addspecies(m.Compartments(1), char(s));
+                addspecies(m.Compartments(1), char(s));      % new species -> default compartment
             end
         end
-        nr = addreaction(m, char(r.Reaction));
+        rxnStr = i_qualifyReaction(m, r, defaultComp);
+        nr = addreaction(m, rxnStr);
         addkineticlaw(nr, 'Unknown');
-        nr.ReactionRate = char(r.ReactionRate);
+        nr.ReactionRate = i_qualifyRate(m, char(r.ReactionRate), i_reactionSpecies(r), defaultComp);
     end
     fprintf('\n[APPLIED] removed %d pure-immune reactions, added %d agent reactions, %d params.\n', ...
             numel(toRemove), numel(am.Reactions), numel(am.Parameters));
@@ -138,6 +141,43 @@ function names = i_reactionSpecies(r)
     for j = 1:numel(r.Reactants), names(end+1) = string(r.Reactants(j).Name); end %#ok<AGROW>
     for j = 1:numel(r.Products),  names(end+1) = string(r.Products(j).Name);  end %#ok<AGROW>
     names = unique(names);
+end
+
+function comp = i_speciesComp(m, name, defaultComp)
+%I_SPECIESCOMP the compartment name of a species in model m (defaultComp if not found).
+    s = sbioselect(m, 'Type', 'species', 'Name', char(name));
+    if isempty(s), comp = defaultComp; else, comp = s(1).Parent.Name; end
+end
+
+function str = i_qualifyReaction(m, r, defaultComp)
+%I_QUALIFYREACTION build a "Comp.A + Comp.B -> Comp.C" reaction string, compartment-qualified so
+%   addreaction resolves species in a multi-compartment model. Empty side -> 'null'.
+    lhs = i_qualSide(m, r.Reactants, defaultComp);
+    rhs = i_qualSide(m, r.Products,  defaultComp);
+    str = [lhs ' -> ' rhs];
+end
+
+function side = i_qualSide(m, specarr, defaultComp)
+    parts = {};
+    for j = 1:numel(specarr)
+        nm = specarr(j).Name;
+        parts{end+1} = [i_speciesComp(m, nm, defaultComp) '.' char(nm)]; %#ok<AGROW>
+    end
+    if isempty(parts), side = 'null'; else, side = strjoin(parts, ' + '); end
+end
+
+function rate = i_qualifyRate(m, rate, specNames, defaultComp)
+%I_QUALIFYRATE replace each bare agent species name in the rate expression with its qualified
+%   Comp.name, using word boundaries so it never matches inside a parameter name (e.g. the IL6 in
+%   ksec_IL6 is left alone). Longer names first so a short name isn't matched inside a longer one.
+    [~, order] = sort(strlength(specNames), 'descend');
+    specNames = specNames(order);
+    for k = 1:numel(specNames)
+        nm = char(specNames(k));
+        qual = [i_speciesComp(m, nm, defaultComp) '.' nm];
+        rate = regexprep(rate, ['(?<![A-Za-z0-9_.])' regexptranslate('escape', nm) ...
+                                '(?![A-Za-z0-9_.])'], qual);
+    end
 end
 
 function net = i_netSpecies(r)
