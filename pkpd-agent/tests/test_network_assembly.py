@@ -113,6 +113,23 @@ class TestLivePathWithMock(unittest.TestCase):
             self.assertLess(abs(ss[k] - targ[k]) / targ[k], 1e-3)
 
 
+class TestDivergenceGuard(unittest.TestCase):
+    def test_runaway_flags_diverged(self):
+        # autocatalysis with no clearance: dX/dt = X -> unbounded -> must flag, not return garbage
+        spec = {"name": "u", "species": [{"name": "X", "initial": 1.0}],
+                "parameters": [{"name": "k", "value": 1.0}],
+                "reactions": [{"id": "g", "reactants": [], "products": ["X"], "rate": "k * X"}],
+                "rules": []}
+        out = NA.integrate_network(spec, t_end=100.0, dt=1e-2, diverge_fold=1e6)
+        self.assertTrue(out.get("__diverged__"))
+
+    def test_stable_has_no_flag(self):
+        cells = CL.discover_cells(PROV, TARGETS, {})
+        spec, _ = NA.assemble_network(PROV, LEVELS, cells, {})
+        out = NA.integrate_network(spec, t_end=5.0, dt=2e-3)
+        self.assertNotIn("__diverged__", out)
+
+
 class TestCouplingDirection(unittest.TestCase):
     def test_knockdown_drops_downstream_secretion(self):
         cells = CL.discover_cells(PROV, TARGETS, {})

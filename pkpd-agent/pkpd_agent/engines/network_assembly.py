@@ -273,13 +273,17 @@ def propose_structure(prov, levels, cells, aliases, call, log=lambda *a: None):
     return sec_struct, cell_struct, scores
 
 
-def integrate_network(spec, clamp=None, t_end=60.0, dt=5e-3):
+def integrate_network(spec, clamp=None, t_end=60.0, dt=5e-3, diverge_fold=1e9):
     """RK4 on a spec directly, with each reaction rate COMPILED once (not re-parsed per step) - fast
     enough for the full stiff network. Clamped/boundary species are held fixed; the rest advance by
     sum(production) - sum(consumption). Returns the final {species: value} state.
 
     dt must satisfy the explicit-stability bound of the fastest clearance (here dt<~0.008 for the
-    332/time TGFb clearance); the default 5e-3 is safe for this model."""
+    332/time TGFb clearance); the default 5e-3 is safe for this model. If any species runs away past
+    ``diverge_fold`` x its starting value or goes non-finite, integration stops early and the result
+    carries ``state['__diverged__'] = True`` - an UNSTABLE network (e.g. one an over-inclusive
+    topology made positive-feedback-unstable), not a numeric artifact to read as a real level."""
+    import math
     clamp = dict(clamp or {})
     params = {p["name"]: float(p["value"]) for p in spec.get("parameters", [])}
     held = {s["name"] for s in spec["species"] if s.get("boundary")} | set(clamp)
@@ -304,15 +308,26 @@ def integrate_network(spec, clamp=None, t_end=60.0, dt=5e-3):
                 d[x] -= v
         return d
 
+    start = {k: state[k] for k in dyn}
+    limit = {k: diverge_fold * (abs(start[k]) or 1.0) for k in dyn}
+    diverged = False
     for _ in range(int(t_end / dt)):
-        k1 = deriv(state)
-        s2 = {**state, **{k: state[k] + 0.5 * dt * k1[k] for k in dyn}}
-        k2 = deriv(s2)
-        s3 = {**state, **{k: state[k] + 0.5 * dt * k2[k] for k in dyn}}
-        k3 = deriv(s3)
-        s4 = {**state, **{k: state[k] + dt * k3[k] for k in dyn}}
-        k4 = deriv(s4)
-        for k in dyn:
-            state[k] += dt / 6.0 * (k1[k] + 2 * k2[k] + 2 * k3[k] + k4[k])
+        try:
+            k1 = deriv(state)
+            s2 = {**state, **{k: state[k] + 0.5 * dt * k1[k] for k in dyn}}
+            k2 = deriv(s2)
+            s3 = {**state, **{k: state[k] + 0.5 * dt * k2[k] for k in dyn}}
+            k3 = deriv(s3)
+            s4 = {**state, **{k: state[k] + dt * k3[k] for k in dyn}}
+            k4 = deriv(s4)
+            for k in dyn:
+                state[k] += dt / 6.0 * (k1[k] + 2 * k2[k] + 2 * k3[k] + k4[k])
+        except (OverflowError, ValueError):
+            diverged = True; break
         env.update(clamp)
-    return {k: state[k] for k in state}
+        if any(not math.isfinite(state[k]) or abs(state[k]) > limit[k] for k in dyn):
+            diverged = True; break
+    out = {k: state[k] for k in state}
+    if diverged:
+        out["__diverged__"] = True
+    return out

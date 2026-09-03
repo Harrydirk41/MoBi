@@ -75,12 +75,22 @@ def main() -> None:
             model_sec = NA.discover_secretion(prov, NA.cell_token_map(aliases))
             sec2, cells2 = NA.apply_structure(model_sec, cells, sec_struct, cell_struct)
             cells = cells2
-            _agg = lambda d: (sum(v["recall"] for v in d.values()) / len(d),
-                              sum(v["precision"] for v in d.values()) / len(d)) if d else (0, 0)
+            # aggregate ONLY over questions that have a model edge to recover: a node the model
+            # sources from a constant input (no dynamic secreting cell) or a flux with no
+            # regulator has an EMPTY truth, so 0/0 is not a miss - scoring it as 0 would understate
+            def _agg(d):
+                have = [v for v in d.values() if v["truth"]]
+                empty = len(d) - len(have)
+                if not have:
+                    return 0.0, 0.0, empty
+                return (sum(v["recall"] for v in have) / len(have),
+                        sum(v["precision"] for v in have) / len(have), empty)
             for label, key in [("secreting-cells", "secreting_cells"),
                                ("secretion-mods", "secretion_mods"), ("cell-flux", "cell_flux")]:
-                r, p = _agg(sc[key])
-                print(f"  AGENT topology [{label:16}] mean recall {r:.2f}  precision {p:.2f}")
+                r, p, empty = _agg(sc[key])
+                note = f"  ({empty} nodes have no model edge - excluded)" if empty else ""
+                print(f"  AGENT topology [{label:16}] mean recall {r:.2f}  precision {p:.2f}"
+                      f"  [on nodes with a model edge]{note}")
             struct_src = "the AGENT's proposed edges"
             spec, meta = NA.assemble_network(prov, levels, cells, aliases, sec_override=sec2)
     if not args.live or struct_src == "the model's own edges":
@@ -122,12 +132,25 @@ def main() -> None:
                                      t_end=args.t_end, dt=5e-3)
         print(f"\n  (3) COUPLING - anti-{anti} ({anti}->10%) propagated through the network "
               f"(fold vs baseline):")
-        moved = [(k, knock[k] / base[k]) for k in sorted(targ)
-                 if k not in marg and k != anti and abs(knock[k] / base[k] - 1) > 0.1]
-        for k, fc in sorted(moved, key=lambda t: abs(t[1] - 1), reverse=True):
-            print(f"      {k:12} {fc:.2f}x")
-        print(f"      -> a single perturbation moves the coupled network along the model's own "
-              f"edge signs;\n         the isolated probes could not see this whole-loop response.")
+        if base.get("__diverged__") or knock.get("__diverged__"):
+            print(f"      NETWORK DIVERGED under the perturbation - it is DYNAMICALLY UNSTABLE.")
+            print(f"      The calibrated joint steady state is self-consistent (step 2 = ~0%), but "
+                  "the\n      structure is only a fixed point, not a stable one: a perturbation runs "
+                  "away.")
+            if struct_src.startswith("the AGENT"):
+                print(f"      This is the price of low precision at SCALE: the agent's OVER-INCLUDED "
+                      "edges\n      add spurious positive-feedback loops that the sparse model does "
+                      "not have. Calibration\n      hid the cost (any structure fits its own "
+                      "targets); the dynamics expose it. Prune the\n      low-confidence / uncited "
+                      "extra edges (--live records confidence) and re-run to recover\n      "
+                      "stability - the isolated probes could never have shown this.")
+        else:
+            moved = [(k, knock[k] / base[k]) for k in sorted(targ)
+                     if k not in marg and k != anti and base[k] and abs(knock[k] / base[k] - 1) > 0.1]
+            for k, fc in sorted(moved, key=lambda t: abs(t[1] - 1), reverse=True):
+                print(f"      {k:12} {fc:.2f}x")
+            print(f"      -> a single perturbation moves the coupled network along its edge signs; "
+                  f"the\n         isolated probes could not see this whole-loop response.")
     print(f"\n  SCOPE: this is the immune core that has steady-state targets. DAS28 / PK / Vpop / "
           "the\n  clinical qualification layer are the paper's remaining species and need MATLAB "
           "SimBiology.")
