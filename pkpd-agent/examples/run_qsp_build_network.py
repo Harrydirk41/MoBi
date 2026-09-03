@@ -52,17 +52,47 @@ def main() -> None:
     ap.add_argument("--anti", default="TNFa", help="cytokine to knock to 10%% for the coupling probe")
     ap.add_argument("--emit", default=None, help="write the assembled SBML to this path")
     ap.add_argument("--t-end", type=float, default=40.0)
+    ap.add_argument("--live", action="store_true",
+                    help="the AGENT proposes every edge of the whole network (topology + which "
+                         "cells secrete what), scored against the model; needs ANTHROPIC_API_KEY")
     args = ap.parse_args()
 
     prov, levels, cells, aliases = _load(args.model)
-    spec, meta = NA.assemble_network(prov, levels, cells, aliases)
+
+    # ---- STRUCTURE: the model's own edges, or (--live) the agent's proposed edges end-to-end ----
+    struct_src = "the model's own edges"
+    if args.live:
+        from pkpd_agent.config import AgentConfig
+        from pkpd_agent.engines import llm_tasks as LT
+        cfg = AgentConfig(mock=False)
+        if not cfg.anthropic_key_present():
+            print("  --live but no ANTHROPIC_API_KEY; falling back to the model's own edges.\n")
+        else:
+            print("== AGENT proposes the FULL network structure (nodes given; topology is the "
+                  "agent's job) ==")
+            sec_struct, cell_struct, sc = NA.propose_structure(prov, levels, cells, aliases,
+                                                               LT.default_call(cfg), log=print)
+            model_sec = NA.discover_secretion(prov, NA.cell_token_map(aliases))
+            sec2, cells2 = NA.apply_structure(model_sec, cells, sec_struct, cell_struct)
+            cells = cells2
+            _agg = lambda d: (sum(v["recall"] for v in d.values()) / len(d),
+                              sum(v["precision"] for v in d.values()) / len(d)) if d else (0, 0)
+            for label, key in [("secreting-cells", "secreting_cells"),
+                               ("secretion-mods", "secretion_mods"), ("cell-flux", "cell_flux")]:
+                r, p = _agg(sc[key])
+                print(f"  AGENT topology [{label:16}] mean recall {r:.2f}  precision {p:.2f}")
+            struct_src = "the AGENT's proposed edges"
+            spec, meta = NA.assemble_network(prov, levels, cells, aliases, sec_override=sec2)
+    if not args.live or struct_src == "the model's own edges":
+        spec, meta = NA.assemble_network(prov, levels, cells, aliases)
+
     marg = {c for c, (kp, m) in meta["free_kprolif"].items() if m}
     targ = {s["name"]: s["initial"] for s in spec["species"]}
 
     # (1) ASSEMBLY
-    print(f"== full coupled immune network for '{args.model}' (scale integration) ==")
+    print(f"\n== full coupled immune network for '{args.model}' (scale integration) ==")
     print(f"  (1) ASSEMBLED {len(spec['species'])} species, {len(spec['reactions'])} reactions, "
-          f"{len(spec['parameters'])} params - all from the model's own edges")
+          f"{len(spec['parameters'])} params - from {struct_src}")
     print(f"      dynamic cells   ({len(meta['dynamic_cells'])}): {meta['dynamic_cells']}")
     print(f"      dynamic cytokines ({len(meta['dynamic_cytokines'])}): {meta['dynamic_cytokines']}")
     drop = meta["dropped"]["secreting_cell_not_dynamic"]

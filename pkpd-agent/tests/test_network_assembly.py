@@ -62,6 +62,57 @@ class TestAssembleAndCalibrate(unittest.TestCase):
         self.assertIn("K1", self.meta["free_kprolif"])
 
 
+class TestApplyStructure(unittest.TestCase):
+    def test_model_structure_roundtrips(self):
+        cells = CL.discover_cells(PROV, TARGETS, {})
+        model_sec = NA.discover_secretion(PROV, NA.cell_token_map({}))
+        sec_struct = {cyt: {cell: list(mods) for cell, mods in per.items()}
+                      for cyt, per in model_sec.items()}
+        cell_struct = {c: {f: list(cells[c][f]) for f in ("prolif", "influx", "apop")}
+                       for c in cells}
+        sec2, cells2 = NA.apply_structure(model_sec, cells, sec_struct, cell_struct)
+        spec, _ = NA.assemble_network(PROV, LEVELS, cells2, {}, sec_override=sec2)
+        targ = {s["name"]: s["initial"] for s in spec["species"]}
+        ss = NA.integrate_network(spec, t_end=5.0, dt=2e-3)
+        for k in targ:
+            self.assertLess(abs(ss[k] - targ[k]) / targ[k], 1e-3)
+
+    def test_uncited_agent_edge_uses_prior(self):
+        cells = CL.discover_cells(PROV, TARGETS, {})
+        model_sec = NA.discover_secretion(PROV, NA.cell_token_map({}))
+        # agent adds a NON-model modulator C-fake to C1<-K1: value must be the prior flag (None)
+        sec2, _ = NA.apply_structure(model_sec, cells, {"C1": {"K1": ["Cfake"]}}, {})
+        self.assertEqual(sec2["C1"]["K1"]["Cfake"], (None, False))
+
+
+class TestLivePathWithMock(unittest.TestCase):
+    def test_full_agent_pipeline_runs_and_calibrates(self):
+        # a mock call that echoes every offered candidate back as a regulator (recall high),
+        # exercising propose_structure -> apply_structure -> assemble -> integrate end to end
+        import json as _json
+
+        def call(system, user):
+            if "Candidate cell types:" in user:            # secreting-cells question
+                after = user.split("Candidate cell types:", 1)[-1]
+                cand = [c.strip() for c in after.split("\n", 1)[0].split(",") if c.strip()]
+                return _json.dumps({"cells": cand})
+            after = user.split("Available cytokine nodes:", 1)[-1]
+            cand = [c.strip() for c in after.split("\n", 1)[0].split(",") if c.strip()]
+            return _json.dumps({"regulators": [{"cytokine": c, "direction": "up",
+                                "confidence": "high", "basis": "x"} for c in cand]})
+
+        cells = CL.discover_cells(PROV, TARGETS, {})
+        sec_struct, cell_struct, scores = NA.propose_structure(PROV, LEVELS, cells, {}, call)
+        self.assertIn("secreting_cells", scores)
+        sec2, cells2 = NA.apply_structure(
+            NA.discover_secretion(PROV, NA.cell_token_map({})), cells, sec_struct, cell_struct)
+        spec, _ = NA.assemble_network(PROV, LEVELS, cells2, {}, sec_override=sec2)
+        targ = {s["name"]: s["initial"] for s in spec["species"]}
+        ss = NA.integrate_network(spec, t_end=5.0, dt=2e-3)      # any structure stays self-consistent
+        for k in targ:
+            self.assertLess(abs(ss[k] - targ[k]) / targ[k], 1e-3)
+
+
 class TestCouplingDirection(unittest.TestCase):
     def test_knockdown_drops_downstream_secretion(self):
         cells = CL.discover_cells(PROV, TARGETS, {})

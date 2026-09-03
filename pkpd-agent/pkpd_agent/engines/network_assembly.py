@@ -83,10 +83,19 @@ def _sec_effect(mods, levels, prior=1.5):
     return eff
 
 
-def assemble_network(prov, levels, cells, aliases, prior=1.5):
+def assemble_network(prov, levels, cells, aliases, prior=1.5, sec_override=None):
     """Build the full coupled spec + calibrate every free rate. Returns (spec, meta) where meta
-    records the dropped (uncalibratable) edges, the free rates, and per-cytokine secreting cells."""
-    sec = discover_secretion(prov, cell_token_map(aliases))
+    records the dropped (uncalibratable) edges, the free rates, and per-cytokine secreting cells.
+
+    By default the STRUCTURE (which cell secretes which cytokine, which cytokine modulates each
+    secretion and each cell flux) is the model's own, read from the params. Pass ``sec_override``
+    (same shape as discover_secretion) and a ``cells`` whose prolif/influx/apop sets have been
+    replaced to assemble from an AGENT's proposed structure instead - the constant VALUES are still
+    looked up from the model where the edge exists (prior otherwise) and every free rate is
+    re-calibrated to the targets, so any structure yields a self-consistent network and the quality
+    difference shows up in recall/precision and the held-out response, not in the calibration."""
+    sec = sec_override if sec_override is not None else \
+        discover_secretion(prov, cell_token_map(aliases))
     cyt_levels = {c: levels[c] for c in levels}                    # cytokines-with-level are dynamic
     dyn_cells = set(cells)
     cell_target = {c: cells[c]["target"] for c in cells}           # cells carry their own target
@@ -161,6 +170,107 @@ def assemble_network(prov, levels, cells, aliases, prior=1.5):
             "free_ksec": [f"ksec_{c}" for c in sorted(dyn_cyts)],
             "free_kprolif": {c: free_kprolif[c] for c in sorted(free_kprolif)}}
     return spec, meta
+
+
+def apply_structure(model_sec, cells, sec_struct, cell_struct, prior_flag=(None, False)):
+    """Substitute an AGENT's chosen structure into the model-shaped dicts, keeping the constant
+    VALUES from the model where the edge exists and marking the rest as uncited (prior at assembly).
+
+      sec_struct:  {cytokine: {cell: [modulator cytokines]}}   - agent's secretion edges
+      cell_struct: {cell: {'prolif'|'influx'|'apop': [cytokines]}} - agent's cell-flux edges
+
+    Returns (sec2, cells2) in the same shapes discover_secretion / discover_cells produce, so
+    assemble_network(..., sec_override=sec2) with cells2 builds the agent's network."""
+    sec2 = {}
+    for cyt, per_cell in sec_struct.items():
+        for cell, mods in per_cell.items():
+            for mod in mods:
+                val = model_sec.get(cyt, {}).get(cell, {}).get(mod, prior_flag)
+                sec2.setdefault(cyt, {}).setdefault(cell, {})[mod] = val
+    cells2 = {}
+    for cell, info in cells.items():
+        new = dict(info)
+        chosen = cell_struct.get(cell, {})
+        for flux in ("prolif", "influx", "apop"):
+            new[flux] = {cyt: info[flux].get(cyt, prior_flag) for cyt in chosen.get(flux, [])}
+        cells2[cell] = new
+    return sec2, cells2
+
+
+def _score(chosen, truth):
+    chosen, truth = set(chosen), set(truth)
+    hit = chosen & truth
+    return {"recall": round(len(hit) / len(truth), 3) if truth else 0.0,
+            "precision": round(len(hit) / len(chosen), 3) if chosen else 0.0,
+            "chosen": sorted(chosen), "truth": sorted(truth),
+            "missed": sorted(truth - chosen), "extra": sorted(chosen - truth)}
+
+
+_SECRETE_SYS = (
+    "You are deciding a QSP model's STRUCTURE from immunology, before looking up any values. Given "
+    "a cytokine and a list of CELL TYPES, name which of those cell types are meaningful cellular "
+    "SOURCES of that cytokine in this disease. Reason from biology; do NOT assume a parameter "
+    "table. Use ONLY the exact cell-type names given. JSON only.")
+
+
+def _propose_secreting_cells(cyt, cell_candidates, call):
+    """Which cell types secrete this cytokine - a source (not regulator) question, so it gets its
+    own cell-appropriate prompt rather than the cytokine-regulator one."""
+    from pkpd_agent.engines.llm_structure import _parse_json
+    user = (f"Cytokine: {cyt}. Candidate cell types: " + ", ".join(cell_candidates) +
+            f'\n\nWhich of these cell types secrete {cyt}? Return JSON '
+            '{"cells": ["name", ...]}. Only names from the list.')
+    d = _parse_json(call(_SECRETE_SYS, user))
+    cset = set(cell_candidates)
+    return [c for c in (d.get("cells") or []) if c in cset]
+
+
+def propose_structure(prov, levels, cells, aliases, call, log=lambda *a: None):
+    """The FULL agent structural pass: for every given node the agent proposes its edges, scored
+    against the model's own. Returns (sec_struct, cell_struct, scores). Nodes are GIVEN (not the
+    agent's job); the agent decides topology only. Constants are looked up afterwards in assembly."""
+    from pkpd_agent.engines import model_assembly as MA
+    model_sec = discover_secretion(prov, cell_token_map(aliases))
+    dyn_cells = sorted(cells)
+    dyn_cyts = sorted(c for c in levels if _kcl_of(prov, c)[0] and c not in dyn_cells)
+    scores = {"secreting_cells": {}, "secretion_mods": {}, "cell_flux": {}}
+
+    # --- per cytokine: which cells secrete it, and which cytokines modulate that secretion ---
+    sec_struct = {}
+    for cyt in dyn_cyts:
+        cell_cands = [c for c in dyn_cells]
+        secreting = _propose_secreting_cells(cyt, cell_cands, call)
+        truth_cells = [c for c in model_sec.get(cyt, {}) if c in dyn_cells]
+        scores["secreting_cells"][cyt] = _score(secreting, truth_cells)
+        mod_cands = [c for c in dyn_cyts if c != cyt]
+        mregs = MA.propose_regulators(cyt, mod_cands, "secretion (which cytokines up/down-regulate "
+                                      "how much of it is secreted)", call)
+        mods = [r["cytokine"] for r in mregs if r["cytokine"] in mod_cands]
+        truth_mods = sorted({m for c in model_sec.get(cyt, {}).values() for m in c if m in levels})
+        scores["secretion_mods"][cyt] = _score(mods, truth_mods)
+        if secreting:
+            sec_struct[cyt] = {cell: list(mods) for cell in secreting}
+        log(f"  cyt {cyt:7} cells r={scores['secreting_cells'][cyt]['recall']:.2f} "
+            f"p={scores['secreting_cells'][cyt]['precision']:.2f}  mods "
+            f"r={scores['secretion_mods'][cyt]['recall']:.2f} "
+            f"p={scores['secretion_mods'][cyt]['precision']:.2f}")
+
+    # --- per cell: proliferation / influx / apoptosis regulators ---
+    cell_struct = {}
+    proc = {"prolif": "proliferation", "influx": "recruitment (influx from blood)",
+            "apop": "apoptosis (death)"}
+    cyt_cands = list(dyn_cyts)
+    for cell in dyn_cells:
+        cell_struct[cell] = {}
+        for flux, pname in proc.items():
+            regs = MA.propose_regulators(cell, cyt_cands, pname, call)
+            picks = [r["cytokine"] for r in regs if r["cytokine"] in cyt_cands]
+            truth = [c for c in cells[cell][flux] if c in levels]
+            scores["cell_flux"][f"{cell}.{flux}"] = _score(picks, truth)
+            cell_struct[cell][flux] = picks
+        r = [scores["cell_flux"][f"{cell}.{f}"]["recall"] for f in proc]
+        log(f"  cell {cell:11} flux recall {['%.2f'%x for x in r]}")
+    return sec_struct, cell_struct, scores
 
 
 def integrate_network(spec, clamp=None, t_end=60.0, dt=5e-3):
