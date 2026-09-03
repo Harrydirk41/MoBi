@@ -33,6 +33,8 @@ function report = sb_transplant_immune(sbmlFile, dryRun)
 
     if nargin < 2 || isempty(dryRun), dryRun = true; end
     m = evalin('base', 'sbmodel');
+    ow = warning('off', 'all');                              % silence SBML default-unit warnings
+    cleanup = onCleanup(@() warning(ow)); %#ok<NASGU>
     am = sbmlimport(char(sbmlFile));
 
     paperSpecies = string({m.Species.Name});
