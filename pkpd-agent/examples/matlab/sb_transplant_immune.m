@@ -43,29 +43,33 @@ function report = sb_transplant_immune(sbmlFile, dryRun)
               'no species name is shared between the agent SBML and the paper model.');
     end
 
-    % ---- classify paper reactions by STOICHIOMETRY OWNERSHIP ----
-    % The agent supplies the COMPLETE mass balance (production + clearance + every flux) for each of
-    % the 23 shared species. So any paper reaction that has a transplanted species as a REACTANT or
-    % PRODUCT is now redundant and must go, or the species is driven twice. A reaction is KEPT only
-    % if no transplanted species appears in its stoichiometry - transplanted species may still appear
-    % in its RATE LAW as a modifier (that is exactly the DAS28/CRP/PK shell reading the immune state,
-    % which we WANT to preserve).
+    % ---- classify paper reactions by NET STOICHIOMETRY OWNERSHIP ----
+    % The agent supplies the COMPLETE mass balance for each of the 23 shared species. The paper
+    % writes modifiers as CATALYSTS - the same species on BOTH sides (e.g. "GMCSF + VEGF ->
+    % Endothelial + GMCSF + VEGF"), so it is not consumed. So "in the stoichiometry" is too coarse:
+    % we must use the NET involvement (species on exactly one side). A reaction is REMOVED iff it
+    % NET-produces or NET-consumes a transplanted species (the agent now owns that). A reaction whose
+    % transplanted species are all catalysts (both sides, net zero) is KEPT - that includes the shell
+    % reactions that PRODUCE a non-immune species (GMCSF, CAM, AutoAb) catalysed by an immune cell,
+    % and the DAS28/PK reactions that only READ the immune state. Nothing is double-driven, and no
+    % shell-species source is lost.
     toRemove = {}; removeDetails = {}; shellInRemoved = string.empty; clinicalCouplings = {};
     for i = 1:numel(m.Reactions)
         r = m.Reactions(i);
-        sp = i_reactionSpecies(r);                           % reactants + products only
-        ownsTransplanted = any(ismember(sp, immune));
+        net = i_netSpecies(r);                               % species on exactly one side (net != 0)
+        ownsTransplanted = any(ismember(net, immune));
         if ownsTransplanted
             toRemove{end+1} = r.Name; %#ok<AGROW>
-            shellHere = setdiff(sp, immune);                 % non-immune species losing this term
+            shellHere = setdiff(net, immune);                % non-immune species NET-losing a term
             if ~isempty(shellHere)
                 shellInRemoved = union(shellInRemoved, shellHere);
                 removeDetails{end+1} = sprintf('%s : %s', r.Name, char(r.Reaction)); %#ok<AGROW>
             end
         else
-            % kept: does its rate law READ a transplanted species (a clinical/PK coupling)?
+            % kept: does it touch the immune state at all (as catalyst or rate-law modifier)?
             rate = char(r.ReactionRate);
-            if any(arrayfun(@(s) i_wordIn(rate, char(s)), immune))
+            sp = i_reactionSpecies(r);
+            if any(ismember(sp, immune)) || any(arrayfun(@(s) i_wordIn(rate, char(s)), immune))
                 clinicalCouplings{end+1} = r.Name; %#ok<AGROW>
             end
         end
@@ -134,6 +138,17 @@ function names = i_reactionSpecies(r)
     for j = 1:numel(r.Reactants), names(end+1) = string(r.Reactants(j).Name); end %#ok<AGROW>
     for j = 1:numel(r.Products),  names(end+1) = string(r.Products(j).Name);  end %#ok<AGROW>
     names = unique(names);
+end
+
+function net = i_netSpecies(r)
+%I_NETSPECIES species with NON-ZERO net stoichiometry: those on exactly one side. A catalyst
+%   (same species as both reactant and product, e.g. a rate modifier) has net zero and is
+%   excluded. Uses name sets (this model's catalyst idiom is 1:1), so a species that is genuinely
+%   produced and consumed with different multiplicities is treated as a catalyst - acceptable here.
+    reac = string.empty; prod = string.empty;
+    for j = 1:numel(r.Reactants), reac(end+1) = string(r.Reactants(j).Name); end %#ok<AGROW>
+    for j = 1:numel(r.Products),  prod(end+1) = string(r.Products(j).Name);  end %#ok<AGROW>
+    net = setxor(unique(reac), unique(prod));
 end
 
 function i_printReport(rep)
