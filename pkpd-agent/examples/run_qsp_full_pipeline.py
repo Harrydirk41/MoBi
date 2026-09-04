@@ -53,7 +53,66 @@ def _load(model):
     return prov, levels, cells, aliases
 
 
-def build_model(model, live, prune, force_influx, cfg=None, stabilize=0, log=print):
+def _build_signals(prov, levels, cells, aliases, sec_struct, cell_struct, scores):
+    """Process signals for the controller (no held-out): stability under a mild perturbation, the
+    topology precision (over-inclusion), calibration drift, and which cells are marginal."""
+    model_sec = NA.discover_secretion(prov, NA.cell_token_map(aliases))
+    sec2, cells2 = NA.apply_structure(model_sec, cells, sec_struct, cell_struct)
+    spec, meta = NA.assemble_network(prov, levels, cells2, aliases, sec_override=sec2)
+    targ = {s["name"]: s["initial"] for s in spec["species"]}
+    marg = {c for c in cells if NA.CL_is_marginal(cells[c], levels)}
+    pin = {c: targ[c] for c in marg if c in targ}
+    knock = NA.integrate_network(spec, clamp={**pin, "TNFa": targ.get("TNFa", 1) * 0.1},
+                                 t_end=40.0, dt=5e-3)
+    diverged = NA._diverged(knock, targ)
+    ss = NA.integrate_network(spec, t_end=5.0, dt=5e-3)
+    drift = max(abs(ss[k] - targ[k]) / targ[k] for k in targ)
+
+    def _p(key):
+        have = [v for v in scores[key].values() if v["truth"]]
+        return round(sum(v["precision"] for v in have) / len(have), 2) if have else None
+    return {"stable": not diverged, "diverged_species": diverged[:8],
+            "precision": _p("cell_flux"), "calibration_drift": round(drift, 5),
+            "marginal_cells": sorted(marg), "reactions": len(spec["reactions"])}
+
+
+def agentic_refine(prov, levels, cells, aliases, sec_struct, cell_struct, scores, call,
+                   max_steps=6, log=print):
+    """DESIGN-LEVEL: the agent DECIDES the refinement sequence from process signals (guarded - no
+    held-out), instead of a fixed script. Executors mutate the structure in a holder; the state
+    shown to the agent carries only signals. Returns the refined (sec_struct, cell_struct, history)."""
+    from pkpd_agent.engines import workflow_controller as WC
+    conf = scores["confidence"]
+    hold = {"sec": sec_struct, "cell": cell_struct}
+
+    def sig():
+        return _build_signals(prov, levels, cells, aliases, hold["sec"], hold["cell"], scores)
+
+    def ex_stabilize(state):
+        hold["sec"], hold["cell"], _ = NA.stabilize_loop(prov, levels, cells, aliases, hold["sec"],
+                                                         hold["cell"], conf, max_iters=2, call=call,
+                                                         log=log)
+        return {**state, **sig()}
+
+    def ex_prune(state):
+        model_cells = cells
+        hold["sec"], hold["cell"], _ = NA.prune_structure(hold["sec"], hold["cell"], conf, prov,
+                                                          aliases, model_cells)
+        return {**state, **sig()}
+
+    def ex_force_influx(state):
+        for c in list(state.get("marginal_cells", [])):
+            if c in cells:
+                CL.synthesize_influx(cells[c], levels)
+        return {**state, **sig()}
+
+    executors = {"stabilize": ex_stabilize, "prune": ex_prune, "force_influx": ex_force_influx}
+    # widen_vpop / fit_clinical act in the clinical stage (MATLAB); the agent may still 'finish'.
+    state, history = WC.run_controller(sig(), executors, call, max_steps=max_steps, log=log)
+    return hold["sec"], hold["cell"], history
+
+
+def build_model(model, live, prune, force_influx, cfg=None, stabilize=0, agentic=False, log=print):
     """STAGE 1: build + steady-state calibrate the agent immune network. Returns (spec, meta, topo)
     where topo summarizes agent topology recall/precision (or 'model edges' offline). With
     ``stabilize`` > 0, run the GUARDED inner loop: the agent revises its own structure from the
@@ -68,16 +127,23 @@ def build_model(model, live, prune, force_influx, cfg=None, stabilize=0, log=pri
         call = LT.default_call(cfg)
         sec_struct, cell_struct, sc = NA.propose_structure(prov, levels, cells, aliases, call)
         model_cells = cells
-        if stabilize > 0:
-            log("  STABILIZE LOOP (agent revises its own structure from the dynamics, guarded):")
-            sec_struct, cell_struct, hist = NA.stabilize_loop(
-                prov, levels, cells, aliases, sec_struct, cell_struct, sc["confidence"],
-                max_iters=stabilize, call=call, log=log)
-            topo["stabilize_history"] = hist
-        if prune:
-            sec_struct, cell_struct, _ = NA.prune_structure(sec_struct, cell_struct,
-                                                            sc["confidence"], prov, aliases,
-                                                            model_cells)
+        if agentic:
+            log("  AGENTIC CONTROLLER (the agent DECIDES the refinement sequence, guarded - no "
+                "held-out):")
+            sec_struct, cell_struct, chist = agentic_refine(
+                prov, levels, cells, aliases, sec_struct, cell_struct, sc, call, log=log)
+            topo["controller_history"] = chist
+        else:
+            if stabilize > 0:
+                log("  STABILIZE LOOP (agent revises its structure from the dynamics, guarded):")
+                sec_struct, cell_struct, hist = NA.stabilize_loop(
+                    prov, levels, cells, aliases, sec_struct, cell_struct, sc["confidence"],
+                    max_iters=stabilize, call=call, log=log)
+                topo["stabilize_history"] = hist
+            if prune:
+                sec_struct, cell_struct, _ = NA.prune_structure(sec_struct, cell_struct,
+                                                                sc["confidence"], prov, aliases,
+                                                                model_cells)
 
         def agg(d):
             have = [v for v in d.values() if v["truth"]]
@@ -118,6 +184,10 @@ def main() -> None:
     ap.add_argument("--stabilize", type=int, default=0, metavar="N",
                     help="run the guarded inner loop up to N iterations: the agent revises its own "
                          "structure from the dynamics (which species diverge), never from the answer")
+    ap.add_argument("--agentic", action="store_true",
+                    help="DESIGN-LEVEL: the agent DECIDES the refinement sequence (stabilize / prune "
+                         "/ force_influx / finish) from process signals, guarded so it never sees "
+                         "the held-out arm - instead of a fixed script")
     ap.add_argument("--rewire-mtx", action="store_true", dest="rewire_mtx",
                     help="re-attach MTX's PD onto the agent's secretion/influx reactions")
     ap.add_argument("--force-influx", default=None, dest="force_influx",
@@ -148,7 +218,7 @@ def main() -> None:
     cfg = AgentConfig(mock=False)
     print("== STAGE 1: BUILD MODEL (agent structure + steady-state calibration) ==", flush=True)
     spec, meta, topo = build_model(args.model, args.live, args.prune, args.force_influx, cfg,
-                                   stabilize=args.stabilize)
+                                   stabilize=args.stabilize, agentic=args.agentic)
     net_xml = os.path.abspath("mynet.xml")
     open(net_xml, "w", encoding="utf-8").write(MA.to_sbml(spec))
     rep["stages"]["build"] = topo
