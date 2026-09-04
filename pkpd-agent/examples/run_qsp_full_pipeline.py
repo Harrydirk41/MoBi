@@ -53,9 +53,28 @@ def _load(model):
     return prov, levels, cells, aliases
 
 
-def _build_signals(prov, levels, cells, aliases, sec_struct, cell_struct, scores):
-    """Process signals for the controller (no held-out): stability under a mild perturbation, the
-    topology precision (over-inclusion), calibration drift, and which cells are marginal."""
+def _low_conf_edges(sec_struct, cell_struct, conf):
+    """Count the agent's OWN low-confidence edges (self-knowledge, NOT truth-derived) - the honest
+    over-inclusion signal that replaces truth-derived precision in the controller state."""
+    n = 0
+    for cyt, per in sec_struct.items():
+        cc = conf.get("sec_cell", {}).get(cyt, {})
+        mc = conf.get("sec_mod", {}).get(cyt, {})
+        for cell, mods in per.items():
+            n += 1 if cc.get(cell) == "low" else 0
+            n += sum(1 for m in mods if mc.get(m) == "low")
+    for cell, fl in cell_struct.items():
+        fc = conf.get("flux", {}).get(cell, {})
+        for flux in ("prolif", "influx"):
+            n += sum(1 for c in fl.get(flux, []) if fc.get(flux, {}).get(c) == "low")
+    return n
+
+
+def _build_signals(prov, levels, cells, aliases, sec_struct, cell_struct, conf):
+    """PROCESS + self-knowledge signals for the controller - NONE derived from the model's truth.
+    Stability under a mild perturbation, calibration drift, which cells are marginal (a data-
+    availability fact), and the agent's OWN low-confidence-edge count. precision/recall are NOT here
+    (they need the truth = a leak)."""
     model_sec = NA.discover_secretion(prov, NA.cell_token_map(aliases))
     sec2, cells2 = NA.apply_structure(model_sec, cells, sec_struct, cell_struct)
     spec, meta = NA.assemble_network(prov, levels, cells2, aliases, sec_override=sec2)
@@ -67,13 +86,10 @@ def _build_signals(prov, levels, cells, aliases, sec_struct, cell_struct, scores
     diverged = NA._diverged(knock, targ)
     ss = NA.integrate_network(spec, t_end=5.0, dt=5e-3)
     drift = max(abs(ss[k] - targ[k]) / targ[k] for k in targ)
-
-    def _p(key):
-        have = [v for v in scores[key].values() if v["truth"]]
-        return round(sum(v["precision"] for v in have) / len(have), 2) if have else None
     return {"stable": not diverged, "diverged_species": diverged[:8],
-            "precision": _p("cell_flux"), "calibration_drift": round(drift, 5),
-            "marginal_cells": sorted(marg), "reactions": len(spec["reactions"])}
+            "low_confidence_edges": _low_conf_edges(sec_struct, cell_struct, conf),
+            "calibration_drift": round(drift, 5), "marginal_cells": sorted(marg),
+            "reactions": len(spec["reactions"])}
 
 
 def agentic_refine(prov, levels, cells, aliases, sec_struct, cell_struct, scores, call,
@@ -86,25 +102,34 @@ def agentic_refine(prov, levels, cells, aliases, sec_struct, cell_struct, scores
     hold = {"sec": sec_struct, "cell": cell_struct}
 
     def sig():
-        return _build_signals(prov, levels, cells, aliases, hold["sec"], hold["cell"], scores)
+        return _build_signals(prov, levels, cells, aliases, hold["sec"], hold["cell"], conf)
+
+    def _with_effect(prev, action):
+        new = sig()
+        # tell the agent whether the action actually changed the structure (so it does not repeat a
+        # saturated action) - purely a process fact, no truth involved
+        changed = (new["reactions"] != prev.get("reactions") or
+                   new["low_confidence_edges"] != prev.get("low_confidence_edges") or
+                   new["marginal_cells"] != prev.get("marginal_cells"))
+        return {**prev, **new, "last_action": action,
+                "last_action_effect": "changed" if changed else "no-op (saturated)"}
 
     def ex_stabilize(state):
         hold["sec"], hold["cell"], _ = NA.stabilize_loop(prov, levels, cells, aliases, hold["sec"],
                                                          hold["cell"], conf, max_iters=2, call=call,
                                                          log=log)
-        return {**state, **sig()}
+        return _with_effect(state, "stabilize")
 
     def ex_prune(state):
-        model_cells = cells
         hold["sec"], hold["cell"], _ = NA.prune_structure(hold["sec"], hold["cell"], conf, prov,
-                                                          aliases, model_cells)
-        return {**state, **sig()}
+                                                          aliases, cells)
+        return _with_effect(state, "prune")
 
     def ex_force_influx(state):
         for c in list(state.get("marginal_cells", [])):
             if c in cells:
                 CL.synthesize_influx(cells[c], levels)
-        return {**state, **sig()}
+        return _with_effect(state, "force_influx")
 
     executors = {"stabilize": ex_stabilize, "prune": ex_prune, "force_influx": ex_force_influx}
     # widen_vpop / fit_clinical act in the clinical stage (MATLAB); the agent may still 'finish'.

@@ -26,7 +26,7 @@ from .llm_structure import _parse_json
 # the bounded action menu the agent chooses from (descriptions are process/training framed only)
 CONTROLLER_ACTIONS = {
     "stabilize": "remove the agent's own edges that make the coupled ODEs diverge (dynamics signal)",
-    "prune": "drop low-confidence, uncited edges to cut over-inclusion (raises precision)",
+    "prune": "drop your low-confidence, uncited edges to cut over-inclusion",
     "force_influx": "give a marginal cell a synthesized influx arm (fill a missing-data gap so an "
                     "influx-suppressing therapy can act)",
     "fit_clinical": "calibrate the free rates to the FIRST-LINE training response (the calibration "
@@ -35,22 +35,29 @@ CONTROLLER_ACTIONS = {
     "finish": "stop refining and predict the held-out validation test",
 }
 
-# only these keys may reach the agent; anything mentioning the held-out arm is forbidden.
-_ALLOWED_KEYS = {"stable", "calibration_drift", "precision", "recall", "marginal_cells",
-                 "first_line_error", "first_line", "baseline_offset", "baseline_das28",
-                 "steps_taken", "last_action", "diverged_species", "reactions", "actions_done"}
+# Only these keys may reach the agent. They are all PROCESS signals (from the dynamics) or the
+# agent's OWN self-knowledge (its confidence) or a TRAINING error - none is derived from the model's
+# truth. precision/recall are deliberately EXCLUDED: they are computed against the model's true edge
+# set, so showing them would leak "how close your structure is to the answer" (a real, if mild, form
+# of cheating). The agent decides over-inclusion from its own low-confidence-edge count instead.
+_ALLOWED_KEYS = {"stable", "calibration_drift", "marginal_cells", "low_confidence_edges",
+                 "first_line_error", "baseline_offset", "steps_taken", "last_action",
+                 "last_action_effect", "diverged_species", "reactions", "actions_done"}
 _FORBIDDEN_SUBSTR = ("second_line", "second-line", "radiate", "held_out", "heldout", "held-out",
-                     "validation")
+                     "validation", "precision", "recall", "truth")
 
 _CONTROLLER_SYS = (
-    "You are the CONTROLLER of a QSP model-building workflow. At each step you are given the current "
-    "PROCESS signals (network stability, over-inclusion/precision, calibration drift, which species "
-    "diverge) and the TRAINING fit error on the first-line calibration arm. You choose ONE next "
-    "action to most improve the model. You are NEVER shown and must NEVER try to fit the held-out "
-    "validation arm - choosing based on held-out data is cheating and the held-out numbers are not "
-    "given to you. Address the current worst signal first (an unstable network before precision, a "
-    "large first-line training error before finishing). Choose 'finish' only when the network is "
-    "stable and the first-line training error is small. Return JSON "
+    "You are the CONTROLLER of a QSP model-building workflow. At each step you are given PROCESS "
+    "signals (network stability, which species diverge, calibration drift), your OWN over-inclusion "
+    "signal (how many of YOUR edges you marked low-confidence), which cells are marginal (have no "
+    "influx arm), and 'last_action_effect' telling you whether your previous action actually changed "
+    "the model. Choose ONE next action. You are NEVER shown - and must never try to fit - any "
+    "held-out validation data or any measure of how close your structure is to a reference (no "
+    "precision/recall); decide only from the dynamics, your own confidence, and the training error. "
+    "Address the worst signal first: fix an UNSTABLE network before anything; then reduce your "
+    "low-confidence edges; give a marginal cell an influx arm if a therapy needs it. Do NOT repeat "
+    "an action whose last_action_effect was 'no-op (saturated)' - move on. Choose 'finish' when the "
+    "network is stable and few low-confidence edges remain. Return JSON "
     '{"action": one of the listed names, "reason": "one phrase"}.')
 
 

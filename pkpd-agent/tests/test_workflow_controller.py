@@ -10,12 +10,14 @@ from pkpd_agent.engines import workflow_controller as W
 
 class TestGuard(unittest.TestCase):
     def test_whitelists_process_and_training_keys(self):
-        v = W._guard_state({"stable": False, "precision": 0.4, "first_line_error": 20.0,
+        v = W._guard_state({"stable": False, "low_confidence_edges": 40, "first_line_error": 20.0,
                             "reactions": 102, "some_internal_thing": 1})
-        self.assertEqual(set(v), {"stable", "precision", "first_line_error", "reactions"})
+        self.assertEqual(set(v), {"stable", "low_confidence_edges", "first_line_error", "reactions"})
 
-    def test_raises_on_held_out_leak(self):
-        for k in ("second_line", "radiate_acr20", "held_out_error", "validation_target"):
+    def test_raises_on_held_out_or_truth_leak(self):
+        # held-out arms AND truth-derived scores (precision/recall) both fail loudly
+        for k in ("second_line", "radiate_acr20", "held_out_error", "validation_target",
+                  "precision", "recall_secreting"):
             with self.assertRaises(ValueError):
                 W._guard_state({"stable": True, k: 50.0})
 
@@ -55,7 +57,7 @@ class TestControllerLoop(unittest.TestCase):
         def fitc(state):
             return {**state, "first_line_error": 5.0}
 
-        state0 = {"stable": False, "first_line_error": 30.0, "precision": 0.4}
+        state0 = {"stable": False, "first_line_error": 30.0, "low_confidence_edges": 40}
         state, hist = W.run_controller(state0, {"stabilize": stab, "fit_clinical": fitc}, call,
                                        max_steps=6)
         self.assertEqual([h["action"] for h in hist], ["stabilize", "fit_clinical", "finish"])
