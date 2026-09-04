@@ -155,6 +155,68 @@ class TestAuditPrompts(unittest.TestCase):
         self.assertTrue(findings["numeric parameter values"])
 
 
+class TestStabilizeLoop(unittest.TestCase):
+    def test_edges_into_gathers_production_edges_with_confidence(self):
+        sec = {"C1": {"K1": ["C2"]}}
+        cellst = {"K1": {"prolif": ["C1"], "influx": [], "apop": []}}
+        conf = {"sec_cell": {"C1": {"K1": "low"}}, "sec_mod": {"C1": {"C2": "high"}},
+                "flux": {"K1": {"prolif": {"C1": "low"}}}}
+        ec = NA._edges_into("C1", sec, cellst, conf)
+        ids = {e["id"]: e["confidence"] for e in ec}
+        self.assertEqual(ids.get("C1<-cell:K1"), "low")
+        self.assertEqual(ids.get("C1<-mod:C2"), "high")
+        ek = NA._edges_into("K1", sec, cellst, conf)
+        self.assertIn("K1<-prolif:C1", {e["id"] for e in ek})
+
+    def test_apply_removals_drops_the_named_edges(self):
+        sec = {"C1": {"K1": ["C2", "C3"]}}
+        cellst = {"K1": {"prolif": ["C1", "C2"], "influx": [], "apop": []}}
+        NA._apply_removals(["C1<-mod:C2", "K1<-prolif:C2"], sec, cellst)
+        self.assertEqual(sec["C1"]["K1"], ["C3"])
+        self.assertEqual(cellst["K1"]["prolif"], ["C1"])
+        NA._apply_removals(["C1<-cell:K1"], sec, cellst)
+        self.assertNotIn("K1", sec["C1"])
+
+    def test_propose_removals_is_guarded_and_filtered(self):
+        import json as _json
+        captured = {}
+
+        def call(system, user):
+            captured["system"] = system
+            captured["user"] = user
+            return _json.dumps({"remove": ["C1<-mod:C2", "NOT_OFFERED"]})
+        edges = [{"id": "C1<-mod:C2", "kind": "secretion_mod", "confidence": "low"},
+                 {"id": "C1<-cell:K1", "kind": "secreting_cell", "confidence": "high"}]
+        out = NA.propose_stabilizing_removals(["C1"], edges, call)
+        self.assertEqual(out, ["C1<-mod:C2"])            # filtered to offered ids
+        # GUARD: the prompt shows only process signals + the agent's own edges/confidence, never
+        # the answer - no reference-edge param names and no leaked model values.
+        blob = captured["system"] + captured["user"]
+        self.assertNotIn("Maxby", blob)
+        self.assertNotIn("from_literature", blob)
+        import re as _re
+        self.assertFalse(_re.search(r"\d+\.\d+", blob))  # no leaked numeric model value
+
+    def test_diverged_flags_runaway_and_nonfinite(self):
+        targ = {"A": 100.0, "B": 100.0, "C": 100.0}
+        state = {"A": 100.0, "B": 2e9, "C": float("inf")}
+        self.assertEqual(set(NA._diverged(state, targ)), {"B", "C"})
+
+    def test_loop_stops_when_stable(self):
+        cells = CL.discover_cells(PROV, TARGETS, {})
+        sec_struct = {"C1": {"K1": ["C2"]}, "C2": {"K1": ["C1"]}}
+        cell_struct = {"K1": {"prolif": ["C1"], "influx": [], "apop": []}}
+        conf = {"sec_cell": {}, "sec_mod": {}, "flux": {}}
+        calls = {"n": 0}
+
+        def call(s, u):
+            calls["n"] += 1
+            return '{"remove": []}'
+        _, _, hist = NA.stabilize_loop(PROV, LEVELS, cells, aliases={}, sec_struct=sec_struct,
+                                       cell_struct=cell_struct, conf=conf, max_iters=3, call=call)
+        self.assertTrue(hist[0]["diverged"] == [] or "removed" in hist[0])
+
+
 class TestDivergenceGuard(unittest.TestCase):
     def test_runaway_flags_diverged(self):
         # autocatalysis with no clearance: dX/dt = X -> unbounded -> must flag, not return garbage

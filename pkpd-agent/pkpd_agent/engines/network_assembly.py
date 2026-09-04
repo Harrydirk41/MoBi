@@ -376,6 +376,126 @@ def prune_structure(sec_struct, cell_struct, conf, prov, aliases, model_cells):
     return sec2, cell2, dropped
 
 
+_STABILIZE_SYS = (
+    "You are debugging the DYNAMICS of a QSP model YOU proposed. Its coupled ODEs are unstable: "
+    "under a mild anti-inflammatory perturbation some species run away to infinity, which means a "
+    "spurious POSITIVE-FEEDBACK loop. You are shown only which species diverged and which of YOUR "
+    "OWN edges feed their production, with the confidence you gave each. You are NOT shown any "
+    "correct answer, target value, or reference model - decide only from the dynamics and your own "
+    "confidence. Remove the fewest edges (prefer your LOW-confidence ones) that would break the "
+    "runaway. JSON only.")
+
+
+def _edges_into(species, sec_struct, cell_struct, conf):
+    """The agent's own PRODUCTION edges feeding a species (for the stabilize loop), each with the
+    confidence the agent gave it. A cytokine is fed by its secreting cells and up-modulators; a cell
+    by its proliferation and influx regulators. Returns [{id, into, kind, confidence}]."""
+    out = []
+    if species in sec_struct:                              # a cytokine
+        for cell, mods in sec_struct[species].items():
+            out.append({"id": f"{species}<-cell:{cell}", "into": species, "kind": "secreting_cell",
+                        "confidence": conf.get("sec_cell", {}).get(species, {}).get(cell)})
+            for m in mods:
+                out.append({"id": f"{species}<-mod:{m}", "into": species, "kind": "secretion_mod",
+                            "confidence": conf.get("sec_mod", {}).get(species, {}).get(m)})
+    if species in cell_struct:                             # a cell
+        for flux in ("prolif", "influx"):
+            for c in cell_struct[species].get(flux, []):
+                out.append({"id": f"{species}<-{flux}:{c}", "into": species, "kind": flux,
+                            "confidence": conf.get("flux", {}).get(species, {}).get(flux, {}).get(c)})
+    # de-dupe by id
+    seen, uniq = set(), []
+    for e in out:
+        if e["id"] not in seen:
+            seen.add(e["id"]); uniq.append(e)
+    return uniq
+
+
+def propose_stabilizing_removals(diverged, edges, call):
+    """GUARDED feedback: given the diverged species (a process signal) and the agent's own feeding
+    edges + confidences (never the answer), ask the agent which edge ids to remove to stabilize.
+    Returns the set of ids to drop, filtered to the offered ids."""
+    from pkpd_agent.engines.llm_structure import _parse_json
+    listing = "\n".join(f"  - {e['id']}  (kind {e['kind']}, your confidence {e['confidence']})"
+                        for e in edges)
+    user = (f"Diverged (runaway) species: {', '.join(diverged)}.\nYour production edges feeding "
+            f"them:\n{listing}\n\nWhich edge ids should be removed to break the positive-feedback "
+            'runaway? Return JSON {"remove": ["id", ...]}. Prefer your low-confidence edges; remove '
+            "as few as possible.")
+    d = _parse_json(call(_STABILIZE_SYS, user))
+    offered = {e["id"] for e in edges}
+    return [x for x in (d.get("remove") or []) if x in offered]
+
+
+def _apply_removals(remove_ids, sec_struct, cell_struct):
+    """Drop the edge ids (from _edges_into) out of the structure in place."""
+    import re
+    for rid in remove_ids:
+        m = re.match(r"^(.+)<-(cell|mod|prolif|influx):(.+)$", rid)
+        if not m:
+            continue
+        into, kind, what = m.group(1), m.group(2), m.group(3)
+        if kind == "cell" and into in sec_struct:
+            sec_struct[into].pop(what, None)
+        elif kind == "mod" and into in sec_struct:
+            for cell in sec_struct[into]:
+                sec_struct[into][cell] = [x for x in sec_struct[into][cell] if x != what]
+        elif kind in ("prolif", "influx") and into in cell_struct:
+            cell_struct[into][kind] = [x for x in cell_struct[into].get(kind, []) if x != what]
+
+
+def stabilize_loop(prov, levels, cells, aliases, sec_struct, cell_struct, conf, max_iters=3,
+                   anti="TNFa", call=None, log=lambda *a: None):
+    """The GUARDED inner loop: assemble the agent's structure, integrate under a mild perturbation,
+    and while it diverges, feed the agent ONLY the process signal (which species ran away + its own
+    feeding edges/confidences) and let IT choose edges to remove, iterating until stable or max_iters.
+    No target value or reference edge is ever shown. Returns (sec_struct, cell_struct, history)."""
+    model_sec = discover_secretion(prov, cell_token_map(aliases))
+    marg = {c for c in cells if CL_is_marginal(cells[c], levels)}
+    history = []
+    for it in range(max_iters):
+        sec2, cells2 = apply_structure(model_sec, cells, sec_struct, cell_struct)
+        spec, _ = assemble_network(prov, levels, cells2, aliases, sec_override=sec2)
+        targ = {s["name"]: s["initial"] for s in spec["species"]}
+        pin = {c: targ[c] for c in marg if c in targ}
+        knock = integrate_network(spec, clamp={**pin, anti: targ.get(anti, 1) * 0.1},
+                                  t_end=40.0, dt=5e-3)
+        diverged = _diverged(knock, targ)
+        history.append({"iter": it, "diverged": diverged})
+        if not diverged:
+            log(f"  stabilize iter {it}: STABLE"); break
+        edges = []
+        for sp in diverged:
+            edges += _edges_into(sp, sec_struct, cell_struct, conf)
+        if not edges or call is None:
+            log(f"  stabilize iter {it}: diverged {diverged} but no edges/call to act"); break
+        remove = propose_stabilizing_removals(diverged, edges, call)
+        history[-1]["removed"] = remove
+        log(f"  stabilize iter {it}: diverged {diverged[:6]} -> agent removes {len(remove)} edges "
+            f"{remove[:6]}")
+        if not remove:
+            break
+        _apply_removals(remove, sec_struct, cell_struct)
+    return sec_struct, cell_struct, history
+
+
+def CL_is_marginal(info, levels):
+    from pkpd_agent.engines import cell_lifecycle as CL
+    return CL.fit_base_prolif(info, levels)[1]
+
+
+def _diverged(state, targ, fold=1e6):
+    import math
+    out = []
+    for k in targ:
+        v = state.get(k)
+        if v is None:
+            continue
+        if not math.isfinite(v) or (targ[k] and abs(v) > fold * abs(targ[k])):
+            out.append(k)
+    return out
+
+
 def integrate_network(spec, clamp=None, t_end=60.0, dt=5e-3, diverge_fold=1e9):
     """RK4 on a spec directly, with each reaction rate COMPILED once (not re-parsed per step) - fast
     enough for the full stiff network. Clamped/boundary species are held fixed; the rest advance by

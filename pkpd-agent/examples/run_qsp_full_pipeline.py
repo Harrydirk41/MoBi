@@ -53,9 +53,11 @@ def _load(model):
     return prov, levels, cells, aliases
 
 
-def build_model(model, live, prune, force_influx, cfg=None):
+def build_model(model, live, prune, force_influx, cfg=None, stabilize=0, log=print):
     """STAGE 1: build + steady-state calibrate the agent immune network. Returns (spec, meta, topo)
-    where topo summarizes agent topology recall/precision (or 'model edges' offline)."""
+    where topo summarizes agent topology recall/precision (or 'model edges' offline). With
+    ``stabilize`` > 0, run the GUARDED inner loop: the agent revises its own structure from the
+    dynamics (which species diverge) - never from the answer - before assembly."""
     prov, levels, cells, aliases = _load(model)
     for c in [x.strip() for x in (force_influx or "").split(",") if x.strip()]:
         if c in cells:
@@ -63,9 +65,15 @@ def build_model(model, live, prune, force_influx, cfg=None):
     topo = {"mode": "model edges (offline)"}
     if live and cfg and cfg.anthropic_key_present():
         from pkpd_agent.engines import llm_tasks as LT
-        sec_struct, cell_struct, sc = NA.propose_structure(prov, levels, cells, aliases,
-                                                           LT.default_call(cfg))
+        call = LT.default_call(cfg)
+        sec_struct, cell_struct, sc = NA.propose_structure(prov, levels, cells, aliases, call)
         model_cells = cells
+        if stabilize > 0:
+            log("  STABILIZE LOOP (agent revises its own structure from the dynamics, guarded):")
+            sec_struct, cell_struct, hist = NA.stabilize_loop(
+                prov, levels, cells, aliases, sec_struct, cell_struct, sc["confidence"],
+                max_iters=stabilize, call=call, log=log)
+            topo["stabilize_history"] = hist
         if prune:
             sec_struct, cell_struct, _ = NA.prune_structure(sec_struct, cell_struct,
                                                             sc["confidence"], prov, aliases,
@@ -107,6 +115,9 @@ def main() -> None:
     ap.add_argument("--model", default="ra")
     ap.add_argument("--live", action="store_true", help="agent proposes the structure (needs a key)")
     ap.add_argument("--prune", action="store_true", help="drop low-confidence uncited agent edges")
+    ap.add_argument("--stabilize", type=int, default=0, metavar="N",
+                    help="run the guarded inner loop up to N iterations: the agent revises its own "
+                         "structure from the dynamics (which species diverge), never from the answer")
     ap.add_argument("--rewire-mtx", action="store_true", dest="rewire_mtx",
                     help="re-attach MTX's PD onto the agent's secretion/influx reactions")
     ap.add_argument("--force-influx", default=None, dest="force_influx",
@@ -136,7 +147,8 @@ def main() -> None:
     from pkpd_agent.config import AgentConfig
     cfg = AgentConfig(mock=False)
     print("== STAGE 1: BUILD MODEL (agent structure + steady-state calibration) ==", flush=True)
-    spec, meta, topo = build_model(args.model, args.live, args.prune, args.force_influx, cfg)
+    spec, meta, topo = build_model(args.model, args.live, args.prune, args.force_influx, cfg,
+                                   stabilize=args.stabilize)
     net_xml = os.path.abspath("mynet.xml")
     open(net_xml, "w", encoding="utf-8").write(MA.to_sbml(spec))
     rep["stages"]["build"] = topo
