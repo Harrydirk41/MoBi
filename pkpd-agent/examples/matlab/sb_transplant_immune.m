@@ -121,6 +121,7 @@ function report = sb_transplant_immune(sbmlFile, dryRun, secFactorSpec, influxFa
     % the paper model has >1 compartment, so species in reaction strings AND rate laws must be
     % compartment-qualified (e.g. Synovium.IL6). Map every agent species to its compartment in m.
     defaultComp = m.Compartments(1).Name;
+    nRewired = 0; rewiredExample = '';
     for i = 1:numel(am.Reactions)
         r = am.Reactions(i);
         for s = i_reactionSpecies(r)
@@ -135,8 +136,14 @@ function report = sb_transplant_immune(sbmlFile, dryRun, secFactorSpec, influxFa
         factor = i_drugFactor(char(r.Name), secFactorSpec, influxFactor);   % re-wire a drug's PD
         if ~isempty(factor)
             rate = ['(' rate ') * ' factor];
+            nRewired = nRewired + 1;
+            if isempty(rewiredExample), rewiredExample = sprintf('%s :: %s', char(r.Name), rate); end
         end
         nr.ReactionRate = rate;
+    end
+    if ~isempty(secFactorSpec) || ~isempty(influxFactor)
+        fprintf('  drug re-wire: multiplied %d agent reactions by a PD factor\n', nRewired);
+        if nRewired > 0, fprintf('    e.g. %s\n', rewiredExample); end
     end
     % give the transplanted species the agent's CALIBRATED initial amounts (its steady-state
     % target), so the network starts at the fixed point the free rates were fit to - not the paper's
