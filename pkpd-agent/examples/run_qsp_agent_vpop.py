@@ -97,6 +97,10 @@ def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--sbproj", required=True, help="the agent-based clinical sbproj")
+    ap.add_argument("--modeldir", default=None,
+                    help="folder holding the paper model's helper functions (MM.m etc.) - the "
+                         "ORIGINAL RA-QSP-Model dir; added to the MATLAB path so the kept rules "
+                         "resolve. Required because agent_clinical.sbproj lives elsewhere.")
     ap.add_argument("--model", default="ra")
     ap.add_argument("--n", type=int, default=300, help="candidate patients to sample")
     ap.add_argument("--span", type=float, default=2.0, help="log-uniform fold-range per param")
@@ -123,6 +127,12 @@ def main() -> None:
     print("== starting MATLAB & loading the agent-based sbproj ==", flush=True)
     sb.start()
     try:
+        if args.modeldir:
+            sb.eng.addpath(os.path.abspath(args.modeldir), nargout=0)  # MM.m etc. on path
+            print(f"  added model-function dir to path: {os.path.abspath(args.modeldir)}")
+        else:
+            print("  [!] no --modeldir: if the kept rules reference helper functions (MM.m), "
+                  "they will\n      fail to resolve. Pass --modeldir <the RA-QSP-Model folder>.")
         sb.load_project(os.path.abspath(args.sbproj))
         params = sb.list_parameters()["parameters"]
         spec, chosen = select_severity_params(params, marginal, args.span)
