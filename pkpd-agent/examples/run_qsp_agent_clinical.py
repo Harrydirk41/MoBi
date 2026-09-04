@@ -38,9 +38,13 @@ def main() -> None:
     ap.add_argument("--out", default="agent_clinical.sbproj",
                     help="where to save the agent-based clinical sbproj (with --apply)")
     ap.add_argument("--readout", default="DAS28_CRP", help="readout to sanity-check after apply")
+    ap.add_argument("--audit-drug", default=None, dest="audit_drug",
+                    help="instead of transplanting, load the ORIGINAL sbproj and report how this "
+                         "drug acts (its reactions/rules) - e.g. MTX, TCZ, ADA")
     args = ap.parse_args()
 
-    for p in (args.sbproj, args.net):
+    need = (args.sbproj,) if args.audit_drug else (args.sbproj, args.net)
+    for p in need:
         if not os.path.isfile(p):
             raise SystemExit(f"file not found: {p}")
 
@@ -51,7 +55,15 @@ def main() -> None:
     try:
         if not sb.has_simbiology():
             raise SystemExit("MATLAB started but SimBiology is not licensed here.")
-        if not args.apply:
+        if args.audit_drug:
+            print(f"== DRUG AUDIT '{args.audit_drug}' on the original model (no transplant) ==",
+                  flush=True)
+            sb.load_project(os.path.abspath(args.sbproj))
+            rep = sb.eng.sb_drug_mechanism(args.audit_drug, nargout=1)
+            for k in ("drugQuantities", "reactionsAffected", "rulesAffected"):
+                v = rep.get(k) if isinstance(rep, dict) else None
+                print(f"  {k}: {json.dumps(v, default=str)[:900] if v is not None else '(n/a)'}")
+        elif not args.apply:
             print("== DRY RUN: loading sbproj + transplant report (nothing changed) ==", flush=True)
             sb.load_project(os.path.abspath(args.sbproj))
             rep = sb.eng.sb_transplant_immune(os.path.abspath(args.net), True, nargout=1)
