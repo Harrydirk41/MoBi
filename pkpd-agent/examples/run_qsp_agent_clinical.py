@@ -41,6 +41,10 @@ def main() -> None:
     ap.add_argument("--audit-drug", default=None, dest="audit_drug",
                     help="instead of transplanting, load the ORIGINAL sbproj and report how this "
                          "drug acts (its reactions/rules) - e.g. MTX, TCZ, ADA")
+    ap.add_argument("--rewire-mtx", action="store_true", dest="rewire_mtx",
+                    help="with --apply: re-attach MTX's PD (which the paper wired into the removed "
+                         "immune reactions) onto the agent's rebuilt secretion/influx reactions, so "
+                         "first-line MTX is a fair comparison")
     args = ap.parse_args()
 
     need = (args.sbproj,) if args.audit_drug else (args.sbproj, args.net)
@@ -77,8 +81,18 @@ def main() -> None:
             print("\nDRY RUN only. Re-run with --apply once the report looks right.")
         else:
             print("== APPLY: transplant + baseline sim + save agent-based sbproj ==", flush=True)
+            # optional drug re-wire: re-attach a small-molecule PD (wired into the removed immune
+            # reactions in the paper) onto the agent's rebuilt secretion/influx reactions.
+            sec_spec, influx = "", ""
+            if args.rewire_mtx:
+                sec_spec = ("*=(1-Anti_CytSec_MTX);IL10=(1+Pro_CytSec_MTX);"
+                            "TGFb=(1+Pro_CytSec_MTX)")
+                influx = "(1-Anti_CellInflux_MTX)"
+                print("  re-wiring MTX PD (anti-cytokine-secretion / anti-cell-influx) onto the "
+                      "agent reactions")
             sb.eng.sb_agent_clinical(os.path.abspath(args.sbproj), os.path.abspath(args.net),
-                                     os.path.abspath(args.out), args.readout, "", nargout=0)
+                                     os.path.abspath(args.out), args.readout, "", sec_spec, influx,
+                                     nargout=0)
             print(f"\n  saved -> {os.path.abspath(args.out)}")
             print("  next: run_qsp_paper_pipeline --sbproj <that> --vpop Vpop1.xlsx --matlab, "
                   "or sb_fit / sb_run_vpop for train / test / simulate.")

@@ -1,4 +1,4 @@
-function report = sb_transplant_immune(sbmlFile, dryRun)
+function report = sb_transplant_immune(sbmlFile, dryRun, secFactorSpec, influxFactor)
 %SB_TRANSPLANT_IMMUNE Graft an AGENT-built immune network (an SBML file, e.g. the
 %   mynet.xml from run_qsp_build_network) into the loaded paper model (base
 %   workspace 'sbmodel', put there by sb_load), replacing the paper's PURE-IMMUNE
@@ -32,6 +32,8 @@ function report = sb_transplant_immune(sbmlFile, dryRun)
 %       paper parameters left in place (harmless orphans if now unused).
 
     if nargin < 2 || isempty(dryRun), dryRun = true; end
+    if nargin < 3, secFactorSpec = ''; end                  % optional drug re-wire (see i_drugFactor)
+    if nargin < 4, influxFactor = ''; end
     m = evalin('base', 'sbmodel');
     ow = warning('off', 'all');                              % silence SBML default-unit warnings
     cleanup = onCleanup(@() warning(ow)); %#ok<NASGU>
@@ -129,7 +131,12 @@ function report = sb_transplant_immune(sbmlFile, dryRun)
         rxnStr = i_qualifyReaction(m, r, defaultComp);
         nr = addreaction(m, rxnStr);
         addkineticlaw(nr, 'Unknown');
-        nr.ReactionRate = i_qualifyRate(m, char(r.ReactionRate), i_reactionSpecies(r), defaultComp);
+        rate = i_qualifyRate(m, char(r.ReactionRate), i_reactionSpecies(r), defaultComp);
+        factor = i_drugFactor(char(r.Name), secFactorSpec, influxFactor);   % re-wire a drug's PD
+        if ~isempty(factor)
+            rate = ['(' rate ') * ' factor];
+        end
+        nr.ReactionRate = rate;
     end
     % give the transplanted species the agent's CALIBRATED initial amounts (its steady-state
     % target), so the network starts at the fixed point the free rates were fit to - not the paper's
@@ -151,6 +158,37 @@ function names = i_reactionSpecies(r)
     for j = 1:numel(r.Reactants), names(end+1) = string(r.Reactants(j).Name); end %#ok<AGROW>
     for j = 1:numel(r.Products),  names(end+1) = string(r.Products(j).Name);  end %#ok<AGROW>
     names = unique(names);
+end
+
+function factor = i_drugFactor(rxnName, secFactorSpec, influxFactor)
+%I_DRUGFACTOR the multiplicative drug-PD factor for an agent reaction, so a drug whose effect the
+%   paper wired into the removed immune reactions is re-attached to the agent's rebuilt ones.
+%   Agent reaction ids are '<Cyt>_sec_<Cell>' (secretion), '<Cell>_influx', plus _clr/_prolif/_death
+%   which the drug does not touch. secFactorSpec is ';'-joined 'key=factor' with a '*' wildcard,
+%   e.g. '*=(1-Anti_CytSec_MTX);IL10=(1+Pro_CytSec_MTX);TGFb=(1+Pro_CytSec_MTX)'. Returns '' when
+%   no re-wire applies.
+    factor = '';
+    tok = regexp(rxnName, '^(.+)_sec_', 'tokens', 'once');
+    if ~isempty(tok) && ~isempty(secFactorSpec)
+        cyt = tok{1};
+        factor = i_lookupSpec(secFactorSpec, cyt);
+        if isempty(factor), factor = i_lookupSpec(secFactorSpec, '*'); end
+        return;
+    end
+    if ~isempty(regexp(rxnName, '_influx$', 'once'))
+        factor = influxFactor;
+    end
+end
+
+function val = i_lookupSpec(spec, key)
+%I_LOOKUPSPEC value for key in a ';'-joined 'key=value' spec ('' if absent).
+    val = '';
+    for e = strsplit(string(spec), ';')
+        kv = strsplit(e, '=');
+        if numel(kv) == 2 && strcmp(strtrim(kv{1}), key)
+            val = char(strtrim(kv{2})); return;
+        end
+    end
 end
 
 function comp = i_speciesComp(m, name, defaultComp)

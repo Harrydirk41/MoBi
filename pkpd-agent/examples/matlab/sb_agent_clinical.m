@@ -1,4 +1,5 @@
-function sb_agent_clinical(sbprojPath, agentXml, outSbproj, checkReadout, checkDose)
+function sb_agent_clinical(sbprojPath, agentXml, outSbproj, checkReadout, checkDose, ...
+                           secFactorSpec, influxFactor)
 %SB_AGENT_CLINICAL Build a clinical sbproj from the AGENT-built immune network, then
 %   hand off to the existing train/test/simulate helpers.
 %
@@ -32,15 +33,20 @@ function sb_agent_clinical(sbprojPath, agentXml, outSbproj, checkReadout, checkD
 
     if nargin < 4 || isempty(checkReadout), checkReadout = 'DAS28_CRP'; end
     if nargin < 5, checkDose = ''; end
+    if nargin < 6, secFactorSpec = ''; end                   % optional drug re-wire (e.g. MTX)
+    if nargin < 7, influxFactor = ''; end
     if nargin < 3 || isempty(outSbproj), outSbproj = 'agent_clinical.sbproj'; end
 
     fprintf('== 1. load the paper clinical model ==\n');
     sb_load(sbprojPath);
 
     fprintf('\n== 2. transplant the agent immune network (dry run first) ==\n');
-    sb_transplant_immune(agentXml, true);                    % report only
+    sb_transplant_immune(agentXml, true, secFactorSpec, influxFactor);      % report only
     fprintf('\n--- applying the transplant ---\n');
-    sb_transplant_immune(agentXml, false);
+    if ~isempty(secFactorSpec) || ~isempty(influxFactor)
+        fprintf('  re-wiring a drug PD onto the agent secretion/influx reactions\n');
+    end
+    sb_transplant_immune(agentXml, false, secFactorSpec, influxFactor);
 
     fprintf('\n== 3. baseline sanity simulation ==\n');
     m = evalin('base', 'sbmodel');
