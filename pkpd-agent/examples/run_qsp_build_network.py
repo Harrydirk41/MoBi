@@ -62,12 +62,24 @@ def main() -> None:
     ap.add_argument("--audit", action="store_true",
                     help="with --live: capture every prompt sent to the agent and grep it for any "
                          "leaked answer (edges / values / rate-law form); prints a PASS/FAIL table")
+    ap.add_argument("--force-influx", default=None, dest="force_influx",
+                    help="WHAT-IF: comma-separated marginal cells (e.g. Macrophages) to give a "
+                         "synthesized influx baseline, making them non-marginal - to test whether an "
+                         "influx-suppressing drug can then act on them. Not the honest build.")
     ap.add_argument("--trace", default=None,
                     help="with --live: write every (system, user, response) triple to this JSONL "
                          "file so you can inspect exactly what the agent was shown")
     args = ap.parse_args()
 
     prov, levels, cells, aliases = _load(args.model)
+
+    if args.force_influx:
+        for c in [x.strip() for x in args.force_influx.split(",") if x.strip()]:
+            if c in cells and CL.synthesize_influx(cells[c], levels):
+                print(f"  [what-if] synthesized an influx baseline for '{c}' "
+                      f"(kIn={cells[c]['kin_val']:.4g}) - now non-marginal")
+            else:
+                print(f"  [what-if] '{c}' not force-influxed (unknown, or already has influx)")
 
     # ---- STRUCTURE: the model's own edges, or (--live) the agent's proposed edges end-to-end ----
     struct_src = "the model's own edges"

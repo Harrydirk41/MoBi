@@ -167,6 +167,21 @@ def cell_reactions(cell, info, levels, kprolif_param, chosen=None, prior=1.5,
     return rxns, values
 
 
+def synthesize_influx(info, levels, frac=0.5, prior=1.5):
+    """WHAT-IF (not the honest build): give a marginal cell - one the model gives no literature
+    influx rate, so it was built as pure birth-death - a synthesized influx baseline equal to a
+    fraction of its death flux, making it influx-pinned (non-marginal). Used to test whether a
+    drug whose mechanism suppresses cell influx (e.g. MTX) can act on that cell once it has an
+    influx arm. Returns True if applied (the cell had an influx param but no value)."""
+    if not info["kin_param"] or info["kin_val"] is not None:
+        return False
+    apo = _effect_at(info["apop"], levels, prior=prior)
+    mig = _effect_at(info["influx"], levels, prior=prior)      # influx flux is kIn * mig
+    # influx flux = frac * death flux -> kIn * mig = frac * kd * target * apo
+    info["kin_val"] = frac * info["kd_val"] * info["target"] * apo / mig
+    return True
+
+
 def all_regulators(info, chosen=None):
     """The union of a cell's proliferation, influx and apoptosis regulators (for candidate/truth
     scoring), restricted to ``chosen`` if given."""
