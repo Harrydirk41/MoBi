@@ -82,15 +82,17 @@ def decide_next_action(state, call, actions=CONTROLLER_ACTIONS):
     return (act if act in actions else "finish"), d.get("reason")
 
 
-def run_controller(state, executors, call, max_steps=6, log=lambda *a: None):
+def run_controller(state, executors, call, max_steps=6, log=lambda *a: None,
+                   actions=CONTROLLER_ACTIONS):
     """The guarded decision loop: the agent picks an action from process+training signals, the
     matching executor runs it and returns the updated (process+training) state, repeat until the
-    agent chooses 'finish' or an action has no executor. Held-out is NOT evaluated here - the caller
-    runs it once, after, on the returned model. Returns (state, history)."""
+    agent chooses 'finish' or an action has no executor. ``actions`` restricts the menu the agent
+    sees (e.g. only the clinical-stage actions). Held-out is NOT evaluated here - the caller runs it
+    once, after, on the returned model. Returns (state, history)."""
     history, done = [], []
     for step in range(max_steps):
         act, reason = decide_next_action({**state, "steps_taken": step, "actions_done": list(done)},
-                                         call)
+                                         call, actions=actions)
         history.append({"step": step, "action": act, "reason": reason})
         log(f"  controller step {step}: {act}  ({reason})")
         if act == "finish":

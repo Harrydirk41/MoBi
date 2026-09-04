@@ -14,6 +14,10 @@ Stages (each reported):
   4 VIRTUAL POP    - sample the agent's severity knobs, keep patients whose baseline DAS28 is in the
                      trial band. Reports the qualified baseline DAS28 vs target.
   5 QUALIFY        - first-line MTX ACR20/50/70 at week 12 vs the calibrated reference.
+  5b CLINICAL FIT  - (--agentic) the agent DECIDES to calibrate: it fits the transplanted model's
+                     free MTX drug-effect to the FIRST-LINE MTX training arm (the calibration the
+                     paper itself does), guarded so the held-out second-line arm is never shown or
+                     fit. Without --agentic this step is skipped (first-line is zero-shot, unfitted).
   6 SIMULATE END   - the switch: MTX-inadequate responders -> second-line TCZ, ACR at the second
                      readout, vs the held-out RADIATE trial.
   7 GROUND TRUTH   - run the SAME first/second-line readout on the PAPER's own model + Vpop, so the
@@ -186,14 +190,89 @@ def build_model(model, live, prune, force_influx, cfg=None, stabilize=0, agentic
     targ = {s["name"]: s["initial"] for s in spec["species"]}
     ss = NA.integrate_network(spec, t_end=5.0, dt=5e-3)
     drift = max(abs(ss[k] - targ[k]) / targ[k] for k in targ)
+    knock = NA.integrate_network(spec, clamp={"TNFa": targ.get("TNFa", 1) * 0.1}, t_end=40.0, dt=5e-3)
+    stable = not NA._diverged(knock, targ)
     marg = sorted(c for c, (kp, m) in meta["free_kprolif"].items() if m)
-    return spec, meta, {**topo, "calibration_drift": drift, "marginal_cells": marg,
+    return spec, meta, {**topo, "calibration_drift": drift, "marginal_cells": marg, "stable": stable,
                         "species": len(spec["species"]), "reactions": len(spec["reactions"])}
 
 
 def _acr(cols, run_columns, line, mask=None):
     return {k: _frac(cols, col, mask=mask)[0] for k, col in run_columns[line].items()
             if k != "remission" or line == "first_line"}
+
+
+# ---------------------------------------------------------------------------
+# CLINICAL CALIBRATION (the missing "training" step): fit the transplanted model's free MTX
+# drug-effect strength to the FIRST-LINE MTX response - the TRAINING arm. This is the calibration the
+# paper itself does; it is NOT cheating. The held-out second-line RADIATE trial is NEVER read here -
+# only first-line MTX ACR20 (a training target) drives the search, and second-line is predicted after.
+# ---------------------------------------------------------------------------
+
+def _bisect_scale(evaluate, target, lo, hi, budget=6, tol=1.5):
+    """Find a scalar effect-scale whose (monotone-increasing) readout matches ``target``.
+    ``evaluate(scale) -> readout`` (e.g. first-line ACR20). Pure: the caller injects ``evaluate``, so
+    this is unit-testable without MATLAB. Returns (best_scale, best_readout, trace)."""
+    trace = []
+    ylo, yhi = evaluate(lo), evaluate(hi)
+    trace += [(lo, ylo), (hi, yhi)]
+    best = min([(lo, ylo), (hi, yhi)], key=lambda p: abs(p[1] - target))
+    # if the target is outside the bracket the search saturates at the nearer end (honest: the one
+    # knob cannot reach the target; report the closest achievable)
+    if not (min(ylo, yhi) - tol <= target <= max(ylo, yhi) + tol):
+        return best[0], best[1], trace
+    for _ in range(max(0, budget - 2)):
+        mid = (lo + hi) / 2.0
+        ym = evaluate(mid)
+        trace.append((mid, ym))
+        if abs(ym - target) < abs(best[1] - target):
+            best = (mid, ym)
+        if abs(ym - target) <= tol:
+            break
+        # monotone increasing: go up if we are below target
+        if (ym < target) == (yhi >= ylo):
+            lo, ylo = mid, ym
+        else:
+            hi, yhi = mid, ym
+    return best[0], best[1], trace
+
+
+def _mtx_pd_params(sb):
+    """The transplanted model's free MTX drug-effect parameters (names ending in '_MTX', the
+    reaction-level PD multipliers re-wired onto the agent's reactions) and their base values."""
+    base = {p["name"]: p["value"] for p in sb.list_parameters()["parameters"]
+            if p["name"].endswith("_MTX") and isinstance(p["value"], (int, float))}
+    return base
+
+
+def fit_clinical(sb, xlsx, args, tasks, b_day, r1, mtx, rc, target_acr20, budget=6, log=print):
+    """Calibrate the MTX drug-effect strength to the FIRST-LINE MTX ACR20 TRAINING target by a
+    bounded scalar search, then persist the fitted values. Each trial runs the first-line Vpop with
+    the MTX PD parameters overridden to base*scale (clamped to a valid fraction). Legitimate training:
+    only the first-line arm is used; the held-out second-line is never touched here. Returns
+    {scale, acr20, params, trace}."""
+    base = _mtx_pd_params(sb)
+    if not base:
+        log("  fit_clinical: no MTX PD parameters found (rewire-mtx off?) - skipped")
+        return None
+
+    def evaluate(scale):
+        ov = ";".join(f"{n}={min(0.95, max(0.0, v * scale))}" for n, v in base.items())
+        c = (sb.run_vpop(xlsx, dose=mtx, stop_time=r1 + 2, baseline_day=b_day, readout_day=r1,
+                         limit=args.limit, param_overrides=ov,
+                         states=tasks.get("readout_states")).get("columns") or {})
+        return _acr(c, rc, "first_line").get("ACR20", 0.0)
+
+    log(f"  fit_clinical: search MTX effect-scale -> first-line ACR20 target {target_acr20} "
+        f"(TRAINING arm; held-out never used)")
+    scale, acr20, trace = _bisect_scale(evaluate, target_acr20, lo=0.25, hi=6.0, budget=budget)
+    fitted = {n: min(0.95, max(0.0, v * scale)) for n, v in base.items()}
+    for n, v in fitted.items():
+        sb.set_parameter(n, v)                          # persist the fitted MTX PD into the model
+    log(f"  fit_clinical: scale={scale:.3g} -> first-line ACR20 {acr20:.1f} (target {target_acr20}); "
+        f"persisted {list(fitted)}")
+    return {"scale": round(scale, 4), "acr20": round(acr20, 1), "params": fitted,
+            "trace": [(round(s, 3), round(y, 1)) for s, y in trace]}
 
 
 def main() -> None:
@@ -210,9 +289,11 @@ def main() -> None:
                     help="run the guarded inner loop up to N iterations: the agent revises its own "
                          "structure from the dynamics (which species diverge), never from the answer")
     ap.add_argument("--agentic", action="store_true",
-                    help="DESIGN-LEVEL: the agent DECIDES the refinement sequence (stabilize / prune "
-                         "/ force_influx / finish) from process signals, guarded so it never sees "
-                         "the held-out arm - instead of a fixed script")
+                    help="DESIGN-LEVEL: the agent DECIDES the workflow. In the build stage it picks "
+                         "the structure-refinement sequence (stabilize / prune / force_influx); in "
+                         "the clinical stage it picks whether to fit_clinical (calibrate MTX to the "
+                         "first-line TRAINING arm) or widen_vpop or finish. Guarded throughout so it "
+                         "never sees the held-out second-line arm - instead of a fixed script")
     ap.add_argument("--rewire-mtx", action="store_true", dest="rewire_mtx",
                     help="re-attach MTX's PD onto the agent's secretion/influx reactions")
     ap.add_argument("--force-influx", default=None, dest="force_influx",
@@ -278,8 +359,13 @@ def main() -> None:
         rep["stages"]["sim_file"] = {"sbproj": agent_proj, "rewire_mtx": args.rewire_mtx}
 
         # ---- STAGES 3-6: agent Vpop + first/second line ----
+        clin_call = None
+        if args.agentic and args.live and cfg.anthropic_key_present():
+            from pkpd_agent.engines import llm_tasks as LT
+            clin_call = LT.default_call(cfg)     # the agent also DECIDES the clinical calibration
         agent = run_clinical(sb, agent_proj, args, tasks, vt, b_day, r1, r2, mtx, tcz, sub, rc,
-                             label="AGENT", modeldir=args.modeldir)
+                             label="AGENT", modeldir=args.modeldir, ref=ref, build_topo=topo,
+                             call=clin_call)
         rep["stages"]["agent_clinical"] = agent
 
         # ---- STAGE 7: GROUND TRUTH (paper model + paper Vpop) ----
@@ -307,35 +393,96 @@ def main() -> None:
         sb.stop()
 
 
-def run_clinical(sb, proj, args, tasks, vt, b_day, r1, r2, mtx, tcz, sub, rc, label, modeldir):
-    """STAGES 3-6 for one model: sample+qualify a Vpop, then first-line MTX and the TCZ switch."""
+def run_clinical(sb, proj, args, tasks, vt, b_day, r1, r2, mtx, tcz, sub, rc, label, modeldir,
+                 ref=None, build_topo=None, call=None):
+    """STAGES 3-6 for one model: sample+qualify a Vpop, then first-line MTX and the TCZ switch.
+
+    When ``call`` is given (``--agentic --live``), a GUARDED CLINICAL loop runs between first- and
+    second-line: the agent sees only TRAINING signals (first-line ACR20 error, baseline-DAS28 offset,
+    which cells are marginal) and CHOOSES to ``fit_clinical`` (calibrate the MTX effect to the
+    first-line arm) or ``widen_vpop`` (spread the severity) or ``finish``. The held-out second-line is
+    NEVER shown or fit - it is only predicted after the agent finishes."""
     sb.load_project(proj)
     sb.eng.addpath(os.path.abspath(modeldir), nargout=0)
     params = sb.list_parameters()["parameters"]
     marginal = _marginal_cells(args.model)
-    spec, chosen = select_severity_params(params, marginal, args.span)
+    csvp, xlsx = os.path.abspath("agent_vpop.csv"), os.path.abspath("agent_vpop.xlsx")
+    st = {"span": args.span}
+
+    def sample_qualify(span):
+        spec, chosen = select_severity_params(params, marginal, span)
+        res = sb.sample_vpop(spec, n_samples=args.n, baseline_day=b_day, seed=args.seed)
+        cols = res.get("columns") or {}
+        das = cols.get("DAS28_base") or []
+        lo, hi = vt["band"]
+        qual = [i for i, d in enumerate(das)
+                if isinstance(d, (int, float)) and d == d and lo <= d <= hi]
+        if qual:
+            present = [n for n in chosen if n in cols]
+            _write_vpop_csv(csvp, present, [{n: cols[n][i] for n in present} for i in qual])
+            sb.eng.sb_csv_to_xlsx(csvp, xlsx, nargout=0)
+        return qual, [das[i] for i in qual]
+
+    def first_line():
+        c1 = (sb.run_vpop(xlsx, dose=mtx, stop_time=r1 + 2, baseline_day=b_day, readout_day=r1,
+                          limit=args.limit, states=tasks.get("readout_states")).get("columns") or {})
+        return _acr(c1, rc, "first_line")
+
     print(f"\n== STAGE 4: VIRTUAL POP ({label}) - sample {args.n}, qualify to band {vt['band']} ==",
           flush=True)
-    res = sb.sample_vpop(spec, n_samples=args.n, baseline_day=b_day, seed=args.seed)
-    cols = res.get("columns") or {}
-    das = cols.get("DAS28_base") or []
-    lo, hi = vt["band"]
-    qual = [i for i, d in enumerate(das) if isinstance(d, (int, float)) and d == d and lo <= d <= hi]
-    qdas = [das[i] for i in qual]
-    print(f"  qualified {len(qual)}/{len(das)}; baseline DAS28 mean "
+    qual, qdas = sample_qualify(st["span"])
+    print(f"  qualified {len(qual)}/{args.n}; baseline DAS28 mean "
           f"{statistics.mean(qdas):.2f} (target {vt['mean']}±{vt['sd']})" if qdas else "  none qualified")
     if not qual:
         return {"qualified": 0}
-    present = [n for n in chosen if n in cols]
-    csvp, xlsx = os.path.abspath("agent_vpop.csv"), os.path.abspath("agent_vpop.xlsx")
-    _write_vpop_csv(csvp, present, [{n: cols[n][i] for n in present} for i in qual])
-    sb.eng.sb_csv_to_xlsx(csvp, xlsx, nargout=0)
 
     print(f"== STAGE 5: QUALIFY ({label}) - first-line MTX at day {r1:g} ==", flush=True)
-    c1 = (sb.run_vpop(xlsx, dose=mtx, stop_time=r1 + 2, baseline_day=b_day, readout_day=r1,
-                      limit=args.limit, states=tasks.get("readout_states")).get("columns") or {})
-    first = _acr(c1, rc, "first_line")
+    first = first_line()
     print(f"  {label} first-line MTX: {first}")
+
+    # ---- STAGE 5b: GUARDED CLINICAL CALIBRATION (agent decides; never sees the held-out arm) ----
+    clin_hist = None
+    if call is not None:
+        target20 = (ref or {}).get("ACR20", first.get("ACR20", 0.0))
+        bstate = build_topo or {}
+
+        def clin_signals():
+            base = statistics.mean(qdas) if qdas else 0.0
+            return {"stable": bool(bstate.get("stable", True)),
+                    "marginal_cells": bstate.get("marginal_cells", []),
+                    "first_line_error": round(abs(first.get("ACR20", 0.0) - target20), 1),
+                    "baseline_offset": round(abs(base - vt["mean"]), 2)}
+
+        def ex_fit_clinical(state):
+            nonlocal first
+            r = fit_clinical(sb, xlsx, args, tasks, b_day, r1, mtx, rc, target20)
+            first = first_line() if r else first          # re-read after the persisted fit
+            st["fit"] = r
+            eff = "changed" if r else "no-op (saturated)"
+            return {**state, **clin_signals(), "last_action": "fit_clinical",
+                    "last_action_effect": eff}
+
+        def ex_widen_vpop(state):
+            nonlocal first, qual, qdas
+            prev = st["span"]
+            st["span"] = round(st["span"] * 1.5, 3)
+            q2, d2 = sample_qualify(st["span"])
+            if q2:
+                qual, qdas = q2, d2
+                first = first_line()
+            eff = "changed" if st["span"] != prev else "no-op (saturated)"
+            return {**state, **clin_signals(), "last_action": "widen_vpop",
+                    "last_action_effect": eff}
+
+        from pkpd_agent.engines import workflow_controller as WC
+        actions = {k: WC.CONTROLLER_ACTIONS[k] for k in ("fit_clinical", "widen_vpop", "finish")}
+        print(f"== STAGE 5b: CLINICAL CONTROLLER ({label}) - agent calibrates to the TRAINING arm "
+              f"(held-out never shown) ==", flush=True)
+        _, clin_hist = WC.run_controller(clin_signals(), {"fit_clinical": ex_fit_clinical,
+                                                          "widen_vpop": ex_widen_vpop}, call,
+                                         max_steps=4, log=print, actions=actions)
+        print(f"  {label} first-line MTX after calibration: {first}")
+
     print(f"== STAGE 6: SIMULATE END ({label}) - MTX-IR -> TCZ at day {r2:g} ==", flush=True)
     c2 = (sb.run_vpop(xlsx, dose=f"{mtx};{tcz}@{int(r1)+1}", stop_time=r2 + 2, baseline_day=b_day,
                       readout_day=r2, limit=args.limit,
@@ -343,8 +490,13 @@ def run_clinical(sb, proj, args, tasks, vt, b_day, r1, r2, mtx, tcz, sub, rc, la
     second = _acr(c2, rc, "second_line", mask=sub)
     n_ir = _frac(c2, rc["second_line"]["ACR20"], mask=sub)[1]
     print(f"  {label} second-line TCZ (n_IR={n_ir}): {second}")
-    return {"qualified": len(qual), "baseline_das28": round(statistics.mean(qdas), 2),
-            "first_line": first, "second_line": second, "n_ir": n_ir}
+    out = {"qualified": len(qual), "baseline_das28": round(statistics.mean(qdas), 2),
+           "first_line": first, "second_line": second, "n_ir": n_ir}
+    if clin_hist is not None:
+        out["clinical_controller"] = clin_hist
+        if st.get("fit"):
+            out["clinical_fit"] = st["fit"]
+    return out
 
 
 def _row(name, agent, truth, trial):
@@ -369,6 +521,18 @@ def _write_report(path, rep, args):
                    ("cell_flux", "cell flux")]:
         if k in b:
             L.append(f"- agent topology [{lab}]: recall **{b[k][0]}**, precision **{b[k][1]}**")
+    # clinical calibration provenance: what the agent DECIDED, and the fit - all on the TRAINING arm
+    ch = ag.get("clinical_controller")
+    if ch:
+        L += ["", "## Clinical calibration (agent-decided, TRAINING arm only)", "",
+              "The agent chose the clinical actions below from process + first-line (training) signals"
+              " only; the held-out second-line RADIATE trial was never shown to it or fit."]
+        for h in ch:
+            L.append(f"- step {h.get('step')}: **{h.get('action')}** ({h.get('reason')})")
+        fit = ag.get("clinical_fit")
+        if fit:
+            L.append(f"- fit: MTX effect-scale **{fit.get('scale')}** -> first-line ACR20 "
+                     f"**{fit.get('acr20')}** (search trace {fit.get('trace')})")
     af, asec = ag.get("first_line", {}), ag.get("second_line", {})
     gf, gsec = gt.get("first_line", {}) if gt else {}, gt.get("second_line", {}) if gt else {}
     L += ["", "## Clinical readout: agent vs ground-truth model vs trial", "",
