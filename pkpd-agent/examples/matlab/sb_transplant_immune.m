@@ -133,11 +133,11 @@ function report = sb_transplant_immune(sbmlFile, dryRun, secFactorSpec, influxFa
         nr = addreaction(m, rxnStr);
         addkineticlaw(nr, 'Unknown');
         rate = i_qualifyRate(m, char(r.ReactionRate), i_reactionSpecies(r), defaultComp);
-        factor = i_drugFactor(char(r.Name), secFactorSpec, influxFactor);   % re-wire a drug's PD
+        factor = i_drugFactor(r, secFactorSpec, influxFactor);   % re-wire a drug's PD
         if ~isempty(factor)
             rate = ['(' rate ') * ' factor];
             nRewired = nRewired + 1;
-            if isempty(rewiredExample), rewiredExample = sprintf('%s :: %s', char(r.Name), rate); end
+            if isempty(rewiredExample), rewiredExample = sprintf('%s :: %s', char(r.Reaction), rate); end
         end
         nr.ReactionRate = rate;
     end
@@ -167,22 +167,26 @@ function names = i_reactionSpecies(r)
     names = unique(names);
 end
 
-function factor = i_drugFactor(rxnName, secFactorSpec, influxFactor)
+function factor = i_drugFactor(r, secFactorSpec, influxFactor)
 %I_DRUGFACTOR the multiplicative drug-PD factor for an agent reaction, so a drug whose effect the
-%   paper wired into the removed immune reactions is re-attached to the agent's rebuilt ones.
-%   Agent reaction ids are '<Cyt>_sec_<Cell>' (secretion), '<Cell>_influx', plus _clr/_prolif/_death
-%   which the drug does not touch. secFactorSpec is ';'-joined 'key=factor' with a '*' wildcard,
-%   e.g. '*=(1-Anti_CytSec_MTX);IL10=(1+Pro_CytSec_MTX);TGFb=(1+Pro_CytSec_MTX)'. Returns '' when
-%   no re-wire applies.
+%   paper wired into the removed immune reactions is re-attached to the agent's rebuilt ones. The
+%   reaction kind is read from its RATE LAW's parameter (not its name, which sbmlimport may drop):
+%   a rate containing 'ksec_' is a cytokine secretion (its single product is the cytokine -> keyed
+%   sec factor), a rate containing 'kIn_' is a cell influx (-> influx factor); proliferation
+%   (kprolif_), death (kd_) and clearance (kcl_) carry no drug factor. secFactorSpec is ';'-joined
+%   'key=factor' with a '*' wildcard, e.g.
+%   '*=(1-Anti_CytSec_MTX);IL10=(1+Pro_CytSec_MTX);TGFb=(1+Pro_CytSec_MTX)'.
     factor = '';
-    tok = regexp(rxnName, '^(.+)_sec_', 'tokens', 'once');
-    if ~isempty(tok) && ~isempty(secFactorSpec)
-        cyt = tok{1};
-        factor = i_lookupSpec(secFactorSpec, cyt);
-        if isempty(factor), factor = i_lookupSpec(secFactorSpec, '*'); end
+    rate = char(r.ReactionRate);
+    if ~isempty(secFactorSpec) && ~isempty(regexp(rate, '(?<![A-Za-z0-9_])ksec_', 'once'))
+        if ~isempty(r.Products)
+            cyt = char(r.Products(1).Name);              % the secreted cytokine
+            factor = i_lookupSpec(secFactorSpec, cyt);
+            if isempty(factor), factor = i_lookupSpec(secFactorSpec, '*'); end
+        end
         return;
     end
-    if ~isempty(regexp(rxnName, '_influx$', 'once'))
+    if ~isempty(influxFactor) && ~isempty(regexp(rate, '(?<![A-Za-z0-9_])kIn_', 'once'))
         factor = influxFactor;
     end
 end
