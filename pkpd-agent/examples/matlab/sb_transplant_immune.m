@@ -188,12 +188,15 @@ function factor = i_drugFactor(rxnName, secFactorSpec, influxFactor)
 end
 
 function val = i_lookupSpec(spec, key)
-%I_LOOKUPSPEC value for key in a ';'-joined 'key=value' spec ('' if absent).
+%I_LOOKUPSPEC value for key in a ';'-joined 'key=value' spec ('' if absent). strsplit returns a
+%   cell, so iterate it by index (a `for e = cell` loop makes e a 1x1 cell and breaks the inner
+%   split).
     val = '';
-    for e = strsplit(string(spec), ';')
-        kv = strsplit(e, '=');
-        if numel(kv) == 2 && strcmp(strtrim(kv{1}), key)
-            val = char(strtrim(kv{2})); return;
+    entries = strsplit(char(spec), ';');
+    for k = 1:numel(entries)
+        kv = strsplit(entries{k}, '=');
+        if numel(kv) == 2 && strcmp(strtrim(kv{1}), char(key))
+            val = strtrim(kv{2}); return;
         end
     end
 end

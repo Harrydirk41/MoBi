@@ -254,7 +254,7 @@ def to_sbml(spec: dict) -> str:
         prod = "".join(f'<speciesReference species="{x}"/>' for x in r.get("products", []))
         law = f'<kineticLaw><math xmlns="http://www.w3.org/1998/Math/MathML">' \
               f'{infix_to_mathml(r["rate"])}</math></kineticLaw>'
-        rx += (f'<reaction id="{r["id"]}" reversible="false">'
+        rx += (f'<reaction id="{r["id"]}" name="{r["id"]}" reversible="false">'
                f'{f"<listOfReactants>{reac}</listOfReactants>" if reac else ""}'
                f'{f"<listOfProducts>{prod}</listOfProducts>" if prod else ""}'
                f'{law}</reaction>')
