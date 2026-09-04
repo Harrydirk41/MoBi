@@ -134,17 +134,38 @@ def main() -> None:
               flush=True)
         res = sb.sample_vpop(spec, n_samples=args.n, baseline_day=b_day, seed=args.seed)
         cols = res.get("columns") or {}
-        das = cols.get("DAS28_base") or cols.get("DAS28_CRP") or []
+        das_key = next((k for k in ("DAS28_base", "DAS28_CRP", "DAS28") if k in cols), None)
+        das = cols.get(das_key, []) if das_key else []
         lo, hi = vt["band"]
-        qual = [i for i, d in enumerate(das)
-                if isinstance(d, (int, float)) and d == d and lo <= d <= hi]
+        import math
         import statistics
-        qdas = [das[i] for i in qual]
-        print(f"  sampled {len(das)}, qualified {len(qual)} in band; "
-              f"baseline DAS28 mean {statistics.mean(qdas):.2f} sd {statistics.pstdev(qdas):.2f} "
-              f"(target {vt['mean']}±{vt['sd']})" if qdas else "  no candidate qualified")
+        finite = [d for d in das if isinstance(d, (int, float)) and math.isfinite(d)]
+        n_nan = len(das) - len(finite)
+        qual = [i for i, d in enumerate(das)
+                if isinstance(d, (int, float)) and math.isfinite(d) and lo <= d <= hi]
+        # DIAGNOSTIC: say WHY, not just "none qualified"
+        print(f"  DAS28 column: {das_key or 'MISSING'}; returned columns: "
+              f"{sorted(cols)[:12]}{' ...' if len(cols) > 12 else ''}")
+        if das:
+            fmt = f"min {min(finite):.2f} max {max(finite):.2f} mean {statistics.mean(finite):.2f}" \
+                  if finite else "no finite values"
+            print(f"  sampled {len(das)}: {len(finite)} finite ({fmt}), {n_nan} non-finite "
+                  f"(diverged); {len(qual)} in band {vt['band']}")
         if not qual:
-            print("  -> widen --span or --n; the agent baseline may sit outside the band."); return
+            if n_nan == len(das) and das:
+                print("  -> ALL candidates diverged: perturbing ksec destabilises the marginal "
+                      "cells (no\n     restoring force). Try --span 1.3 (gentler), or we exclude the "
+                      "ksec of cytokines\n     that drive marginal cells.")
+            elif finite:
+                print(f"  -> finite but out of band: baseline sits at ~{statistics.mean(finite):.1f}. "
+                      "Adjust --span,\n     or the agent baseline DAS28 differs from the target band.")
+            else:
+                print("  -> no DAS28 returned; check the sample_vpop log below.")
+                print("  " + (res.get("matlab_log", "")[-500:] or "(no log)"))
+            return
+        qdas = [das[i] for i in qual]
+        print(f"  qualified {len(qual)}; baseline DAS28 mean {statistics.mean(qdas):.2f} "
+              f"sd {statistics.pstdev(qdas):.2f} (target {vt['mean']}±{vt['sd']})")
 
         # 4. write the qualified patients to a Vpop xlsx
         xlsx = os.path.join(os.path.dirname(os.path.abspath(args.sbproj)), "agent_vpop.xlsx")
