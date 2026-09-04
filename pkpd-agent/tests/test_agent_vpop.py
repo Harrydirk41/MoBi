@@ -32,14 +32,16 @@ class TestFrac(unittest.TestCase):
         self.assertEqual(V._frac({"ACR20": []}, "ACR20"), (None, 0))
 
 
-class TestWriteXlsx(unittest.TestCase):
+class TestWriteCsv(unittest.TestCase):
     def test_header_then_patient_rows(self):
-        p = os.path.join(tempfile.gettempdir(), "test_vp.xlsx")
-        V._write_vpop_xlsx(p, ["a", "b"], [{"a": 1, "b": 2}, {"a": 3, "b": 4}])
-        import openpyxl
-        ws = openpyxl.load_workbook(p).active
-        got = [[c.value for c in r] for r in ws.iter_rows()]
-        self.assertEqual(got, [["a", "b"], [1, 2], [3, 4]])
+        p = os.path.join(tempfile.gettempdir(), "test_vp.csv")
+        V._write_vpop_csv(p, ["ksec_IL6", "kprolif_Th1"],
+                          [{"ksec_IL6": 1600.0, "kprolif_Th1": 0.39}])
+        import csv
+        rows = list(csv.reader(open(p, newline="", encoding="utf-8")))
+        self.assertEqual(rows[0], ["ksec_IL6", "kprolif_Th1"])
+        self.assertEqual(float(rows[1][0]), 1600.0)
+        self.assertAlmostEqual(float(rows[1][1]), 0.39)
 
 
 class TestMarginalFromProject(unittest.TestCase):

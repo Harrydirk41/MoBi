@@ -83,14 +83,16 @@ def _frac(cols, flag, mask=None):
         else (None, 0)
 
 
-def _write_vpop_xlsx(path, names, rows):
-    import openpyxl
-    wb = openpyxl.Workbook()
-    ws = wb.active
-    ws.append(list(names))
-    for r in rows:
-        ws.append([r[n] for n in names])
-    wb.save(path)
+def _write_vpop_csv(path, names, rows):
+    """Write the Vpop as CSV (stdlib only) - row 1 the exact param names, one row per patient.
+    MATLAB (sb_csv_to_xlsx) converts it to the .xlsx sb_run_vpop reads, so no Python spreadsheet
+    package is needed."""
+    import csv as _csv
+    with open(path, "w", newline="", encoding="utf-8") as fh:
+        w = _csv.writer(fh)
+        w.writerow(list(names))
+        for r in rows:
+            w.writerow([repr(r[n]) if isinstance(r[n], float) else r[n] for n in names])
 
 
 def main() -> None:
@@ -177,10 +179,14 @@ def main() -> None:
         print(f"  qualified {len(qual)}; baseline DAS28 mean {statistics.mean(qdas):.2f} "
               f"sd {statistics.pstdev(qdas):.2f} (target {vt['mean']}±{vt['sd']})")
 
-        # 4. write the qualified patients to a Vpop xlsx
-        xlsx = os.path.join(os.path.dirname(os.path.abspath(args.sbproj)), "agent_vpop.xlsx")
-        rows = [{n: cols[n][i] for n in chosen if n in cols} for i in qual]
-        _write_vpop_xlsx(xlsx, chosen, rows)
+        # 4. write the qualified patients to a Vpop xlsx (via CSV -> MATLAB, no openpyxl needed)
+        base = os.path.dirname(os.path.abspath(args.sbproj))
+        csvp = os.path.join(base, "agent_vpop.csv")
+        xlsx = os.path.join(base, "agent_vpop.xlsx")
+        present = [n for n in chosen if n in cols]
+        rows = [{n: cols[n][i] for n in present} for i in qual]
+        _write_vpop_csv(csvp, present, rows)
+        sb.eng.sb_csv_to_xlsx(csvp, xlsx, nargout=0)
         print(f"  wrote {len(rows)} patients -> {xlsx}")
 
         # 5. TEST first-line MTX
