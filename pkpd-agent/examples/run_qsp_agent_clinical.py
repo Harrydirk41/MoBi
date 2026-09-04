@@ -60,9 +60,9 @@ def main() -> None:
                   flush=True)
             sb.load_project(os.path.abspath(args.sbproj))
             rep = sb.eng.sb_drug_mechanism(args.audit_drug, nargout=1)
-            for k in ("drugQuantities", "reactionsAffected", "rulesAffected"):
+            for k in ("drugQuantities", "rateLaws", "rulesAffected"):
                 v = rep.get(k) if isinstance(rep, dict) else None
-                print(f"  {k}: {json.dumps(v, default=str)[:900] if v is not None else '(n/a)'}")
+                print(f"  {k}: {json.dumps(v, default=str)[:1500] if v is not None else '(n/a)'}")
         elif not args.apply:
             print("== DRY RUN: loading sbproj + transplant report (nothing changed) ==", flush=True)
             sb.load_project(os.path.abspath(args.sbproj))

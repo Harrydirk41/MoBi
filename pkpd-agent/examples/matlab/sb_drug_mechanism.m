@@ -16,7 +16,7 @@ function report = sb_drug_mechanism(drugPattern)
     drugPr = prNames(arrayfun(isDrug, prNames));
     quants = [drugSp, drugPr];
 
-    reacts = {};
+    reacts = {}; rateLaws = {};
     for i = 1:numel(m.Reactions)
         r = m.Reactions(i);
         rate = char(r.ReactionRate);
@@ -24,6 +24,11 @@ function report = sb_drug_mechanism(drugPattern)
             immune = any(arrayfun(@(s) i_wordIn(rate, char(s)), spNames));
             reacts{end+1} = sprintf('%s%s : %s', r.Name, ...
                 ternary(immune, ' [touches a species]', ''), char(r.Reaction)); %#ok<AGROW>
+            % keep the FULL rate law for the secretion/influx reactions - shows how the drug factor
+            % combines into the rate, which is what a re-wire onto the agent's reactions must copy.
+            if ~isempty(regexp(r.Name, '(?i)Secret|Sec|Influx|Migration|Growth|Prolif', 'once'))
+                rateLaws{end+1} = sprintf('%s :: %s', r.Name, rate); %#ok<AGROW>
+            end
         end
     end
 
@@ -38,12 +43,15 @@ function report = sb_drug_mechanism(drugPattern)
     report = struct();
     report.drugQuantities = cellstr(quants(:).');
     report.reactionsAffected = reacts;
+    report.rateLaws = rateLaws;
     report.rulesAffected = rules;
 
     fprintf('== drug mechanism for /%s/ ==\n', char(drugPattern));
     fprintf('  drug species/params (%d): %s\n', numel(quants), strjoin(cellstr(quants), ', '));
-    fprintf('  reactions whose rate law references the drug (%d):\n', numel(reacts));
-    for i = 1:numel(reacts), fprintf('     %s\n', reacts{i}); end
+    fprintf('  reactions whose rate law references the drug (%d)\n', numel(reacts));
+    fprintf('  RATE LAWS of the secretion/influx reactions (%d) - how the drug factor combines:\n', ...
+            numel(rateLaws));
+    for i = 1:numel(rateLaws), fprintf('     %s\n', rateLaws{i}); end
     fprintf('  rules referencing the drug (%d):\n', numel(rules));
     for i = 1:numel(rules), fprintf('     %s\n', rules{i}); end
 end
