@@ -142,9 +142,13 @@ def main() -> None:
         print(f"[skipped - no complete benchmark found]: {missing}")
 
     if args.run:
-        ok = sum(_run_one(f, args.target, args.max_steps, args.pksim) for f in files)
+        ok = 0
+        for f in files:
+            ok += _run_one(f, args.target, args.max_steps, args.pksim)
+            if args.aggregate:
+                _aggregate(files, order, args.out)   # refresh the scoreboard after EACH model
         print(f"\n== ran {ok}/{len(files)} models ==")
-    if args.aggregate:
+    elif args.aggregate:
         _aggregate(files, order, args.out)
 
 
