@@ -104,6 +104,17 @@ function report = sb_transplant_immune(sbmlFile, dryRun, secFactorSpec, influxFa
         return;
     end
 
+    % ---- optionally DERIVE the drug PD re-wire from the paper reactions themselves ----
+    % '@derive:<DRUG>' removes the last piece of drug-specific scaffolding: instead of a hand-written
+    % spec naming Anti_CytSec_MTX etc., READ how the drug attaches from the paper's own removed
+    % reactions (the trailing (1 +/- <param>) factor referencing the drug) and rebuild the same spec.
+    if startsWith(string(secFactorSpec), "@derive:")
+        drugPat = char(extractAfter(string(secFactorSpec), "@derive:"));
+        [secFactorSpec, influxFactor] = i_deriveDrugSpec(m, toRemove, drugPat);
+        fprintf('  derived %s PD re-wire from the paper model (no hardcoded spec):\n', drugPat);
+        fprintf('    secretion: "%s"\n    influx:    "%s"\n', secFactorSpec, influxFactor);
+    end
+
     % ---- APPLY: remove pure-immune reactions, add agent params + reactions ----
     for k = 1:numel(toRemove)
         r = sbioselect(m, 'Type', 'reaction', 'Name', toRemove{k});
@@ -202,6 +213,58 @@ function val = i_lookupSpec(spec, key)
         if numel(kv) == 2 && strcmp(strtrim(kv{1}), char(key))
             val = strtrim(kv{2}); return;
         end
+    end
+end
+
+function [secSpec, influxFactor] = i_deriveDrugSpec(m, toRemove, drugPattern)
+%I_DERIVEDRUGSPEC Read HOW a drug's PD attaches from the paper's OWN reactions, so no hand-written
+%   spec is needed. For each paper reaction being removed, extract any multiplicative drug factor
+%   '(1 +/- <param>)' whose parameter name matches drugPattern (e.g. 'MTX'). Classify the reaction as
+%   an influx (rate has 'kIn_') or a secretion (keyed by its product), then rebuild the same
+%   ';'-joined 'key=factor' spec the hand-written one used: a '*' wildcard set to the most common
+%   secretion factor, plus an explicit key for any cytokine whose factor DIFFERS (e.g. the regulatory
+%   cytokines the drug boosts). Only simple 1 +/- param factors are recognized (this model's idiom);
+%   the granularity is per secreted cytokine, matching the re-wire's own resolution.
+    secByCyt = containers.Map('KeyType', 'char', 'ValueType', 'any');
+    allSec = {}; influxFactors = {};
+    rex = ['\(\s*1\s*[-+]\s*\w*' drugPattern '\w*\s*\)'];
+    for k = 1:numel(toRemove)
+        r = sbioselect(m, 'Type', 'reaction', 'Name', toRemove{k});
+        if isempty(r), continue; end
+        rate = char(r(1).ReactionRate);
+        fac = regexp(rate, rex, 'match');
+        if isempty(fac), continue; end
+        f = strrep(fac{1}, ' ', '');
+        if ~isempty(regexp(rate, '(?<![A-Za-z0-9_])kIn_', 'once'))
+            influxFactors{end+1} = f; %#ok<AGROW>
+        elseif ~isempty(r(1).Products)
+            cyt = char(r(1).Products(1).Name);
+            if isKey(secByCyt, cyt), secByCyt(cyt) = [secByCyt(cyt), {f}];
+            else, secByCyt(cyt) = {f}; end
+            allSec{end+1} = f; %#ok<AGROW>
+        end
+    end
+    star = i_mode(allSec);                       % wildcard = most common secretion factor
+    parts = {};
+    if ~isempty(star), parts{end+1} = ['*=' star]; end
+    ks = keys(secByCyt);
+    for i = 1:numel(ks)
+        fs = unique(secByCyt(ks{i}));
+        nonStar = fs(~strcmp(fs, star));         % a cytokine keyed only if it differs from wildcard
+        if ~isempty(nonStar), parts{end+1} = [ks{i} '=' nonStar{1}]; end %#ok<AGROW>
+    end
+    secSpec = strjoin(parts, ';');
+    influxFactor = i_mode(influxFactors);
+end
+
+function mo = i_mode(c)
+%I_MODE the most frequent string in a cell array ('' if empty).
+    mo = '';
+    if isempty(c), return; end
+    u = unique(c); best = -1;
+    for i = 1:numel(u)
+        n = sum(strcmp(c, u{i}));
+        if n > best, best = n; mo = u{i}; end
     end
 end
 

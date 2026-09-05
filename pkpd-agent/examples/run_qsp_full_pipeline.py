@@ -363,8 +363,9 @@ def main() -> None:
         print("\n== STAGE 2: SIM FILE (transplant into the clinical shell) ==", flush=True)
         sec_spec, influx = "", ""
         if args.rewire_mtx:
-            sec_spec = "*=(1-Anti_CytSec_MTX);IL10=(1+Pro_CytSec_MTX);TGFb=(1+Pro_CytSec_MTX)"
-            influx = "(1-Anti_CellInflux_MTX)"
+            # DERIVE the drug PD re-wire from the paper model itself (no hardcoded, drug-specific
+            # spec) - the transplant reads how MTX attaches from the paper's own removed reactions.
+            sec_spec = "@derive:MTX"
         agent_proj = os.path.abspath("agent_clinical.sbproj")
         sb.eng.sb_agent_clinical(os.path.abspath(args.sbproj), net_xml, agent_proj,
                                  "DAS28_CRP", "", sec_spec, influx, nargout=0)

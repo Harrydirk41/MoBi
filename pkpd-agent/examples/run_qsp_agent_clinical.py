@@ -85,11 +85,8 @@ def main() -> None:
             # reactions in the paper) onto the agent's rebuilt secretion/influx reactions.
             sec_spec, influx = "", ""
             if args.rewire_mtx:
-                sec_spec = ("*=(1-Anti_CytSec_MTX);IL10=(1+Pro_CytSec_MTX);"
-                            "TGFb=(1+Pro_CytSec_MTX)")
-                influx = "(1-Anti_CellInflux_MTX)"
-                print("  re-wiring MTX PD (anti-cytokine-secretion / anti-cell-influx) onto the "
-                      "agent reactions")
+                sec_spec = "@derive:MTX"    # derive the PD re-wire from the paper model, not hardcoded
+                print("  re-wiring MTX PD onto the agent reactions (derived from the paper model)")
             sb.eng.sb_agent_clinical(os.path.abspath(args.sbproj), os.path.abspath(args.net),
                                      os.path.abspath(args.out), args.readout, "", sec_spec, influx,
                                      nargout=0)
