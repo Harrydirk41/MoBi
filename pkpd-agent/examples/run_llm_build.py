@@ -237,6 +237,9 @@ def main() -> None:
         html_path = os.path.join(report_dir, name)
         report.write_html(d, html_path)
         print(f"wrote {html_path}")
+        json_path = html_path[:-5] + ".json"
+        report.write_json(d, json_path)             # machine-readable scoreboard payload
+        print(f"wrote {json_path}")
         pdf_path = html_path[:-5] + ".pdf"
         if report.write_pdf(d, pdf_path):
             print(f"wrote {pdf_path}")

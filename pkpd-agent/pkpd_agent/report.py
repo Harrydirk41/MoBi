@@ -1047,6 +1047,34 @@ routes {esc(', '.join(str(r) for r in (d.data_overview.get('routes') or [])))}.<
 # PDF renderer (matplotlib; on the user's machine)
 # --------------------------------------------------------------------------- #
 
+def write_json(d: ReportData, path: str) -> None:
+    """Persist the machine-readable scoreboard payload for a run: the honest fit vs ground truth
+    (agent vs reference GMFE), the structure match, and the per-parameter recovery grades. This is
+    the same `comparison` the HTML renders - saving it lets a batch aggregator build one scoreboard
+    across models without scraping HTML."""
+    import json as _j
+    comp = d.comparison or {}
+    prows = comp.get("parameters") or []
+    struct = comp.get("structure") or []
+    payload = {
+        "title": d.title,
+        "status": d.status,
+        "fit": {"agent_gmfe": (d.fit or {}).get("gmfe"),
+                "reference_gmfe": (d.reference or {}).get("gmfe")},
+        "structure_match": (all(s.get("match") for s in struct) if struct else None),
+        "structure": struct,
+        "params": {"total": len(prows),
+                   "good": sum(1 for p in prows if p.get("grade") == "good"),
+                   "soft": sum(1 for p in prows if p.get("grade") == "soft"),
+                   "bad": sum(1 for p in prows if p.get("grade") == "bad")},
+        "parameters": prows,
+        "summary": comp.get("summary", ""),
+        "diagnostics": d.diagnostics or {},
+    }
+    with open(path, "w", encoding="utf-8") as fh:
+        _j.dump(payload, fh, indent=1, default=str)
+
+
 def write_pdf(d: ReportData, path: str) -> bool:
     try:
         import matplotlib
