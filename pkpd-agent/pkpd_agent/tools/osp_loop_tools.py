@@ -565,7 +565,12 @@ def register_osp_loop_tools(registry: ToolRegistry, config, ctx: dict) -> None:
                         out.append({"partition": pm, "permeability": pe,
                                     "gmfe": r["fit"]["gmfe"], "optimized": r["optimized"],
                                     "params_at_bound": r.get("params_at_bound")})
-                        print(f"  sweep [{pm} / {pe}] -> GMFE {r['fit']['gmfe']}", flush=True)
+                        # print the FITTED physchem too: if it DIFFERS across partition methods while
+                        # GMFE ties, the method is unidentifiable (a free param compensated it) - not
+                        # a bug. If it is identical across methods, the method edit had no effect.
+                        fit_str = ", ".join(f"{k}={v:.3g}" for k, v in r["optimized"].items())
+                        print(f"  sweep [{pm} / {pe}] -> GMFE {r['fit']['gmfe']}  (fit: {fit_str})",
+                              flush=True)
             return out
 
         def _widen(est, best_row):
