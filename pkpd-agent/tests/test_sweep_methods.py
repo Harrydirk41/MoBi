@@ -49,7 +49,8 @@ class TestSweepMethods(unittest.TestCase):
         # covered EVERY partition x permeability combo (the enumerable 15-grid), not a sample
         self.assertEqual(set(self.seen), {(p, q) for p in PARTITION_METHODS
                                           for q in PERMEABILITY_METHODS})
-        self.assertEqual(len(self.seen), len(PARTITION_METHODS) * len(PERMEABILITY_METHODS))
+        # 15 coarse-rank fits cover every combo, + 1 fine refine of the winner
+        self.assertEqual(len(self.seen), len(PARTITION_METHODS) * len(PERMEABILITY_METHODS) + 1)
         # picked the best-fitting method purely from GMFE - no answer was passed in
         best = r.data["best"]
         self.assertEqual((best["partition"], best["permeability"]),
@@ -62,12 +63,24 @@ class TestSweepMethods(unittest.TestCase):
     def test_refits_physchem_under_each_method(self):
         # every combo re-runs the optimizer with the physchem in 'estimate' (not frozen)
         self.sweep({"estimate": {"Lipophilicity": [-2, 3]}}, ModelingSession(goal="g"))
-        self.assertEqual(len(self.seen), 15)   # 15 independent fits, one per method combo
+        # 15 coarse-rank fits (one per combo) + 1 fine refine of the winner
+        self.assertEqual(len(self.seen), 16)
 
     def test_requires_estimate(self):
         r = self.sweep({}, ModelingSession(goal="g"))
         self.assertFalse(r.ok)
         self.assertIn("estimate", r.message)
+
+    def test_identical_resweep_is_memoized(self):
+        # the agent re-sweeping the SAME grid must NOT re-run PK-Sim (it wasted hours) - the second
+        # identical call returns the cached result and steers to osp_optimize
+        sess = ModelingSession(goal="g")
+        self.sweep({"estimate": {"Lipophilicity": [-2, 3]}}, sess)
+        n_after_first = len(self.seen)
+        r2 = self.sweep({"estimate": {"Lipophilicity": [-2, 3]}}, sess)   # identical
+        self.assertEqual(len(self.seen), n_after_first)          # no additional PK-Sim runs
+        self.assertTrue(r2.data.get("cached"))
+        self.assertIn("do NOT re-sweep", r2.message)
 
     def test_ties_with_same_physchem_do_NOT_early_stop(self):
         # the mock ties at 2.35 for most methods but returns the SAME optimized value for all - a
@@ -75,7 +88,7 @@ class TestSweepMethods(unittest.TestCase):
         seen = self.seen
         seen.clear()
         r = self.sweep({"estimate": {"Lipophilicity": [-2, 3]}}, ModelingSession(goal="g"))
-        self.assertEqual(len(seen), 15)                       # full grid, no early stop
+        self.assertEqual(len(seen), 16)                       # full 15-grid coarse + 1 refine
         self.assertEqual(r.data["best"]["gmfe"], 1.40)        # found the later better method
 
 

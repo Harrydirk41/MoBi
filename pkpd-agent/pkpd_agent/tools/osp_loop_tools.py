@@ -550,9 +550,28 @@ def register_osp_loop_tools(registry: ToolRegistry, config, ctx: dict) -> None:
         perms = args.get("permeability_methods") or PERMEABILITY_METHODS
         processes = (args.get("structure") or {}).get("processes")
         max_evals = int(args.get("max_evals") or 12)
+
+        # MEMOIZE: the sweep is expensive (dozens of PK-Sim fits). Choosing the distribution method
+        # is a ONE-TIME decision - re-sweeping the SAME grid wastes hours. If an identical sweep
+        # (same physchem set + processes) already ran this session, return its result and tell the
+        # agent to refine with osp_optimize instead of re-sweeping.
+        sig = json.dumps({"e": sorted(estimate), "p": processes,
+                          "pm": list(parts), "pe": list(perms)}, default=str, sort_keys=True)
+        cache = session.get("osp_sweep_cache") or {}
+        if sig in cache:
+            c = cache[sig]
+            return ToolResult.success(
+                f"already swept this grid ({c['partition']} / {c['permeability']} -> GMFE "
+                f"{c['gmfe']} was best). The distribution method is chosen; do NOT re-sweep - refine "
+                f"with osp_optimize (fit the free physchem / clearance further) or finish.",
+                ranked=c.get("ranked"), best=c, cached=True)
+        # COARSE-then-FINE: rank all 15 method combos with a small budget (ranking is robust to a
+        # coarse fit), then refine only the winner at the full budget. Cuts ~half the PK-Sim runs
+        # without dropping any combo - the whole grid is still tried, so no better method is missed.
+        coarse = max(4, min(max_evals, 6))
         lit = (inp.get("given_data", {}) or {}).get("literature_physicochemical", [])
 
-        def _grid(est):
+        def _grid(est, budget):
             out = []
             parts_done = 0
             for pm in parts:
@@ -561,7 +580,7 @@ def register_osp_loop_tools(registry: ToolRegistry, config, ctx: dict) -> None:
                     if processes:
                         structure["processes"] = processes
                     r = OO.run_optimization(cli, snapshot_path, observed, estimate=est,
-                                            fix=fix, structure=structure, max_evals=max_evals)
+                                            fix=fix, structure=structure, max_evals=budget)
                     if r.get("ok") and r["fit"].get("gmfe") is not None:
                         out.append({"partition": pm, "permeability": pe,
                                     "gmfe": r["fit"]["gmfe"], "optimized": r["optimized"],
@@ -628,7 +647,7 @@ def register_osp_loop_tools(registry: ToolRegistry, config, ctx: dict) -> None:
                     changed[pname] = [nlo, nhi]
             return (widened, changed) if changed else (None, None)
 
-        results = _grid(estimate)
+        results = _grid(estimate, coarse)                    # coarse rank of the whole grid
         if not results:
             return ToolResult.error("sweep produced no successful fit across the method grid")
         results.sort(key=lambda x: x["gmfe"])
@@ -636,8 +655,25 @@ def register_osp_loop_tools(registry: ToolRegistry, config, ctx: dict) -> None:
         if est2:
             print(f"  sweep: free non-given param(s) railed -> widening to physical range and "
                   f"re-sweeping: {changed}", flush=True)
-            more = _grid(est2)
+            more = _grid(est2, coarse)
             results = sorted(results + more, key=lambda x: x["gmfe"])
+        # FINE refine only the winning method at the full budget (coarse was just for ranking)
+        if coarse < max_evals:
+            top = results[0]
+            est_final = est2 or estimate           # est2 (if any) only widens bounds - safe to reuse
+            structure = {"calculation_methods": {"partition": top["partition"],
+                                                 "permeability": top["permeability"]}}
+            if processes:
+                structure["processes"] = processes
+            rr = OO.run_optimization(cli, snapshot_path, observed, estimate=est_final, fix=fix,
+                                     structure=structure, max_evals=max_evals)
+            if rr.get("ok") and rr["fit"].get("gmfe") is not None:
+                top["gmfe"] = rr["fit"]["gmfe"]
+                top["optimized"] = rr["optimized"]
+                top["params_at_bound"] = rr.get("params_at_bound")
+                results.sort(key=lambda x: x["gmfe"])
+                print(f"  sweep: refined winner {top['partition']} / {top['permeability']} at full "
+                      f"budget -> GMFE {top['gmfe']}", flush=True)
         best = results[0]
         prev = session.get("osp_best_gmfe")
         if prev is None or best["gmfe"] < prev:
@@ -646,10 +682,13 @@ def register_osp_loop_tools(registry: ToolRegistry, config, ctx: dict) -> None:
                         {"parameters": best["optimized"], "fix": fix,
                          "calculation_methods": {"partition": best["partition"],
                                                  "permeability": best["permeability"]}})
+        cache[sig] = {**best, "ranked": results}          # remember this grid so it is not re-swept
+        session.put("osp_sweep_cache", cache)
         return ToolResult.success(
             f"swept {len(results)} method combos, re-fitting {list(estimate)} under each; BEST = "
             f"{best['partition']} / {best['permeability']} -> GMFE {best['gmfe']} "
-            f"(best so far {session.get('osp_best_gmfe')}). Adopt the best method, then refine.",
+            f"(best so far {session.get('osp_best_gmfe')}). The distribution method is now chosen - "
+            f"refine with osp_optimize, do NOT re-sweep the same grid.",
             ranked=results, best=best)
 
     registry.register(Tool(
