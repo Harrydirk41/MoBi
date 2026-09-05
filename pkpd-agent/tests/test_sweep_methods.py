@@ -69,6 +69,49 @@ class TestSweepMethods(unittest.TestCase):
         self.assertFalse(r.ok)
         self.assertIn("estimate", r.message)
 
+    def test_ties_with_same_physchem_do_NOT_early_stop(self):
+        # the mock ties at 2.35 for most methods but returns the SAME optimized value for all - a
+        # later method (Schmitt) is better, so the sweep MUST NOT stop early and must find it
+        seen = self.seen
+        seen.clear()
+        r = self.sweep({"estimate": {"Lipophilicity": [-2, 3]}}, ModelingSession(goal="g"))
+        self.assertEqual(len(seen), 15)                       # full grid, no early stop
+        self.assertEqual(r.data["best"]["gmfe"], 1.40)        # found the later better method
+
+
+class TestSweepEarlyStopCompensation(unittest.TestCase):
+    """Safe early stop: methods tie in GMFE AND a free param shifts across them (compensation) ->
+    the degeneracy is structural, stop early. This is the Vancomycin case."""
+    def setUp(self):
+        self.seen = []
+
+        def fake_run(cli, snap, observed, estimate, fix=None, structure=None, max_evals=30, **kw):
+            part = (structure or {}).get("calculation_methods", {}).get("partition")
+            self.seen.append(part)
+            # every method fits equally (GMFE 1.85) but with a DIFFERENT logP - the free param
+            # absorbs the method difference (unidentifiable)
+            logp = {"PK-Sim Standard": 0.5, "Rodgers and Rowland": 1.2, "Schmitt": 2.1}.get(part, 3.0)
+            return {"ok": True, "optimized": {"Lipophilicity": logp}, "fit": {"gmfe": 1.85},
+                    "by_route": {}, "worst_datasets": [], "params_at_bound": [],
+                    "sensitivity": {}, "n_evals": max_evals, "fit_simulations": ["s1"]}
+        self._orig = OO.run_optimization
+        OO.run_optimization = fake_run
+        self.reg = ToolRegistry()
+        register_osp_loop_tools(self.reg, AgentConfig(mock=False),
+                                {"cli": object(), "snapshot_path": "x", "observed": [], "input": {}})
+        self.sweep = self.reg.get("osp_sweep_methods").handler
+
+    def tearDown(self):
+        OO.run_optimization = self._orig
+
+    def test_stops_early_on_compensation(self):
+        self.sweep({"estimate": {"Lipophilicity": [-5.0, 3.0]}}, ModelingSession(goal="g"))
+        # stopped after covering >=2 partition methods (not the full 15) because a free param
+        # compensated the tie - far fewer than 15 combos
+        n_partitions = len(set(self.seen))
+        self.assertLessEqual(n_partitions, 3)
+        self.assertLess(len(self.seen), 15)
+
 
 class TestSweepWidening(unittest.TestCase):
     """A FREE (non-given) parameter that rails to a too-tight self-imposed bound is widened to its

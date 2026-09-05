@@ -554,6 +554,7 @@ def register_osp_loop_tools(registry: ToolRegistry, config, ctx: dict) -> None:
 
         def _grid(est):
             out = []
+            parts_done = 0
             for pm in parts:
                 for pe in perms:
                     structure = {"calculation_methods": {"partition": pm, "permeability": pe}}
@@ -571,6 +572,30 @@ def register_osp_loop_tools(registry: ToolRegistry, config, ctx: dict) -> None:
                         fit_str = ", ".join(f"{k}={v:.3g}" for k, v in r["optimized"].items())
                         print(f"  sweep [{pm} / {pe}] -> GMFE {r['fit']['gmfe']}  (fit: {fit_str})",
                               flush=True)
+                parts_done += 1
+                # EARLY STOP only on the COMPENSATION signature: >=2 partition methods tie in GMFE
+                # AND a free physchem took DIFFERENT values across them - i.e. the free parameter
+                # absorbed the method difference. That degeneracy is structural (it holds for the
+                # remaining methods too), so it is safe to stop. A tie with IDENTICAL free-param
+                # values is NOT enough: the methods may genuinely coincide here while a later method
+                # differs, so we must keep sweeping (never miss a better method).
+                gm = [x["gmfe"] for x in out]
+                tie = len(gm) >= 2 and (max(gm) - min(gm)) <= 0.02 * min(gm)
+                compensated = False
+                if parts_done >= 2 and tie:
+                    for pname, bnd in est.items():
+                        vals = [x["optimized"].get(pname) for x in out
+                                if isinstance(x["optimized"].get(pname), (int, float))]
+                        width = abs(bnd[1] - bnd[0]) if isinstance(bnd, (list, tuple)) else 0
+                        if len(vals) >= 2 and width and (max(vals) - min(vals)) > 0.05 * width:
+                            compensated = True
+                            break
+                if compensated:
+                    print(f"  sweep: partition method is UNIDENTIFIABLE here - a free physchem "
+                          f"compensates it (GMFE ties at ~{min(gm):.3g} while its fitted value shifts "
+                          f"across methods); stopping early, the lever is elsewhere (fix a physchem "
+                          f"or free a different parameter)", flush=True)
+                    break
             return out
 
         def _widen(est, best_row):
