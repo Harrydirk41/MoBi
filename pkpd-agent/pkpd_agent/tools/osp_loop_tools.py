@@ -580,7 +580,8 @@ def register_osp_loop_tools(registry: ToolRegistry, config, ctx: dict) -> None:
                     if processes:
                         structure["processes"] = processes
                     r = OO.run_optimization(cli, snapshot_path, observed, estimate=est,
-                                            fix=fix, structure=structure, max_evals=budget)
+                                            fix=fix, structure=structure, max_evals=budget,
+                                            fast=True)   # ranking only: fewer studies, no sens/full
                     if r.get("ok") and r["fit"].get("gmfe") is not None:
                         out.append({"partition": pm, "permeability": pe,
                                     "gmfe": r["fit"]["gmfe"], "optimized": r["optimized"],

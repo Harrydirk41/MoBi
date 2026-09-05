@@ -92,7 +92,7 @@ def run_optimization(cli: OSPCli, snapshot_path: str, observed: list[dict],
                      structure: dict | None = None,
                      fit_simulations: list[str] | None = None,
                      max_evals: int = 30, on_eval=None,
-                     link_scale: list | None = None) -> dict[str, Any]:
+                     link_scale: list | None = None, fast: bool = False) -> dict[str, Any]:
     """Fit ``estimate`` (name -> [lo, hi]) to the observed data.
 
     ``on_eval(i, values, log_sse)`` (optional) is called after each objective
@@ -154,9 +154,10 @@ def run_optimization(cli: OSPCli, snapshot_path: str, observed: list[dict],
                 out[k] = v
         return out
 
-    # subset of simulations to fit against
+    # subset of simulations to fit against. In FAST (ranking) mode use fewer studies - the method
+    # sweep only needs the RELATIVE GMFE to order methods, not a full-data fit.
     all_sims = cli.simulation_names(snapshot_path)
-    subset = fit_simulations or pick_subset(all_sims, k=4)
+    subset = fit_simulations or pick_subset(all_sims, k=2 if fast else 4)
     subset_studies = {osp_score._norm_study(OSPCli._parse_sim_name(s)[0]) for s in subset}
     observed_sub = [o for o in observed
                     if osp_score._norm_study(osp_score._obs_key(o)[0]) in subset_studies] \
@@ -240,21 +241,31 @@ def run_optimization(cli: OSPCli, snapshot_path: str, observed: list[dict],
     # objective actually moves. A parameter the data barely responds to is weakly
     # identified - but we report the NUMBER and let the agent/report reason about
     # it, rather than asserting which parameters are unidentifiable.
-    sensitivity = _local_sensitivity(eval_at, _log_sse, observed_sub, subset,
-                                     optimized, names, best, lx, hx)
+    if fast:
+        # RANKING mode: skip the identifiability analysis (extra sim runs) and the full-data final
+        # fit - score the optimum on the subset. Enough to ORDER methods; the winner is refit fully.
+        sensitivity, actions = {}, []
+        predicted_sub, res_sub = eval_at(optimized, subset)
+        if predicted_sub is None:
+            return {"ok": False, "message": f"ranking run failed: {res_sub.get('message')}",
+                    "optimized": expand(optimized)}
+        score = osp_score.score_fit(observed_sub, predicted_sub)
+    else:
+        sensitivity = _local_sensitivity(eval_at, _log_sse, observed_sub, subset,
+                                         optimized, names, best, lx, hx)
 
-    # turn the identifiability EVIDENCE into concrete next-step ACTIONS so the
-    # agent stops floating parameters the data cannot pin (the lipophilicity->0
-    # failure mode): fix them to a known/literature value and refit a smaller,
-    # better-conditioned set.
-    actions = _identifiability_actions(names, sensitivity, at_bound)
+        # turn the identifiability EVIDENCE into concrete next-step ACTIONS so the
+        # agent stops floating parameters the data cannot pin (the lipophilicity->0
+        # failure mode): fix them to a known/literature value and refit a smaller,
+        # better-conditioned set.
+        actions = _identifiability_actions(names, sensitivity, at_bound)
 
-    # final fit on the FULL observed set
-    predicted_full, res_full = eval_at(optimized, None)
-    if predicted_full is None:
-        return {"ok": False, "message": f"final run failed: {res_full.get('message')}",
-                "optimized": expand(optimized)}
-    score = osp_score.score_fit(observed, predicted_full)
+        # final fit on the FULL observed set
+        predicted_full, res_full = eval_at(optimized, None)
+        if predicted_full is None:
+            return {"ok": False, "message": f"final run failed: {res_full.get('message')}",
+                    "optimized": expand(optimized)}
+        score = osp_score.score_fit(observed, predicted_full)
 
     # expand variable-space results to PER-PARAMETER values for the report/re-run:
     # a group scale becomes its actual member values, and each member inherits the
