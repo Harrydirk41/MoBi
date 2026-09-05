@@ -179,6 +179,21 @@ def score_fit(observed: list[dict], predicted_profiles: list[dict]) -> dict[str,
 # parameter plausibility (compact; shares the rubric's bounds)
 # --------------------------------------------------------------------------- #
 
+def physical_bounds(name: str) -> "tuple[float, float] | None":
+    """The GENERAL physical plausibility range for a parameter, by kind (not drug-specific). Used to
+    widen a FREE (non-given) fit-target that railed to a too-tight self-imposed bound - e.g. the
+    effective Lipophilicity that PK-Sim fits for distribution, which can sit far from a measured logP.
+    Returns None for a parameter with no defined physical range."""
+    n = (name or "").lower()
+    if "lipophil" in n or n in ("logp", "logd"):
+        return (-2.0, 7.0)                         # same range the plausibility guard enforces
+    if "unbound" in n or n in ("fu", "fup"):
+        return (0.0, 1.0)
+    if "gfr" in n:
+        return (0.0, 1.0)
+    return None
+
+
 def plausibility(params: list[dict]) -> list[dict]:
     flags = []
     for p in params or []:

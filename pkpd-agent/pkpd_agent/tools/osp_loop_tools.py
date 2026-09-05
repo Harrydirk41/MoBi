@@ -141,6 +141,22 @@ def _observed_overview(observed: list[dict]) -> dict[str, Any]:
     return {"n_datasets": len(observed), "by_route": routes}
 
 
+def _given_measurement(base: str, lit: list) -> bool:
+    """True if the input's literature_physicochemical GIVES a measured value for this parameter
+    (matched by kind), so it must be respected - never widened or freely re-estimated. General: keys
+    off the parameter kind, not any specific drug."""
+    b = (base or "").lower()
+    keys = [b]
+    if "lipophil" in b:
+        keys += ["lipophil", "logp", "logd"]
+    elif "unbound" in b:
+        keys += ["unbound", "fraction unbound", "fu", "fup"]
+    elif "gfr" in b:
+        keys += ["gfr"]
+    names = [(e.get("parameter") or "").lower() for e in (lit or [])]
+    return any(any(k in n for k in keys) for n in names)
+
+
 def register_osp_loop_tools(registry: ToolRegistry, config, ctx: dict) -> None:
     """ctx: {cli: OSPCli, snapshot_path, observed: [...], input: {...}}."""
     cli: OSPCli = ctx["cli"]
@@ -534,22 +550,64 @@ def register_osp_loop_tools(registry: ToolRegistry, config, ctx: dict) -> None:
         perms = args.get("permeability_methods") or PERMEABILITY_METHODS
         processes = (args.get("structure") or {}).get("processes")
         max_evals = int(args.get("max_evals") or 12)
-        results = []
-        for pm in parts:
-            for pe in perms:
-                structure = {"calculation_methods": {"partition": pm, "permeability": pe}}
-                if processes:
-                    structure["processes"] = processes
-                r = OO.run_optimization(cli, snapshot_path, observed, estimate=estimate,
-                                        fix=fix, structure=structure, max_evals=max_evals)
-                if r.get("ok") and r["fit"].get("gmfe") is not None:
-                    results.append({"partition": pm, "permeability": pe,
+        lit = (inp.get("given_data", {}) or {}).get("literature_physicochemical", [])
+
+        def _grid(est):
+            out = []
+            for pm in parts:
+                for pe in perms:
+                    structure = {"calculation_methods": {"partition": pm, "permeability": pe}}
+                    if processes:
+                        structure["processes"] = processes
+                    r = OO.run_optimization(cli, snapshot_path, observed, estimate=est,
+                                            fix=fix, structure=structure, max_evals=max_evals)
+                    if r.get("ok") and r["fit"].get("gmfe") is not None:
+                        out.append({"partition": pm, "permeability": pe,
                                     "gmfe": r["fit"]["gmfe"], "optimized": r["optimized"],
                                     "params_at_bound": r.get("params_at_bound")})
-                    print(f"  sweep [{pm} / {pe}] -> GMFE {r['fit']['gmfe']}", flush=True)
+                        print(f"  sweep [{pm} / {pe}] -> GMFE {r['fit']['gmfe']}", flush=True)
+            return out
+
+        def _widen(est, best_row):
+            """If the best fit railed on a FREE (non-given, non-measured) parameter, widen that
+            parameter to its PHYSICAL range and return the new estimate - so a too-tight self-imposed
+            bound (e.g. an effective lipophilicity capped at a measured logP that was never given)
+            cannot box the sweep out of the answer. General: only params with NO given measurement
+            are widened, and only to the physical plausibility range."""
+            widened = dict(est)
+            changed = {}
+            for ab in best_row.get("params_at_bound") or []:
+                pname, side = ab.get("parameter"), ab.get("bound")
+                if pname not in est:
+                    continue
+                base = pname.split("@", 1)[0]
+                # respect anything the input GAVE as a measurement, or that has a measured range
+                if osp_catalog.measured_range(base, lit) or _given_measurement(base, lit):
+                    continue
+                pb = osp_score.physical_bounds(base)
+                if not pb:
+                    continue
+                lo, hi = est[pname]
+                nlo, nhi = lo, hi
+                if side == "upper" and pb[1] > hi:
+                    nhi = pb[1]
+                if side == "lower" and pb[0] < lo:
+                    nlo = pb[0]
+                if (nlo, nhi) != (lo, hi):
+                    widened[pname] = [nlo, nhi]
+                    changed[pname] = [nlo, nhi]
+            return (widened, changed) if changed else (None, None)
+
+        results = _grid(estimate)
         if not results:
             return ToolResult.error("sweep produced no successful fit across the method grid")
         results.sort(key=lambda x: x["gmfe"])
+        est2, changed = _widen(estimate, results[0])
+        if est2:
+            print(f"  sweep: free non-given param(s) railed -> widening to physical range and "
+                  f"re-sweeping: {changed}", flush=True)
+            more = _grid(est2)
+            results = sorted(results + more, key=lambda x: x["gmfe"])
         best = results[0]
         prev = session.get("osp_best_gmfe")
         if prev is None or best["gmfe"] < prev:

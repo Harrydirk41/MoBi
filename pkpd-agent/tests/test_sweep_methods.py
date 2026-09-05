@@ -70,6 +70,64 @@ class TestSweepMethods(unittest.TestCase):
         self.assertIn("estimate", r.message)
 
 
+class TestSweepWidening(unittest.TestCase):
+    """A FREE (non-given) parameter that rails to a too-tight self-imposed bound is widened to its
+    physical range and re-swept - the Vancomycin case: effective Lipophilicity capped at 1.5 (a
+    measured logP the input never gave) blocks the fit; the true value 2.23 needs the wider range."""
+    def setUp(self):
+        self.calls = []
+
+        def fake_run(cli, snap, observed, estimate, fix=None, structure=None, max_evals=30, **kw):
+            self.calls.append(dict(estimate))
+            hi = estimate["Lipophilicity"][1]
+            # good fit only reachable if the upper bound allows ~2.2 (the withheld fitted value)
+            if hi >= 2.0:
+                return {"ok": True, "optimized": {"Lipophilicity": 2.2}, "fit": {"gmfe": 1.40},
+                        "by_route": {}, "worst_datasets": [], "params_at_bound": [],
+                        "sensitivity": {}, "n_evals": max_evals, "fit_simulations": ["s1"]}
+            # capped too low -> rails to the upper bound, mediocre fit (all methods identical)
+            return {"ok": True, "optimized": {"Lipophilicity": hi}, "fit": {"gmfe": 1.93},
+                    "by_route": {}, "worst_datasets": [],
+                    "params_at_bound": [{"parameter": "Lipophilicity", "value": hi,
+                                         "bound": "upper"}],
+                    "sensitivity": {}, "n_evals": max_evals, "fit_simulations": ["s1"]}
+        self._orig = OO.run_optimization
+        OO.run_optimization = fake_run
+        self.reg = ToolRegistry()
+        # input gives NO lipophilicity -> it is a free fit-target the sweep may widen
+        register_osp_loop_tools(self.reg, AgentConfig(mock=False),
+                                {"cli": object(), "snapshot_path": "x", "observed": [],
+                                 "input": {"given_data": {"literature_physicochemical": [
+                                     {"parameter": "Molecular weight", "value": 1449.3}]}}})
+        self.sweep = self.reg.get("osp_sweep_methods").handler
+
+    def tearDown(self):
+        OO.run_optimization = self._orig
+
+    def test_widens_free_railed_param_and_recovers_fit(self):
+        sess = ModelingSession(goal="g")
+        r = self.sweep({"estimate": {"Lipophilicity": [-4.0, 1.5]}}, sess)   # too-tight upper bound
+        self.assertTrue(r.ok)
+        # it re-swept with a widened upper bound (physical ceiling 7.0) after the rail
+        self.assertTrue(any(e["Lipophilicity"][1] >= 7.0 for e in self.calls),
+                        "should have widened the railed free param to its physical range")
+        self.assertEqual(r.data["best"]["gmfe"], 1.40)                       # recovered the good fit
+        self.assertEqual(sess.get("osp_best_gmfe"), 1.40)
+
+    def test_given_measurement_is_not_widened(self):
+        # if the input GAVE a lipophilicity, the tight bound is respected (not widened past it)
+        self.reg = ToolRegistry()
+        register_osp_loop_tools(self.reg, AgentConfig(mock=False),
+                                {"cli": object(), "snapshot_path": "x", "observed": [],
+                                 "input": {"given_data": {"literature_physicochemical": [
+                                     {"parameter": "logP", "value": 1.4}]}}})
+        sweep = self.reg.get("osp_sweep_methods").handler
+        self.calls.clear()
+        sweep({"estimate": {"Lipophilicity": [-4.0, 1.5]}}, ModelingSession(goal="g"))
+        self.assertFalse(any(e["Lipophilicity"][1] >= 7.0 for e in self.calls),
+                         "a GIVEN measurement must not be widened")
+
+
 class TestGFRGuard(unittest.TestCase):
     def test_gfr_out_of_range_flagged(self):
         flags = osp_score.plausibility([{"parameter": "GFR fraction", "value": 1.4}])
