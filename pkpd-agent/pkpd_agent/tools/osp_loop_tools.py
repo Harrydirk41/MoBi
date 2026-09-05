@@ -515,6 +515,82 @@ def register_osp_loop_tools(registry: ToolRegistry, config, ctx: dict) -> None:
         },
         handler=optimize, phase="act"))
 
+    def sweep_methods(args, session):
+        """DETERMINISTIC structure sweep: try EVERY partition x permeability method and RE-FIT the
+        given physchem under each, then adopt the best by GMFE. This is the enumerable grid (5 x 3 =
+        15) that should be brute-forced, not sampled by the LLM: it removes the failure where the
+        agent tries a method at frozen (wrong) physchem, sees no improvement, and wrongly concludes
+        'distribution insensitive'. General: the DATA picks the method, no answer is used."""
+        from ..engines import osp_optimize as OO
+        from ..engines.snapshot_edit import PARTITION_METHODS, PERMEABILITY_METHODS
+        estimate = dict(args.get("estimate") or {})
+        if not estimate:
+            return ToolResult.error(
+                "provide 'estimate': {param:[lo,hi]} - the physchem to RE-FIT under each method "
+                "(e.g. Lipophilicity, Fraction unbound). The sweep fits these fresh for every "
+                "partition x permeability combo, so a method is never judged at frozen physchem.")
+        fix = args.get("fix") or {}
+        parts = args.get("partition_methods") or PARTITION_METHODS
+        perms = args.get("permeability_methods") or PERMEABILITY_METHODS
+        processes = (args.get("structure") or {}).get("processes")
+        max_evals = int(args.get("max_evals") or 12)
+        results = []
+        for pm in parts:
+            for pe in perms:
+                structure = {"calculation_methods": {"partition": pm, "permeability": pe}}
+                if processes:
+                    structure["processes"] = processes
+                r = OO.run_optimization(cli, snapshot_path, observed, estimate=estimate,
+                                        fix=fix, structure=structure, max_evals=max_evals)
+                if r.get("ok") and r["fit"].get("gmfe") is not None:
+                    results.append({"partition": pm, "permeability": pe,
+                                    "gmfe": r["fit"]["gmfe"], "optimized": r["optimized"],
+                                    "params_at_bound": r.get("params_at_bound")})
+                    print(f"  sweep [{pm} / {pe}] -> GMFE {r['fit']['gmfe']}", flush=True)
+        if not results:
+            return ToolResult.error("sweep produced no successful fit across the method grid")
+        results.sort(key=lambda x: x["gmfe"])
+        best = results[0]
+        prev = session.get("osp_best_gmfe")
+        if prev is None or best["gmfe"] < prev:
+            session.put("osp_best_gmfe", best["gmfe"])
+            session.put("osp_best_edits",
+                        {"parameters": best["optimized"], "fix": fix,
+                         "calculation_methods": {"partition": best["partition"],
+                                                 "permeability": best["permeability"]}})
+        return ToolResult.success(
+            f"swept {len(results)} method combos, re-fitting {list(estimate)} under each; BEST = "
+            f"{best['partition']} / {best['permeability']} -> GMFE {best['gmfe']} "
+            f"(best so far {session.get('osp_best_gmfe')}). Adopt the best method, then refine.",
+            ranked=results, best=best)
+
+    registry.register(Tool(
+        name="osp_sweep_methods",
+        description=(
+            "ACT (deterministic structure sweep): try EVERY partition x permeability calculation "
+            "method (the full 5x3 grid) and RE-FIT your physchem (estimate={param:[lo,hi]}) under "
+            "each, then adopt the best-GMFE method. Use this whenever distribution / Vd is off - it "
+            "is cheaper and more reliable than guessing methods one at a time, and it avoids the "
+            "trap of judging a method at frozen physchem. Do NOT distort a measured physchem "
+            "parameter to fix Vd before you have swept the methods. Optional: fix={param:value}, "
+            "structure={processes:..} to hold your mechanism fixed, partition_methods/"
+            "permeability_methods to restrict the grid, max_evals (per combo, default 12)."),
+        input_schema={
+            "type": "object",
+            "properties": {
+                "estimate": {"type": "object",
+                             "description": "{param:[lo,hi]} physchem to re-fit under each method"},
+                "fix": {"type": "object", "description": "{param:value} pinned at literature"},
+                "structure": {"type": "object",
+                              "description": "{processes:..} to hold the mechanism fixed"},
+                "partition_methods": {"type": "array", "items": {"type": "string"}},
+                "permeability_methods": {"type": "array", "items": {"type": "string"}},
+                "max_evals": {"type": "integer", "description": "optimizer budget per combo (12)"},
+            },
+            "required": ["estimate"],
+        },
+        handler=sweep_methods, phase="act"))
+
     registry.register(Tool(
         name="osp_try_model",
         description=(

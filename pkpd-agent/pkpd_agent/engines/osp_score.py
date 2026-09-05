@@ -201,6 +201,15 @@ def plausibility(params: list[dict]) -> list[dict]:
                 bad = "clearance > ~1.5 L/min exceeds adult hepatic blood flow"
         elif "permeab" in name and v <= 0:
             bad = "permeability must be > 0"
+        elif "gfr" in name:
+            # GFR fraction is a physiological fraction (unbound drug filtered at GFR); outside [0,1]
+            # is unphysical, and a value pushed well below 1 to rescue a fit implies net tubular
+            # reabsorption that needs a mechanistic justification, not a free knob.
+            if not 0 <= v <= 1:
+                bad = "GFR fraction is a physiological fraction, must be in [0, 1]"
+            elif v < 0.5:
+                bad = ("GFR fraction < 0.5 implies substantial net tubular reabsorption - justify it "
+                       "mechanistically or check the distribution method before fitting it this low")
         if bad:
             flags.append({"parameter": p.get("parameter"), "value": v, "message": bad})
     return flags
