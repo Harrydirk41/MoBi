@@ -237,23 +237,35 @@ def _bisect_scale(evaluate, target, lo, hi, budget=6, tol=1.5):
     return best[0], best[1], trace
 
 
-def _mtx_pd_params(sb):
-    """The transplanted model's free MTX drug-effect parameters (names ending in '_MTX', the
-    reaction-level PD multipliers re-wired onto the agent's reactions) and their base values."""
-    base = {p["name"]: p["value"] for p in sb.list_parameters()["parameters"]
-            if p["name"].endswith("_MTX") and isinstance(p["value"], (int, float))}
+def _drug_potency_params(sb, drug="MTX"):
+    """The drug's free EFFICACY potency constants: the Emax parameters of its dose-effect rules.
+
+    In this model the effect factors ``Anti_CytSec_MTX`` etc. are rule OUTPUTS
+    (``Anti_CytSec_MTX = MM(conc, Anti_CytSec_MaxbyMTX, EC50, slope)``), so their static value is 0
+    and overriding them does nothing - the rule recomputes them. The fittable knobs are the Emax
+    constants that FEED those rules (``*Max*byMTX``). Selecting them by the Emax token also excludes
+    the PK disposition constants (Q12/CL/ka/k12/k21/F_MTX - no 'Max'), which an efficacy fit must not
+    touch. All are dimensionless fractions in [0,1) feeding ``(1 - factor)`` / ``(1 + factor)``."""
+    d = drug.lower()
+    base = {}
+    for p in sb.list_parameters()["parameters"]:
+        n = p["name"]
+        if (isinstance(p["value"], (int, float)) and p.get("constant") is not False
+                and "max" in n.lower() and d in n.lower()):
+            base[n] = p["value"]
     return base
 
 
 def fit_clinical(sb, xlsx, args, tasks, b_day, r1, mtx, rc, target_acr20, budget=6, log=print):
     """Calibrate the MTX drug-effect strength to the FIRST-LINE MTX ACR20 TRAINING target by a
-    bounded scalar search, then persist the fitted values. Each trial runs the first-line Vpop with
-    the MTX PD parameters overridden to base*scale (clamped to a valid fraction). Legitimate training:
-    only the first-line arm is used; the held-out second-line is never touched here. Returns
-    {scale, acr20, params, trace}."""
-    base = _mtx_pd_params(sb)
+    bounded scalar search on the drug's Emax potency constants (``*MaxbyMTX``), then persist the
+    fitted values. Each trial runs the first-line Vpop with those Emax parameters overridden to
+    base*scale (clamped to [0,0.95], a valid effect fraction feeding ``1-factor``). Legitimate
+    training: only the first-line arm is used; the held-out second-line is never touched here.
+    Returns {scale, acr20, params, trace}."""
+    base = _drug_potency_params(sb, "MTX")
     if not base:
-        log("  fit_clinical: no MTX PD parameters found (rewire-mtx off?) - skipped")
+        log("  fit_clinical: no MTX Emax potency parameters found (rewire-mtx off?) - skipped")
         return None
 
     def evaluate(scale):
@@ -268,7 +280,7 @@ def fit_clinical(sb, xlsx, args, tasks, b_day, r1, mtx, rc, target_acr20, budget
     scale, acr20, trace = _bisect_scale(evaluate, target_acr20, lo=0.25, hi=6.0, budget=budget)
     fitted = {n: min(0.95, max(0.0, v * scale)) for n, v in base.items()}
     for n, v in fitted.items():
-        sb.set_parameter(n, v)                          # persist the fitted MTX PD into the model
+        sb.set_parameter(n, v)                          # persist the fitted MTX Emax into the model
     log(f"  fit_clinical: scale={scale:.3g} -> first-line ACR20 {acr20:.1f} (target {target_acr20}); "
         f"persisted {list(fitted)}")
     return {"scale": round(scale, 4), "acr20": round(acr20, 1), "params": fitted,
