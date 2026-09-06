@@ -616,10 +616,12 @@ def register_osp_loop_tools(registry: ToolRegistry, config, ctx: dict) -> None:
                 f"{c['gmfe']} was best). The distribution method is chosen; do NOT re-sweep - refine "
                 f"with osp_optimize (fit the free physchem / clearance further) or finish.",
                 ranked=c.get("ranked"), best=c, cached=True)
-        # COARSE-then-FINE: rank all 15 method combos with a small budget (ranking is robust to a
-        # coarse fit), then refine only the winner at the full budget. Cuts ~half the PK-Sim runs
-        # without dropping any combo - the whole grid is still tried, so no better method is missed.
-        coarse = max(4, min(max_evals, 6))
+        # Rank all 15 method combos in FAST mode (fewer studies, no sensitivity/full-data run) at the
+        # FULL eval budget - the speedup comes from fast mode, NOT from cutting evals. Cutting evals
+        # too far leaves the free parameter (e.g. CLint) under-fit, so every method looks equally bad
+        # and ties - then the ranking is meaningless. Enough evals per combo so the fit reaches a
+        # point where the methods actually differ; the winner is then re-fit at full fidelity.
+        coarse = max(max_evals, 10)
         lit = (inp.get("given_data", {}) or {}).get("literature_physicochemical", [])
 
         def _grid(est, budget):
@@ -709,8 +711,10 @@ def register_osp_loop_tools(registry: ToolRegistry, config, ctx: dict) -> None:
                   f"re-sweeping: {changed}", flush=True)
             more = _grid(est2, coarse)
             results = sorted(results + more, key=lambda x: x["gmfe"])
-        # FINE refine only the winning method at the full budget (coarse was just for ranking)
-        if coarse < max_evals:
+        # FINE refine the winning method at FULL fidelity (all studies + sensitivity + full-data run):
+        # the grid ran in fast mode (subset studies, no sensitivity), so re-fit the winner properly
+        # for the reported GMFE and identifiability.
+        if results:
             top = results[0]
             est_final = est2 or estimate           # est2 (if any) only widens bounds - safe to reuse
             structure = {"calculation_methods": {"partition": top["partition"],
