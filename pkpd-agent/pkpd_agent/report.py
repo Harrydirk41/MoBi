@@ -830,8 +830,8 @@ def llm_narrative(d: "ReportData", config) -> dict[str, str]:
 # --------------------------------------------------------------------------- #
 
 def _svg_profile(study: str, obs, pred, ref=None, w=360, h=240) -> str:
-    pts = [(t, c) for t, c in obs if c and c > 0] + \
-          [(t, c) for t, c in pred if c and c > 0]
+    pts = [(t, c) for t, c in (obs or []) if c and c > 0] + \
+          [(t, c) for t, c in (pred or []) if c and c > 0]
     if ref:
         pts += [(t, c) for t, c in ref if c and c > 0]
     if not pts:
@@ -851,7 +851,8 @@ def _svg_profile(study: str, obs, pred, ref=None, w=360, h=240) -> str:
         return h - pad - (math.log10(c) - y0) / (y1 - y0) * (h - 2 * pad)
 
     def path(series, color, dash=""):
-        s = [(t, c) for t, c in series if c and c > 0]
+        # series may be None (e.g. the reference model produced no profile for this study)
+        s = [(t, c) for t, c in (series or []) if c and c > 0]
         if len(s) < 2:
             return ""
         dd = " ".join(("M" if i == 0 else "L") + f"{px(t):.1f},{py(c):.1f}"
@@ -860,7 +861,7 @@ def _svg_profile(study: str, obs, pred, ref=None, w=360, h=240) -> str:
         return f'<path d="{dd}" fill="none" stroke="{color}" stroke-width="1.8"{da}/>'
 
     dots = "".join(f'<circle cx="{px(t):.1f}" cy="{py(c):.1f}" r="2.6" '
-                   f'fill="#111"/>' for t, c in obs if c and c > 0)
+                   f'fill="#111"/>' for t, c in (obs or []) if c and c > 0)
     axes = (f'<line x1="{pad}" y1="{h-pad}" x2="{w-pad}" y2="{h-pad}" stroke="#999"/>'
             f'<line x1="{pad}" y1="{pad}" x2="{pad}" y2="{h-pad}" stroke="#999"/>')
     labels = (f'<text x="{w/2}" y="{h-6}" font-size="10" text-anchor="middle">'

@@ -297,3 +297,12 @@ class TestGroundTruthComparison(unittest.TestCase):
                                  [{"name": "x", "value": 1.0, "reference": None}],
                                  {"gmfe": 1.5}, {})
         self.assertEqual(c, {})
+
+    def test_svg_profile_tolerates_missing_series(self):
+        # the reference (or agent) model may produce NO profile for a study - the plot must not crash
+        from pkpd_agent.report import _svg_profile
+        obs = [(1.0, 10.0), (2.0, 5.0)]
+        self.assertTrue(_svg_profile("S", obs, pred=[(1.0, 9.0), (2.0, 4.0)], ref=None)
+                        .startswith("<svg"))
+        self.assertTrue(_svg_profile("S", obs, pred=None, ref=None).startswith("<svg"))
+        self.assertTrue(_svg_profile("S", None, None, None).startswith("<svg"))
