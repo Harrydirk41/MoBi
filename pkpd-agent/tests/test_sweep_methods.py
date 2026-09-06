@@ -184,6 +184,38 @@ class TestSweepWidening(unittest.TestCase):
                          "a GIVEN measurement must not be widened")
 
 
+class TestFixGivenPhyschem(unittest.TestCase):
+    """A physchem value the input GAVE (e.g. lipophilicity) must be FIXED, not re-fitted - the
+    Tizanidine failure, where the agent fit a given logP and made the method unidentifiable."""
+    def test_given_lipophilicity_is_moved_to_fix(self):
+        from pkpd_agent.tools.osp_loop_tools import _fix_given_physchem
+        lit = [{"parameter": "Lipophilicity", "value": 1.4}]
+        est, fix, notes = _fix_given_physchem(
+            {"Lipophilicity": [0.5, 4.0], "Intrinsic clearance": [0.01, 5.0]}, {}, lit)
+        self.assertNotIn("Lipophilicity", est)          # not estimated
+        self.assertEqual(fix["Lipophilicity"], 1.4)     # fixed at the given value
+        self.assertIn("Intrinsic clearance", est)       # the genuinely-uncertain one still fitted
+        self.assertTrue(notes)
+
+    def test_not_given_lipophilicity_stays_free(self):
+        from pkpd_agent.tools.osp_loop_tools import _fix_given_physchem
+        # no lipophilicity in the input -> it remains a free (effective) fit-target
+        est, fix, notes = _fix_given_physchem(
+            {"Lipophilicity": [-2, 7]}, {}, [{"parameter": "Molecular weight", "value": 300}])
+        self.assertIn("Lipophilicity", est)
+        self.assertEqual(fix, {})
+        self.assertFalse(notes)
+
+    def test_invitro_clearance_is_not_fixed(self):
+        from pkpd_agent.tools.osp_loop_tools import _fix_given_physchem
+        # an in-vitro kinetic input is NOT a direct physchem measurement - it stays refinable
+        est, fix, _ = _fix_given_physchem(
+            {"Intrinsic clearance": [0.01, 5.0]}, {},
+            [{"parameter": "In vitro CL/recombinant enzyme", "value": 2.0}])
+        self.assertIn("Intrinsic clearance", est)
+        self.assertEqual(fix, {})
+
+
 class TestGFRGuard(unittest.TestCase):
     def test_gfr_out_of_range_flagged(self):
         flags = osp_score.plausibility([{"parameter": "GFR fraction", "value": 1.4}])

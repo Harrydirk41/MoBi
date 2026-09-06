@@ -141,6 +141,39 @@ def _observed_overview(observed: list[dict]) -> dict[str, Any]:
     return {"n_datasets": len(observed), "by_route": routes}
 
 
+def _given_physchem_value(base: str, lit: list) -> "float | None":
+    """The GIVEN value of a DIRECT physicochemical property (currently lipophilicity) if the input
+    provided it, else None. Only direct measurements are returned - NOT in-vitro kinetic inputs
+    (CLint/Vmax/Km), which are legitimately refined. Used to FIX a given measurement rather than let
+    the agent re-fit it (fitting a given logP frees a knob that makes the distribution method
+    unidentifiable - the Tizanidine failure)."""
+    b = (base or "").lower()
+    if not ("lipophil" in b or b in ("logp", "logd")):
+        return None
+    for e in lit or []:
+        n = (e.get("parameter") or "").lower()
+        if "lipophil" in n or "logp" in n or "logd" in n:
+            v = e.get("value")
+            if isinstance(v, (int, float)):
+                return float(v)
+    return None
+
+
+def _fix_given_physchem(estimate: dict, fix: dict, lit: list):
+    """Move any estimate parameter whose value the input GAVE as a direct measurement into `fix` at
+    that value. Returns (estimate, fix, notes). A measured value must be used, not re-fitted."""
+    estimate, fix, notes = dict(estimate), dict(fix or {}), []
+    for name in list(estimate):
+        gv = _given_physchem_value(name.split("@", 1)[0], lit)
+        if gv is not None:
+            estimate.pop(name)
+            fix[name] = gv
+            notes.append(f"{name}: a measured value ({gv:g}) was given in the input - FIXED at it, "
+                         f"not estimated (re-fitting a given measurement is not allowed and makes "
+                         f"the distribution method unidentifiable).")
+    return estimate, fix, notes
+
+
 def _given_measurement(base: str, lit: list) -> bool:
     """True if the input's literature_physicochemical GIVES a measured value for this parameter
     (matched by kind), so it must be respected - never widened or freely re-estimated. General: keys
@@ -387,7 +420,9 @@ def register_osp_loop_tools(registry: ToolRegistry, config, ctx: dict) -> None:
         #    requested bounds to that range so the optimizer cannot drag a measured
         #    value outside what the measurement supports to rescue a bad structure.
         lit = (inp.get("given_data", {}) or {}).get("literature_physicochemical", [])
-        constraint_notes = []
+        # if the input GAVE a direct physchem (e.g. lipophilicity), fix it - never re-fit a measured
+        # value (the Tizanidine failure: it fit a given logP, freeing the method's identifiability).
+        estimate, given_fix, constraint_notes = _fix_given_physchem(estimate, args.get("fix"), lit)
         for name in list(estimate.keys()):
             base = name.split("@", 1)[0]   # qualified per-process name -> base
             tier = osp_catalog.param_tier(base)
@@ -420,9 +455,14 @@ def register_osp_loop_tools(registry: ToolRegistry, config, ctx: dict) -> None:
                 msg = f"       eval {i}: run FAILED{why} [{vs}]"
             print(msg, flush=True)
 
+        if not estimate and not link_scale:
+            return ToolResult.error(
+                "after fixing given measurements, no parameter is left to estimate - the input "
+                f"already supplies these values ({'; '.join(constraint_notes)}). Choose a different "
+                "uncertain parameter (e.g. Intrinsic clearance) to fit.")
         r = OO.run_optimization(
             cli, snapshot_path, observed, estimate=estimate,
-            fix=args.get("fix"), structure=args.get("structure"),
+            fix=given_fix, structure=args.get("structure"),
             fit_simulations=args.get("fit_simulations"),
             max_evals=int(args.get("max_evals") or 30),
             on_eval=_progress if getattr(config, "stream_optimizer", True) else None,
@@ -550,6 +590,17 @@ def register_osp_loop_tools(registry: ToolRegistry, config, ctx: dict) -> None:
         perms = args.get("permeability_methods") or PERMEABILITY_METHODS
         processes = (args.get("structure") or {}).get("processes")
         max_evals = int(args.get("max_evals") or 12)
+        # a given physchem (e.g. lipophilicity) must be FIXED, not swept-with-a-free-value: fitting it
+        # frees a knob that compensates the method, making the sweep unable to tell methods apart.
+        sweep_lit = (inp.get("given_data", {}) or {}).get("literature_physicochemical", [])
+        estimate, fix, given_notes = _fix_given_physchem(estimate, fix, sweep_lit)
+        for _n in given_notes:
+            print(f"  sweep: {_n}", flush=True)
+        if not estimate:
+            return ToolResult.error(
+                "after fixing given measurements there is no free physchem to re-fit under each "
+                "method - the method is now identifiable, so just set it with osp_optimize (the "
+                "given values are fixed) rather than sweeping.")
 
         # MEMOIZE: the sweep is expensive (dozens of PK-Sim fits). Choosing the distribution method
         # is a ONE-TIME decision - re-sweeping the SAME grid wastes hours. If an identical sweep
