@@ -50,6 +50,22 @@ def _named_answer_pairs(res: dict) -> list[tuple[str, float]]:
     return pairs
 
 
+def _method_leaks(blanked: dict) -> list[str]:
+    """A properly blanked snapshot must start from PK-Sim's NEUTRAL DEFAULT method - if it carries a
+    non-default partition/permeability method, that is the reference model's structural CHOICE leaked
+    into the agent's starting model (it inherits the answer's method for free). Returns the offending
+    method strings."""
+    bad = []
+    for c in blanked.get("Compounds", []) or []:
+        for m in c.get("CalculationMethods") or []:
+            s = m if isinstance(m, str) else (m.get("Name") or "")
+            low = s.lower()
+            if ("partition coefficient" in low or "permeability" in low) \
+                    and not s.endswith("PK-Sim Standard"):
+                bad.append(s)
+    return bad
+
+
 def _named_value_leaks(pairs: list[tuple[str, float]], blanked: dict) -> list[str]:
     """Answer parameters whose exact (name, value) still survives in the blanked
     snapshot - a leak even when the value is too round to fingerprint by string."""
@@ -218,7 +234,10 @@ def main() -> None:
     input_leaks = _value_leaks(answers, input_json)
     snapshot_leaks = _value_leaks(answers, blanked_json)
     named_leaks = _named_value_leaks(_named_answer_pairs(res), blanked)
-    leak_ok = not input_leaks and not snapshot_leaks and not named_leaks
+    method_leaks = _method_leaks(blanked)      # a non-default calc method = a STRUCTURAL-choice leak
+    leak_ok = not input_leaks and not snapshot_leaks and not named_leaks and not method_leaks
+    print(f"  LEAK  non-default calc method in blanked:      "
+          f"{method_leaks if method_leaks else 'none'}")
     print(f"  declared answers to recover: {len(answers)} "
           f"({n_fp} precise enough to fingerprint by string)")
     print(f"  LEAK  answer values in the AGENT INPUT:        "
