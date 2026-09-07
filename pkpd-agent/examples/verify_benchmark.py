@@ -212,11 +212,59 @@ def _answers(kind: str, res: dict) -> list[float]:
     return vals
 
 
+def _answer_molecules(res: dict) -> list[str]:
+    """The clearance-mechanism molecules the agent must DISCOVER in HARD mode -
+    the metabolizing enzymes / transporters recorded in the answer key."""
+    ak = res.get("answer_key") or {}
+    sc = ak.get("structural_choices") or {}
+    return sorted({p.get("molecule") for p in sc.get("metabolizing_processes") or []
+                   if p.get("molecule")})
+
+
+def _hard_verify(res: dict) -> tuple[bool, list[str]]:
+    """HARD (mechanism-DISCOVERY) invariants, printed and gated:
+      - structure stripped: the hard snapshot carries NO elimination processes;
+      - identity withheld: no answer enzyme/transporter is NAMED in the biology
+        facts (that would hand the agent the mechanism);
+      - honest pool: the candidate list is present and CONTAINS every answer
+        molecule (so the task is solvable) - and we report the distractor count
+        (pool - answers), the true measure of discovery difficulty."""
+    lines, ok = [], True
+    hb = res.get("hard_blanked") or {}
+    hi = res.get("hard_input") or {}
+    bg = hi.get("background") or {}
+    facts = " ".join(bg.get("literature_facts") or [])
+    pool = [m.get("molecule") for m in bg.get("candidate_clearance_molecules") or []]
+    ans = _answer_molecules(res)
+
+    stripped = all(not (c.get("Processes")) for c in hb.get("Compounds") or []) and \
+        all(not sc.get("Processes") for s in hb.get("Simulations") or []
+            for sc in s.get("Compounds") or [])
+    named = [m for m in ans if m and m in facts]
+    missing_pool = [m for m in ans if m and m not in pool]
+    distractors = sorted(set(pool) - set(ans))
+
+    ok = stripped and not named and not missing_pool and bool(pool)
+    lines.append(f"  HARD  structure stripped (no processes):      "
+                 f"{'YES' if stripped else 'NO (leak!)'}")
+    lines.append(f"  HARD  answer mechanism to DISCOVER:           {ans or 'none (no metabolism)'}")
+    lines.append(f"  HARD  answer enzyme NAMED in biology facts:   "
+                 f"{named if named else 'none (identity withheld)'}")
+    lines.append(f"  HARD  candidate pool ({len(pool)}) contains answer:   "
+                 f"{'YES' if not missing_pool else 'NO -> ' + str(missing_pool)}")
+    lines.append(f"  HARD  discovery difficulty: {len(distractors)} distractor(s) "
+                 f"{distractors if distractors else '(TRIVIAL - pool == answer, nothing to discover)'}")
+    return ok, lines
+
+
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--type", required=True,
                     choices=["single", "metabolite", "biologic", "ddi"])
+    ap.add_argument("--hard", action="store_true",
+                    help="verify the HARD (mechanism-discovery) artifacts too: "
+                         "structure stripped, enzyme identity withheld, honest pool")
     ap.add_argument("snapshot")
     args = ap.parse_args()
 
@@ -263,7 +311,16 @@ def main() -> None:
     print(f"  given: objective + {n_data} observed dataset(s)/matrix(es); "
           f"keys={list(res['input'].keys())}")
 
-    ok = leak_ok and inputs_ok
+    hard_ok = True
+    if args.hard:
+        if args.type != "single":
+            print("  HARD verify only applies to single-compound tasks; skipping.")
+        else:
+            hard_ok, hlines = _hard_verify(res)
+            for l in hlines:
+                print(l)
+
+    ok = leak_ok and inputs_ok and hard_ok
     print(f"  => {'PASS' if ok else 'FAIL'}")
     sys.exit(0 if ok else 1)
 

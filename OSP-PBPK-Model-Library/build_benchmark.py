@@ -279,13 +279,21 @@ _ENZYME_PREFIXES = ("CYP", "UGT", "SULT", "NAT", "AADAC", "FMO", "ADH", "ALDH",
                     "CES", "GST", "MAO", "DPYD", "TPMT", "XO", "AO")
 
 
-def known_biology(comp: dict, expression_profiles: list | None = None) -> list[str]:
+def known_biology(comp: dict, expression_profiles: list | None = None,
+                  *, reveal_enzymes: bool = True) -> list[str]:
     """Factual ADME notes derived from the model - which enzymes/transporters
     clear the drug, and the renal route. In HARD mode these facts are the ONLY
     source of the structure, so enzyme detection must be robust to the exact
     process InternalName (e.g. 'rCYP450_MM', 'MetabolizationSpecific_FirstOrder').
     We classify a process's target molecule by its TYPE in the physiological
-    expression system (Enzyme vs Transporter), falling back to name patterns."""
+    expression system (Enzyme vs Transporter), falling back to name patterns.
+
+    ``reveal_enzymes=False`` (mechanism-DISCOVERY mode) withholds the enzyme /
+    transporter IDENTITY: it still tells the agent THAT metabolic / carrier
+    clearance is present (derivable from mass balance anyway), but not WHICH
+    molecule - the agent must pick the responsible enzyme out of the candidate
+    pool (the expressed molecules) from the drug's chemistry and pharmacology.
+    The renal route and the withheld-methods note are unchanged."""
     procs = comp.get("Processes") or []
     mtype = {ep.get("Molecule"): (ep.get("Type") or "").lower()
              for ep in (expression_profiles or []) if ep.get("Molecule")}
@@ -310,9 +318,23 @@ def known_biology(comp: dict, expression_profiles: list | None = None) -> list[s
     trans = sorted({p.get("Molecule") for p in procs
                     if p.get("Molecule") and is_transporter(p.get("Molecule"), p.get("InternalName"))})
     if enz:
-        facts.append(f"Metabolized by: {', '.join(enz)}.")
+        if reveal_enzymes:
+            facts.append(f"Metabolized by: {', '.join(enz)}.")
+        else:
+            facts.append(
+                "Hepatic enzymatic metabolism contributes to clearance, but the "
+                "responsible enzyme(s) are NOT given - identify which of the "
+                "candidate enzymes expressed in the model (see "
+                "candidate_clearance_molecules) metabolize this drug, from its "
+                "chemistry and known pharmacology.")
     if trans:
-        facts.append(f"Transported by: {', '.join(trans)}.")
+        if reveal_enzymes:
+            facts.append(f"Transported by: {', '.join(trans)}.")
+        else:
+            facts.append(
+                "Carrier-mediated transport contributes to disposition, but the "
+                "responsible transporter(s) are NOT given - identify them from "
+                "the candidate transporters expressed in the model.")
     if any("Glomerul" in (p.get("InternalName") or "") for p in procs):
         facts.append("Renal clearance via glomerular filtration is present.")
     methods = [m for m in comp.get("CalculationMethods") or []]
@@ -362,9 +384,38 @@ def classify(data: dict) -> dict:
 # generation (single-compound small molecules)
 # --------------------------------------------------------------------------- #
 
+_NEUTRAL_PARTITION = "Cellular partition coefficient method - PK-Sim Standard"
+_NEUTRAL_PERMEABILITY = "Cellular permeability - PK-Sim Standard"
+
+
+def _neutralize_methods(snap: dict) -> None:
+    """Reset every compound's partition/permeability calculation method to the
+    NEUTRAL PK-Sim Standard default - the objective withholds the reference
+    methods ('choose your own'), so the blanked snapshot must not start from the
+    answer's method. Applied to BOTH the top-level Compounds AND each Simulation's
+    own Compounds copy (PK-Sim builds from the simulation copy, so leaving it
+    would hand the agent the answer method). In-place."""
+    def fix(comp):
+        cms = comp.get("CalculationMethods")
+        if not isinstance(cms, list):
+            return
+        for i, m in enumerate(cms):
+            ml = str(m).lower()
+            if "partition" in ml:
+                cms[i] = _NEUTRAL_PARTITION
+            elif "permeability" in ml:
+                cms[i] = _NEUTRAL_PERMEABILITY
+    for comp in snap.get("Compounds") or []:
+        fix(comp)
+    for sim in snap.get("Simulations") or []:
+        for sc in sim.get("Compounds") or []:
+            fix(sc)
+
+
 def _blank(data: dict) -> tuple[dict, list[dict], list[str]]:
     """Return (blanked_snapshot, answer_edits, warnings). Resets every fitted
-    parameter (across ALL compounds) to its no-leak default."""
+    parameter (across ALL compounds) to its no-leak default, and resets the
+    partition/permeability methods to neutral (the methods are withheld too)."""
     import copy
     snap = copy.deepcopy(data)
     answer, warns = [], []
@@ -393,11 +444,8 @@ def _blank(data: dict) -> tuple[dict, list[dict], list[str]]:
     # study-specific kind of fit and are described in the given study designs.
     for comp in snap.get("Compounds") or []:
         walk(comp)
+    _neutralize_methods(snap)          # methods are withheld too ('choose your own')
     return snap, answer, warns
-
-
-_NEUTRAL_PARTITION = "Cellular partition coefficient method - PK-Sim Standard"
-_NEUTRAL_PERMEABILITY = "Cellular permeability - PK-Sim Standard"
 
 
 def _blank_hard(data: dict) -> tuple[dict, list[dict]]:
@@ -413,7 +461,7 @@ def _blank_hard(data: dict) -> tuple[dict, list[dict]]:
     enzymes clear THIS drug) - those are in the task input, not the snapshot.
     The agent reads the biology and ADDS the processes + picks the methods.
     Returns (hard_blanked_snapshot, removed_processes)."""
-    snap, _answer, _warns = _blank(data)          # _blank deep-copies internally
+    snap, _answer, _warns = _blank(data)   # deep-copies AND neutralizes methods
     removed: list[dict] = []
     for comp in snap.get("Compounds") or []:
         for p in comp.get("Processes") or []:
@@ -421,18 +469,6 @@ def _blank_hard(data: dict) -> tuple[dict, list[dict]]:
                             "internal": p.get("InternalName"),
                             "data_source": p.get("DataSource")})
         comp["Processes"] = []                     # agent must add these back
-        # neutralise ONLY the partition + permeability methods; keep any others
-        cms, new = comp.get("CalculationMethods") or [], []
-        for m in cms:
-            ml = str(m).lower()
-            if "partition" in ml:
-                new.append(_NEUTRAL_PARTITION)
-            elif "permeability" in ml:
-                new.append(_NEUTRAL_PERMEABILITY)
-            else:
-                new.append(m)
-        if cms:
-            comp["CalculationMethods"] = new
     # drop the mirrored process references from every simulation (no dangling refs)
     for sim in snap.get("Simulations") or []:
         for sc in sim.get("Compounds") or []:
@@ -440,23 +476,42 @@ def _blank_hard(data: dict) -> tuple[dict, list[dict]]:
     return snap, removed
 
 
-def _hard_input(agent_input: dict) -> dict:
-    """The task input for HARD mode: same givens (biology, physchem, data), but
-    the guidance makes explicit that the STRUCTURE is not provided and must be
-    constructed from the biology."""
+def _hard_input(agent_input: dict, comp: dict,
+                expression_profiles: list | None) -> dict:
+    """The task input for HARD mode: same givens (physchem, data), but the model
+    STRUCTURE is not provided and must be built. The metabolizing enzyme IDENTITY
+    is withheld too (mechanism DISCOVERY) - the agent gets only the candidate pool
+    of expressed molecules and must reason out which one clears the drug."""
     import copy
     inp = copy.deepcopy(agent_input)
     inp["mode"] = "hard"
+    # withhold the enzyme/transporter identity; expose only the candidate pool
+    inp["background"] = dict(inp.get("background") or {})
+    inp["background"]["literature_facts"] = known_biology(
+        comp, expression_profiles, reveal_enzymes=False)
+    # the expression system lists a molecule once per tissue; the agent picks a
+    # MOLECULE, so present each distinct molecule once (first type wins, order kept).
+    pool, seen = [], set()
+    for ep in (expression_profiles or []):
+        mol = ep.get("Molecule")
+        if mol and mol not in seen:
+            seen.add(mol)
+            pool.append({"molecule": mol, "type": ep.get("Type")})
+    inp["background"]["candidate_clearance_molecules"] = pool
     inp["unknowns_guidance"] = (
-        "HARD mode - the model STRUCTURE is NOT given. The snapshot has NO "
-        "elimination processes and its distribution/permeability methods are at "
-        "neutral PK-Sim Standard defaults. Using the known biology (which enzymes "
-        "/ transporters clear this drug, and the renal route), ADD the elimination "
-        "processes (add_processes on the expressed molecules) and CHOOSE the "
-        "distribution and permeability calculation methods appropriate to the "
-        "compound's physicochemistry - then decide which parameters to fix at "
+        "HARD mode - the model STRUCTURE is NOT given, and neither is the "
+        "metabolizing enzyme's identity. The snapshot has NO elimination "
+        "processes and its distribution/permeability methods are at neutral "
+        "PK-Sim Standard defaults. You are given only the CANDIDATE molecules "
+        "expressed in the model (candidate_clearance_molecules). DISCOVER which "
+        "of them clear this drug - reason from the drug's chemistry and known "
+        "pharmacology, not the data alone (a single first-order clearance fits "
+        "the plasma curve for whichever enzyme you name). Then ADD the "
+        "elimination processes (add_processes on the molecule(s) you chose plus "
+        "the renal route), CHOOSE the distribution/permeability methods for the "
+        "compound's physicochemistry, decide which parameters to fix at "
         "literature values and which to estimate, and fit them to the data. "
-        "Justify every structural choice from the biology and physchem.")
+        "Justify every structural choice from the chemistry and physchem.")
     return inp
 
 
@@ -533,7 +588,8 @@ def build_files(path: str) -> dict:
             "blanked": blanked,
             # HARD mode: structure removed too - the agent must build the model.
             "hard_blanked": hard_blanked,
-            "hard_input": _hard_input(agent_input),
+            "hard_input": _hard_input(agent_input, comp,
+                                      data.get("ExpressionProfiles")),
             "removed_processes": removed_processes,
             # qualified answer (<Name>@<Molecule> where a param name is fitted on
             # more than one process) so per-enzyme values are not collapsed.
@@ -675,8 +731,9 @@ def _selftest() -> None:
     lit = {l["parameter"] for l in res["input"]["given_data"]["literature_physicochemical"]}
     assert not (lit & set(gen_p)), lit & set(gen_p)
 
-    # HARD-mode invariants: structure removed, mirrored refs cleared, no leak,
-    # and the biology facts still name the enzymes the agent must rebuild from.
+    # HARD-mode invariants: structure removed, mirrored refs cleared, no value
+    # leak, and the enzyme IDENTITY withheld - the agent must DISCOVER it from
+    # the candidate pool, so the biology facts must NOT name the answer enzyme.
     hcomp = res["hard_blanked"]["Compounds"][0]
     assert hcomp.get("Processes") == [], "hard mode must strip compound processes"
     for sim in res["hard_blanked"].get("Simulations") or []:
@@ -684,11 +741,17 @@ def _selftest() -> None:
             assert not sc.get("Processes"), "hard mode must clear sim process refs"
     for k, v in gen_p.items():
         assert abs((find(hcomp, k.split("@")[0]) or 0) - v) > 1e-9, f"{k} leak (hard)"
-    facts = " ".join(res["hard_input"]["background"]["literature_facts"]).lower()
-    assert "cyp3a4" in facts, "hard mode biology must name the metabolizing enzyme"
+    hbg = res["hard_input"]["background"]
+    facts = " ".join(hbg["literature_facts"]).lower()
+    assert "cyp3a4" not in facts, "hard mode must NOT name the metabolizing enzyme (leak)"
+    assert "metabolism" in facts, "hard mode must still state metabolism is present"
+    pool = {m["molecule"] for m in hbg.get("candidate_clearance_molecules") or []}
+    assert "CYP3A4" in pool, "candidate pool must include the answer enzyme"
+    assert len(pool) > 1, "candidate pool must have distractors, not just the answer"
     assert res["hard_input"].get("mode") == "hard"
     print("selftest OK: Alfentanil reproduced (5 fitted, blanked no-leak, no input "
-          "leak); HARD mode strips structure, keeps biology, no leak")
+          "leak); HARD mode strips structure, WITHHOLDS enzyme identity (candidate "
+          f"pool of {len(pool)}), no leak")
 
 
 if __name__ == "__main__":

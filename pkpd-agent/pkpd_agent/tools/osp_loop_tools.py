@@ -214,6 +214,9 @@ def register_osp_loop_tools(registry: ToolRegistry, config, ctx: dict) -> None:
             objective=inp.get("objective"),
             background=bg.get("description"),
             known_biology=bg.get("literature_facts"),
+            # mechanism-DISCOVERY mode: the enzyme identity is withheld and the
+            # agent must pick the clearing molecule(s) out of this candidate pool.
+            candidate_clearance_molecules=bg.get("candidate_clearance_molecules"),
             compound_identity=gd.get("compound_identity"),
             literature_physicochemical=gd.get("literature_physicochemical")
             or inp.get("literature_physicochemical"),

@@ -7,9 +7,51 @@
   "background": {
     "description": "Dapagliflozin PBPK modeling task.",
     "literature_facts": [
-      "Metabolized by: Hepatic-CYP, UGT1A9, UGT2B7.",
+      "Hepatic enzymatic metabolism contributes to clearance, but the responsible enzyme(s) are NOT given - identify which of the candidate enzymes expressed in the model (see candidate_clearance_molecules) metabolize this drug, from its chemistry and known pharmacology.",
       "Renal clearance via glomerular filtration is present.",
       "Reference distribution/permeability methods exist but are withheld; choose your own."
+    ],
+    "candidate_clearance_molecules": [
+      {
+        "molecule": "CYP3A4",
+        "type": "Enzyme"
+      },
+      {
+        "molecule": "CYP1A1",
+        "type": "Enzyme"
+      },
+      {
+        "molecule": "UGT1A1",
+        "type": "Enzyme"
+      },
+      {
+        "molecule": "UGT1A9",
+        "type": "Enzyme"
+      },
+      {
+        "molecule": "Cleavage-protein",
+        "type": "Enzyme"
+      },
+      {
+        "molecule": "ABCG2",
+        "type": "Transporter"
+      },
+      {
+        "molecule": "ABCB1",
+        "type": "Transporter"
+      },
+      {
+        "molecule": "M-1 TS",
+        "type": "Transporter"
+      },
+      {
+        "molecule": "UGT2B7",
+        "type": "Enzyme"
+      },
+      {
+        "molecule": "Hepatic-CYP",
+        "type": "Enzyme"
+      }
     ]
   },
   "given_data": {
@@ -1929,6 +1971,6 @@
       "Vakkalagadda 2016"
     ]
   },
-  "unknowns_guidance": "HARD mode - the model STRUCTURE is NOT given. The snapshot has NO elimination processes and its distribution/permeability methods are at neutral PK-Sim Standard defaults. Using the known biology (which enzymes / transporters clear this drug, and the renal route), ADD the elimination processes (add_processes on the expressed molecules) and CHOOSE the distribution and permeability calculation methods appropriate to the compound's physicochemistry - then decide which parameters to fix at literature values and which to estimate, and fit them to the data. Justify every structural choice from the biology and physchem.",
+  "unknowns_guidance": "HARD mode - the model STRUCTURE is NOT given, and neither is the metabolizing enzyme's identity. The snapshot has NO elimination processes and its distribution/permeability methods are at neutral PK-Sim Standard defaults. You are given only the CANDIDATE molecules expressed in the model (candidate_clearance_molecules). DISCOVER which of them clear this drug - reason from the drug's chemistry and known pharmacology, not the data alone (a single first-order clearance fits the plasma curve for whichever enzyme you name). Then ADD the elimination processes (add_processes on the molecule(s) you chose plus the renal route), CHOOSE the distribution/permeability methods for the compound's physicochemistry, decide which parameters to fix at literature values and which to estimate, and fit them to the data. Justify every structural choice from the chemistry and physchem.",
   "mode": "hard"
 }

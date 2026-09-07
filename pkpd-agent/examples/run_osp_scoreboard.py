@@ -38,21 +38,31 @@ DEFAULT_ORDER = ["Vancomycin", "Tizanidine", "Sufentanil", "Montelukast", "Ralte
                  "Mexiletine", "Alfentanil", "Sildenafil", "Midazolam", "Digoxin"]
 
 
-def _resolve(model: str) -> "dict | None":
-    """Find the primary (non-pediatric) benchmark base for a model dir and resolve its 4 files."""
+def _resolve(model: str, hard: bool = False) -> "dict | None":
+    """Find the primary (non-pediatric) benchmark base for a model dir and resolve its files.
+
+    ``hard=True`` resolves the mechanism-DISCOVERY variant (``*.hard_blanked.json`` +
+    ``*.hard.input.json``): structure stripped and the metabolizing enzyme withheld, so
+    the agent must build the model and discover the mechanism. The answer key and reference
+    are shared; the report is written to a separate ``*.hard.*`` path so it never clobbers
+    the easy-mode report."""
     d = os.path.join(_LIB, model)
-    blanked = sorted(glob.glob(os.path.join(d, "benchmark", "*.blanked.json")),
-                     key=lambda p: ("pediatric" in p.lower(), len(p)))
+    suffix = ".hard_blanked.json" if hard else ".blanked.json"
+    # exclude the OTHER variant's snapshots from the glob
+    cand = [p for p in glob.glob(os.path.join(d, "benchmark", "*" + suffix))
+            if hard or not p.endswith(".hard_blanked.json")]
+    blanked = sorted(cand, key=lambda p: ("pediatric" in p.lower(), len(p)))
     for b in blanked:
-        base = os.path.basename(b)[: -len(".blanked.json")]
-        inp = os.path.join(d, "json_input", base + ".input.json")
+        base = os.path.basename(b)[: -len(suffix)]
+        inp = os.path.join(d, "json_input", base + (".hard.input.json" if hard else ".input.json"))
         ref = os.path.join(d, "json", base + ".json")
         ans = os.path.join(d, "answer_key", base + ".answer_edits.json")
         if all(os.path.isfile(p) for p in (inp, ref, ans)):
+            tag = ".hard" if hard else ""
             return {"model": model, "base": base, "snapshot": b, "input": inp,
-                    "reference": ref, "answer": ans,
-                    "report": os.path.join(d, "report", base + ".html"),
-                    "report_json": os.path.join(d, "report", base + ".json")}
+                    "reference": ref, "answer": ans, "hard": hard,
+                    "report": os.path.join(d, "report", base + tag + ".html"),
+                    "report_json": os.path.join(d, "report", base + tag + ".json")}
     return None
 
 
@@ -88,9 +98,15 @@ def _aggregate(files: list, order: list, out: str) -> None:
     rank = {m: i + 1 for i, m in enumerate(order)}
     rows.sort(key=lambda r: rank.get(r[0], 99))
 
-    L = ["# PBPK agent scoreboard (agent vs ground-truth model)", "",
+    hard = any(f.get("hard") for f in files)
+    struct_note = ("Structure = did the agent DISCOVER the reference's mechanism "
+                   "(metabolizing enzyme + methods) - it was withheld in this mode."
+                   if hard else
+                   "Structure = did the agent pick the reference's methods/processes.")
+    L = [f"# PBPK agent scoreboard{' - HARD (mechanism discovery)' if hard else ''} "
+         "(agent vs ground-truth model)", "",
          "Difficulty rank is an informed estimate (mechanism + #unknowns + data breadth); GMFE<=1.6 "
-         "is the ~within-2-fold bar. Structure = did the agent pick the reference's methods/processes."
+         f"is the ~within-2-fold bar. {struct_note}"
          " Params: recovered well / weakly-identified-or-minor / genuine miss.", "",
          "| # | model | agent GMFE | ref GMFE | structure | params good/soft/bad | verdict |",
          "|---|---|---|---|---|---|---|"]
@@ -128,15 +144,20 @@ def main() -> None:
     ap.add_argument("--target", type=float, default=1.6)
     ap.add_argument("--max-steps", type=int, default=6)
     ap.add_argument("--pksim", default=None)
-    ap.add_argument("--out", default="osp_scoreboard.md")
+    ap.add_argument("--hard", action="store_true",
+                    help="run the mechanism-DISCOVERY variant (structure stripped, "
+                         "metabolizing enzyme withheld) instead of the fill-in-the-blank one")
+    ap.add_argument("--out", default=None)
     args = ap.parse_args()
     if not (args.run or args.aggregate):
         args.run = args.aggregate = True
+    if args.out is None:
+        args.out = "osp_scoreboard_hard.md" if args.hard else "osp_scoreboard.md"
 
     order = [m.strip() for m in args.models.split(",") if m.strip()]
     files, missing = [], []
     for m in order:
-        f = _resolve(m)
+        f = _resolve(m, hard=args.hard)
         (files.append(f) if f else missing.append(m))
     if missing:
         print(f"[skipped - no complete benchmark found]: {missing}")
