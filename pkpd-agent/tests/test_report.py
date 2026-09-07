@@ -74,6 +74,7 @@ class TestEstimableLeftovers(unittest.TestCase):
     COMP = {
         "Lipophilicity": [{"Parameters": [{"Name": "Lipophilicity", "Value": 0.016}]}],
         "Parameters": [{"Name": "Cl", "Value": 1.0},
+                       {"Name": "Permeability", "Value": 1e-4},
                        {"Name": "Molecular weight", "Value": 408.9,
                         "ValueOrigin": {"Source": "Publication"}}],
         "Processes": [{"Molecule": "Hepatic-CYP", "Parameters": [
@@ -91,12 +92,14 @@ class TestEstimableLeftovers(unittest.TestCase):
         # derived siblings of the fitted CLspec must NOT appear
         self.assertNotIn("Specific clearance@Hepatic-CYP", names)
         self.assertNotIn("Enzyme concentration@Hepatic-CYP", names)
-        # a genuine unfitted knob (compound-level Cl) is surfaced
-        self.assertIn("Cl", names)
-        self.assertEqual(next(r["role"] for r in rows if r["name"] == "Cl"),
+        # a genuine unfitted knob (an estimatable permeability) is surfaced
+        self.assertIn("Permeability", names)
+        self.assertEqual(next(r["role"] for r in rows if r["name"] == "Permeability"),
                          "held-at-default")
-        # a literature constant (MW) is NOT surfaced (tier=constant, not estimate)
+        # constants are NOT surfaced (tier=constant, not estimate): the literature MW,
+        # AND 'Cl' - the chlorine-atom count, a structural descriptor, not a clearance
         self.assertNotIn("Molecular weight", names)
+        self.assertNotIn("Cl", names)
 
 
 class TestNarrativeNeverEmpty(unittest.TestCase):

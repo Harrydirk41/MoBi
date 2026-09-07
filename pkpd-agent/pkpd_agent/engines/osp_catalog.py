@@ -185,10 +185,18 @@ PARAM_CATALOG: dict[str, dict[str, Any]] = {
           "systemic circulation; usually an OUTCOME of absorption + first-pass "
           "rather than a free knob - set only if the model uses it directly",
           "range": [0.0, 1.0], "role": "estimate", "tier": "estimate"},
-    "Cl": {"description": "generic first-order clearance parameter on a process; "
-           "prefer the process-specific clearance (Intrinsic clearance, "
-           "CLspec/[Enzyme], Plasma clearance) when present",
-           "range": [1e-4, 1e3], "role": "estimate", "tier": "estimate"},
+    # 'Cl' at compound level is the number of CHLORINE ATOMS - a fixed molecular-
+    # structure descriptor (it sits next to Molecular weight; e.g. 1 for Tizanidine/
+    # Midazolam, 2 for Felodipine/Itraconazole), NOT a clearance. It feeds some
+    # distribution/permeability calculations, so a fit can abuse it as a free knob
+    # (driving "1 chlorine" to 0.005) to compensate a wrong method. It is a physical
+    # constant: never estimate it. The metabolic clearance is 'Intrinsic clearance'
+    # (or CLspec/[Enzyme] / Plasma clearance) ON THE PROCESS - fit that instead.
+    "Cl": {"description": "number of chlorine atoms in the molecule (a fixed "
+           "structural descriptor, NOT a clearance); the fittable metabolic "
+           "clearance is 'Intrinsic clearance' / 'CLspec/[Enzyme]' on the enzyme "
+           "process, never this",
+           "range": None, "role": "measured", "tier": "constant"},
     "Solubility table": {
         "description": "tabulated aqueous solubility versus pH (a measured "
         "solubility profile) rather than a single reference value; a given input",

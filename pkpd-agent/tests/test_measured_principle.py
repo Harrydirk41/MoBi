@@ -21,6 +21,11 @@ class TestTierClassification(unittest.TestCase):
         for n in ["Molecular weight", "Reference pH", "pKa (base)"]:
             self.assertEqual(C.param_tier(n), "constant", n)
 
+    def test_chlorine_count_is_a_constant_not_a_clearance(self):
+        # 'Cl' is the chlorine-ATOM COUNT (a structural descriptor), not a clearance;
+        # it must be a constant so a fit cannot abuse it as a free distribution knob.
+        self.assertEqual(C.param_tier("Cl"), "constant")
+
     def test_measured_soft(self):
         for n in ["Fraction unbound (plasma, reference value)",
                   "Solubility at reference pH"]:
