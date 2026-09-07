@@ -2875,8 +2875,8 @@
     {
      "Name": "Vancomycin",
      "CalculationMethods": [
-      "Cellular partition coefficient method - Schmitt",
-      "Cellular permeability - Charge dependent Schmitt"
+      "Cellular partition coefficient method - PK-Sim Standard",
+      "Cellular permeability - PK-Sim Standard"
      ],
      "Processes": [
       {
@@ -3092,8 +3092,8 @@
     {
      "Name": "Vancomycin",
      "CalculationMethods": [
-      "Cellular partition coefficient method - Schmitt",
-      "Cellular permeability - Charge dependent Schmitt"
+      "Cellular partition coefficient method - PK-Sim Standard",
+      "Cellular permeability - PK-Sim Standard"
      ],
      "Processes": [
       {
@@ -3309,8 +3309,8 @@
     {
      "Name": "Vancomycin",
      "CalculationMethods": [
-      "Cellular partition coefficient method - Schmitt",
-      "Cellular permeability - Charge dependent Schmitt"
+      "Cellular partition coefficient method - PK-Sim Standard",
+      "Cellular permeability - PK-Sim Standard"
      ],
      "Processes": [
       {
@@ -3541,8 +3541,8 @@
     {
      "Name": "Vancomycin",
      "CalculationMethods": [
-      "Cellular partition coefficient method - Schmitt",
-      "Cellular permeability - Charge dependent Schmitt"
+      "Cellular partition coefficient method - PK-Sim Standard",
+      "Cellular permeability - PK-Sim Standard"
      ],
      "Processes": [
       {
@@ -3777,8 +3777,8 @@
     {
      "Name": "Vancomycin",
      "CalculationMethods": [
-      "Cellular partition coefficient method - Schmitt",
-      "Cellular permeability - Charge dependent Schmitt"
+      "Cellular partition coefficient method - PK-Sim Standard",
+      "Cellular permeability - PK-Sim Standard"
      ],
      "Processes": [
       {
@@ -4013,8 +4013,8 @@
     {
      "Name": "Vancomycin",
      "CalculationMethods": [
-      "Cellular partition coefficient method - Schmitt",
-      "Cellular permeability - Charge dependent Schmitt"
+      "Cellular partition coefficient method - PK-Sim Standard",
+      "Cellular permeability - PK-Sim Standard"
      ],
      "Processes": [
       {
@@ -4249,8 +4249,8 @@
     {
      "Name": "Vancomycin",
      "CalculationMethods": [
-      "Cellular partition coefficient method - Schmitt",
-      "Cellular permeability - Charge dependent Schmitt"
+      "Cellular partition coefficient method - PK-Sim Standard",
+      "Cellular permeability - PK-Sim Standard"
      ],
      "Processes": [
       {
@@ -4493,8 +4493,8 @@
     {
      "Name": "Vancomycin",
      "CalculationMethods": [
-      "Cellular partition coefficient method - Schmitt",
-      "Cellular permeability - Charge dependent Schmitt"
+      "Cellular partition coefficient method - PK-Sim Standard",
+      "Cellular permeability - PK-Sim Standard"
      ],
      "Processes": [
       {
@@ -4737,8 +4737,8 @@
     {
      "Name": "Vancomycin",
      "CalculationMethods": [
-      "Cellular partition coefficient method - Schmitt",
-      "Cellular permeability - Charge dependent Schmitt"
+      "Cellular partition coefficient method - PK-Sim Standard",
+      "Cellular permeability - PK-Sim Standard"
      ],
      "Processes": [
       {
@@ -4981,8 +4981,8 @@
     {
      "Name": "Vancomycin",
      "CalculationMethods": [
-      "Cellular partition coefficient method - Schmitt",
-      "Cellular permeability - Charge dependent Schmitt"
+      "Cellular partition coefficient method - PK-Sim Standard",
+      "Cellular permeability - PK-Sim Standard"
      ],
      "Processes": [
       {
@@ -5225,8 +5225,8 @@
     {
      "Name": "Vancomycin",
      "CalculationMethods": [
-      "Cellular partition coefficient method - Schmitt",
-      "Cellular permeability - Charge dependent Schmitt"
+      "Cellular partition coefficient method - PK-Sim Standard",
+      "Cellular permeability - PK-Sim Standard"
      ],
      "Processes": [
       {
@@ -5469,8 +5469,8 @@
     {
      "Name": "Vancomycin",
      "CalculationMethods": [
-      "Cellular partition coefficient method - Schmitt",
-      "Cellular permeability - Charge dependent Schmitt"
+      "Cellular partition coefficient method - PK-Sim Standard",
+      "Cellular permeability - PK-Sim Standard"
      ],
      "Processes": [
       {

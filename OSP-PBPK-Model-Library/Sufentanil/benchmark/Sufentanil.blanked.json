@@ -420,7 +420,7 @@
     {
      "Name": "Sufentanil",
      "CalculationMethods": [
-      "Cellular partition coefficient method - Schmitt",
+      "Cellular partition coefficient method - PK-Sim Standard",
       "Cellular permeability - PK-Sim Standard"
      ],
      "Processes": [
@@ -645,7 +645,7 @@
     {
      "Name": "Sufentanil",
      "CalculationMethods": [
-      "Cellular partition coefficient method - Schmitt",
+      "Cellular partition coefficient method - PK-Sim Standard",
       "Cellular permeability - PK-Sim Standard"
      ],
      "Processes": [
@@ -870,7 +870,7 @@
     {
      "Name": "Sufentanil",
      "CalculationMethods": [
-      "Cellular partition coefficient method - Schmitt",
+      "Cellular partition coefficient method - PK-Sim Standard",
       "Cellular permeability - PK-Sim Standard"
      ],
      "Processes": [

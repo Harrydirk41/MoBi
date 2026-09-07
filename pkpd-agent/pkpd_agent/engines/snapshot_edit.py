@@ -58,7 +58,7 @@ def apply_edits(snapshot: dict, edits: dict | None) -> tuple[dict, dict]:
                  if ep.get("Molecule")}
 
     _apply_parameters(comp, edits.get("parameters") or {}, report)
-    _apply_calc_methods(comp, edits.get("calculation_methods") or {}, report)
+    _apply_calc_methods(comp, sims, comp_name, edits.get("calculation_methods") or {}, report)
     _apply_processes(comp, sims, comp_name, edits.get("processes") or {}, report)
     _apply_add_processes(comp, sims, comp_name,
                          edits.get("add_processes") or [], expressed, report)
@@ -257,27 +257,38 @@ def _apply_parameters(comp: dict, params: dict, report: dict) -> None:
 # calculation methods (distribution / permeability)
 # --------------------------------------------------------------------------- #
 
-def _apply_calc_methods(comp: dict, methods: dict, report: dict) -> None:
-    cms = comp.get("CalculationMethods")
-    if cms is None:
-        cms = comp["CalculationMethods"] = []
+def _set_calc_method(cms: list, prefix: str, name: str) -> None:
+    """Replace the entry with `prefix` in a CalculationMethods list, else append."""
+    full = name if " - " in name else prefix + name
+    for i, m in enumerate(cms):
+        if isinstance(m, str) and m.startswith(prefix):
+            cms[i] = full
+            return
+    cms.append(full)
 
-    def set_method(prefix: str, name: str) -> None:
-        full = name if " - " in name else prefix + name
-        # replace an existing entry with the same prefix, else append
-        for i, m in enumerate(cms):
-            if isinstance(m, str) and m.startswith(prefix):
-                cms[i] = full
-                return
-        cms.append(full)
+
+def _apply_calc_methods(comp: dict, sims: list, comp_name, methods: dict, report: dict) -> None:
+    """Set the partition/permeability calculation method. CRITICAL: the method lives BOTH on the
+    top-level Compound AND on each Simulation's own Compounds copy - and PK-Sim builds the simulation
+    from the SIMULATION's copy, so editing only the top-level one is a silent no-op (every method
+    then simulates identically). Apply to both."""
+    targets = [comp.get("CalculationMethods") if isinstance(comp.get("CalculationMethods"), list)
+               else comp.setdefault("CalculationMethods", [])]
+    for s in sims or []:
+        for sc in s.get("Compounds") or []:
+            if (comp_name is None or sc.get("Name") == comp_name) \
+                    and isinstance(sc.get("CalculationMethods"), list):
+                targets.append(sc["CalculationMethods"])
 
     for key, name in methods.items():
         k = key.lower()
         if k in ("partition", "partition_coefficient", "distribution"):
-            set_method(_PARTITION_PREFIX, name)
+            for cms in targets:
+                _set_calc_method(cms, _PARTITION_PREFIX, name)
             report["calculation_methods"]["partition"] = name
         elif k in ("permeability", "cellular_permeability"):
-            set_method(_PERMEABILITY_PREFIX, name)
+            for cms in targets:
+                _set_calc_method(cms, _PERMEABILITY_PREFIX, name)
             report["calculation_methods"]["permeability"] = name
         else:
             report["not_found"].append(f"calculation_method:{key}")

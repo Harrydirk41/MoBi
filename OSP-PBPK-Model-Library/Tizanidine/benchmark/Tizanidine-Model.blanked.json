@@ -1658,7 +1658,7 @@
     {
      "Name": "Tizanidine",
      "CalculationMethods": [
-      "Cellular partition coefficient method - Berezhkovskiy",
+      "Cellular partition coefficient method - PK-Sim Standard",
       "Cellular permeability - PK-Sim Standard"
      ],
      "Processes": [
@@ -1845,7 +1845,7 @@
     {
      "Name": "Tizanidine",
      "CalculationMethods": [
-      "Cellular partition coefficient method - Berezhkovskiy",
+      "Cellular partition coefficient method - PK-Sim Standard",
       "Cellular permeability - PK-Sim Standard"
      ],
      "Processes": [
@@ -2052,7 +2052,7 @@
     {
      "Name": "Tizanidine",
      "CalculationMethods": [
-      "Cellular partition coefficient method - Berezhkovskiy",
+      "Cellular partition coefficient method - PK-Sim Standard",
       "Cellular permeability - PK-Sim Standard"
      ],
      "Processes": [
@@ -2215,7 +2215,7 @@
     {
      "Name": "Tizanidine",
      "CalculationMethods": [
-      "Cellular partition coefficient method - Berezhkovskiy",
+      "Cellular partition coefficient method - PK-Sim Standard",
       "Cellular permeability - PK-Sim Standard"
      ],
      "Processes": [
@@ -2453,7 +2453,7 @@
     {
      "Name": "Tizanidine",
      "CalculationMethods": [
-      "Cellular partition coefficient method - Berezhkovskiy",
+      "Cellular partition coefficient method - PK-Sim Standard",
       "Cellular permeability - PK-Sim Standard"
      ],
      "Processes": [
@@ -2627,7 +2627,7 @@
     {
      "Name": "Tizanidine",
      "CalculationMethods": [
-      "Cellular partition coefficient method - Berezhkovskiy",
+      "Cellular partition coefficient method - PK-Sim Standard",
       "Cellular permeability - PK-Sim Standard"
      ],
      "Processes": [
@@ -2790,7 +2790,7 @@
     {
      "Name": "Tizanidine",
      "CalculationMethods": [
-      "Cellular partition coefficient method - Berezhkovskiy",
+      "Cellular partition coefficient method - PK-Sim Standard",
       "Cellular permeability - PK-Sim Standard"
      ],
      "Processes": [
@@ -2953,7 +2953,7 @@
     {
      "Name": "Tizanidine",
      "CalculationMethods": [
-      "Cellular partition coefficient method - Berezhkovskiy",
+      "Cellular partition coefficient method - PK-Sim Standard",
       "Cellular permeability - PK-Sim Standard"
      ],
      "Processes": [
@@ -3115,7 +3115,7 @@
     {
      "Name": "Tizanidine",
      "CalculationMethods": [
-      "Cellular partition coefficient method - Berezhkovskiy",
+      "Cellular partition coefficient method - PK-Sim Standard",
       "Cellular permeability - PK-Sim Standard"
      ],
      "Processes": [
@@ -3287,7 +3287,7 @@
     {
      "Name": "Tizanidine",
      "CalculationMethods": [
-      "Cellular partition coefficient method - Berezhkovskiy",
+      "Cellular partition coefficient method - PK-Sim Standard",
       "Cellular permeability - PK-Sim Standard"
      ],
      "Processes": [
@@ -11083,7 +11083,7 @@
     {
      "Name": "Tizanidine",
      "CalculationMethods": [
-      "Cellular partition coefficient method - Berezhkovskiy",
+      "Cellular partition coefficient method - PK-Sim Standard",
       "Cellular permeability - PK-Sim Standard"
      ],
      "Processes": [

@@ -27,23 +27,30 @@ _PART_PREFIX = "Cellular partition coefficient method - "
 _PERM_PREFIX = "Cellular permeability - "
 
 
+def _reblank_cms(cms, changes):
+    for i, m in enumerate(cms or []):
+        s = m if isinstance(m, str) else (m.get("Name") or "")
+        low = s.lower()
+        if "partition coefficient" in low and not s.endswith(NEUTRAL_PARTITION):
+            cms[i] = _PART_PREFIX + NEUTRAL_PARTITION
+            changes.append(("partition", s, cms[i]))
+        elif "permeability" in low and not s.endswith(NEUTRAL_PERMEABILITY):
+            cms[i] = _PERM_PREFIX + NEUTRAL_PERMEABILITY
+            changes.append(("permeability", s, cms[i]))
+
+
 def reblank_snapshot(snap: dict) -> list[tuple[str, str, str]]:
-    """Reset each compound's partition/permeability method to the neutral default. Returns the list
-    of (kind, old, new) changes; empty if already neutral."""
+    """Reset each compound's partition/permeability method to the neutral default - on BOTH the
+    top-level Compounds AND each Simulation's own Compounds copy (PK-Sim uses the simulation's copy,
+    so leaving it holds the answer's method). Returns the list of (kind, old, new) changes."""
     changes = []
     for c in snap.get("Compounds", []) or []:
-        cms = c.get("CalculationMethods")
-        if not isinstance(cms, list):
-            continue
-        for i, m in enumerate(cms):
-            s = m if isinstance(m, str) else (m.get("Name") or "")
-            low = s.lower()
-            if "partition coefficient" in low and not s.endswith(NEUTRAL_PARTITION):
-                cms[i] = _PART_PREFIX + NEUTRAL_PARTITION
-                changes.append(("partition", s, cms[i]))
-            elif "permeability" in low and not s.endswith(NEUTRAL_PERMEABILITY):
-                cms[i] = _PERM_PREFIX + NEUTRAL_PERMEABILITY
-                changes.append(("permeability", s, cms[i]))
+        if isinstance(c.get("CalculationMethods"), list):
+            _reblank_cms(c["CalculationMethods"], changes)
+    for s in snap.get("Simulations", []) or []:
+        for sc in s.get("Compounds") or []:
+            if isinstance(sc.get("CalculationMethods"), list):
+                _reblank_cms(sc["CalculationMethods"], changes)
     return changes
 
 

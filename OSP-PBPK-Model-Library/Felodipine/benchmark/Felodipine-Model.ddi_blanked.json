@@ -2996,7 +2996,7 @@
     {
      "Name": "Felodipine",
      "CalculationMethods": [
-      "Cellular partition coefficient method - Rodgers and Rowland",
+      "Cellular partition coefficient method - PK-Sim Standard",
       "Cellular permeability - PK-Sim Standard"
      ],
      "Processes": [
@@ -3454,7 +3454,7 @@
     {
      "Name": "Felodipine",
      "CalculationMethods": [
-      "Cellular partition coefficient method - Rodgers and Rowland",
+      "Cellular partition coefficient method - PK-Sim Standard",
       "Cellular permeability - PK-Sim Standard"
      ],
      "Processes": [
@@ -4086,7 +4086,7 @@
     {
      "Name": "Felodipine",
      "CalculationMethods": [
-      "Cellular partition coefficient method - Rodgers and Rowland",
+      "Cellular partition coefficient method - PK-Sim Standard",
       "Cellular permeability - PK-Sim Standard"
      ],
      "Processes": [
@@ -4528,7 +4528,7 @@
     {
      "Name": "Felodipine",
      "CalculationMethods": [
-      "Cellular partition coefficient method - Rodgers and Rowland",
+      "Cellular partition coefficient method - PK-Sim Standard",
       "Cellular permeability - PK-Sim Standard"
      ],
      "Processes": [
@@ -4943,7 +4943,7 @@
     {
      "Name": "Felodipine",
      "CalculationMethods": [
-      "Cellular partition coefficient method - Rodgers and Rowland",
+      "Cellular partition coefficient method - PK-Sim Standard",
       "Cellular permeability - PK-Sim Standard"
      ],
      "Processes": [
@@ -5363,7 +5363,7 @@
     {
      "Name": "Felodipine",
      "CalculationMethods": [
-      "Cellular partition coefficient method - Rodgers and Rowland",
+      "Cellular partition coefficient method - PK-Sim Standard",
       "Cellular permeability - PK-Sim Standard"
      ],
      "Processes": [
@@ -5771,7 +5771,7 @@
     {
      "Name": "Felodipine",
      "CalculationMethods": [
-      "Cellular partition coefficient method - Rodgers and Rowland",
+      "Cellular partition coefficient method - PK-Sim Standard",
       "Cellular permeability - PK-Sim Standard"
      ],
      "Processes": [
@@ -6218,7 +6218,7 @@
     {
      "Name": "Felodipine",
      "CalculationMethods": [
-      "Cellular partition coefficient method - Rodgers and Rowland",
+      "Cellular partition coefficient method - PK-Sim Standard",
       "Cellular permeability - PK-Sim Standard"
      ],
      "Processes": [
@@ -6250,7 +6250,7 @@
     {
      "Name": "Hydroxy-Itraconazole",
      "CalculationMethods": [
-      "Cellular partition coefficient method - Rodgers and Rowland",
+      "Cellular partition coefficient method - PK-Sim Standard",
       "Cellular permeability - PK-Sim Standard"
      ],
      "Processes": [
@@ -6274,7 +6274,7 @@
     {
      "Name": "Itraconazole",
      "CalculationMethods": [
-      "Cellular partition coefficient method - Rodgers and Rowland",
+      "Cellular partition coefficient method - PK-Sim Standard",
       "Cellular permeability - PK-Sim Standard"
      ],
      "Alternatives": [
@@ -6317,7 +6317,7 @@
     {
      "Name": "Keto-Itraconazole",
      "CalculationMethods": [
-      "Cellular partition coefficient method - Rodgers and Rowland",
+      "Cellular partition coefficient method - PK-Sim Standard",
       "Cellular permeability - PK-Sim Standard"
      ],
      "Processes": [
@@ -6341,7 +6341,7 @@
     {
      "Name": "N-desalkyl-Itraconazole",
      "CalculationMethods": [
-      "Cellular partition coefficient method - Rodgers and Rowland",
+      "Cellular partition coefficient method - PK-Sim Standard",
       "Cellular permeability - PK-Sim Standard"
      ],
      "Processes": [
@@ -6781,7 +6781,7 @@
     {
      "Name": "Felodipine",
      "CalculationMethods": [
-      "Cellular partition coefficient method - Rodgers and Rowland",
+      "Cellular partition coefficient method - PK-Sim Standard",
       "Cellular permeability - PK-Sim Standard"
      ],
      "Processes": [
@@ -7250,7 +7250,7 @@
     {
      "Name": "Felodipine",
      "CalculationMethods": [
-      "Cellular partition coefficient method - Rodgers and Rowland",
+      "Cellular partition coefficient method - PK-Sim Standard",
       "Cellular permeability - PK-Sim Standard"
      ],
      "Processes": [
@@ -7711,7 +7711,7 @@
     {
      "Name": "Felodipine",
      "CalculationMethods": [
-      "Cellular partition coefficient method - Rodgers and Rowland",
+      "Cellular partition coefficient method - PK-Sim Standard",
       "Cellular permeability - PK-Sim Standard"
      ],
      "Processes": [
@@ -8185,7 +8185,7 @@
     {
      "Name": "Felodipine",
      "CalculationMethods": [
-      "Cellular partition coefficient method - Rodgers and Rowland",
+      "Cellular partition coefficient method - PK-Sim Standard",
       "Cellular permeability - PK-Sim Standard"
      ],
      "Processes": [
@@ -8788,7 +8788,7 @@
     {
      "Name": "Felodipine",
      "CalculationMethods": [
-      "Cellular partition coefficient method - Rodgers and Rowland",
+      "Cellular partition coefficient method - PK-Sim Standard",
       "Cellular permeability - PK-Sim Standard"
      ],
      "Processes": [
@@ -9293,7 +9293,7 @@
     {
      "Name": "Felodipine",
      "CalculationMethods": [
-      "Cellular partition coefficient method - Rodgers and Rowland",
+      "Cellular partition coefficient method - PK-Sim Standard",
       "Cellular permeability - PK-Sim Standard"
      ],
      "Processes": [
@@ -9768,7 +9768,7 @@
     {
      "Name": "Felodipine",
      "CalculationMethods": [
-      "Cellular partition coefficient method - Rodgers and Rowland",
+      "Cellular partition coefficient method - PK-Sim Standard",
       "Cellular permeability - PK-Sim Standard"
      ],
      "Processes": [
@@ -10263,7 +10263,7 @@
     {
      "Name": "Felodipine",
      "CalculationMethods": [
-      "Cellular partition coefficient method - Rodgers and Rowland",
+      "Cellular partition coefficient method - PK-Sim Standard",
       "Cellular permeability - PK-Sim Standard"
      ],
      "Processes": [
@@ -10745,7 +10745,7 @@
     {
      "Name": "Felodipine",
      "CalculationMethods": [
-      "Cellular partition coefficient method - Rodgers and Rowland",
+      "Cellular partition coefficient method - PK-Sim Standard",
       "Cellular permeability - PK-Sim Standard"
      ],
      "Processes": [

@@ -56,7 +56,10 @@ def _method_leaks(blanked: dict) -> list[str]:
     into the agent's starting model (it inherits the answer's method for free). Returns the offending
     method strings."""
     bad = []
-    for c in blanked.get("Compounds", []) or []:
+    comps = list(blanked.get("Compounds", []) or [])
+    for s in blanked.get("Simulations", []) or []:      # the simulation's OWN copy matters most
+        comps += list(s.get("Compounds") or [])
+    for c in comps:
         for m in c.get("CalculationMethods") or []:
             s = m if isinstance(m, str) else (m.get("Name") or "")
             low = s.lower()
