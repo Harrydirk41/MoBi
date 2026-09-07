@@ -591,7 +591,12 @@ def register_osp_loop_tools(registry: ToolRegistry, config, ctx: dict) -> None:
         fix = args.get("fix") or {}
         parts = args.get("partition_methods") or PARTITION_METHODS
         perms = args.get("permeability_methods") or PERMEABILITY_METHODS
-        processes = (args.get("structure") or {}).get("processes")
+        # Carry the WHOLE mechanism the agent passed (add_processes AND processes), not just
+        # 'processes' - dropping add_processes ran every method on a no-clearance model, so the
+        # clearance estimate had no process to attach to and froze, making the grid meaningless.
+        # Only calculation_methods are swept, so strip them from the held-fixed base structure.
+        base_structure = dict(args.get("structure") or {})
+        base_structure.pop("calculation_methods", None)
         max_evals = int(args.get("max_evals") or 12)
         # a given physchem (e.g. lipophilicity) must be FIXED, not swept-with-a-free-value: fitting it
         # frees a knob that compensates the method, making the sweep unable to tell methods apart.
@@ -609,7 +614,7 @@ def register_osp_loop_tools(registry: ToolRegistry, config, ctx: dict) -> None:
         # is a ONE-TIME decision - re-sweeping the SAME grid wastes hours. If an identical sweep
         # (same physchem set + processes) already ran this session, return its result and tell the
         # agent to refine with osp_optimize instead of re-sweeping.
-        sig = json.dumps({"e": sorted(estimate), "p": processes,
+        sig = json.dumps({"e": sorted(estimate), "p": base_structure,
                           "pm": list(parts), "pe": list(perms)}, default=str, sort_keys=True)
         cache = session.get("osp_sweep_cache") or {}
         if sig in cache:
@@ -632,9 +637,8 @@ def register_osp_loop_tools(registry: ToolRegistry, config, ctx: dict) -> None:
             parts_done = 0
             for pm in parts:
                 for pe in perms:
-                    structure = {"calculation_methods": {"partition": pm, "permeability": pe}}
-                    if processes:
-                        structure["processes"] = processes
+                    structure = dict(base_structure)      # add_processes/processes held fixed
+                    structure["calculation_methods"] = {"partition": pm, "permeability": pe}
                     r = OO.run_optimization(cli, snapshot_path, observed, estimate=est,
                                             fix=fix, structure=structure, max_evals=budget,
                                             fast=True)   # ranking only: fewer studies, no sens/full
@@ -720,10 +724,9 @@ def register_osp_loop_tools(registry: ToolRegistry, config, ctx: dict) -> None:
         if results:
             top = results[0]
             est_final = est2 or estimate           # est2 (if any) only widens bounds - safe to reuse
-            structure = {"calculation_methods": {"partition": top["partition"],
-                                                 "permeability": top["permeability"]}}
-            if processes:
-                structure["processes"] = processes
+            structure = dict(base_structure)          # add_processes/processes held fixed
+            structure["calculation_methods"] = {"partition": top["partition"],
+                                                 "permeability": top["permeability"]}
             rr = OO.run_optimization(cli, snapshot_path, observed, estimate=est_final, fix=fix,
                                      structure=structure, max_evals=max_evals)
             if rr.get("ok") and rr["fit"].get("gmfe") is not None:
@@ -758,8 +761,10 @@ def register_osp_loop_tools(registry: ToolRegistry, config, ctx: dict) -> None:
             "each, then adopt the best-GMFE method. Use this whenever distribution / Vd is off - it "
             "is cheaper and more reliable than guessing methods one at a time, and it avoids the "
             "trap of judging a method at frozen physchem. Do NOT distort a measured physchem "
-            "parameter to fix Vd before you have swept the methods. Optional: fix={param:value}, "
-            "structure={processes:..} to hold your mechanism fixed, partition_methods/"
+            "parameter to fix Vd before you have swept the methods. Pass the SAME "
+            "structure={add_processes:[...], processes:{...}} you use with osp_optimize - the "
+            "sweep holds your mechanism (added enzyme processes and all) fixed and only varies the "
+            "distribution/permeability methods. Optional: fix={param:value}, partition_methods/"
             "permeability_methods to restrict the grid, max_evals (per combo, default 12)."),
         input_schema={
             "type": "object",

@@ -71,6 +71,34 @@ class TestSweepMethods(unittest.TestCase):
         self.assertFalse(r.ok)
         self.assertIn("estimate", r.message)
 
+    def test_forwards_add_processes_to_every_combo(self):
+        """REGRESSION: the sweep once read only structure.processes and dropped
+        structure.add_processes, so every method ran on a no-clearance model and the
+        clearance estimate froze. It must carry the added enzyme process into each combo."""
+        seen_struct = []
+        orig = OO.run_optimization
+
+        def capture(cli, snap, observed, estimate, fix=None, structure=None, max_evals=30, **kw):
+            seen_struct.append(structure)
+            return orig(cli, snap, observed, estimate, fix=fix, structure=structure,
+                        max_evals=max_evals, **kw)
+        OO.run_optimization = capture
+        try:
+            self.sweep({"estimate": {"Intrinsic clearance": [0.01, 50]},
+                        "structure": {"add_processes": [
+                            {"type": "metabolization_first_order", "molecule": "CYP1A2",
+                             "parameters": {"Intrinsic clearance": 1.0}}]}},
+                       ModelingSession(goal="g"))
+        finally:
+            OO.run_optimization = orig
+        # EVERY optimizer call in the sweep must carry the added process (not just methods)
+        self.assertTrue(seen_struct)
+        for st in seen_struct:
+            ap = (st or {}).get("add_processes") or []
+            self.assertTrue(any(p.get("molecule") == "CYP1A2" for p in ap),
+                            "sweep dropped add_processes - the method grid ran with no clearance")
+            self.assertIn("calculation_methods", st)   # and it still varies the methods
+
     def test_identical_resweep_is_memoized(self):
         # the agent re-sweeping the SAME grid must NOT re-run PK-Sim (it wasted hours) - the second
         # identical call returns the cached result and steers to osp_optimize
