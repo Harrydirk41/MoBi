@@ -1,0 +1,472 @@
+{
+ "7E3": {
+  "groups": {
+   "FcRn KO mouse": 1.52,
+   "Wild-type mouse": 1.29,
+   "All": 1.39
+  },
+  "all": 1.39,
+  "gmfe_found": true,
+  "n_gmfe_tables": 1
+ },
+ "Alfentanil": {
+  "groups": {
+   "Intravenous administration": 1.26,
+   "Oral administration": 1.45,
+   "All": 1.32
+  },
+  "all": 1.32,
+  "gmfe_found": true,
+  "n_gmfe_tables": 1
+ },
+ "Alprazolam": {
+  "groups": {
+   "IV": 1.18,
+   "PO": 1.18,
+   "All": 1.18
+  },
+  "all": 1.18,
+  "gmfe_found": true,
+  "n_gmfe_tables": 1
+ },
+ "Amikacin": {
+  "groups": {
+   "Amikacin iv": 1.21
+  },
+  "all": 1.21,
+  "all_is_estimated": true,
+  "gmfe_found": true,
+  "n_gmfe_tables": 1
+ },
+ "Atazanavir": {
+  "groups": {
+   "Atazanavir plasma concentrations": 1.5
+  },
+  "all": 1.5,
+  "all_is_estimated": true,
+  "gmfe_found": true,
+  "n_gmfe_tables": 1
+ },
+ "BAY794620": {
+  "groups": {
+   "BAY 79-4620 - autoradiography": 1.48,
+   "BAY 79-4620 - tissue dissection": 1.62,
+   "All": 1.53
+  },
+  "all": 1.53,
+  "gmfe_found": true,
+  "n_gmfe_tables": 1
+ },
+ "CDA1": {
+  "groups": {
+   "10 mg/kg IV": 1.06,
+   "20 mg/kg IV": 1.14,
+   "5 mg/kg IV": 1.02,
+   "All": 1.08
+  },
+  "all": 1.08,
+  "gmfe_found": true,
+  "n_gmfe_tables": 1
+ },
+ "Carbamazepine": {
+  "groups": {
+   "Carbamazepine, IV administration": 1.28,
+   "Carbamazepine, PO administration as extended release formulation": 1.41,
+   "Carbamazepine, PO administration as immediate release tablet": 1.4,
+   "Carbamazepine, PO administration as liquid oral dosage form": 2.35,
+   "All": 1.49
+  },
+  "all": 1.49,
+  "gmfe_found": true,
+  "n_gmfe_tables": 1
+ },
+ "Cimetidine": {
+  "groups": {
+   "iv administration": 1.36,
+   "multiple oral administration": 1.5,
+   "single oral administration": 1.51,
+   "All": 1.47
+  },
+  "all": 1.47,
+  "gmfe_found": true,
+  "n_gmfe_tables": 1
+ },
+ "Clarithromycin": {
+  "groups": {
+   "model building": 1.21,
+   "model evaluation": 1.62,
+   "All": 1.58
+  },
+  "building": 1.21,
+  "validation": 1.62,
+  "all": 1.58,
+  "gmfe_found": true,
+  "n_gmfe_tables": 1
+ },
+ "Dapagliflozin": {
+  "groups": {
+   "IV (model building)": 1.38,
+   "PO MD": 1.22,
+   "PO SD fasted (model building)": 1.2,
+   "PO SD fed": 1.43,
+   "PO SD IC tablets (Chang 2015)": 1.27,
+   "All": 1.22
+  },
+  "building": 1.38,
+  "all": 1.22,
+  "gmfe_found": true,
+  "n_gmfe_tables": 1
+ },
+ "Digoxin": {
+  "groups": {
+   "Digoxin colonic admin.": 2.13,
+   "Digoxin iv": 1.45,
+   "Digoxin po SD": 1.3,
+   "Digoxin po, MD": 1.64,
+   "All": 1.46
+  },
+  "all": 1.46,
+  "gmfe_found": true,
+  "n_gmfe_tables": 1
+ },
+ "Efavirenz": {
+  "groups": {
+   "First dose administration": 1.47,
+   "Multiple dose administration": 1.4,
+   "All": 1.45
+  },
+  "all": 1.45,
+  "gmfe_found": true,
+  "n_gmfe_tables": 1
+ },
+ "Erythromycin": {
+  "groups": {
+   "IV": 1.57,
+   "IV (model building)": 1.46,
+   "PO enteric coated capsule, base pellets": 1.82,
+   "PO enteric coated capsule, base pellets (model building)": 1.24,
+   "PO enteric coated tablet, base (model building)": 1.35,
+   "PO film-coated tablet, base": 1.9,
+   "PO film-coated tablet, stearate": 1.78,
+   "PO film-coated tablet, stearate (model building)": 1.38,
+   "All": 1.58
+  },
+  "building": 1.46,
+  "all": 1.58,
+  "gmfe_found": true,
+  "n_gmfe_tables": 1
+ },
+ "Ethinylestradiol": {
+  "groups": {
+   "iv administration (model building)": 1.45,
+   "iv administration (model validation)": 1.27,
+   "Oral administration (model building)": 1.46,
+   "Oral administration (model validation)": 1.26,
+   "All": 1.41
+  },
+  "building": 1.45,
+  "validation": 1.27,
+  "all": 1.41,
+  "gmfe_found": true,
+  "n_gmfe_tables": 1
+ },
+ "Felodipine": {
+  "groups": {
+   "Intravenous administration (model building)": 1.33,
+   "Oral administration, ER tablet (model building)": 1.3,
+   "Oral administration, ER tablet (model verification)": 1.35,
+   "Oral administration, IR tablet (model building)": 1.51,
+   "Oral administration, IR tablet (model verification)": 1.35,
+   "Oral administration, solution (model building)": 1.17,
+   "All": 1.33
+  },
+  "building": 1.33,
+  "validation": 1.35,
+  "all": 1.33,
+  "gmfe_found": true,
+  "n_gmfe_tables": 1
+ },
+ "Fluconazole": {
+  "groups": {
+   "Fluconazole iv (model building)": 1.09,
+   "Fluconazole iv (model verification)": 1.14,
+   "Fluconazole oral administration (model building)": 1.2,
+   "Fluconazole oral administration (model verification)": 1.26,
+   "All": 1.18
+  },
+  "building": 1.09,
+  "validation": 1.14,
+  "all": 1.18,
+  "gmfe_found": true,
+  "n_gmfe_tables": 1
+ },
+ "Fluvoxamine": {
+  "groups": {
+   "test dataset": 1.62,
+   "training dataset": 1.21,
+   "All": 1.4
+  },
+  "validation": 1.62,
+  "all": 1.4,
+  "gmfe_found": true,
+  "n_gmfe_tables": 1
+ },
+ "Inulin": {
+  "groups": {
+   "Plasma concentrations (20 & 200 mg/kg dose)": 1.38,
+   "Tissue concentrations (20 mg/kg dose)": 2.01,
+   "All": 1.71
+  },
+  "all": 1.71,
+  "gmfe_found": true,
+  "n_gmfe_tables": 1
+ },
+ "Itraconazole": {
+  "groups": {
+   "Itraconazole iv": 1.21,
+   "Itraconazole po capsule fasted": 1.68,
+   "Itraconazole po capsule fed": 1.95,
+   "Itraconazole po solution fasted": 1.53,
+   "Itraconazole po solution fed": 1.48,
+   "All": 1.5
+  },
+  "all": 1.5,
+  "gmfe_found": true,
+  "n_gmfe_tables": 4
+ },
+ "MEDI524": {
+  "groups": {
+   "Intravenous administration": 1.14
+  },
+  "all": 1.14,
+  "all_is_estimated": true,
+  "gmfe_found": true,
+  "n_gmfe_tables": 1
+ },
+ "MEDI524YTE": {
+  "groups": {
+   "Intravenous administration": 1.1
+  },
+  "all": 1.1,
+  "all_is_estimated": true,
+  "gmfe_found": true,
+  "n_gmfe_tables": 1
+ },
+ "Mefenamic_acid": {
+  "groups": {
+   "PO fasted - Ponstan capsule SD administration": 1.61
+  },
+  "all": 1.61,
+  "all_is_estimated": true,
+  "gmfe_found": true,
+  "n_gmfe_tables": 1
+ },
+ "Mexiletine": {
+  "groups": {
+   "Intravenous administration (model building)": 1.19,
+   "Oral administration (model building)": 1.32,
+   "Oral administration (model validation)": 1.24,
+   "All": 1.28
+  },
+  "building": 1.19,
+  "validation": 1.24,
+  "all": 1.28,
+  "gmfe_found": true,
+  "n_gmfe_tables": 1
+ },
+ "Midazolam": {
+  "groups": {
+   "Intravenous administration (model building)": 1.22,
+   "Intravenous administration (model verification)": 1.41,
+   "Mixed applications": 1.27,
+   "Oral administration, solution (model building)": 1.23,
+   "Oral administration, solution (model verification)": 1.4,
+   "Oral administration, tablet (model building)": 1.27,
+   "Oral administration, tablet (model verification)": 1.68,
+   "All": 1.45
+  },
+  "building": 1.22,
+  "validation": 1.41,
+  "all": 1.45,
+  "gmfe_found": true,
+  "n_gmfe_tables": 1
+ },
+ "Moclobemide": {
+  "groups": {
+   "iv administration (model building)": 1.29,
+   "Oral administration (model building)": 1.56,
+   "Oral administration (model validation)": 1.31,
+   "All": 1.46
+  },
+  "building": 1.29,
+  "validation": 1.31,
+  "all": 1.46,
+  "gmfe_found": true,
+  "n_gmfe_tables": 1
+ },
+ "Montelukast": {
+  "groups": {
+   "Montelukast Chewable Tablet": 1.17,
+   "Montelukast Filmcoated Tablet": 1.38,
+   "Montelukast iv": 1.32,
+   "Montelukast Oral Granules": 1.31,
+   "All": 1.31
+  },
+  "all": 1.31,
+  "gmfe_found": true,
+  "n_gmfe_tables": 1
+ },
+ "Omeprazole": {
+  "groups": {
+   "iv administration (model building)": 1.7,
+   "Oral administration (model building)": 1.3,
+   "Oral administration (model validation)": 2.45,
+   "All": 2.09,
+   "iv administration (model validation)": 1.3
+  },
+  "building": 1.39,
+  "validation": 1.72,
+  "all": 2.09,
+  "gmfe_found": true,
+  "n_gmfe_tables": 3
+ },
+ "Propofol": {
+  "groups": {
+   "Propofol bolus + continuous IV infusion": 1.68,
+   "Propofol bolus IV infusion": 2.33,
+   "Propofol continuous IV infusion": 1.29,
+   "All": 1.57
+  },
+  "all": 1.57,
+  "gmfe_found": true,
+  "n_gmfe_tables": 1
+ },
+ "Raltegravir": {
+  "groups": {
+   "Raltegravir chewable tablet": 1.37,
+   "Raltegravir filmcoated tablet": 1.56,
+   "Raltegravir granules in suspension": 1.42,
+   "Raltegravir lactose formulation": 1.48,
+   "All": 1.49
+  },
+  "all": 1.49,
+  "gmfe_found": true,
+  "n_gmfe_tables": 1
+ },
+ "Rifampicin": {
+  "groups": {
+   "Rifampicin iv": 1.47,
+   "Rifampicin po": 1.32,
+   "All": 1.37
+  },
+  "all": 1.37,
+  "gmfe_found": true,
+  "n_gmfe_tables": 1
+ },
+ "S-Mephenytoin": {
+  "groups": {
+   "Adedoyin 1998": 2.13,
+   "Iga 2016": 1.45,
+   "Jacqz 1986": 1.81,
+   "Wedlund 1985": 1.85,
+   "All": 1.65
+  },
+  "all": 1.65,
+  "gmfe_found": true,
+  "n_gmfe_tables": 1
+ },
+ "Sildenafil": {
+  "groups": {
+   "Intravenous administration (model building)": 1.64,
+   "Oral administration, solution (model building)": 1.37,
+   "Oral administration, tablet (model building)": 1.44,
+   "Oral administration, tablet (model verification)": 1.82,
+   "All": 1.62
+  },
+  "building": 1.64,
+  "validation": 1.82,
+  "all": 1.62,
+  "gmfe_found": true,
+  "n_gmfe_tables": 1
+ },
+ "Sufentanil": {
+  "groups": {
+   "Sufentanil iv": 1.4
+  },
+  "all": 1.4,
+  "all_is_estimated": true,
+  "gmfe_found": true,
+  "n_gmfe_tables": 1
+ },
+ "Tefibazumab": {
+  "groups": {
+   "10 mg/kg dose": 1.11,
+   "2 mg/kg dose": 1.43,
+   "20 mg/kg dose": 1.15,
+   "5 mg/kg dose": 1.15,
+   "All": 1.2
+  },
+  "all": 1.2,
+  "gmfe_found": true,
+  "n_gmfe_tables": 1
+ },
+ "Tizanidine": {
+  "groups": {
+   "Oral administration (model building)": 1.52,
+   "Oral administration (model validation)": 1.77,
+   "All": 1.65
+  },
+  "building": 1.52,
+  "validation": 1.77,
+  "all": 1.65,
+  "gmfe_found": true,
+  "n_gmfe_tables": 1
+ },
+ "Triazolam": {
+  "groups": {
+   "IV": 1.24,
+   "PO": 1.28,
+   "All": 1.27
+  },
+  "all": 1.27,
+  "gmfe_found": true,
+  "n_gmfe_tables": 1
+ },
+ "Vancomycin": {
+  "groups": {
+   "Vancomycin iv": 1.11
+  },
+  "all": 1.11,
+  "all_is_estimated": true,
+  "gmfe_found": true,
+  "n_gmfe_tables": 1
+ },
+ "Verapamil": {
+  "groups": {
+   "Intravenous administration - norverapamil": 1.66,
+   "Intravenous administration - R-verapamil": 1.25,
+   "Intravenous administration - S-verapamil": 1.31,
+   "Intravenous administration - verapamil": 1.44,
+   "Oral administration - norverapamil": 1.29,
+   "Oral administration - R-norverapamil": 1.14,
+   "Oral administration - R-verapamil": 1.33,
+   "Oral administration - S-norverapamil": 1.16,
+   "Oral administration - S-verapamil": 1.31,
+   "Oral administration - verapamil": 1.42,
+   "All": 1.35
+  },
+  "all": 1.35,
+  "gmfe_found": true,
+  "n_gmfe_tables": 1
+ },
+ "dAb2": {
+  "groups": {
+   "Blood and tissue concentrations - except kidney": 1.89,
+   "Kidney tissue concentrations": 23.23,
+   "All": 2.29
+  },
+  "all": 2.29,
+  "gmfe_found": true,
+  "n_gmfe_tables": 1
+ }
+}

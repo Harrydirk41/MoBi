@@ -33,6 +33,28 @@ class TestMapping(unittest.TestCase):
         self.assertIn("Kharasch 1997", k["_from_simulation"])
 
 
+    def test_formulation_and_food_disambiguate_same_study_dose(self):
+        """Four arms of one study share (study, route, dose) and differ only in
+        formulation + food. The scorer MUST pair each observation with the matching
+        simulation (fed<->fed, tablet<->tablet), not collapse them onto one - else a
+        fed arm is scored against a fasted simulation and the GMFE inflates."""
+        observed = [
+            _obs("Shah2006.Tiz.8mg.po.sd.Tab_Fed", "Shah 2006", "po", "8 mg", [1, 2], [.1, .05]),
+            _obs("Shah2006.Tiz.8mg.po.sd.Cap_Fasted", "Shah 2006", "po", "8 mg", [1, 2], [.1, .05]),
+        ]
+        profiles = [
+            PredictedProfile("Tizanidine 8mg po tablet fed", "Shah 2006", "po", "8 mg", [1, 2], [.1, .05]),
+            PredictedProfile("Tizanidine 8mg po tablet fasted", "Shah 2006", "po", "8 mg", [1, 2], [9, 9]),
+            PredictedProfile("Tizanidine 8mg po capsule fed", "Shah 2006", "po", "8 mg", [1, 2], [9, 9]),
+            PredictedProfile("Tizanidine 8mg po capsule fasted", "Shah 2006", "po", "8 mg", [1, 2], [.1, .05]),
+        ]
+        mapped, unmatched = osp_score.map_predictions(profiles, observed)
+        self.assertEqual(unmatched, [])
+        by = {m["dataset"]: m["_from_simulation"] for m in mapped}
+        self.assertEqual(by["Shah2006.Tiz.8mg.po.sd.Tab_Fed"], "Tizanidine 8mg po tablet fed")
+        self.assertEqual(by["Shah2006.Tiz.8mg.po.sd.Cap_Fasted"], "Tizanidine 8mg po capsule fasted")
+
+
 class TestMetrics(unittest.TestCase):
     def test_perfect_fit(self):
         observed = [_obs("D", "S", "IV", "1 mg", [1, 2, 3], [10, 5, 2.5])]

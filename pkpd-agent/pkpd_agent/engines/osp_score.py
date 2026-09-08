@@ -57,6 +57,33 @@ def _obs_key(o: dict):
     return study, route, dose
 
 
+# formulation (tablet/capsule/...) and food state (fed/fasted) are encoded in BOTH
+# the observed dataset name ("...8mg.po.sd.Tab_Fed") and the simulation name
+# ("Tizanidine 8mg po tablet fed"). Ignoring them lets the scorer pair a FED
+# observation with a FASTED simulation (whose dissolution can differ ~10x), which
+# silently inflates the reference model's GMFE. Match on them too.
+_FORMS = [("tablet", "tab"), ("capsule", "cap"), ("solution", "sol"),
+          ("suspension", "susp"), ("granule", "gran"), ("syrup", "syrup"),
+          ("pellet", "pellet")]
+
+
+def _formulation(s: str | None) -> str | None:
+    t = (s or "").lower()
+    for canon, key in _FORMS:
+        if re.search(r"\b" + key, t):
+            return canon
+    return None
+
+
+def _food(s: str | None) -> str | None:
+    t = (s or "").lower()
+    if "fasted" in t or "fasting" in t:
+        return "fasted"
+    if "fed" in t:
+        return "fed"
+    return None
+
+
 def _match_score(obs: dict, pred) -> int | None:
     """Score a candidate (observed, predicted) pairing; None = incompatible.
 
@@ -81,6 +108,19 @@ def _match_score(obs: dict, pred) -> int | None:
         if o_d[1] != p_d[1] or abs(o_d[0] - p_d[0]) > 1e-6 + 0.01 * o_d[0]:
             return None                              # dose mismatch -> out
         score += 2; hard = True
+    # formulation + food state: HARD when BOTH sides name them (like route/dose),
+    # so a fed arm never pairs with a fasted simulation of the same study/dose.
+    o_name, p_name = obs.get("dataset", ""), getattr(pred, "simulation", "")
+    o_form, p_form = _formulation(o_name), _formulation(p_name)
+    if o_form and p_form:
+        if o_form != p_form:
+            return None                              # tablet vs capsule -> out
+        score += 1
+    o_food, p_food = _food(o_name), _food(p_name)
+    if o_food and p_food:
+        if o_food != p_food:
+            return None                              # fed vs fasted -> out
+        score += 1
     # need a positive route/dose match; study alone is too weak to map on.
     return score if hard else None
 
