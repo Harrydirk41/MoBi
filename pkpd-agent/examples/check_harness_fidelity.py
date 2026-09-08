@@ -71,7 +71,18 @@ def main() -> None:
     cli = OSPCli(pksim_cli_path=args.pksim) if args.pksim else None
 
     want = {m.strip() for m in args.models.split(",")} if args.models else None
-    refs = sorted(glob.glob(os.path.join(_LIB, "*", "json", "*.json")))
+    # ONE primary reference per model dir - the PRIMARY (non-pediatric) model, the one
+    # the benchmark actually grades. The published GMFE parsed from the report is the
+    # ADULT model's, so a pediatric variant compared against it is the wrong yardstick
+    # (a false OFF), and the scoreboard never uses pediatric models anyway.
+    by_dir: dict[str, str] = {}
+    for ref in sorted(glob.glob(os.path.join(_LIB, "*", "json", "*.json"))):
+        d = os.path.dirname(os.path.dirname(ref))
+        cur = by_dir.get(d)
+        if cur is None or ("pediatric" in os.path.basename(cur).lower()
+                           and "pediatric" not in os.path.basename(ref).lower()):
+            by_dir[d] = ref
+    refs = [by_dir[d] for d in sorted(by_dir)]
     print(f"{'model':22} {'published':>9} {'harness':>8} {'ratio':>6}  verdict")
     n_ok = n_off = n_run = 0
     for ref in refs:
