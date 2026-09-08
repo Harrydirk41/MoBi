@@ -39,9 +39,18 @@ def _norm_route(s) -> str | None:
 
 
 def _dose_canon(s):
-    if not s:
+    if s is None or s == "":
         return None
-    m = re.search(r"([\d.]+)\s*(µg|ug|mg|g)\b\s*(/?\s*kg)?", str(s), re.IGNORECASE)
+    t = str(s).strip()
+    # a bare number with NO unit (e.g. observed dose "300.0") is a dose in mg -
+    # the default PK unit. Without this it returned None, which DISABLED the dose
+    # constraint and collapsed every arm of a study onto one simulation.
+    if re.fullmatch(r"[\d.]+", t):
+        try:
+            return float(t) * _MG["mg"], False
+        except ValueError:
+            return None
+    m = re.search(r"([\d.]+)\s*(µg|ug|mg|g)\b\s*(/?\s*kg)?", t, re.IGNORECASE)
     if not m:
         return None
     return float(m.group(1)) * _MG[m.group(2).lower()], bool(m.group(3))
@@ -84,6 +93,35 @@ def _food(s: str | None) -> str | None:
     return None
 
 
+def _infusion(s: str | None) -> str | None:
+    """IV infusion duration - bolus vs a timed infusion. Different durations at the
+    same dose give very different peak shapes, so a 3 h infusion must not be scored
+    against a bolus simulation. Returns 'bolus' or minutes (as a string)."""
+    t = (s or "").lower()
+    if "bolus" in t:
+        return "bolus"
+    m = re.search(r"(\d+\.?\d*)\s*(h|hr|hour|min)\b", t)
+    if not m:
+        return None
+    val = float(m.group(1))
+    mins = val * 60 if m.group(2).startswith("h") else val
+    return f"{round(mins)}min"
+
+
+def _phenotype(s: str | None) -> str | None:
+    """Metabolizer phenotype (extensive/poor/intermediate/ultra-rapid) - an EM and a
+    PM arm of the same study/dose have very different clearance, so they must not be
+    cross-matched."""
+    t = (s or "").lower()
+    if "poor metaboli" in t:
+        return "pm"
+    if "extensive metaboli" in t:
+        return "em"
+    # 'pm' / 'em' as a standalone token (not inside a word like 'system'/'problem')
+    m = re.search(r"(?<![a-z])(pm|em)(?![a-z])", t)
+    return m.group(1) if m else None
+
+
 def _match_score(obs: dict, pred) -> int | None:
     """Score a candidate (observed, predicted) pairing; None = incompatible.
 
@@ -120,6 +158,16 @@ def _match_score(obs: dict, pred) -> int | None:
     if o_food and p_food:
         if o_food != p_food:
             return None                              # fed vs fasted -> out
+        score += 1
+    o_inf, p_inf = _infusion(o_name), _infusion(p_name)
+    if o_inf and p_inf:
+        if o_inf != p_inf:
+            return None                              # bolus vs 3 h infusion -> out
+        score += 1
+    o_ph, p_ph = _phenotype(o_name), _phenotype(p_name)
+    if o_ph and p_ph:
+        if o_ph != p_ph:
+            return None                              # EM vs PM -> out
         score += 1
     # need a positive route/dose match; study alone is too weak to map on.
     return score if hard else None

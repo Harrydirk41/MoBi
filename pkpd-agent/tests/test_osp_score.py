@@ -55,6 +55,37 @@ class TestMapping(unittest.TestCase):
         self.assertEqual(by["Shah2006.Tiz.8mg.po.sd.Cap_Fasted"], "Tizanidine 8mg po capsule fasted")
 
 
+    def test_bare_number_dose_still_constrains(self):
+        """A unit-less observed dose (e.g. 300.0) must still constrain matching - it
+        is mg. Otherwise every dose arm collapses onto the first same-route sim."""
+        observed = [_obs("Pringle.100", "Pringle 1986", "po", 100.0, [1, 2], [.1, .05]),
+                    _obs("Pringle.300", "Pringle 1986", "po", 300.0, [1, 2], [.3, .15])]
+        profiles = [PredictedProfile("Mex 100 mg po", None, "po", "100 mg", [1, 2], [.1, .05]),
+                    PredictedProfile("Mex 300 mg po", None, "po", "300 mg", [1, 2], [.3, .15])]
+        by = {m["dataset"]: m["_from_simulation"]
+              for m in osp_score.map_predictions(profiles, observed)[0]}
+        self.assertEqual(by["Pringle.100"], "Mex 100 mg po")
+        self.assertEqual(by["Pringle.300"], "Mex 300 mg po")
+
+    def test_infusion_duration_and_phenotype_disambiguate(self):
+        observed = [
+            _obs("Wagner.iv.bolus", "Wagner 1981", "iv", "0.5 mg", [1, 2], [.1, .05]),
+            _obs("Wagner.iv.3h", "Wagner 1981", "iv", "0.5 mg", [1, 2], [.9, .9]),
+            _obs("Labbe.PM", "Labbe 2000", "po", "83.31 mg", [1, 2], [.1, .05]),
+        ]
+        profiles = [
+            PredictedProfile("Digoxin iv, 0.5 mg, Bolus", "Wagner 1981", "iv", "0.5 mg", [1, 2], [.1, .05]),
+            PredictedProfile("Digoxin iv, 0.5 mg, 3 h", "Wagner 1981", "iv", "0.5 mg", [1, 2], [.9, .9]),
+            PredictedProfile("Mex 83.31 mg po bid EM", "Labbe 2000", "po", "83.31 mg", [1, 2], [9, 9]),
+            PredictedProfile("Mex 83.31 mg po bid PM", "Labbe 2000", "po", "83.31 mg", [1, 2], [.1, .05]),
+        ]
+        by = {m["dataset"]: m["_from_simulation"]
+              for m in osp_score.map_predictions(profiles, observed)[0]}
+        self.assertEqual(by["Wagner.iv.bolus"], "Digoxin iv, 0.5 mg, Bolus")
+        self.assertEqual(by["Wagner.iv.3h"], "Digoxin iv, 0.5 mg, 3 h")
+        self.assertEqual(by["Labbe.PM"], "Mex 83.31 mg po bid PM")
+
+
 class TestMetrics(unittest.TestCase):
     def test_perfect_fit(self):
         observed = [_obs("D", "S", "IV", "1 mg", [1, 2, 3], [10, 5, 2.5])]
