@@ -86,6 +86,35 @@ class TestMapping(unittest.TestCase):
         self.assertEqual(by["Labbe.PM"], "Mex 83.31 mg po bid PM")
 
 
+    def test_study_is_hard_when_both_named(self):
+        """A simulation named only by a study (no parseable route/dose, e.g.
+        'Bovill 1984') must pair by STUDY - and an observation must NOT pile onto a
+        different study's simulation just because the route matched."""
+        observed = [_obs("Bovill", "Bovill 1984", "IV", "5 mg/kg", [1, 2], [.1, .05]),
+                    _obs("Taverne", "Taverne 1992", "iv", "150 µg", [1, 2], [.2, .1])]
+        profiles = [PredictedProfile("Bovill 1984", "Bovill 1984", None, None, [1, 2], [.1, .05]),
+                    PredictedProfile("Taverne 1992", "Taverne 1992", None, None, [1, 2], [.2, .1]),
+                    PredictedProfile("Willsie 2014 adults IV", "Willsie 2014", "IV", None, [1, 2], [9, 9])]
+        by = {m["dataset"]: m["_from_simulation"]
+              for m in osp_score.map_predictions(profiles, observed)[0]}
+        self.assertEqual(by["Bovill"], "Bovill 1984")       # not the IV-named Willsie sim
+        self.assertEqual(by["Taverne"], "Taverne 1992")
+
+    def test_compact_dose_and_hyphen_study_in_names(self):
+        """Dose parsed from a COMPACT sim name ('Healy1987_0.5gPer6h') and a study id
+        with a hyphen ('Gepts-1987') so 0.5 g does not match the 1 g arm and a Schnider
+        arm does not cross-match a Gepts simulation."""
+        observed = [_obs("Healy.0.5g", "Healy 1987", "IV", "0.5 g", [1, 2], [.1, .05]),
+                    _obs("Schnider.6", "Schnider 1998", "IV", "6 mg/kg", [1, 2], [.3, .1])]
+        profiles = [PredictedProfile("Healy1987_0.5gPer6h", None, None, None, [1, 2], [.1, .05]),
+                    PredictedProfile("Healy1987_1gBID", None, None, None, [1, 2], [9, 9]),
+                    PredictedProfile("Gepts-1987 6mg_kg", None, None, None, [1, 2], [9, 9])]
+        by = {m["dataset"]: m["_from_simulation"]
+              for m in osp_score.map_predictions(profiles, observed)[0]}
+        self.assertEqual(by["Healy.0.5g"], "Healy1987_0.5gPer6h")   # not the 1 g sim
+        self.assertNotIn("Schnider.6", by)                          # not cross-matched to Gepts
+
+
 class TestMetrics(unittest.TestCase):
     def test_perfect_fit(self):
         observed = [_obs("D", "S", "IV", "1 mg", [1, 2, 3], [10, 5, 2.5])]

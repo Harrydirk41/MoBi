@@ -24,11 +24,52 @@ _MG = {"µg": 1e-3, "ug": 1e-3, "mg": 1.0, "g": 1e3}
 # simulation <-> observed matching (study, route, dose)
 # --------------------------------------------------------------------------- #
 
+_STUDY_RE = re.compile(r"([A-Za-z]+)[\s_-]*(\d{4}[a-z]?)")   # author (space/_/- ) year
+
+
 def _norm_study(s: str | None) -> str:
-    m = re.search(r"([A-Za-z]+)\s*(\d{4}[a-z]?)", s or "")
+    m = _STUDY_RE.search(s or "")
     if m:
         return (m.group(1) + m.group(2)).lower()
     return re.sub(r"[^a-z0-9]", "", (s or "").lower())
+
+
+def _study_token(s: str | None) -> str | None:
+    """A REAL author+year study id (e.g. 'bovill1984', 'gepts1987' from 'Gepts-1987')
+    or None. Unlike _norm_study this does NOT fall back to squashing the whole string,
+    so a simulation named only by route/dose ('Digoxin po, 0.5 mg') yields None and
+    never falsely constrains."""
+    m = _STUDY_RE.search(s or "")
+    return (m.group(1) + m.group(2)).lower() if m else None
+
+
+def _dose_from_name(s: str | None) -> "tuple | None":
+    """Dose parsed from a raw simulation/dataset name, tolerant of the COMPACT forms
+    OSP uses ('0.5gPer6h', '1gBID', '15ug', '5mg_kg') where the unit is not followed by
+    a space. The unit must not run into a lowercase word (so 'g' in 'gemfibrozil' is not
+    a gram). Used as a fallback when the structured dose field is absent."""
+    if not s:
+        return None
+    m = re.search(r"(\d+\.?\d*)\s*(µg|ug|mcg|mg|g)(?=$|[^a-z]|[A-Z])", s)
+    if not m:
+        return None
+    unit = m.group(2).lower().replace("mcg", "ug")
+    perkg = bool(re.search(r"(µg|ug|mcg|mg|g)\s*[/_]?\s*kg", s, re.IGNORECASE))
+    return float(m.group(1)) * _MG[unit], perkg
+
+
+def _schedule(s: str | None) -> str | None:
+    """Dosing schedule from an EXPLICIT token: 'multiple' (repeated/steady-state) or
+    'single', else None. A multiple-dose arm accumulates and must not be scored against
+    a single-dose simulation - but ABSENCE of a token does NOT imply single (many
+    multiple-dose datasets omit it), so it returns None and does not constrain."""
+    t = (s or "").lower()
+    if re.search(r"\b(t\.?i\.?d|b\.?i\.?d|q\.?d|q\.?i\.?d|multiple[ -]?dose|\bm\.?d\b"
+                 r"|steady|day\s*[2-9]|day\s*1[0-9])", t):
+        return "multiple"
+    if re.search(r"\bs\.?d\b|single[ -]?dose", t):
+        return "single"
+    return None
 
 
 def _norm_route(s) -> str | None:
@@ -132,23 +173,31 @@ def _match_score(obs: dict, pred) -> int | None:
     Requiring at least route or dose to positively match prevents a study-less
     or route-less simulation from matching everything."""
     o_study, o_route, o_dose = _obs_key(obs)
+    o_name, p_name = obs.get("dataset", ""), getattr(pred, "simulation", "")
     score, hard = 0, False
-    if _norm_study(o_study) and _norm_study(pred.study) \
-            and _norm_study(o_study) == _norm_study(pred.study):
-        score += 1                                   # study bonus (soft)
+    # study: HARD when BOTH sides carry a real author+year id (from the field or the
+    # raw name). Same study is a strong positive; DIFFERENT studies rule the pairing
+    # out - so an observation cannot pile onto another study's simulation just because
+    # its route matched. Simulations named only by route/dose yield no study -> skip.
+    o_st = _study_token(o_study) or _study_token(o_name)
+    p_st = _study_token(pred.study) or _study_token(p_name)
+    if o_st and p_st:
+        if o_st != p_st:
+            return None                              # different study -> out
+        score += 3; hard = True
     o_r, p_r = _norm_route(o_route), _norm_route(pred.route)
     if o_r and p_r:
         if o_r != p_r:
             return None                              # route mismatch -> out
         score += 2; hard = True
-    o_d, p_d = _dose_canon(o_dose), _dose_canon(pred.dose)
+    o_d = _dose_canon(o_dose) or _dose_from_name(o_name)
+    p_d = _dose_canon(pred.dose) or _dose_from_name(p_name)
     if o_d and p_d:
         if o_d[1] != p_d[1] or abs(o_d[0] - p_d[0]) > 1e-6 + 0.01 * o_d[0]:
             return None                              # dose mismatch -> out
         score += 2; hard = True
     # formulation + food state: HARD when BOTH sides name them (like route/dose),
     # so a fed arm never pairs with a fasted simulation of the same study/dose.
-    o_name, p_name = obs.get("dataset", ""), getattr(pred, "simulation", "")
     o_form, p_form = _formulation(o_name), _formulation(p_name)
     if o_form and p_form:
         if o_form != p_form:
@@ -169,7 +218,12 @@ def _match_score(obs: dict, pred) -> int | None:
         if o_ph != p_ph:
             return None                              # EM vs PM -> out
         score += 1
-    # need a positive route/dose match; study alone is too weak to map on.
+    o_sch, p_sch = _schedule(o_name), _schedule(p_name)
+    if o_sch and p_sch:
+        if o_sch != p_sch:
+            return None                              # single-dose vs multiple-dose -> out
+        score += 1
+    # need a positive study/route/dose match; a bare formulation/food is too weak.
     return score if hard else None
 
 
