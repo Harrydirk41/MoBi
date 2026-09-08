@@ -438,6 +438,7 @@ def assemble(session, config, cli, input_dict, snapshot_path, best_edits,
              ref_snapshot_path=None, answer_edits=None, run_models=True):
     """Build ReportData from a finished run (re-runs the best + reference models
     via PK-Sim to get the concentration-time profiles)."""
+    import json as _json
     from .engines.snapshot_edit import apply_edits
     observed = input_dict["given_data"]["clinical_observed_data"]
     best_edits = best_edits or {}
@@ -449,15 +450,22 @@ def assemble(session, config, cli, input_dict, snapshot_path, best_edits,
 
     fit, ref, profiles = {}, {}, []
     if run_models and cli is not None:
+        # use the EXPLICIT observed->simulation linkage OSP records in the snapshot
+        # (OutputMappings), so agent and reference are scored on exactly the datasets
+        # the model maps to a simulation - the same pairing, no name-guessing.
+        with open(snapshot_path, encoding="utf-8") as _al:
+            agent_link = osp_score.linkage_from_snapshot(_json.load(_al)) or None
         res = cli.build_and_run(snapshot_path, edits=run_edits)
-        pred, _ = osp_score.map_predictions(res.get("profiles", []), observed)
+        pred, _ = osp_score.map_predictions(res.get("profiles", []), observed, linkage=agent_link)
         score = osp_score.score_fit(observed, pred)
         fit = dict(score["overall"]); fit["by_route"] = score["by_route"]
         predmap = {p["dataset"]: p for p in pred}
         refmap = {}
         if ref_snapshot_path:
+            with open(ref_snapshot_path, encoding="utf-8") as _rl:
+                ref_link = osp_score.linkage_from_snapshot(_json.load(_rl)) or None
             rres = cli.build_and_run(ref_snapshot_path)
-            rpred, _ = osp_score.map_predictions(rres.get("profiles", []), observed)
+            rpred, _ = osp_score.map_predictions(rres.get("profiles", []), observed, linkage=ref_link)
             ref["gmfe"] = osp_score.score_fit(observed, rpred)["overall"]["gmfe"]
             refmap = {p["dataset"]: p for p in rpred}
         for o in observed:

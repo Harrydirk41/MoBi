@@ -49,7 +49,9 @@ def _reference_gmfe(cli: OSPCli, ref_path: str, observed: list) -> "float | None
     res = cli.build_and_run(ref_path)
     if not res.get("ok"):
         return None
-    pred, _ = osp_score.map_predictions(res.get("profiles", []), observed)
+    with open(ref_path, encoding="utf-8") as fh:
+        linkage = osp_score.linkage_from_snapshot(json.load(fh))
+    pred, _ = osp_score.map_predictions(res.get("profiles", []), observed, linkage=linkage)
     return osp_score.score_fit(observed, pred)["overall"]["gmfe"]
 
 

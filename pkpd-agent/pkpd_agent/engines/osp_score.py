@@ -227,22 +227,55 @@ def _match_score(obs: dict, pred) -> int | None:
     return score if hard else None
 
 
-def map_predictions(profiles: list, observed: list[dict]):
-    """-> (predicted_profiles[list of dicts], unmatched[list of dataset names])."""
+def linkage_from_snapshot(snap: dict) -> dict[str, str]:
+    """The EXPLICIT observed-dataset -> simulation pairing OSP records in each
+    simulation's OutputMappings/ObservedData. This is the authoritative linkage the
+    modeller set up (e.g. 'Shah2006...Tab_Fed' -> 'Tizanidine 8mg po tablet fed'), so
+    scoring never has to re-guess it from names. A dataset the reference maps to NO
+    simulation (an extra arm the model was not built/validated on - e.g. Digoxin's DDI
+    control arms) is simply absent, and is then excluded from scoring rather than
+    force-matched. Returns {observed_dataset_name: simulation_name}."""
+    link: dict[str, str] = {}
+    for s in snap.get("Simulations") or []:
+        nm = s.get("Name")
+        for om in s.get("OutputMappings") or []:
+            od = om.get("ObservedData")
+            if od and nm:
+                link.setdefault(od, nm)
+        for od in s.get("ObservedData") or []:
+            if isinstance(od, str) and nm:
+                link.setdefault(od, nm)
+    return link
+
+
+def map_predictions(profiles: list, observed: list[dict], linkage: dict | None = None):
+    """-> (predicted_profiles[list of dicts], unmatched[list of dataset names]).
+
+    When ``linkage`` (from ``linkage_from_snapshot``) is given, each observation is
+    paired with its simulation EXACTLY as OSP recorded it, and observations the model
+    maps to no simulation are left unmatched (excluded), not heuristically force-fit.
+    Without a linkage it falls back to name-based ``_match_score`` matching."""
     predicted_profiles, unmatched = [], []
+    prof_by_sim = {p.simulation: p for p in profiles} if linkage else {}
     for o in observed:
-        best, best_score = None, 0
-        for p in profiles:
-            s = _match_score(o, p)
-            if s and s > best_score:
-                best, best_score = p, s
+        ds = o["dataset"]
+        best = None
+        if linkage is not None:
+            sim = linkage.get(ds)
+            best = prof_by_sim.get(sim) if sim else None    # unmapped or no-profile -> None
+        else:
+            best_score = 0
+            for p in profiles:
+                s = _match_score(o, p)
+                if s and s > best_score:
+                    best, best_score = p, s
         if best:
             predicted_profiles.append({
-                "dataset": o["dataset"], "time_h": best.time_h,
+                "dataset": ds, "time_h": best.time_h,
                 "pred_conc_mg_L": best.conc_mg_L,
                 "_from_simulation": best.simulation})
         else:
-            unmatched.append(o["dataset"])
+            unmatched.append(ds)
     return predicted_profiles, unmatched
 
 

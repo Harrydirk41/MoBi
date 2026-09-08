@@ -115,6 +115,31 @@ class TestMapping(unittest.TestCase):
         self.assertNotIn("Schnider.6", by)                          # not cross-matched to Gepts
 
 
+    def test_explicit_linkage_pairs_exactly_and_excludes_unmapped(self):
+        """The snapshot's OutputMappings give the authoritative observed->sim pairing.
+        With it, pairing is exact and an observation the model maps to no simulation
+        (an extra arm) is excluded, not force-matched."""
+        snap = {"Simulations": [
+            {"Name": "Tiz 8mg tablet fed",
+             "OutputMappings": [{"ObservedData": "Shah.8mg.Tab_Fed"}]},
+            {"Name": "Tiz 8mg capsule fasted", "ObservedData": ["Shah.8mg.Cap_Fasted"]},
+        ]}
+        link = osp_score.linkage_from_snapshot(snap)
+        self.assertEqual(link, {"Shah.8mg.Tab_Fed": "Tiz 8mg tablet fed",
+                                "Shah.8mg.Cap_Fasted": "Tiz 8mg capsule fasted"})
+        profiles = [PredictedProfile("Tiz 8mg tablet fed", None, None, None, [1], [.1]),
+                    PredictedProfile("Tiz 8mg capsule fasted", None, None, None, [1], [.2])]
+        observed = [_obs("Shah.8mg.Tab_Fed", "Shah 2006", "po", "8 mg", [1], [.1]),
+                    _obs("Shah.8mg.Cap_Fasted", "Shah 2006", "po", "8 mg", [1], [.2]),
+                    _obs("Greiner.DDI.arm", "Greiner 1999", "po", "8 mg", [1], [.3])]  # unmapped
+        pred, unm = osp_score.map_predictions(profiles, observed, linkage=link)
+        by = {p["dataset"]: p["_from_simulation"] for p in pred}
+        self.assertEqual(by["Shah.8mg.Tab_Fed"], "Tiz 8mg tablet fed")
+        self.assertEqual(by["Shah.8mg.Cap_Fasted"], "Tiz 8mg capsule fasted")
+        self.assertIn("Greiner.DDI.arm", unm)          # unmapped extra excluded
+        self.assertNotIn("Greiner.DDI.arm", by)
+
+
 class TestMetrics(unittest.TestCase):
     def test_perfect_fit(self):
         observed = [_obs("D", "S", "IV", "1 mg", [1, 2, 3], [10, 5, 2.5])]
