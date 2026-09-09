@@ -175,6 +175,15 @@ def main() -> None:
         print(f"[skipped - no complete benchmark found]: {missing}")
 
     if args.run:
+        # clear any STALE report from an earlier run so the scoreboard shows only THIS
+        # session's results (a pending/failed model then reads as 'not run', not stale).
+        for f in files:
+            for p in (f.get("report_json"), f.get("report")):
+                if p and os.path.exists(p):
+                    try:
+                        os.remove(p)
+                    except OSError:
+                        pass
         ok = 0
         for f in files:
             ok += _run_one(f, args.target, args.max_steps, args.pksim)
