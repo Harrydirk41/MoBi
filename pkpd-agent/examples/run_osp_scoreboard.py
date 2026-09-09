@@ -105,30 +105,38 @@ def _aggregate(files: list, order: list, out: str) -> None:
                    "Structure = did the agent pick the reference's methods/processes.")
     L = [f"# PBPK agent scoreboard{' - HARD (mechanism discovery)' if hard else ''} "
          "(agent vs ground-truth model)", "",
-         "Difficulty rank is an informed estimate (mechanism + #unknowns + data breadth); GMFE<=1.6 "
-         f"is the ~within-2-fold bar. {struct_note}"
-         " Params: recovered well / weakly-identified-or-minor / genuine miss.", "",
-         "| # | model | agent GMFE | ref GMFE | structure | params good/soft/bad | verdict |",
-         "|---|---|---|---|---|---|---|"]
+         "PRIMARY grade is HELD-OUT: the agent fits the building studies and is graded on "
+         "how well it PREDICTS the held-out verification studies, RELATIVE to the reference "
+         f"model on the same held-out data (PASS = agent held-out GMFE <= 1.25x reference's). "
+         f"{struct_note} 'all-data GMFE' is the in-sample fit, shown for context.", "",
+         "| # | model | held-out agent | held-out ref | ratio | structure | all-data agent | verdict |",
+         "|---|---|---|---|---|---|---|---|"]
     for i, (model, d) in enumerate(rows, 1):
         if not d:
-            L.append(f"| {i} | {model} | - | - | - | - | (no report - run failed / not run) |")
+            L.append(f"| {i} | {model} | - | - | - | - | - | (no report - run failed / not run) |")
             continue
         fit = d.get("fit") or {}
-        p = d.get("params") or {}
+        ho = d.get("heldout") or {}
         sm = d.get("structure_match")
         smtxt = "match" if sm is True else ("differs" if sm is False else "-")
         ag, rg = fit.get("agent_gmfe"), fit.get("reference_gmfe")
-        verdict = "PASS" if isinstance(ag, (int, float)) and ag <= 1.6 else "over 2-fold"
-        if isinstance(ag, (int, float)) and isinstance(rg, (int, float)) and ag <= rg * 1.15:
-            verdict += ", ~matches reference"
-        L.append(f"| {i} | {model} | {_cell(ag)} | {_cell(rg)} | {smtxt} | "
-                 f"{p.get('good','-')}/{p.get('soft','-')}/{p.get('bad','-')} | {verdict} |")
-    # honest aggregate
+        a_ho, r_ho, ratio = ho.get("agent_gmfe"), ho.get("reference_gmfe"), ho.get("ratio")
+        if ho and ho.get("pass") is not None:
+            verdict = "PASS (predicts held-out ~= reference)" if ho.get("pass") \
+                else "FAIL (worse than reference on held-out)"
+        else:
+            verdict = "no held-out split (graded on all data)"
+        L.append(f"| {i} | {model} | {_cell(a_ho)} | {_cell(r_ho)} | "
+                 f"{_cell(ratio,2) if ratio else '-'} | {smtxt} | {_cell(ag)} | {verdict} |")
+    # honest aggregate - the primary bar is the HELD-OUT relative grade
     scored = [d for _, d in rows if d and isinstance((d.get('fit') or {}).get('agent_gmfe'), (int, float))]
-    n_pass = sum(1 for d in scored if d["fit"]["agent_gmfe"] <= 1.6)
-    L += ["", f"**{len(scored)}/{len(rows)} models produced a scored fit; {n_pass} reached "
-          f"GMFE<=1.6.** Missing rows are runs that did not finish - report them as gaps, not passes."]
+    graded = [d for d in scored if (d.get("heldout") or {}).get("pass") is not None]
+    n_pass = sum(1 for d in graded if d["heldout"]["pass"])
+    n_none = len(scored) - len(graded)
+    L += ["", f"**{len(scored)}/{len(rows)} models produced a scored run; of those, {len(graded)} had "
+          f"a held-out split and {n_pass} PASSED (predicted held-out data within 1.25x of the "
+          f"reference); {n_none} had too few studies to hold out (graded on all data).** Missing "
+          f"rows are runs that did not finish - report them as gaps, not passes."]
     text = "\n".join(L)
     open(out, "w", encoding="utf-8").write(text)
     print("\n" + text + f"\n\n(scoreboard -> {os.path.abspath(out)})")

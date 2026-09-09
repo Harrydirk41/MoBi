@@ -192,10 +192,29 @@ def main() -> None:
         inp = json.load(fh)
     observed = inp["given_data"]["clinical_observed_data"]
 
+    # HELD-OUT split: the agent fits on the BUILDING studies only; the VERIFICATION
+    # studies are held out and used only to grade prediction (report.assemble). Compute
+    # the split from the blanked snapshot (its OutputMappings/classifications, which the
+    # agent legitimately has) and hand the tools a building-only view of the data.
+    from pkpd_agent.engines import osp_split as _osp_split
+    with open(args.snapshot, encoding="utf-8") as _sf:
+        _split = _osp_split.split_studies(json.load(_sf), observed)
+    build_set = set(_split.get("building") or [])
+    if _split.get("verification"):
+        build_obs = [o for o in observed if o["dataset"] in build_set]
+        inp_agent = dict(inp)
+        inp_agent["given_data"] = {**inp["given_data"], "clinical_observed_data": build_obs}
+        print(f"== held-out split [{_split['method']}]: agent fits {len(build_obs)} "
+              f"building datasets; {len(_split['verification'])} verification datasets held "
+              f"out ({len(_split['held_out_studies'])} studies) for grading ==")
+    else:
+        build_obs, inp_agent = observed, inp
+        print(f"== held-out split: none ({_split.get('method')}) - graded on all data ==")
+
     registry = ToolRegistry()
     register_osp_loop_tools(registry, cfg, {
         "cli": cli, "snapshot_path": args.snapshot,
-        "observed": observed, "input": inp})
+        "observed": build_obs, "input": inp_agent})
 
     goal = (f"{inp.get('objective','Build the PBPK model.')}\n\n"
             f"Target: overall GMFE <= {args.target}. Start by calling osp_inspect, "

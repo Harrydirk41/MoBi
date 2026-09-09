@@ -454,7 +454,8 @@ def assemble(session, config, cli, input_dict, snapshot_path, best_edits,
         # (OutputMappings), so agent and reference are scored on exactly the datasets
         # the model maps to a simulation - the same pairing, no name-guessing.
         with open(snapshot_path, encoding="utf-8") as _al:
-            agent_link = osp_score.linkage_from_snapshot(_json.load(_al)) or None
+            _blanked_snap = _json.load(_al)
+        agent_link = osp_score.linkage_from_snapshot(_blanked_snap) or None
         res = cli.build_and_run(snapshot_path, edits=run_edits)
         pred, _ = osp_score.map_predictions(res.get("profiles", []), observed, linkage=agent_link)
         score = osp_score.score_fit(observed, pred)
@@ -468,6 +469,27 @@ def assemble(session, config, cli, input_dict, snapshot_path, best_edits,
             rpred, _ = osp_score.map_predictions(rres.get("profiles", []), observed, linkage=ref_link)
             ref["gmfe"] = osp_score.score_fit(observed, rpred)["overall"]["gmfe"]
             refmap = {p["dataset"]: p for p in rpred}
+        # HELD-OUT predictive grade: split studies into building (fitted) vs verification
+        # (held out), score BOTH agent and reference on the VERIFICATION set only, and
+        # judge the agent RELATIVE to the reference (a valid model predicts held-out data
+        # about as well as the expert model, whatever its parameterization).
+        try:
+            from .engines import osp_split
+            split = osp_split.split_studies(_blanked_snap, observed)
+        except Exception:                                       # noqa: BLE001
+            split = None
+        if split and split.get("verification"):
+            vset = set(split["verification"])
+            v_obs = [o for o in observed if o["dataset"] in vset]
+            a_ho = osp_score.score_fit(v_obs, pred)["overall"]["gmfe"] if v_obs else None
+            r_ho = (osp_score.score_fit(v_obs, list(refmap.values()))["overall"]["gmfe"]
+                    if (v_obs and refmap) else None)
+            ratio = (a_ho / r_ho) if (a_ho and r_ho) else None
+            fit["heldout"] = {
+                "agent_gmfe": a_ho, "reference_gmfe": r_ho, "ratio": ratio,
+                "pass": bool(ratio is not None and ratio <= 1.25),
+                "n_verification": len(v_obs), "method": split["method"],
+                "held_out_studies": split["held_out_studies"]}
         for o in observed:
             pm, rm = predmap.get(o["dataset"]), refmap.get(o["dataset"])
             profiles.append({
@@ -1070,6 +1092,7 @@ def write_json(d: ReportData, path: str) -> None:
         "status": d.status,
         "fit": {"agent_gmfe": (d.fit or {}).get("gmfe"),
                 "reference_gmfe": (d.reference or {}).get("gmfe")},
+        "heldout": (d.fit or {}).get("heldout"),
         "structure_match": (all(s.get("match") for s in struct) if struct else None),
         "structure": struct,
         "params": {"total": len(prows),
