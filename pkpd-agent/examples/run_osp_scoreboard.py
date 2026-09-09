@@ -33,9 +33,13 @@ import sys
 _HERE = os.path.dirname(os.path.abspath(__file__))
 _LIB = os.path.abspath(os.path.join(_HERE, "..", "..", "OSP-PBPK-Model-Library"))
 
-# easy -> hard (informed estimate; the run is what checks it)
-DEFAULT_ORDER = ["Vancomycin", "Tizanidine", "Sufentanil", "Montelukast", "Raltegravir",
-                 "Mexiletine", "Alfentanil", "Sildenafil", "Midazolam", "Digoxin"]
+# easy -> hard (informed estimate; the run is what checks it). Every single-compound
+# model whose reference the harness reproduces faithfully is included. Propofol is
+# omitted: its TCI (target-controlled infusion) arms are not reproduced by the harness,
+# so its reference GMFE is not trustworthy - it would need infusion-protocol support.
+DEFAULT_ORDER = ["Vancomycin", "Tizanidine", "Triazolam", "Alprazolam", "Sufentanil",
+                 "Mexiletine", "Alfentanil", "Raltegravir", "Fluvoxamine", "Montelukast",
+                 "Dapagliflozin", "Sildenafil", "Midazolam", "Digoxin"]
 
 
 def _resolve(model: str, hard: bool = False) -> "dict | None":
