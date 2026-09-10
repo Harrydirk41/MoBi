@@ -2111,31 +2111,28 @@
    "Parameters": [
     {
      "Name": "Dissolution time (50% dissolved)",
-     "Value": 286.9463213309,
+     "Value": 30.0,
      "Unit": "min",
      "ValueOrigin": {
-      "Source": "ParameterIdentification",
-      "Method": "ParameterIdentification",
-      "Description": "Value updated from 'PI_IV+Solution+ER+DDI_additionalCL_3' on 2022-08-10 10:41"
+      "Source": "Unknown",
+      "Description": "benchmark naive prior (blanked)"
      }
     },
     {
      "Name": "Lag time",
-     "Value": 18.6758448616,
+     "Value": 0.0,
      "Unit": "min",
      "ValueOrigin": {
-      "Source": "ParameterIdentification",
-      "Method": "ParameterIdentification",
-      "Description": "Value updated from 'PI_IV+Solution+ER+DDI_additionalCL_3' on 2022-08-10 10:41"
+      "Source": "Unknown",
+      "Description": "benchmark naive prior (blanked)"
      }
     },
     {
      "Name": "Dissolution shape",
-     "Value": 0.7639975313,
+     "Value": 1.0,
      "ValueOrigin": {
-      "Source": "ParameterIdentification",
-      "Method": "ParameterIdentification",
-      "Description": "Value updated from 'PI_IV+Solution+ER+DDI_additionalCL_3' on 2022-08-10 10:41"
+      "Source": "Unknown",
+      "Description": "benchmark naive prior (blanked)"
      }
     },
     {
@@ -2150,12 +2147,11 @@
    "Parameters": [
     {
      "Name": "Dissolution time (50% dissolved)",
-     "Value": 46.5005948338,
+     "Value": 30.0,
      "Unit": "min",
      "ValueOrigin": {
-      "Source": "ParameterIdentification",
-      "Method": "ParameterIdentification",
-      "Description": "Value updated from 'PI IR Tablet alone' on 2022-08-10 11:29"
+      "Source": "Unknown",
+      "Description": "benchmark naive prior (blanked)"
      }
     },
     {
@@ -2165,11 +2161,10 @@
     },
     {
      "Name": "Dissolution shape",
-     "Value": 0.8876005929,
+     "Value": 1.0,
      "ValueOrigin": {
-      "Source": "ParameterIdentification",
-      "Method": "ParameterIdentification",
-      "Description": "Value updated from 'PI IR Tablet alone' on 2022-08-10 11:29"
+      "Source": "Unknown",
+      "Description": "benchmark naive prior (blanked)"
      }
     },
     {

@@ -61,7 +61,9 @@ def _value_status(value_origin) -> str:
 
 def _current_model(snapshot_path: str) -> dict[str, Any]:
     with open(snapshot_path, encoding="utf-8") as fh:
-        comp = (json.load(fh).get("Compounds") or [{}])[0]
+        _snap = json.load(fh)
+    comp = (_snap.get("Compounds") or [{}])[0]
+    _forms = _snap.get("Formulations") or []
     params = []
     seen = set()
 
@@ -115,6 +117,27 @@ def _current_model(snapshot_path: str) -> dict[str, Any]:
             for mol, val, unit, status in os_:
                 params.append({"name": f"{nm}@{mol}", "value": val, "unit": unit,
                                "on_process": mol, "value_status": status})
+
+    # FORMULATION params (Weibull dissolution = oral absorption). Expose them as
+    # editable so the agent can FIT absorption. With more than one formulation
+    # (tablet vs capsule, different release), qualify by formulation name
+    # ('Dissolution time (50% dissolved)@Halcion') so each can be fit independently.
+    multi = len([f for f in _forms if f.get("Parameters")]) > 1
+    for form in _forms:
+        fname = form.get("Name")
+        for par in form.get("Parameters") or []:
+            nm = par.get("Name")
+            if not (isinstance(nm, str) and isinstance(par.get("Value"), (int, float))):
+                continue
+            if "dissolution" not in nm.lower():        # only the fittable dissolution knobs
+                continue
+            key = f"{nm}@{fname}" if multi else nm
+            if key in seen:
+                continue
+            seen.add(key)
+            params.append({"name": key, "value": par["Value"], "unit": par.get("Unit", ""),
+                           "on_formulation": fname,
+                           "value_status": _value_status(par.get("ValueOrigin"))})
 
     return {
         "parameters": params,

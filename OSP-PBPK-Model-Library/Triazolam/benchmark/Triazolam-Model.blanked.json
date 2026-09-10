@@ -1485,12 +1485,11 @@
    "Parameters": [
     {
      "Name": "Dissolution time (50% dissolved)",
-     "Value": 1.7958147418,
+     "Value": 30.0,
      "Unit": "min",
      "ValueOrigin": {
-      "Source": "ParameterIdentification",
-      "Method": "ParameterIdentification",
-      "Description": "Value updated from 'IV + Oral' on 2018-11-13 16:52"
+      "Source": "Unknown",
+      "Description": "benchmark naive prior (blanked)"
      }
     },
     {
@@ -1500,11 +1499,10 @@
     },
     {
      "Name": "Dissolution shape",
-     "Value": 2.5169993312,
+     "Value": 1.0,
      "ValueOrigin": {
-      "Source": "ParameterIdentification",
-      "Method": "ParameterIdentification",
-      "Description": "Value updated from 'IV + Oral' on 2018-11-13 16:52"
+      "Source": "Unknown",
+      "Description": "benchmark naive prior (blanked)"
      }
     },
     {

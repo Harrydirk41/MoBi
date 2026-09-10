@@ -1599,12 +1599,11 @@
    "Parameters": [
     {
      "Name": "Dissolution time (50% dissolved)",
-     "Value": 0.0107481462,
+     "Value": 30.0,
      "Unit": "min",
      "ValueOrigin": {
-      "Source": "ParameterIdentification",
-      "Method": "ParameterIdentification",
-      "Description": "Value updated from 'PI Tablet 7.5 mg' on 2019-04-09 16:30"
+      "Source": "Unknown",
+      "Description": "benchmark naive prior (blanked)"
      }
     },
     {
@@ -1614,11 +1613,10 @@
     },
     {
      "Name": "Dissolution shape",
-     "Value": 4.3802943225,
+     "Value": 1.0,
      "ValueOrigin": {
-      "Source": "ParameterIdentification",
-      "Method": "ParameterIdentification",
-      "Description": "Value updated from 'PI Tablet 7.5 mg' on 2019-04-09 16:30"
+      "Source": "Unknown",
+      "Description": "benchmark naive prior (blanked)"
      }
     },
     {

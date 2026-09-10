@@ -2647,10 +2647,11 @@
    "Parameters": [
     {
      "Name": "Dissolution time (50% dissolved)",
-     "Value": 1.0000049774e-05,
+     "Value": 30.0,
      "Unit": "min",
      "ValueOrigin": {
-      "Source": "ParameterIdentification"
+      "Source": "Unknown",
+      "Description": "benchmark naive prior (blanked)"
      }
     },
     {
@@ -2660,9 +2661,10 @@
     },
     {
      "Name": "Dissolution shape",
-     "Value": 0.050078869,
+     "Value": 1.0,
      "ValueOrigin": {
-      "Source": "ParameterIdentification"
+      "Source": "Unknown",
+      "Description": "benchmark naive prior (blanked)"
      }
     },
     {
@@ -2677,10 +2679,11 @@
    "Parameters": [
     {
      "Name": "Dissolution time (50% dissolved)",
-     "Value": 500.0,
+     "Value": 30.0,
      "Unit": "min",
      "ValueOrigin": {
-      "Source": "ParameterIdentification"
+      "Source": "Unknown",
+      "Description": "benchmark naive prior (blanked)"
      }
     },
     {
@@ -2690,9 +2693,10 @@
     },
     {
      "Name": "Dissolution shape",
-     "Value": 0.03536656,
+     "Value": 1.0,
      "ValueOrigin": {
-      "Source": "ParameterIdentification"
+      "Source": "Unknown",
+      "Description": "benchmark naive prior (blanked)"
      }
     },
     {
@@ -2707,10 +2711,11 @@
    "Parameters": [
     {
      "Name": "Dissolution time (50% dissolved)",
-     "Value": 0.00010000047426,
+     "Value": 30.0,
      "Unit": "min",
      "ValueOrigin": {
-      "Source": "ParameterIdentification"
+      "Source": "Unknown",
+      "Description": "benchmark naive prior (blanked)"
      }
     },
     {
@@ -2720,9 +2725,10 @@
     },
     {
      "Name": "Dissolution shape",
-     "Value": 0.0654456264,
+     "Value": 1.0,
      "ValueOrigin": {
-      "Source": "ParameterIdentification"
+      "Source": "Unknown",
+      "Description": "benchmark naive prior (blanked)"
      }
     },
     {

@@ -57,7 +57,8 @@ def apply_edits(snapshot: dict, edits: dict | None) -> tuple[dict, dict]:
                  for ep in (snap.get("ExpressionProfiles") or [])
                  if ep.get("Molecule")}
 
-    _apply_parameters(comp, edits.get("parameters") or {}, report)
+    _apply_parameters(comp, edits.get("parameters") or {}, report,
+                      formulations=snap.get("Formulations") or [])
     _apply_calc_methods(comp, sims, comp_name, edits.get("calculation_methods") or {}, report)
     _apply_processes(comp, sims, comp_name, edits.get("processes") or {}, report)
     _apply_add_processes(comp, sims, comp_name,
@@ -196,12 +197,16 @@ def _add_sim_process(sims: list, comp_name: str | None,
 # parameters
 # --------------------------------------------------------------------------- #
 
-def _apply_parameters(comp: dict, params: dict, report: dict) -> None:
-    """Set compound parameters by name. A key may be QUALIFIED as
-    ``"<Name>@<Molecule>"`` to target the parameter on ONE specific process -
-    needed when the same parameter name lives on several processes (e.g. a
-    per-enzyme ``CLspec/[Enzyme]`` on UGT1A9, UGT2B7 and a CYP, each with its own
-    value). An unqualified name keeps the old behaviour (sets every match)."""
+def _apply_parameters(comp: dict, params: dict, report: dict,
+                      formulations: list | None = None) -> None:
+    """Set compound parameters by name, and FORMULATION parameters (the Weibull
+    dissolution time/shape - absorption) too. A key may be QUALIFIED as
+    ``"<Name>@<Qual>"`` to target ONE process (by molecule/internal name) OR ONE
+    formulation (by name) - needed when the same parameter name lives on several
+    processes (per-enzyme ``CLspec/[Enzyme]``) or several formulations (a tablet and
+    a capsule with different ``Dissolution time@Tablet`` / ``@Capsule``). An
+    unqualified name sets every match (all processes and all formulations)."""
+    formulations = formulations or []
     qualified: dict[tuple, tuple] = {}   # (name_l, qual_l) -> (orig_key, value)
     plain: dict[str, tuple] = {}         # name_l -> (orig_key, value)
     for k, v in params.items():
@@ -212,8 +217,8 @@ def _apply_parameters(comp: dict, params: dict, report: dict) -> None:
             plain[k.lower()] = (k, v)
     hit: set = set()
 
-    # qualified: set the parameter only on the process whose molecule (or
-    # internal name) matches the qualifier.
+    # qualified: set the parameter on the process (by molecule / internal name) OR the
+    # formulation (by name) that matches the qualifier.
     if qualified:
         for proc in comp.get("Processes") or []:
             pmol = (proc.get("Molecule") or "").lower()
@@ -222,6 +227,16 @@ def _apply_parameters(comp: dict, params: dict, report: dict) -> None:
                 pn = (par.get("Name") or "").lower()
                 for (qnm, qual), (orig, val) in qualified.items():
                     if pn == qnm and qual in (pmol, pin):
+                        par["Value"] = val
+                        par.pop("ValueOrigin", None)
+                        report["parameters"][orig] = val
+                        hit.add((qnm, qual))
+        for form in formulations:
+            fn = (form.get("Name") or "").lower()
+            for par in form.get("Parameters") or []:
+                pn = (par.get("Name") or "").lower()
+                for (qnm, qual), (orig, val) in qualified.items():
+                    if pn == qnm and qual and (qual == fn or qual in fn):
                         par["Value"] = val
                         par.pop("ValueOrigin", None)
                         report["parameters"][orig] = val
@@ -245,6 +260,8 @@ def _apply_parameters(comp: dict, params: dict, report: dict) -> None:
 
     if plain:
         walk(comp)
+        for form in formulations:          # absorption lives on the formulation
+            walk(form)
     for low, (orig, _) in plain.items():
         if low not in hit:
             report["not_found"].append(f"parameter:{orig}")

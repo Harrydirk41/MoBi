@@ -55,6 +55,9 @@ BLANK_DEFAULTS: dict[str, float] = {
     "Transporter concentration": 1.0,
     "Ki": 1.0, "K_kinact_half": 1.0, "kinact": 0.1,
     "EC50": 1.0, "Emax": 1.0,
+    # Weibull dissolution (formulation absorption) - neutral naive priors, NOT the
+    # fitted answer: a moderate 30 min half-dissolution and an exponential shape.
+    "Dissolution time (50% dissolved)": 30.0, "Dissolution shape": 1.0, "Lag time": 0.0,
 }
 
 INTERACTION_NAMES = {"CompetitiveInhibition", "UncompetitiveInhibition",
@@ -439,11 +442,15 @@ def _blank(data: dict) -> tuple[dict, list[dict], list[str]]:
             for v in o:
                 walk(v)
 
-    # blank only the COMPOUND (drug) parameters, matching the Alfentanil design -
-    # NOT formulation dissolution or protocol parameters, which are a different,
-    # study-specific kind of fit and are described in the given study designs.
+    # blank every FITTED (ParameterIdentification) parameter - on the Compounds AND on
+    # the Formulations. The formulation Weibull dissolution (time/shape) is a fitted
+    # ANSWER (how fast the tablet releases drug); leaving it handed the agent the
+    # reference's fitted absorption for free. Only PI-origin values are touched, so the
+    # study design (dose/route/formulation type) is untouched.
     for comp in snap.get("Compounds") or []:
         walk(comp)
+    for form in snap.get("Formulations") or []:
+        walk(form)
     _neutralize_methods(snap)          # methods are withheld too ('choose your own')
     return snap, answer, warns
 

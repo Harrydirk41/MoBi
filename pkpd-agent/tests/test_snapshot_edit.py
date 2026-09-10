@@ -191,6 +191,37 @@ if __name__ == "__main__":
     unittest.main()
 
 
+class TestFormulationParameters(unittest.TestCase):
+    """Weibull dissolution (absorption) lives on the FORMULATION and must be
+    settable - an unqualified name sets all formulations, '<Name>@<Formulation>'
+    sets one. (Before this, the agent could not fit absorption at all.)"""
+
+    SNAP = {"Compounds": [{"Name": "Drug", "Parameters": [{"Name": "Lipophilicity", "Value": 2.0}]}],
+            "Formulations": [
+                {"Name": "Tablet", "Parameters": [
+                    {"Name": "Dissolution time (50% dissolved)", "Value": 30.0},
+                    {"Name": "Dissolution shape", "Value": 1.0}]},
+                {"Name": "Capsule", "Parameters": [
+                    {"Name": "Dissolution time (50% dissolved)", "Value": 30.0}]}],
+            "Simulations": []}
+
+    def _diss(self, snap, form):
+        f = next(x for x in snap["Formulations"] if x["Name"] == form)
+        return {p["Name"]: p["Value"] for p in f["Parameters"]}
+
+    def test_qualified_sets_one_formulation(self):
+        final, report = apply_edits(self.SNAP, {"parameters": {
+            "Dissolution time (50% dissolved)@Tablet": 1.8}})
+        self.assertEqual(report["not_found"], [])
+        self.assertEqual(self._diss(final, "Tablet")["Dissolution time (50% dissolved)"], 1.8)
+        self.assertEqual(self._diss(final, "Capsule")["Dissolution time (50% dissolved)"], 30.0)
+
+    def test_unqualified_sets_where_present(self):
+        final, _ = apply_edits(self.SNAP, {"parameters": {"Dissolution shape": 2.5}})
+        self.assertEqual(self._diss(final, "Tablet")["Dissolution shape"], 2.5)
+        self.assertNotIn("Dissolution shape", self._diss(final, "Capsule"))   # not present there
+
+
 class TestQualifiedParameters(unittest.TestCase):
     """A parameter name that lives on several processes (per-enzyme clearance)
     can be targeted with '<Name>@<Molecule>' to set only that process."""

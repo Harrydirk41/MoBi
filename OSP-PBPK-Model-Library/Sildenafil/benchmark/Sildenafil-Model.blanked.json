@@ -2291,12 +2291,11 @@
    "Parameters": [
     {
      "Name": "Dissolution time (50% dissolved)",
-     "Value": 4.164698,
+     "Value": 30.0,
      "Unit": "min",
      "ValueOrigin": {
-      "Source": "ParameterIdentification",
-      "Method": "ParameterIdentification",
-      "Description": "Value updated from 'PI_All_DissoKineticFit_P calculated' on 2023-03-24 17:29"
+      "Source": "Unknown",
+      "Description": "benchmark naive prior (blanked)"
      }
     },
     {
@@ -2306,11 +2305,10 @@
     },
     {
      "Name": "Dissolution shape",
-     "Value": 1.37405,
+     "Value": 1.0,
      "ValueOrigin": {
-      "Source": "ParameterIdentification",
-      "Method": "ParameterIdentification",
-      "Description": "Value updated from 'PI_All_DissoKineticFit_P calculated' on 2023-03-24 17:29"
+      "Source": "Unknown",
+      "Description": "benchmark naive prior (blanked)"
      }
     },
     {

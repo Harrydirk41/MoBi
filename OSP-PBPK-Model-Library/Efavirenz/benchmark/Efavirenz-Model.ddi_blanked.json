@@ -1191,12 +1191,11 @@
    "Parameters": [
     {
      "Name": "Dissolution time (50% dissolved)",
-     "Value": 60.0,
+     "Value": 30.0,
      "Unit": "min",
      "ValueOrigin": {
-      "Source": "ParameterIdentification",
-      "Method": "ParameterIdentification",
-      "Description": "Value updated from 'Parameter Identification 7 (Mida)' on 2019-10-11 09:02"
+      "Source": "Unknown",
+      "Description": "benchmark naive prior (blanked)"
      }
     },
     {
@@ -1206,11 +1205,10 @@
     },
     {
      "Name": "Dissolution shape",
-     "Value": 0.2720936819,
+     "Value": 1.0,
      "ValueOrigin": {
-      "Source": "ParameterIdentification",
-      "Method": "ParameterIdentification",
-      "Description": "Value updated from 'Parameter Identification 7 (Mida)' on 2019-10-11 09:02"
+      "Source": "Unknown",
+      "Description": "benchmark naive prior (blanked)"
      }
     },
     {
