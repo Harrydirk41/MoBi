@@ -39,6 +39,11 @@ pkpd-bench best     --workspace .                     # best model so far
 ```
 (No PATH entry? `python -m pkpd_agent.bench.cli <cmd> ...` is identical.)
 
+**Native tools instead of the CLI (optional):** the same six build tools are also an MCP
+server (`pkpd_agent.bench.mcp_server`) — `pip install -e .[mcp]`, copy `mcp.json.example` to
+`.mcp.json`, and the agent gets `inspect`/`options`/`optimize`/`sweep`/`try_model`/`best` as
+structured tools with no shell needed (a tighter sandbox). Seal/verify/judge stay on the CLI.
+
 **The modeling job** (what the agent decides; the optimizer does the fitting):
 1. `inspect` + `options` — read the given inputs. Each parameter has a `value_status`:
    `given` = measured, trust it; `placeholder` = unknown, determine it (the shown number is

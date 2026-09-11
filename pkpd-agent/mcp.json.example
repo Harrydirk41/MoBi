@@ -1,0 +1,13 @@
+{
+  "//": "Copy to .mcp.json (project root) to give a coding agent the pkpd-bench tools natively. Edit the two paths. Then the agent has inspect/options/optimize/sweep/try_model/best as tools - no shell needed. Setup/grading (seal/verify/judge) stays on the pkpd-bench CLI. Needs: pip install -e .[mcp]",
+  "mcpServers": {
+    "pkpd-bench": {
+      "command": "python",
+      "args": ["-m", "pkpd_agent.bench.mcp_server"],
+      "env": {
+        "PKPD_WORKSPACE": "C:/sandbox/Triazolam/workspace",
+        "PKPD_PKSIM_CLI": "C:/Program Files/Open Systems Pharmacology/PK-Sim 12.3/PKSim.CLI.exe"
+      }
+    }
+  }
+}

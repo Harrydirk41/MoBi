@@ -16,6 +16,7 @@ pkpd-bench = "pkpd_agent.bench.cli:main"   # the agent-facing benchmark CLI (sea
 real = ["numpy>=1.24", "scipy>=1.10"]   # the pkfit estimation engine
 llm = ["anthropic>=0.116"]
 pharmpy = ["pharmpy-core>=1.0"]
+mcp = ["mcp>=1.0"]                       # native tool surface (pkpd_agent.bench.mcp_server)
 
 [tool.setuptools.packages.find]
 include = ["pkpd_agent*"]

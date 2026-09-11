@@ -85,6 +85,19 @@ persists in `workspace/.osp_session.json`, so the agent can stop and resume. If 
 script isn't on PATH, `python -m pkpd_agent.bench.cli <cmd> ...` is identical.
 `PKPD_PKSIM_CLI` (or `--pksim`) points at `PKSim.CLI.exe`.
 
+### Native tools (MCP) — optional, cleaner surface
+
+The six build tools are also an MCP server, so the agent calls `inspect`/`options`/`optimize`/
+`sweep`/`try_model`/`best` as structured tools instead of Bash strings — and can run with **no
+shell access**, a tighter wall around the answers. It's a thin wrapper over the same functions.
+
+```bash
+pip install -e .[mcp]                 # adds the mcp SDK
+cp mcp.json.example .mcp.json         # edit PKPD_WORKSPACE + PKPD_PKSIM_CLI to your paths
+```
+The client (Claude Code, etc.) launches `python -m pkpd_agent.bench.mcp_server` from `.mcp.json`
+and picks up the tools. Seal / verify / judge stay on the `pkpd-bench` CLI (orchestrator side).
+
 ## What the agent is - and isn't - being tested on
 
 Given inputs are trusted; the optimizer does the fitting; the agent supplies the **judgment**:
