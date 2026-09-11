@@ -44,12 +44,14 @@ _FITTED_SOURCE = "ParameterIdentification"
 _PROMPT = """\
 You are a PBPK modeler. Build the whole-body model for this compound. Read TASK.md first.
 
-Drive the model ONLY through this tool (run each as a shell command, parse its JSON stdout):
-    python -m examples.osp_agent_cli inspect  --workspace .
-    python -m examples.osp_agent_cli options  --workspace .
-    python -m examples.osp_agent_cli sweep    --workspace . --estimate '{"Lipophilicity":[0,5]}'
-    python -m examples.osp_agent_cli optimize --workspace . --estimate '{"<param>":[lo,hi]}' --structure '{...}'
-    python -m examples.osp_agent_cli best     --workspace .
+Drive the model ONLY through this tool (run each as a shell command, parse its JSON stdout;
+runs from THIS directory):
+    pkpd-bench inspect  --workspace .
+    pkpd-bench options  --workspace .
+    pkpd-bench sweep    --workspace . --estimate '{"Lipophilicity":[0,5]}'
+    pkpd-bench optimize --workspace . --estimate '{"<param>":[lo,hi]}' --structure '{...}'
+    pkpd-bench best     --workspace .
+(If `pkpd-bench` is not on PATH, use `python -m pkpd_agent.bench.cli <cmd> ...` instead.)
 
 The whole-body physiology is fixed. You decide the DRUG model and the JUDGMENT; the optimizer
 does the fitting. Workflow:
@@ -397,13 +399,14 @@ def _task_md(inp: dict, name: str, split: dict) -> str:
         "  and are NOT in this workspace - you are graded on how well the model you build\n"
         "  PREDICTS them. Do not try to find them; they are intentionally absent.\n\n"
         "## The tools\n"
-        "Drive the model with `osp_agent_cli.py` (run from this directory):\n"
+        "Drive the model with `pkpd-bench` (run from this directory, `--workspace .`):\n"
         "```\n"
-        "python -m examples.osp_agent_cli inspect      # objective, biology, priors, data, model\n"
-        "python -m examples.osp_agent_cli options      # editable params, legal methods, addable mechanisms\n"
-        "python -m examples.osp_agent_cli sweep   --estimate '{\"Lipophilicity\":[0,5]}'   # choose distribution method\n"
-        "python -m examples.osp_agent_cli optimize --estimate '{\"<param>\":[lo,hi]}' --structure '{...}'\n"
+        "pkpd-bench inspect  --workspace .    # objective, biology, priors, data, model\n"
+        "pkpd-bench options  --workspace .    # editable params, legal methods, addable mechanisms\n"
+        "pkpd-bench sweep    --workspace . --estimate '{\"Lipophilicity\":[0,5]}'   # choose distribution method\n"
+        "pkpd-bench optimize --workspace . --estimate '{\"<param>\":[lo,hi]}' --structure '{...}'\n"
         "```\n"
+        "(If `pkpd-bench` isn't on PATH: `python -m pkpd_agent.bench.cli <cmd> --workspace .`)\n"
         "You decide the modeling JUDGMENT (structure, which parameters to fit vs fix); the\n"
         "optimizer does the fitting. Iterate until the fit is good and the parameters are\n"
         "identifiable, then stop. Grading against the held-out data happens afterwards.\n"

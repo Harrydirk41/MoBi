@@ -5,10 +5,10 @@ not this fixed decision loop. That path removes the scaffolding this script impo
 agent decides its own order of operations) and walls the answers off from a filesystem-
 capable agent. See SANDBOX_CC.md; in short:
 
-    python -m examples.seal_case      --model <Name> --out ../sandbox
-    python -m examples.verify_no_cheat --sandbox ../sandbox/<Name>
-    # point Claude Code at ../sandbox/<Name>/workspace and have it follow PROMPT.md
-    python -m examples.judge_case      --sandbox ../sandbox/<Name>   # held-out grade
+    pkpd-bench seal   --model <Name> --out ../sandbox
+    pkpd-bench verify --sandbox ../sandbox/<Name>
+    # point a coding agent at ../sandbox/<Name>/workspace and have it follow PROMPT.md
+    pkpd-bench judge  --sandbox ../sandbox/<Name>   # held-out grade
 
 This script remains as a deterministic, no-CC baseline (and for the report/scoreboard
 wiring). Prefer the sandbox flow for new runs.

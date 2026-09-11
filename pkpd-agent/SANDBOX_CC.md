@@ -52,30 +52,37 @@ sandbox additionally makes the sealed copy answer-free:
 
 ## Run it
 
+One CLI, `pkpd-bench`, does the whole flow. Install it once so it's on PATH and runs from
+any directory (no `-m examples`, no cwd coupling):
+
 ```bash
-# 1. seal a case (or --all)
-python -m examples.seal_case --model Triazolam --out ../sandbox
-
-# 2. verify the seal - exits non-zero on any leak (use it as a CI gate)
-python -m examples.verify_no_cheat --sandbox ../sandbox/Triazolam
-#    structural sweep over every library blanked snapshot:
-python -m examples.verify_no_cheat --library
-
-# 3. point the agent at the workspace. In its (isolated) environment it drives the tools:
-python -m examples.osp_agent_cli inspect  --workspace ../sandbox/Triazolam/workspace
-python -m examples.osp_agent_cli options  --workspace ../sandbox/Triazolam/workspace
-python -m examples.osp_agent_cli sweep    --workspace .../workspace --estimate '{"Lipophilicity":[0,5]}'
-python -m examples.osp_agent_cli optimize --workspace .../workspace \
-        --estimate '{"Intrinsic clearance":[0.01,100]}' --structure '{"add_processes":[...]}'
-python -m examples.osp_agent_cli best     --workspace .../workspace   # best model so far
-
-# 4. AFTER the agent stops, the judge grades held-out prediction (judge/ side) and the
-#    verifier re-checks the workspace + the agent's transcript for leaks:
-python -m examples.verify_no_cheat --sandbox ../sandbox/Triazolam --transcript session.log
+pip install -e .        # gives you the `pkpd-bench` command
 ```
 
-Every `osp_agent_cli` subcommand prints one JSON object on stdout (progress goes to stderr),
-and state persists in `workspace/.osp_session.json`, so the agent can stop and resume.
+```bash
+# 1. seal a case (or --all)
+pkpd-bench seal --model Triazolam --out ../sandbox
+
+# 2. verify the seal - exits non-zero on any leak (use it as a CI gate)
+pkpd-bench verify --sandbox ../sandbox/Triazolam
+pkpd-bench verify --library          # structural sweep over every library blanked snapshot
+
+# 3. point the agent at the workspace. In its (isolated) environment it drives the tools:
+cd ../sandbox/Triazolam/workspace
+pkpd-bench inspect  --workspace .
+pkpd-bench options  --workspace .
+pkpd-bench sweep    --workspace . --estimate '{"Lipophilicity":[0,5]}'
+pkpd-bench optimize --workspace . --estimate '{"Intrinsic clearance":[0.01,100]}' --structure '{"add_processes":[...]}'
+pkpd-bench best     --workspace .    # best model so far
+
+# 4. AFTER the agent stops, grade held-out prediction, and re-check for leaks:
+pkpd-bench judge  --sandbox ../sandbox/Triazolam
+pkpd-bench verify --sandbox ../sandbox/Triazolam --transcript session.log
+```
+
+Every subcommand prints one JSON object on stdout (progress goes to stderr), and state
+persists in `workspace/.osp_session.json`, so the agent can stop and resume. If the console
+script isn't on PATH, `python -m pkpd_agent.bench.cli <cmd> ...` is identical.
 `PKPD_PKSIM_CLI` (or `--pksim`) points at `PKSim.CLI.exe`.
 
 ## What the agent is - and isn't - being tested on
