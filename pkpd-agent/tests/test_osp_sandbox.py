@@ -150,6 +150,10 @@ def test_seal_case_produces_answer_free_workspace(tmp_path):
     assert os.path.exists(os.path.join(jd, "reference.json"))
     assert os.path.exists(os.path.join(jd, "forbidden.json"))
 
+    assert os.path.exists(os.path.join(ws, "PROMPT.md"))  # ready-to-paste CC task
+    assert os.path.exists(os.path.join(ws, "TASK.md"))
+    assert os.path.exists(os.path.join(jd, "heldout.observed.json"))
+
     sealed = json.load(open(os.path.join(ws, "model.blanked.json")))
     assert S.fitted_leaks(sealed) == []                  # no fitted value in the sealed copy
     assert sealed.get("ObservedData") == []              # observed block stripped

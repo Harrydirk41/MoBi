@@ -40,6 +40,45 @@ from . import osp_split
 # be visible to the agent. This is the same origin tag the dissolution leak carried.
 _FITTED_SOURCE = "ParameterIdentification"
 
+# The ready-to-paste task for a continuous Claude Code agent working in the sealed workspace.
+_PROMPT = """\
+You are a PBPK modeler. Build the whole-body model for this compound. Read TASK.md first.
+
+Drive the model ONLY through this tool (run each as a shell command, parse its JSON stdout):
+    python -m examples.osp_agent_cli inspect  --workspace .
+    python -m examples.osp_agent_cli options  --workspace .
+    python -m examples.osp_agent_cli sweep    --workspace . --estimate '{"Lipophilicity":[0,5]}'
+    python -m examples.osp_agent_cli optimize --workspace . --estimate '{"<param>":[lo,hi]}' --structure '{...}'
+    python -m examples.osp_agent_cli best     --workspace .
+
+The whole-body physiology is fixed. You decide the DRUG model and the JUDGMENT; the optimizer
+does the fitting. Workflow:
+  1. inspect + options - read the objective, known biology, physchem priors, the building
+     data, and the authoritative action space (editable params with value_status: 'given' =
+     measured, trust it; 'placeholder' = unknown, you must determine it - the shown number is
+     meaningless). Do not assume OSP details; read them from options.
+  2. Structure: choose the metabolizing/clearance processes from the known biology. If the
+     distribution/Vd looks off, run `sweep` ONCE (it tries every partition x permeability
+     method and re-fits your physchem under each, then adopts the best) - do not guess methods
+     one at a time. For an ORAL drug, the Weibull dissolution parameters are placeholders you
+     must fit.
+  3. Decide which parameters to ESTIMATE vs FIX: fix measured constants (MW, pKa) and any
+     value given in the input; estimate the minimal identifiable set (clearance,
+     permeabilities, effective lipophilicity). Watch for the IVIVE case: an in-vitro Vmax
+     being given does NOT mean clearance is set - the in-vivo kcat/CLint usually still needs
+     fitting.
+  4. optimize, then CHECK: GMFE, per-route bias, params_at_bound (unidentifiable ->
+     fix/rethink), and 'recommendations'. Act on identifiability findings; don't float a
+     parameter the data can't pin. A systematic per-route misfit fitting can't remove means a
+     missing MECHANISM, not a wrong number.
+  5. Iterate until the fit is good AND the parameters are identifiable, then STOP and
+     summarise the structure, what you estimated vs fixed, the fitted values, and the GMFE.
+
+You are graded afterwards on how well the model PREDICTS held-out studies (not in this
+workspace) - so build physiology, do not overfit the building data. Do not look for the
+held-out data or any reference values; they are intentionally absent.
+"""
+
 
 # --------------------------------------------------------------------------- #
 # Walking a snapshot for parameters + their provenance
@@ -268,6 +307,8 @@ def seal_case(blanked_path: str, input_path: str, out_dir: str,
         json.dump(ws_input, fh, ensure_ascii=False, indent=1)
     with open(os.path.join(ws, "TASK.md"), "w", encoding="utf-8") as fh:
         fh.write(_task_md(inp, task_name or _case_name(input_path), split))
+    with open(os.path.join(ws, "PROMPT.md"), "w", encoding="utf-8") as fh:
+        fh.write(_PROMPT)
 
     # ---- judge/ : the answers ------------------------------------------ #
     if reference_path and os.path.exists(reference_path):

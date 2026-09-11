@@ -1,4 +1,21 @@
-r"""Real-scenario PBPK modeling loop: the LLM decides, the optimizer fits.
+r"""[LEGACY - superseded by the Claude Code sandbox flow; kept as a scripted baseline.]
+
+The primary way to build a model is now a CONTINUOUS Claude Code agent in a sealed sandbox,
+not this fixed decision loop. That path removes the scaffolding this script imposes (the
+agent decides its own order of operations) and walls the answers off from a filesystem-
+capable agent. See SANDBOX_CC.md; in short:
+
+    python -m examples.seal_case      --model <Name> --out ../sandbox
+    python -m examples.verify_no_cheat --sandbox ../sandbox/<Name>
+    # point Claude Code at ../sandbox/<Name>/workspace and have it follow PROMPT.md
+    python -m examples.judge_case      --sandbox ../sandbox/<Name>   # held-out grade
+
+This script remains as a deterministic, no-CC baseline (and for the report/scoreboard
+wiring). Prefer the sandbox flow for new runs.
+
+---
+
+Real-scenario PBPK modeling loop: the LLM decides, the optimizer fits.
 
 Each round:
   1. osp_inspect        - read objective, known biology, priors, data, model
