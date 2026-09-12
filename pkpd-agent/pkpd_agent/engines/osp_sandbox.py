@@ -76,6 +76,11 @@ does the fitting. Workflow:
   5. Iterate until the fit is good AND the parameters are identifiable, then STOP and
      summarise the structure, what you estimated vs fixed, the fitted values, and the GMFE.
 
+Be economical: aim to finish in a handful of tool calls — inspect + options once, sweep AT
+MOST once, then 1-2 optimize refinements. Do not re-read the same tool or re-sweep the same
+grid. tier=constant is never fit; tier=measured_soft is fixed unless the data demand it (and
+only within measured_range); tier=estimate is the identifiable set to fit.
+
 You are graded afterwards on how well the model PREDICTS held-out studies (not in this
 workspace) - so build physiology, do not overfit the building data. Do not look for the
 held-out data or any reference values; they are intentionally absent.

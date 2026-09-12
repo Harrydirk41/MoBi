@@ -246,13 +246,6 @@ def register_osp_loop_tools(registry: ToolRegistry, config, ctx: dict) -> None:
             unknowns_guidance=inp.get("unknowns_guidance"),
             parameters_to_determine=to_determine,
             given_input_parameters=given_in_model,
-            value_status_note=(
-                "current_model values carry a 'value_status': 'given' = a "
-                "measured/published input (trust it); 'placeholder' = a naive "
-                "benchmark default that is NOT a measurement - determine it from "
-                "the data or from established physchem knowledge, do not trust the "
-                "number shown. The starting value of a placeholder carries no "
-                "information about the answer."),
             evaluation_rubric=inp.get("evaluation_rubric"),
             current_model=model,
             observed_overview=_observed_overview(observed),
@@ -329,65 +322,39 @@ def register_osp_loop_tools(registry: ToolRegistry, config, ctx: dict) -> None:
                      "plausible_range": cat.get("range"),
                      "role": cat.get("role", "unknown"), "tier": tier}
             if "@" in p["name"]:
-                entry["note"] = ("per-process parameter - estimate/set it with this "
-                                 "exact qualified name to target only this process")
-            # the CURRENT value's trust status: a placeholder is a naive default,
-            # NOT a measurement - the shown number carries no information.
-            if p.get("value_status") == "placeholder":
-                entry["value_note"] = ("the shown value is a PLACEHOLDER default "
-                                       "(not measured); DETERMINE this parameter - "
-                                       "do not trust the starting number. If you "
-                                       "have a literature/textbook value, fix it "
-                                       "there; otherwise estimate it from the data.")
-            elif p.get("value_status") == "given":
-                entry["value_note"] = "the shown value is a measured/given input - trust it"
-            if tier == "constant":
-                entry["rule"] = "measured constant - cannot be estimated; fix it"
-            elif tier == "measured_soft":
+                entry["per_process"] = True     # set/estimate with this exact qualified name
+            # measured_soft params carry their measured range (a fit may not exceed it).
+            if tier == "measured_soft":
                 mr = osp_catalog.measured_range(p["name"], lit)
-                entry["measured_range"] = list(mr) if mr else None
-                entry["rule"] = ("measured - fix by default; may be estimated only "
-                                 "when justified and only within measured_range")
+                if mr:
+                    entry["measured_range"] = list(mr)
             editable.append(entry)
+        # method options are just names (the sweep chooses the method deterministically; the
+        # agent does not need per-method prose). The measured-quantity principle and the
+        # process-catalog rules live in the task PROMPT, not re-sent on every call.
         return ToolResult.success(
-            "authoritative action space: what you may edit and legal choices",
+            "authoritative action space: what you may edit and legal choices. tier=constant "
+            "is never estimated; tier=measured_soft is fixed by default (estimate only within "
+            "measured_range); tier=estimate is the identifiable set to fit.",
             molecule_type=molecule_type,
-            identification_principle=(
-                "Measured physical constants (tier=constant: MW, pKa, reference "
-                "pH) are never estimated. Measured-but-refinable quantities "
-                "(tier=measured_soft: fraction unbound, solubility) are fixed by "
-                "default and may be estimated only when a residual misfit justifies "
-                "it, constrained to their measured_range. Estimate the minimal "
-                "identifiable set first (tier=estimate); free a measured quantity "
-                "only if the data demand it."),
             editable_parameters=editable,
             calculation_methods={
-                "partition": {"current": next(
-                    (m for m in model["calculation_methods"]
-                     if "partition" in m.lower()), None),
-                    "options": osp_catalog.PARTITION_METHOD_INFO},
-                "permeability": {"current": next(
-                    (m for m in model["calculation_methods"]
-                     if "permeability" in m.lower()), None),
-                    "options": osp_catalog.PERMEABILITY_METHOD_INFO}},
+                "partition": {
+                    "current": next((m for m in model["calculation_methods"]
+                                     if "partition" in m.lower()), None),
+                    "options": list(PARTITION_METHODS)},
+                "permeability": {
+                    "current": next((m for m in model["calculation_methods"]
+                                     if "permeability" in m.lower()), None),
+                    "options": list(PERMEABILITY_METHODS)}},
             processes_present=model["processes"],
             expressed_molecules=expressed,
             addable_process_types=osp_catalog.addable_process_types(expressed),
             interaction_process_types=osp_catalog.interaction_process_types(),
-            process_catalog_notes=(
-                "addable_process_types are single-compound mechanisms you can add "
-                "via add_processes. interaction_process_types (DDI: inhibition / "
-                "induction) are part of PK-Sim's library but are NOT addable here - "
-                "they link a perpetrator to a victim's enzyme and require a multi-"
-                "compound DDI setup. Each entry has 'validated' (confirmed to run "
-                "through PKSim.CLI) and 'provenance'; prefer validated mechanisms, "
-                "and treat validated=false as needing a confirmation run."),
             edit_spec_help={
-                "parameters": "{name: value} - names above",
-                "calculation_methods": "{partition: <opt>, permeability: <opt>}",
-                "processes": "{molecule: false} to disable an existing process",
-                "add_processes": "[{type, molecule, parameters}] - attach a NEW "
-                "mechanism (enzyme process needs an expressed enzyme)"},
+                "parameters": "{name: value}", "processes": "{molecule: false} to disable",
+                "calculation_methods": "{partition:.., permeability:..}",
+                "add_processes": "[{type, molecule, parameters}] (enzyme needs an expressed enzyme)"},
         )
 
     registry.register(Tool(
@@ -535,15 +502,6 @@ def register_osp_loop_tools(registry: ToolRegistry, config, ctx: dict) -> None:
             sensitivity=r.get("sensitivity"),
             link_scales=r.get("link_scales"),
             recommendations=recs,
-            sensitivity_hint=("'relative' is each parameter's local influence on "
-                              "the fit, normalised to the most influential (1.0). "
-                              "A parameter with a small 'relative' is weakly "
-                              "constrained by the data - its fitted value is "
-                              "uncertain. ACT on 'recommendations': fix a weakly-"
-                              "identified or collinear parameter to a known/"
-                              "literature value and refit the identifiable set - "
-                              "do not keep floating a parameter the data cannot "
-                              "pin (it lands on an artifact)."),
             parameter_flags=flags,
             measured_constraints=constraint_notes or None,
             n_evals=r["n_evals"], fit_simulations=r["fit_simulations"],
@@ -769,12 +727,18 @@ def register_osp_loop_tools(registry: ToolRegistry, config, ctx: dict) -> None:
                                                  "permeability": best["permeability"]}})
         cache[sig] = {**best, "ranked": results}          # remember this grid so it is not re-swept
         session.put("osp_sweep_cache", cache)
+        # return a COMPACT ranking (top 5, method + gmfe only) - the full per-combo fit dicts
+        # are heavy and not needed by the agent, which only picks the winning method.
+        ranked_compact = [{"partition": x["partition"], "permeability": x["permeability"],
+                           "gmfe": x["gmfe"]} for x in results[:5]]
         return ToolResult.success(
             f"swept {len(results)} method combos, re-fitting {list(estimate)} under each; BEST = "
             f"{best['partition']} / {best['permeability']} -> GMFE {best['gmfe']} "
             f"(best so far {session.get('osp_best_gmfe')}). The distribution method is now chosen - "
             f"refine with osp_optimize, do NOT re-sweep the same grid.",
-            ranked=results, best=best)
+            ranked_top=ranked_compact, best={"partition": best["partition"],
+                                             "permeability": best["permeability"],
+                                             "gmfe": best["gmfe"], "optimized": best["optimized"]})
 
     registry.register(Tool(
         name="osp_sweep_methods",
