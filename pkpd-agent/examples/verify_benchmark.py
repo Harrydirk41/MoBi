@@ -162,7 +162,12 @@ def _completeness(kind: str, res: dict, blanked: dict) -> list[str]:
         comp = (blanked.get("Compounds") or [{}])[0]
         need(any(p.get("Name") == "Molecular weight" for p in comp.get("Parameters") or []),
              "blanked snapshot missing Molecular weight")
-        need(blanked.get("ExpressionProfiles") is not None,
+        # ExpressionProfiles are only required when the model actually attaches a
+        # mechanism to a molecule (enzyme/transporter/target). A renal-only drug
+        # (e.g. vancomycin) legitimately expresses none; in hard mode the fixed
+        # discovery panel + on-demand materialization supply candidates anyway.
+        needs_expression = any(p.get("Molecule") for p in comp.get("Processes") or [])
+        need((blanked.get("ExpressionProfiles") is not None) or not needs_expression,
              "blanked snapshot missing ExpressionProfiles (enzyme system)")
     elif kind == "metabolite":
         pbm = gd.get("plasma_by_molecule") or {}
@@ -243,8 +248,14 @@ def _hard_verify(res: dict) -> tuple[bool, list[str]]:
     named = [m for m in ans if m and m in facts]
     missing_pool = [m for m in ans if m and m not in pool]
     distractors = sorted(set(pool) - set(ans))
+    # a pool that is barely wider than the answer leaks the mechanism: with few
+    # decoys the agent is handed the identity. Require a broad, case-independent
+    # panel (the standard discovery panel is ~28), so discovery is genuine.
+    MIN_DISTRACTORS = 8
+    enough_decoys = len(distractors) >= MIN_DISTRACTORS
 
-    ok = stripped and not named and not missing_pool and bool(pool)
+    ok = (stripped and not named and not missing_pool and bool(pool)
+          and enough_decoys)
     lines.append(f"  HARD  structure stripped (no processes):      "
                  f"{'YES' if stripped else 'NO (leak!)'}")
     lines.append(f"  HARD  answer mechanism to DISCOVER:           {ans or 'none (no metabolism)'}")
@@ -253,7 +264,8 @@ def _hard_verify(res: dict) -> tuple[bool, list[str]]:
     lines.append(f"  HARD  candidate pool ({len(pool)}) contains answer:   "
                  f"{'YES' if not missing_pool else 'NO -> ' + str(missing_pool)}")
     lines.append(f"  HARD  discovery difficulty: {len(distractors)} distractor(s) "
-                 f"{distractors if distractors else '(TRIVIAL - pool == answer, nothing to discover)'}")
+                 f"(need >= {MIN_DISTRACTORS})  "
+                 f"{'OK' if enough_decoys else 'FAIL - pool too close to answer, leaks identity'}")
     return ok, lines
 
 

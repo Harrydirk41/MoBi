@@ -1,16 +1,15 @@
 {
   "schema": "osp-agent-task/v2",
-  "task_id": "alfentanil-adult-build",
+  "task_id": "Alfentanil-Model",
   "source_snapshot": "Alfentanil-Model.json",
   "compound": "Alfentanil",
-  "objective": "Build a whole-body PBPK model for alfentanil that reproduces the observed plasma concentration-time data after intravenous and oral dosing across the studies provided. You decide the model structure and any parameters you cannot obtain from the given data, and you justify them. No modeling strategy and no reference results are provided.",
+  "objective": "Build a whole-body PBPK model for Alfentanil that reproduces the observed plasma concentration-time data. Decide the model structure and any parameters you cannot obtain from the given data, and justify them. No modeling strategy and no reference results are provided.",
   "background": {
-    "description": "Alfentanil is a potent, fast- and short-acting synthetic opioid used for anesthesia during surgery.",
+    "description": "Alfentanil PBPK modeling task.",
     "literature_facts": [
-      "Metabolized primarily by hepatic CYP3A4 (in vitro and clinical evidence).",
-      "Renal excretion of unchanged drug is <1% (negligible).",
-      "Not a P-glycoprotein substrate.",
-      "Given clinically by IV; some drug-interaction studies also report oral profiles."
+      "Metabolized by: CYP3A4.",
+      "Renal clearance via glomerular filtration is present.",
+      "Reference distribution/permeability methods exist but are withheld; choose your own."
     ]
   },
   "given_data": {
@@ -20,42 +19,28 @@
     },
     "literature_physicochemical": [
       {
+        "parameter": "Solubility at reference pH",
+        "value": 992.0,
+        "unit": "mg/l",
+        "source": "Hanke 2018"
+      },
+      {
+        "parameter": "Reference pH",
+        "value": 6.5,
+        "unit": "",
+        "source": "Hanke 2018"
+      },
+      {
+        "parameter": "GFR fraction",
+        "value": 0.06,
+        "unit": "",
+        "source": "Hanke 2018"
+      },
+      {
         "parameter": "Molecular weight",
         "value": 416.52,
         "unit": "g/mol",
-        "source": "DrugBank DB00802"
-      },
-      {
-        "parameter": "pKa (base)",
-        "value": 6.5,
-        "source": "Jansson 2008"
-      },
-      {
-        "parameter": "Solubility",
-        "value": 992,
-        "unit": "mg/L",
-        "at_pH": 6.5,
-        "source": "Baneyx 2014"
-      },
-      {
-        "parameter": "logD (pH 7.4)",
-        "reported_values": [
-          2.1,
-          2.2
-        ],
-        "source": "Baneyx 2014 / Jansson 2008"
-      },
-      {
-        "parameter": "Fraction unbound in plasma",
-        "reported_range_percent": [
-          8.6,
-          12.0
-        ],
-        "source": "Gertz 2010 / Edginton 2008 / Almond 2016"
-      },
-      {
-        "parameter": "Plasma protein binding partner",
-        "value": "alpha-1-acid glycoprotein"
+        "source": "Drugbank"
       }
     ],
     "clinical_observed_data": [
@@ -65,11 +50,9 @@
         "molecule": "Alfentanil",
         "route": "IV",
         "dose": "20 µg/kg",
-        "matrix": "Peripheral Venous Blood/Plasma",
         "n_points": 13,
         "time_unit": "h",
         "conc_unit": "mg/L",
-        "mol_weight_g_per_mol": 416.52,
         "time_h": [
           0.01667,
           0.05,
@@ -122,11 +105,9 @@
         "molecule": "Alfentanil",
         "route": "IV",
         "dose": "20 µg/kg",
-        "matrix": "Peripheral Venous Blood/Plasma",
         "n_points": 14,
         "time_unit": "h",
         "conc_unit": "mg/L",
-        "mol_weight_g_per_mol": 416.52,
         "time_h": [
           0.02,
           0.05,
@@ -182,11 +163,9 @@
         "molecule": "Alfentanil",
         "route": "IV",
         "dose": "15 µg/kg",
-        "matrix": "Peripheral Venous Blood/Plasma",
         "n_points": 13,
         "time_unit": "h",
         "conc_unit": "mg/L",
-        "mol_weight_g_per_mol": 416.52,
         "time_h": [
           0.08333,
           0.25,
@@ -224,11 +203,9 @@
         "molecule": "Alfentanil",
         "route": "PO",
         "dose": "60 µg/kg",
-        "matrix": "Peripheral Venous Blood/Plasma",
         "n_points": 14,
         "time_unit": "h",
         "conc_unit": "mg/L",
-        "mol_weight_g_per_mol": 416.52,
         "time_h": [
           0.08333,
           0.16667,
@@ -284,11 +261,9 @@
         "molecule": "Alfentanil",
         "route": "IV",
         "dose": "15 µg/kg",
-        "matrix": "Peripheral Venous Blood/Plasma",
         "n_points": 15,
         "time_unit": "h",
         "conc_unit": "mg/L",
-        "mol_weight_g_per_mol": 416.52,
         "time_h": [
           0.0,
           0.08,
@@ -347,11 +322,9 @@
         "molecule": "Alfentanil",
         "route": "PO",
         "dose": "75 µg/kg",
-        "matrix": "Peripheral Venous Blood/Plasma",
         "n_points": 16,
         "time_unit": "h",
         "conc_unit": "mg/L",
-        "mol_weight_g_per_mol": 416.52,
         "time_h": [
           0.0,
           0.08,
@@ -413,11 +386,9 @@
         "molecule": "Alfentanil",
         "route": "IV",
         "dose": "15 µg/kg",
-        "matrix": "Peripheral Venous Blood/Plasma",
         "n_points": 16,
         "time_unit": "h",
         "conc_unit": "mg/L",
-        "mol_weight_g_per_mol": 416.52,
         "time_h": [
           0.03333,
           0.08333,
@@ -479,11 +450,9 @@
         "molecule": "Alfentanil",
         "route": "IV",
         "dose": "0.05 mg/kg",
-        "matrix": "Peripheral Venous Blood/Plasma",
         "n_points": 13,
         "time_unit": "h",
         "conc_unit": "mg/L",
-        "mol_weight_g_per_mol": 416.52,
         "time_h": [
           0.0833,
           0.1667,
@@ -536,11 +505,9 @@
         "molecule": "Alfentanil",
         "route": "IV",
         "dose": "0.05 mg/kg",
-        "matrix": "Peripheral Venous Blood/Plasma",
         "n_points": 12,
         "time_unit": "h",
         "conc_unit": "mg/L",
-        "mol_weight_g_per_mol": 416.52,
         "time_h": [
           0.0833,
           0.1667,
@@ -590,11 +557,9 @@
         "molecule": "Alfentanil",
         "route": "IV",
         "dose": "1 mg",
-        "matrix": "Peripheral Venous Blood/Plasma",
         "n_points": 17,
         "time_unit": "h",
         "conc_unit": "mg/L",
-        "mol_weight_g_per_mol": 416.52,
         "time_h": [
           0.0833,
           0.33,
@@ -640,11 +605,9 @@
         "molecule": "Alfentanil",
         "route": "IV",
         "dose": "1 mg",
-        "matrix": "Peripheral Venous Blood/Plasma",
         "n_points": 18,
         "time_unit": "h",
         "conc_unit": "mg/L",
-        "mol_weight_g_per_mol": 416.52,
         "time_h": [
           0.0833,
           0.33333,
@@ -692,11 +655,9 @@
         "molecule": "Alfentanil",
         "route": "IV",
         "dose": "1 mg",
-        "matrix": "Peripheral Venous Blood/Plasma",
         "n_points": 14,
         "time_unit": "h",
         "conc_unit": "mg/L",
-        "mol_weight_g_per_mol": 416.52,
         "time_h": [
           24.0833,
           24.166,
@@ -736,11 +697,9 @@
         "molecule": "Alfentanil",
         "route": "IV",
         "dose": "1 mg",
-        "matrix": "Peripheral Venous Blood/Plasma",
         "n_points": 15,
         "time_unit": "h",
         "conc_unit": "mg/L",
-        "mol_weight_g_per_mol": 416.52,
         "time_h": [
           24.0833,
           24.166,
@@ -782,11 +741,9 @@
         "molecule": "Alfentanil",
         "route": "PO",
         "dose": "4 mg",
-        "matrix": "Peripheral Venous Blood/Plasma",
         "n_points": 13,
         "time_unit": "h",
         "conc_unit": "mg/L",
-        "mol_weight_g_per_mol": 416.52,
         "time_h": [
           0.166,
           0.25,
@@ -824,11 +781,9 @@
         "molecule": "Alfentanil",
         "route": "PO",
         "dose": "4 mg",
-        "matrix": "Peripheral Venous Blood/Plasma",
         "n_points": 13,
         "time_unit": "h",
         "conc_unit": "mg/L",
-        "mol_weight_g_per_mol": 416.52,
         "time_h": [
           0.166,
           0.25,
@@ -881,11 +836,9 @@
         "molecule": "Alfentanil",
         "route": "PO",
         "dose": "4 mg",
-        "matrix": "Peripheral Venous Blood/Plasma",
         "n_points": 15,
         "time_unit": "h",
         "conc_unit": "mg/L",
-        "mol_weight_g_per_mol": 416.52,
         "time_h": [
           21.166,
           21.25,
@@ -927,11 +880,9 @@
         "molecule": "Alfentanil",
         "route": "PO",
         "dose": "4 mg",
-        "matrix": "Peripheral Venous Blood/Plasma",
         "n_points": 14,
         "time_unit": "h",
         "conc_unit": "mg/L",
-        "mol_weight_g_per_mol": 416.52,
         "time_h": [
           21.25,
           21.5,
@@ -987,11 +938,9 @@
         "molecule": "Alfentanil",
         "route": null,
         "dose": null,
-        "matrix": "Peripheral Venous Blood/Plasma",
         "n_points": 16,
         "time_unit": "h",
         "conc_unit": "mg/L",
-        "mol_weight_g_per_mol": 416.52,
         "time_h": [
           0.04639,
           0.08765,
@@ -1053,11 +1002,9 @@
         "molecule": "Alfentanil",
         "route": null,
         "dose": null,
-        "matrix": "Peripheral Venous Blood/Plasma",
         "n_points": 17,
         "time_unit": "h",
         "conc_unit": "mg/L",
-        "mol_weight_g_per_mol": 416.52,
         "time_h": [
           0.07568,
           0.15557,
@@ -1120,99 +1067,45 @@
     "study_designs": [
       {
         "name": "0.05 mgperkg IV bolus",
-        "application_type": "IntravenousBolus",
-        "dosing_interval": "Single",
-        "dose": 0.05,
-        "dose_unit": "mg/kg",
-        "start_time": 0.0,
-        "start_time_unit": "h"
+        "application_type": "IntravenousBolus"
       },
       {
         "name": "20 µg/kg IV bolus",
-        "application_type": "IntravenousBolus",
-        "dosing_interval": "Single",
-        "dose": 0.02,
-        "dose_unit": "mg/kg",
-        "start_time": 0.0,
-        "start_time_unit": "h"
+        "application_type": "IntravenousBolus"
       },
       {
         "name": "15 µg/kg IV bolus",
-        "application_type": "IntravenousBolus",
-        "dosing_interval": "Single",
-        "dose": 0.015,
-        "dose_unit": "mg/kg",
-        "start_time": 0.0,
-        "start_time_unit": "h"
+        "application_type": "IntravenousBolus"
       },
       {
         "name": "60 µg/kg PO",
-        "application_type": "Oral",
-        "dosing_interval": "Single",
-        "dose": 0.06,
-        "dose_unit": "mg/kg",
-        "start_time": 0.0,
-        "start_time_unit": "h"
+        "application_type": "Oral"
       },
       {
         "name": "75 µg/kg PO",
-        "application_type": "Oral",
-        "dosing_interval": "Single",
-        "dose": 0.075,
-        "dose_unit": "mg/kg",
-        "start_time": 0.0,
-        "start_time_unit": "h"
+        "application_type": "Oral"
       },
       {
         "name": "Kharasch 2011b IV 1 mg",
-        "application_type": "IntravenousBolus",
-        "dosing_interval": "DI_24",
-        "dose": 1.0,
-        "dose_unit": "mg",
-        "start_time": 0.0,
-        "start_time_unit": "h"
+        "application_type": "IntravenousBolus"
       },
       {
         "name": "Kharasch 2011b 4 mg PO",
-        "application_type": null,
-        "dosing_interval": "Single",
-        "dose": null,
-        "dose_unit": null,
-        "start_time": null,
-        "start_time_unit": null
+        "application_type": null
       },
       {
         "name": "43 µg/kg PO (Kharasch 2012)",
-        "application_type": "Oral",
-        "dosing_interval": "Single",
-        "dose": 0.043,
-        "dose_unit": "mg/kg",
-        "start_time": 0.0,
-        "start_time_unit": "h"
+        "application_type": "Oral"
       }
     ],
     "demographics": [
       {
         "name": "Standard European Male for DDI",
-        "kind": "individual",
-        "species": "Human",
-        "population": "European_ICRP_2002",
-        "gender": "MALE",
-        "age": 30.0,
-        "age_unit": "year(s)",
-        "weight": null,
-        "weight_unit": null
+        "species": "Human"
       },
       {
         "name": "Kharasch 2012",
-        "kind": "individual",
-        "species": "Human",
-        "population": "European_ICRP_2002",
-        "gender": "MALE",
-        "age": 30.0,
-        "age_unit": "year(s)",
-        "weight": null,
-        "weight_unit": null
+        "species": "Human"
       }
     ]
   },
@@ -1230,93 +1123,7 @@
       "Kharasch 2011b",
       "Meistelman 1987",
       "Phimmasone 2001"
-    ],
-    "n_study_designs": 8,
-    "n_demographics": 2
+    ]
   },
-  "unknowns_guidance": "Some compound parameters cannot be read off the given literature/in-vitro data and must be chosen or estimated so the model reproduces the observed data. Decide which parameters to fix (from the given values) and which to estimate, choose a distribution/permeability approach and an absorption model, and justify each choice. The reference model's parameter set, method choices, and results are withheld.",
-  "what_you_must_produce": {
-    "instructions": "This is what you must produce. Return an object with this exact shape (or add it back into this file under a top-level 'submission' key). predicted_profiles MUST align to the datasets and time points in clinical_observed_data (same dataset names, same time_h grid). List EVERY parameter you fixed or estimated beyond the given data, with units and a short rationale.",
-    "submission": {
-      "structural_model": {
-        "distribution_model": null,
-        "absorption_model": null,
-        "elimination_pathways": [],
-        "engine": null,
-        "notes": null
-      },
-      "parameters": [
-        {
-          "parameter": null,
-          "value": null,
-          "unit": null,
-          "fixed_or_estimated": null,
-          "rationale": null
-        }
-      ],
-      "predicted_profiles": [
-        {
-          "dataset": null,
-          "time_h": [],
-          "pred_conc_mg_L": []
-        }
-      ],
-      "self_assessment": {
-        "data_fit_gmfe_overall": null,
-        "pct_within_2fold": null,
-        "parameter_plausibility_notes": null,
-        "output_plausibility_notes": null
-      }
-    }
-  },
-  "evaluation_rubric": {
-    "how_scored": "Your submission is graded on three independent dimensions. You are NOT shown the reference answers; aim for a model that is both well-fitting and physically sensible.",
-    "dimensions": [
-      {
-        "id": "data_fit",
-        "goal": "Predicted plasma concentrations match the observed data.",
-        "metrics": [
-          {
-            "name": "GMFE",
-            "definition": "geometric mean fold error = exp(mean(|ln(pred/obs)|)) over paired points",
-            "target": "<= 2 (good <= 1.5)"
-          },
-          {
-            "name": "pct_within_2fold",
-            "definition": "fraction of predicted points within 2x of observed",
-            "target": "majority; higher is better"
-          }
-        ],
-        "report_by": [
-          "overall",
-          "route (IV vs PO)",
-          "study"
-        ]
-      },
-      {
-        "id": "parameter_plausibility",
-        "goal": "Every parameter you set is physically/physiologically sensible.",
-        "checks": [
-          "fraction unbound in (0, 1]",
-          "lipophilicity (logP/logD) within about [-2, 7]",
-          "clearance does not exceed the relevant organ blood flow (e.g. hepatic ~1.5 L/min in an adult)",
-          "permeabilities > 0 and within physiological range (cm/min)",
-          "volume of distribution physiologically bounded (~0.05-50 L/kg)",
-          "all rate constants and doses positive; units consistent"
-        ]
-      },
-      {
-        "id": "output_plausibility",
-        "goal": "Simulated profiles behave like real pharmacokinetics.",
-        "checks": [
-          "concentrations >= 0 at all times; no numerical blow-up",
-          "IV bolus declines monotonically from t0; oral rises to a Cmax then declines",
-          "terminal half-life consistent (within ~2x) across dose levels unless nonlinearity is justified",
-          "dose-normalized AUC roughly constant across doses, or nonlinearity explicitly explained",
-          "Cmax and AUC increase with dose"
-        ]
-      }
-    ],
-    "self_assessment_required": true
-  }
+  "unknowns_guidance": "Some compound parameters cannot be read off the given data and must be estimated so the model reproduces the observations. Decide which to fix at literature values and which to estimate, choose a distribution/permeability approach, and justify each choice."
 }

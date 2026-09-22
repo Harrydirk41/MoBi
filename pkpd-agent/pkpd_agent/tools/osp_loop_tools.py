@@ -303,6 +303,15 @@ def register_osp_loop_tools(registry: ToolRegistry, config, ctx: dict) -> None:
     def options(args: dict, session) -> ToolResult:
         model = _current_model(snapshot_path)
         expressed = _expressed_molecules(snapshot_path)
+        # mechanism-DISCOVERY (hard) mode: the clearing molecule is withheld, so
+        # the "molecules you may attach a mechanism to" menu must be the FIXED,
+        # case-independent discovery panel - NOT the model's own expressed set,
+        # which is exactly the answer and would leak it. Every hard task shows
+        # the same broad panel; any candidate is attachable (materialized on
+        # demand), so the true molecule sits among decoys.
+        hard_pool = (inp.get("background") or {}).get("candidate_clearance_molecules")
+        if hard_pool:
+            expressed = osp_catalog.hard_candidate_pool(hard_pool)
         with open(snapshot_path, encoding="utf-8") as fh:
             comp0 = (json.load(fh).get("Compounds") or [{}])[0]
         is_small = comp0.get("IsSmallMolecule", True)

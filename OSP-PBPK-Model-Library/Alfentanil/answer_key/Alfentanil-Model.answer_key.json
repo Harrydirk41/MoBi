@@ -1,6 +1,6 @@
 {
   "schema": "osp-answer-key/v1",
-  "warning": "REFERENCE ANSWERS - do NOT provide to the agent. Grading only.",
+  "warning": "REFERENCE ANSWERS - grading only, never shown to the agent.",
   "compound": "Alfentanil",
   "structural_choices": {
     "calculation_methods": [
@@ -17,30 +17,23 @@
   "estimated_parameters": [
     {
       "parameter": "Lipophilicity",
-      "value": 1.8463211883,
-      "unit": "Log Units"
+      "value": 1.8463211883
     },
     {
       "parameter": "Fraction unbound (plasma, reference value)",
-      "value": 0.1,
-      "unit": ""
+      "value": 0.1
     },
     {
       "parameter": "Specific intestinal permeability (transcellular)",
-      "value": 0.00057373577138,
-      "unit": "cm/min"
+      "value": 0.00057373577138
     },
     {
       "parameter": "Permeability",
-      "value": 0.0068752756625,
-      "unit": "cm/min"
+      "value": 0.0068752756625
     },
     {
       "parameter": "Intrinsic clearance",
-      "value": 0.5272297928,
-      "unit": "l/min"
+      "value": 0.5272297928
     }
-  ],
-  "reference_metrics": {},
-  "notes": "Reference goodness-of-fit (GMFE) and diagnostic plots are in Alfentanil_evaluation_report.md sections 3.1-3.3."
+  ]
 }

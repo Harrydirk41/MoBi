@@ -74,9 +74,10 @@ class TestHardDiscovery(unittest.TestCase):
 
 
 class TestCandidatePoolDedup(unittest.TestCase):
-    def test_pool_dedups_per_tissue_entries(self):
-        """A molecule expressed in many tissues (many ExpressionProfiles entries) must
-        appear ONCE in the candidate pool."""
+    def test_pool_is_fixed_panel_with_no_duplicates(self):
+        """The candidate pool is the FIXED, case-independent discovery panel (not
+        the model's own expressed molecules, which would leak the answer). Each
+        molecule appears once, and the pool is broad with many decoys."""
         base = {
             "objective": "x", "compound": "D",
             "background": {"description": "d", "literature_facts": []},
@@ -88,7 +89,10 @@ class TestCandidatePoolDedup(unittest.TestCase):
         eps += [{"Molecule": "CYP1A2", "Type": "Enzyme"} for _ in range(5)]  # a distractor
         hi = G._hard_input(copy.deepcopy(base), comp, eps)
         pool = [m["molecule"] for m in hi["background"]["candidate_clearance_molecules"]]
-        self.assertEqual(sorted(pool), ["CYP1A2", "CYP3A4"])
+        self.assertEqual(len(pool), len(set(pool)), "pool has duplicates")
+        self.assertGreaterEqual(len(pool), 20)          # broad panel, not the 2 own molecules
+        self.assertIn("CYP3A4", pool)                   # true molecule reachable
+        self.assertGreater(len(set(pool) - {"CYP3A4", "CYP1A2"}), 8)  # many decoys
         self.assertNotIn("CYP3A4", " ".join(hi["background"]["literature_facts"]))
 
 

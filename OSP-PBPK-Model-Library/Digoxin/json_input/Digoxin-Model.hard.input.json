@@ -13,11 +13,115 @@
     ],
     "candidate_clearance_molecules": [
       {
+        "molecule": "CYP3A4",
+        "type": "Enzyme"
+      },
+      {
+        "molecule": "CYP3A5",
+        "type": "Enzyme"
+      },
+      {
+        "molecule": "CYP3A7",
+        "type": "Enzyme"
+      },
+      {
+        "molecule": "CYP2C8",
+        "type": "Enzyme"
+      },
+      {
+        "molecule": "CYP2C9",
+        "type": "Enzyme"
+      },
+      {
+        "molecule": "CYP2C19",
+        "type": "Enzyme"
+      },
+      {
+        "molecule": "CYP2D6",
+        "type": "Enzyme"
+      },
+      {
+        "molecule": "CYP2B6",
+        "type": "Enzyme"
+      },
+      {
+        "molecule": "CYP1A2",
+        "type": "Enzyme"
+      },
+      {
+        "molecule": "CYP2E1",
+        "type": "Enzyme"
+      },
+      {
+        "molecule": "CYP2A6",
+        "type": "Enzyme"
+      },
+      {
+        "molecule": "CYP1A1",
+        "type": "Enzyme"
+      },
+      {
+        "molecule": "UGT1A1",
+        "type": "Enzyme"
+      },
+      {
+        "molecule": "UGT1A4",
+        "type": "Enzyme"
+      },
+      {
+        "molecule": "UGT1A9",
+        "type": "Enzyme"
+      },
+      {
+        "molecule": "UGT2B7",
+        "type": "Enzyme"
+      },
+      {
+        "molecule": "UGT1A6",
+        "type": "Enzyme"
+      },
+      {
+        "molecule": "UGT2B4",
+        "type": "Enzyme"
+      },
+      {
+        "molecule": "AADAC",
+        "type": "Enzyme"
+      },
+      {
         "molecule": "P-gp",
         "type": "Transporter"
       },
       {
+        "molecule": "ABCG2",
+        "type": "Transporter"
+      },
+      {
+        "molecule": "OATP1B1",
+        "type": "Transporter"
+      },
+      {
+        "molecule": "OATP1B3",
+        "type": "Transporter"
+      },
+      {
+        "molecule": "OCT1",
+        "type": "Transporter"
+      },
+      {
+        "molecule": "MATE1",
+        "type": "Transporter"
+      },
+      {
+        "molecule": "OAT3",
+        "type": "Transporter"
+      },
+      {
         "molecule": "ATP1A2",
+        "type": "OtherProtein"
+      },
+      {
+        "molecule": "GABRG2",
         "type": "OtherProtein"
       }
     ]

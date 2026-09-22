@@ -7,6 +7,7 @@
   "background": {
     "description": "Montelukast PBPK modeling task.",
     "literature_facts": [
+      "Metabolized by: CYP2C8, CYP2C9, CYP3A4, CYP3A5.",
       "Renal clearance via glomerular filtration is present.",
       "Reference distribution/permeability methods exist but are withheld; choose your own."
     ]

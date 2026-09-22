@@ -429,11 +429,19 @@ def _blank(data: dict) -> tuple[dict, list[dict], list[str]]:
             vo = o.get("ValueOrigin") or {}
             if isinstance(nm, str) and isinstance(o.get("Value"), (int, float)) \
                     and vo.get("Source") == "ParameterIdentification":
-                answer.append({"parameter": nm, "value": o["Value"],
+                ans_val = o["Value"]
+                answer.append({"parameter": nm, "value": ans_val,
                                "unit": o.get("Unit", "")})
                 if nm not in BLANK_DEFAULTS:
                     warns.append(nm)          # used a keyword fallback, not an exact default
-                o["Value"] = blank_default(nm)
+                bv = blank_default(nm)
+                # never hand the answer back AS the blank: if the naive default
+                # coincides with the fitted answer (e.g. koff default 1.0 == a
+                # fitted koff of 1.0), nudge it clearly off, so the agent must
+                # still derive the value rather than read it.
+                if abs(bv - ans_val) <= abs(ans_val) * 1e-9 + 1e-15:
+                    bv = bv * 3.0 if bv else 1.0
+                o["Value"] = bv
                 o["ValueOrigin"] = {"Source": "Unknown",
                                     "Description": "benchmark naive prior (blanked)"}
             for v in o.values():
@@ -451,6 +459,39 @@ def _blank(data: dict) -> tuple[dict, list[dict], list[str]]:
         walk(comp)
     for form in snap.get("Formulations") or []:
         walk(form)
+
+    # SECOND PASS - blank fitted-value MIRRORS. PK-Sim duplicates some fitted
+    # compound values into origin-less copies: 'Lipophilicity (experiment)' /
+    # 'Fraction unbound (experiment)' inside a systemic-clearance process, and a
+    # PI 'Start value'. These carry NO ParameterIdentification origin, so the
+    # first pass skips them and the fitted answer survives at full precision - a
+    # leak. Blank any origin-less numeric parameter whose value exactly matches a
+    # fitted answer value (an accidental full-precision collision with a genuine
+    # given is effectively impossible). An '(experiment)' mirror is reset to the
+    # blanked default of the compound parameter it mirrors, so it stays consistent.
+    fitted_values = [a["value"] for a in answer]
+
+    def _matches_fitted(v: float) -> bool:
+        return any(abs(v - fv) <= abs(fv) * 1e-9 + 1e-15 for fv in fitted_values)
+
+    def scrub(o):
+        if isinstance(o, dict):
+            nm, v = o.get("Name"), o.get("Value")
+            vo = (o.get("ValueOrigin") or {}).get("Source")
+            if (isinstance(nm, str) and isinstance(v, (int, float))
+                    and vo != "ParameterIdentification" and _matches_fitted(v)):
+                base = nm.split(" (experiment)")[0]
+                o["Value"] = blank_default(base if base != nm else nm)
+                o["ValueOrigin"] = {"Source": "Unknown",
+                                    "Description": "benchmark naive prior (blanked mirror)"}
+            for vv in o.values():
+                scrub(vv)
+        elif isinstance(o, list):
+            for vv in o:
+                scrub(vv)
+
+    if fitted_values:
+        scrub(snap)
     _neutralize_methods(snap)          # methods are withheld too ('choose your own')
     return snap, answer, warns
 
@@ -483,6 +524,35 @@ def _blank_hard(data: dict) -> tuple[dict, list[dict]]:
     return snap, removed
 
 
+def _discovery_pool(own: list[dict]) -> list[dict]:
+    """The fixed, case-independent discovery panel (from pkpd_agent), unioned
+    with the model's own molecules so the true answer stays reachable among the
+    decoys. Falls back to the panel constant if the package import is
+    unavailable."""
+    try:
+        from pkpd_agent.engines import osp_catalog
+        return osp_catalog.hard_candidate_pool(own)
+    except Exception:                                    # pragma: no cover
+        # minimal inline copy of the panel so builds never regress to a leak
+        panel = [
+            {"molecule": m, "type": "Enzyme"} for m in
+            ("CYP3A4", "CYP3A5", "CYP3A7", "CYP2C8", "CYP2C9", "CYP2C19",
+             "CYP2D6", "CYP2B6", "CYP1A2", "CYP2E1", "CYP2A6", "CYP1A1",
+             "UGT1A1", "UGT1A4", "UGT1A9", "UGT2B7", "UGT1A6", "UGT2B4", "AADAC")
+        ] + [
+            {"molecule": m, "type": "Transporter"} for m in
+            ("P-gp", "ABCG2", "OATP1B1", "OATP1B3", "OCT1", "MATE1", "OAT3")
+        ] + [{"molecule": "ATP1A2", "type": "OtherProtein"},
+             {"molecule": "GABRG2", "type": "OtherProtein"}]
+        have = {m["molecule"] for m in panel}
+        for n in own or []:
+            if n.get("molecule") and n["molecule"] not in have:
+                have.add(n["molecule"])
+                panel.append({"molecule": n["molecule"],
+                              "type": n.get("type") or "Enzyme"})
+        return panel
+
+
 def _hard_input(agent_input: dict, comp: dict,
                 expression_profiles: list | None) -> dict:
     """The task input for HARD mode: same givens (physchem, data), but the model
@@ -496,15 +566,19 @@ def _hard_input(agent_input: dict, comp: dict,
     inp["background"] = dict(inp.get("background") or {})
     inp["background"]["literature_facts"] = known_biology(
         comp, expression_profiles, reveal_enzymes=False)
-    # the expression system lists a molecule once per tissue; the agent picks a
-    # MOLECULE, so present each distinct molecule once (first type wins, order kept).
-    pool, seen = [], set()
+    # The candidate pool must be a FIXED, case-independent discovery panel - NOT
+    # the reference model's own expressed molecules, which are exactly the answer
+    # and, when the reference expressed only what it used, leave zero decoys (a
+    # direct identity leak). Present the standard panel, unioned with the model's
+    # own molecules only so an unusual true molecule stays reachable; it sits
+    # among the panel's decoys, not marked.
+    own, seen = [], set()
     for ep in (expression_profiles or []):
         mol = ep.get("Molecule")
         if mol and mol not in seen:
             seen.add(mol)
-            pool.append({"molecule": mol, "type": ep.get("Type")})
-    inp["background"]["candidate_clearance_molecules"] = pool
+            own.append({"molecule": mol, "type": ep.get("Type")})
+    inp["background"]["candidate_clearance_molecules"] = _discovery_pool(own)
     inp["unknowns_guidance"] = (
         "HARD mode - the model STRUCTURE is NOT given, and neither is the "
         "metabolizing enzyme's identity. The snapshot has NO elimination "

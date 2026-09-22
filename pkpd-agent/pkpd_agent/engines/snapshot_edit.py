@@ -29,6 +29,7 @@ from __future__ import annotations
 import copy
 from typing import Any
 
+from . import osp_catalog
 from .osp_catalog import PROCESS_TYPES
 
 # valid PK-Sim distribution / permeability methods (snapshot short names)
@@ -62,7 +63,8 @@ def apply_edits(snapshot: dict, edits: dict | None) -> tuple[dict, dict]:
     _apply_calc_methods(comp, sims, comp_name, edits.get("calculation_methods") or {}, report)
     _apply_processes(comp, sims, comp_name, edits.get("processes") or {}, report)
     _apply_add_processes(comp, sims, comp_name,
-                         edits.get("add_processes") or [], expressed, report)
+                         edits.get("add_processes") or [], expressed, report,
+                         snapshot=snap)
     _apply_interaction_parameters(snap.get("Compounds") or [],
                                   edits.get("interaction_parameters") or [], report)
     return snap, report
@@ -369,10 +371,32 @@ def _apply_processes(comp: dict, sims: list, comp_name: str | None,
         report["processes"]["_simulation_refs_removed"] = n_sim
 
 
+def _materialize_panel_molecule(snapshot: dict | None, mol: str) -> str | None:
+    """If `mol` is a standard discovery-panel candidate, append its real
+    harvested expression profile to the snapshot's ExpressionProfiles and return
+    its lowercased molecule type ('enzyme'/'transporter'/'otherprotein'); else
+    None. Idempotent: does nothing if already expressed."""
+    if snapshot is None:
+        return None
+    ep = osp_catalog.panel_expression_profile(mol)
+    if ep is None:
+        return None
+    profiles = snapshot.setdefault("ExpressionProfiles", [])
+    if not any(p.get("Molecule") == mol for p in profiles):
+        profiles.append(ep)
+    return (ep.get("Type") or "").lower()
+
+
 def _apply_add_processes(comp: dict, sims: list, comp_name: str | None,
-                         additions: list, expressed: set, report: dict) -> None:
+                         additions: list, expressed: dict, report: dict,
+                         snapshot: dict | None = None) -> None:
     """Attach a NEW process (mechanism) to the compound. An enzyme process needs
-    an already-expressed enzyme; the process structure follows the catalog."""
+    an expressed enzyme; if the target molecule is a standard discovery-panel
+    candidate that the model does not yet express, its real (harvested) tissue
+    expression profile is MATERIALIZED on demand so every panel candidate is
+    equally attachable (a decoy must be as reachable as the true molecule, or
+    reachability itself leaks the answer). The process structure follows the
+    catalog."""
     procs = comp.setdefault("Processes", [])
     for a in additions:
         if not isinstance(a, dict):
@@ -390,9 +414,16 @@ def _apply_add_processes(comp: dict, sims: list, comp_name: str | None,
                 continue
             moltype = expressed.get(mol)
             if moltype is None:
-                report["not_found"].append(
-                    f"add_process:{mol} is not expressed in the model")
-                continue
+                # materialize a standard-panel candidate's expression on demand
+                injected = _materialize_panel_molecule(snapshot, mol)
+                if injected is not None:
+                    moltype = injected
+                    expressed[mol] = moltype
+                    report["processes"][f"expressed:{mol}"] = "materialized (panel candidate)"
+                else:
+                    report["not_found"].append(
+                        f"add_process:{mol} is not expressed in the model")
+                    continue
             if at == "enzyme" and moltype != "enzyme":
                 report["not_found"].append(
                     f"add_process:{mol} is a {moltype}, not an enzyme")

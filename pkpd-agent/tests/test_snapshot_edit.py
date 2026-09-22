@@ -89,10 +89,26 @@ class TestAddProcess(unittest.TestCase):
         self.assertIn("AADAC", mols)
         self.assertEqual(rep["processes"]["add:AADAC"], "added")
 
-    def test_reject_unexpressed_molecule(self):
+    def test_reject_truly_unknown_molecule(self):
+        # a molecule that is neither expressed NOR a standard discovery-panel
+        # candidate cannot be materialized and is rejected.
         _, rep = apply_edits(self.snap, {"add_processes": [
-            {"type": "metabolization_first_order", "molecule": "CYP2D6"}]})
-        self.assertTrue(any("CYP2D6" in n for n in rep["not_found"]))
+            {"type": "metabolization_first_order", "molecule": "FAKE_ENZYME_X"}]})
+        self.assertTrue(any("FAKE_ENZYME_X" in n for n in rep["not_found"]))
+
+    def test_panel_candidate_is_materialized_not_rejected(self):
+        # CYP2D6 is not expressed here but IS a standard discovery-panel
+        # candidate, so its harvested expression profile is materialized on
+        # demand and the process attaches (every candidate equally reachable -
+        # so reachability never leaks which molecule is the true one).
+        out, rep = apply_edits(self.snap, {"add_processes": [
+            {"type": "metabolization_first_order", "molecule": "CYP2D6",
+             "parameters": {"Intrinsic clearance": 0.05}}]})
+        self.assertFalse(any("CYP2D6" in n for n in rep["not_found"]))
+        mols = [p.get("Molecule") for p in out["Compounds"][0]["Processes"]]
+        self.assertIn("CYP2D6", mols)
+        eps = [e.get("Molecule") for e in out.get("ExpressionProfiles") or []]
+        self.assertIn("CYP2D6", eps)
 
     def test_add_duplicate_is_noop(self):
         _, rep = apply_edits(self.snap, {"add_processes": [

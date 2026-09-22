@@ -12,6 +12,8 @@ Process structures are the OSP snapshot forms verified against PK-Sim 12.
 
 from __future__ import annotations
 
+import json
+import os
 from typing import Any
 
 # --------------------------------------------------------------------------- #
@@ -758,3 +760,84 @@ def addable_process_types(expressed_molecules: list[dict]) -> list[dict[str, Any
                     "provenance": spec.get("provenance", "OSP library snapshots"),
                     "parameters": spec["parameters"], "can_attach_to": attach})
     return out
+
+
+# --------------------------------------------------------------------------- #
+# Hard-mode (mechanism-DISCOVERY) candidate panel.
+#
+# In hard mode the clearing enzyme/transporter identity is WITHHELD and the
+# agent must discover it. The candidate pool must therefore be a FIXED,
+# case-independent panel - never the reference model's own expressed molecules,
+# which would hand the agent the answer with no decoys (the leak this fixes).
+# Every hard task presents this same broad menu; the true molecule(s) sit among
+# many decoys, so discovery is a genuine judgement, not a copy.
+# --------------------------------------------------------------------------- #
+STANDARD_DISCOVERY_PANEL: list[dict[str, str]] = [
+    # major CYPs
+    {"molecule": "CYP3A4", "type": "Enzyme"}, {"molecule": "CYP3A5", "type": "Enzyme"},
+    {"molecule": "CYP3A7", "type": "Enzyme"}, {"molecule": "CYP2C8", "type": "Enzyme"},
+    {"molecule": "CYP2C9", "type": "Enzyme"}, {"molecule": "CYP2C19", "type": "Enzyme"},
+    {"molecule": "CYP2D6", "type": "Enzyme"}, {"molecule": "CYP2B6", "type": "Enzyme"},
+    {"molecule": "CYP1A2", "type": "Enzyme"}, {"molecule": "CYP2E1", "type": "Enzyme"},
+    {"molecule": "CYP2A6", "type": "Enzyme"}, {"molecule": "CYP1A1", "type": "Enzyme"},
+    # major UGTs
+    {"molecule": "UGT1A1", "type": "Enzyme"}, {"molecule": "UGT1A4", "type": "Enzyme"},
+    {"molecule": "UGT1A9", "type": "Enzyme"}, {"molecule": "UGT2B7", "type": "Enzyme"},
+    {"molecule": "UGT1A6", "type": "Enzyme"}, {"molecule": "UGT2B4", "type": "Enzyme"},
+    # other metabolizing enzyme
+    {"molecule": "AADAC", "type": "Enzyme"},
+    # transporters
+    {"molecule": "P-gp", "type": "Transporter"}, {"molecule": "ABCG2", "type": "Transporter"},
+    {"molecule": "OATP1B1", "type": "Transporter"}, {"molecule": "OATP1B3", "type": "Transporter"},
+    {"molecule": "OCT1", "type": "Transporter"}, {"molecule": "MATE1", "type": "Transporter"},
+    {"molecule": "OAT3", "type": "Transporter"},
+    # targets / other proteins - target binding must be a DISCOVERABLE option
+    {"molecule": "ATP1A2", "type": "OtherProtein"}, {"molecule": "GABRG2", "type": "OtherProtein"},
+]
+_PANEL_MOL_TYPE = {m["molecule"]: m["type"] for m in STANDARD_DISCOVERY_PANEL}
+
+
+def hard_candidate_pool(needed: list | None = None) -> list[dict[str, str]]:
+    """The fixed discovery panel, guaranteeing the real answer stays reachable.
+
+    `needed` is the compound's own clearing molecule(s) (from its snapshot /
+    reference). They are UNIONED in only so the task remains solvable if a true
+    molecule is not already in the standard panel (e.g. an unusual name); they
+    are appended after the fixed panel and NOT marked, so they do not reveal the
+    answer - they sit among the panel's decoys."""
+    pool = [dict(m) for m in STANDARD_DISCOVERY_PANEL]
+    have = {m["molecule"] for m in pool}
+    for n in needed or []:
+        mol = n.get("molecule") if isinstance(n, dict) else n
+        if mol and mol not in have:
+            have.add(mol)
+            typ = (n.get("type") if isinstance(n, dict) else None) or "Enzyme"
+            pool.append({"molecule": mol, "type": typ})
+    return pool
+
+
+_EXPRESSION_BANK: dict[str, dict] | None = None
+
+
+def expression_bank() -> dict[str, dict]:
+    """Real tissue expression profiles harvested from the OSP library, one per
+    panel molecule. Used to MATERIALIZE a decoy candidate's expression profile
+    on demand when the agent chooses to attach a mechanism to it, so every panel
+    molecule is actionable (not only the true one - which would itself leak)."""
+    global _EXPRESSION_BANK
+    if _EXPRESSION_BANK is None:
+        path = os.path.join(os.path.dirname(__file__), "data",
+                            "expression_profile_bank.json")
+        try:
+            with open(path, encoding="utf-8") as fh:
+                _EXPRESSION_BANK = json.load(fh)
+        except (OSError, ValueError):
+            _EXPRESSION_BANK = {}
+    return _EXPRESSION_BANK
+
+
+def panel_expression_profile(molecule: str) -> dict | None:
+    """A deep-ish copy of the harvested expression profile for a panel molecule,
+    or None if the molecule is not in the bank."""
+    ep = expression_bank().get(molecule)
+    return json.loads(json.dumps(ep)) if ep is not None else None
