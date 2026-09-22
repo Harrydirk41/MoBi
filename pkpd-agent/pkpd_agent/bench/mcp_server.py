@@ -97,11 +97,14 @@ def optimize(estimate: dict[str, Any], fix: dict[str, Any] | None = None,
 @server.tool()
 def sweep(estimate: dict[str, Any], fix: dict[str, Any] | None = None,
           structure: dict[str, Any] | None = None, max_evals: int | None = None,
-          workspace: str = "") -> dict:
-    """Choose the distribution method deterministically: try every partition x permeability
-    method, re-fit your physchem (estimate = {param: [lo, hi]}) under each, and adopt the best.
-    Use once when distribution / Vd is off. Pass the same structure you use with optimize so the
-    mechanism is held fixed while only the methods vary."""
+          full_grid: bool = False, workspace: str = "") -> dict:
+    """Choose the distribution method deterministically by COORDINATE DESCENT: sweep the 5
+    partition methods at an anchor permeability, adopt the best, then sweep the 3 permeability
+    methods on that winner only when it can matter (large molecule, poor partition fit) - not the
+    full 5x3 grid, most of which is redundant for perfusion-limited drugs. Re-fit your physchem
+    (estimate = {param: [lo, hi]}) under each. Use once when distribution / Vd is off. Pass the
+    same structure you use with optimize so the mechanism is held fixed while only the methods
+    vary. full_grid=True forces the exhaustive 5x3."""
     args: dict[str, Any] = {"estimate": estimate}
     if fix:
         args["fix"] = fix
@@ -109,6 +112,8 @@ def sweep(estimate: dict[str, Any], fix: dict[str, Any] | None = None,
         args["structure"] = structure
     if max_evals is not None:
         args["max_evals"] = max_evals
+    if full_grid:
+        args["full_grid"] = True
     return _call("osp_sweep_methods", args, workspace)
 
 

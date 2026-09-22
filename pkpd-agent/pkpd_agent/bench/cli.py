@@ -316,6 +316,8 @@ def cmd_loop(args) -> None:
                 call["link_scale"] = json.loads(args.link_scale)
             except json.JSONDecodeError as exc:
                 sys.exit(f"--link-scale is not valid JSON: {exc}")
+        if args.cmd == "sweep" and getattr(args, "full_grid", False):
+            call["full_grid"] = True
         tool = "osp_optimize" if args.cmd == "optimize" else "osp_sweep_methods"
         _emit(_dispatch(registry, tool, call, session))
 
@@ -360,6 +362,9 @@ def build_parser() -> argparse.ArgumentParser:
         q.add_argument("--max-evals", type=int, default=None)
         if nm == "optimize":
             q.add_argument("--link-scale")
+        if nm == "sweep":
+            q.add_argument("--full-grid", action="store_true",
+                           help="force the exhaustive 5x3 grid instead of coordinate descent")
     return ap
 
 

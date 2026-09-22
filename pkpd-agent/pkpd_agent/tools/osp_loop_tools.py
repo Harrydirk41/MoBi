@@ -565,11 +565,13 @@ def register_osp_loop_tools(registry: ToolRegistry, config, ctx: dict) -> None:
         handler=optimize, phase="act"))
 
     def sweep_methods(args, session):
-        """DETERMINISTIC structure sweep: try EVERY partition x permeability method and RE-FIT the
-        given physchem under each, then adopt the best by GMFE. This is the enumerable grid (5 x 3 =
-        15) that should be brute-forced, not sampled by the LLM: it removes the failure where the
-        agent tries a method at frozen (wrong) physchem, sees no improvement, and wrongly concludes
-        'distribution insensitive'. General: the DATA picks the method, no answer is used."""
+        """DETERMINISTIC structure sweep by COORDINATE DESCENT: sweep the 5 partition methods at an
+        anchor permeability, adopt the best, then sweep the 3 permeability methods on that winner
+        ONLY when permeability can matter (large molecule, poor partition fit, or caller asked) -
+        instead of the exhaustive 5 x 3 = 15 grid, most of which is redundant for perfusion-limited
+        drugs. Re-fits the given physchem fresh under each method so a method is never judged at
+        frozen (wrong) physchem. full_grid=true forces the exhaustive 15. The DATA picks the method,
+        no answer is used."""
         from ..engines import osp_optimize as OO
         from ..engines.snapshot_edit import PARTITION_METHODS, PERMEABILITY_METHODS
         estimate = dict(args.get("estimate") or {})
@@ -581,6 +583,23 @@ def register_osp_loop_tools(registry: ToolRegistry, config, ctx: dict) -> None:
         fix = args.get("fix") or {}
         parts = args.get("partition_methods") or PARTITION_METHODS
         perms = args.get("permeability_methods") or PERMEABILITY_METHODS
+        # Coordinate descent instead of the full 5x3 grid: the permeability method
+        # only moves the fit for PERMEABILITY-limited drugs; the OSP library is
+        # mostly lipophilic, perfusion-limited small molecules where it is inert.
+        # So sweep the partition axis at an anchor permeability first, then sweep
+        # the permeability axis ONLY on the winning partition and ONLY when it
+        # can matter (large molecule, or the partition fit is still poor, or the
+        # caller asked). full_grid=True restores the exhaustive 5x3 for auditing.
+        full_grid = bool(args.get("full_grid"))
+        perm_requested = bool(args.get("permeability_methods"))
+        ANCHOR_PERM = perms[0] if perms else "PK-Sim Standard"
+        PERM_TRIGGER_GMFE = 1.5
+        try:
+            with open(snapshot_path, encoding="utf-8") as _fh:
+                _c0 = (json.load(_fh).get("Compounds") or [{}])[0]
+            is_small = _c0.get("IsSmallMolecule", True)
+        except (OSError, ValueError):
+            is_small = True
         # Carry the WHOLE mechanism the agent passed (add_processes AND processes), not just
         # 'processes' - dropping add_processes ran every method on a no-clearance model, so the
         # clearance estimate had no process to attach to and froze, making the grid meaningless.
@@ -605,7 +624,8 @@ def register_osp_loop_tools(registry: ToolRegistry, config, ctx: dict) -> None:
         # (same physchem set + processes) already ran this session, return its result and tell the
         # agent to refine with osp_optimize instead of re-sweeping.
         sig = json.dumps({"e": sorted(estimate), "p": base_structure,
-                          "pm": list(parts), "pe": list(perms)}, default=str, sort_keys=True)
+                          "pm": list(parts), "pe": list(perms), "fg": full_grid},
+                         default=str, sort_keys=True)
         cache = session.get("osp_sweep_cache") or {}
         if sig in cache:
             c = cache[sig]
@@ -622,51 +642,47 @@ def register_osp_loop_tools(registry: ToolRegistry, config, ctx: dict) -> None:
         coarse = max(max_evals, 10)
         lit = (inp.get("given_data", {}) or {}).get("literature_physicochemical", [])
 
-        def _grid(est, budget):
+        def _run_pairs(pairs, est, budget, early_stop=False):
+            """Coarse-fit a list of explicit (partition, permeability) pairs in FAST
+            mode. early_stop applies the COMPENSATION signature (used on the
+            single-axis partition phase): >=2 combos tie in GMFE AND a free
+            physchem took different values across them, meaning the free param
+            absorbed the method difference - a structural degeneracy, safe to stop."""
             out = []
-            parts_done = 0
-            for pm in parts:
-                for pe in perms:
-                    structure = dict(base_structure)      # add_processes/processes held fixed
-                    structure["calculation_methods"] = {"partition": pm, "permeability": pe}
-                    r = OO.run_optimization(cli, snapshot_path, observed, estimate=est,
-                                            fix=fix, structure=structure, max_evals=budget,
-                                            fast=True)   # ranking only: fewer studies, no sens/full
-                    if r.get("ok") and r["fit"].get("gmfe") is not None:
-                        out.append({"partition": pm, "permeability": pe,
-                                    "gmfe": r["fit"]["gmfe"], "optimized": r["optimized"],
-                                    "params_at_bound": r.get("params_at_bound")})
-                        # print the FITTED physchem too: if it DIFFERS across partition methods while
-                        # GMFE ties, the method is unidentifiable (a free param compensated it) - not
-                        # a bug. If it is identical across methods, the method edit had no effect.
-                        fit_str = ", ".join(f"{k}={v:.3g}" for k, v in r["optimized"].items())
-                        print(f"  sweep [{pm} / {pe}] -> GMFE {r['fit']['gmfe']}  (fit: {fit_str})",
+            done = 0
+            for pm, pe in pairs:
+                structure = dict(base_structure)          # add_processes/processes held fixed
+                structure["calculation_methods"] = {"partition": pm, "permeability": pe}
+                r = OO.run_optimization(cli, snapshot_path, observed, estimate=est,
+                                        fix=fix, structure=structure, max_evals=budget,
+                                        fast=True)   # ranking only: fewer studies, no sens/full
+                if r.get("ok") and r["fit"].get("gmfe") is not None:
+                    out.append({"partition": pm, "permeability": pe,
+                                "gmfe": r["fit"]["gmfe"], "optimized": r["optimized"],
+                                "params_at_bound": r.get("params_at_bound")})
+                    fit_str = ", ".join(f"{k}={v:.3g}" for k, v in r["optimized"].items())
+                    print(f"  sweep [{pm} / {pe}] -> GMFE {r['fit']['gmfe']}  (fit: {fit_str})",
+                          flush=True)
+                done += 1
+                if early_stop:
+                    gm = [x["gmfe"] for x in out]
+                    tie = len(gm) >= 2 and (max(gm) - min(gm)) <= 0.02 * min(gm)
+                    compensated = False
+                    if done >= 2 and tie:
+                        for pname, bnd in est.items():
+                            vals = [x["optimized"].get(pname) for x in out
+                                    if isinstance(x["optimized"].get(pname), (int, float))]
+                            width = abs(bnd[1] - bnd[0]) if isinstance(bnd, (list, tuple)) else 0
+                            if len(vals) >= 2 and width and (max(vals) - min(vals)) > 0.05 * width:
+                                compensated = True
+                                break
+                    if compensated:
+                        print(f"  sweep: partition method is UNIDENTIFIABLE here - a free physchem "
+                              f"compensates it (GMFE ties at ~{min(gm):.3g} while its fitted value "
+                              f"shifts across methods); stopping early, the lever is elsewhere",
                               flush=True)
-                parts_done += 1
-                # EARLY STOP only on the COMPENSATION signature: >=2 partition methods tie in GMFE
-                # AND a free physchem took DIFFERENT values across them - i.e. the free parameter
-                # absorbed the method difference. That degeneracy is structural (it holds for the
-                # remaining methods too), so it is safe to stop. A tie with IDENTICAL free-param
-                # values is NOT enough: the methods may genuinely coincide here while a later method
-                # differs, so we must keep sweeping (never miss a better method).
-                gm = [x["gmfe"] for x in out]
-                tie = len(gm) >= 2 and (max(gm) - min(gm)) <= 0.02 * min(gm)
-                compensated = False
-                if parts_done >= 2 and tie:
-                    for pname, bnd in est.items():
-                        vals = [x["optimized"].get(pname) for x in out
-                                if isinstance(x["optimized"].get(pname), (int, float))]
-                        width = abs(bnd[1] - bnd[0]) if isinstance(bnd, (list, tuple)) else 0
-                        if len(vals) >= 2 and width and (max(vals) - min(vals)) > 0.05 * width:
-                            compensated = True
-                            break
-                if compensated:
-                    print(f"  sweep: partition method is UNIDENTIFIABLE here - a free physchem "
-                          f"compensates it (GMFE ties at ~{min(gm):.3g} while its fitted value shifts "
-                          f"across methods); stopping early, the lever is elsewhere (fix a physchem "
-                          f"or free a different parameter)", flush=True)
-                    break
-            return out
+                        return out, True
+            return out, False
 
         def _widen(est, best_row):
             """If the best fit railed on a FREE (non-given, non-measured) parameter, widen that
@@ -698,7 +714,14 @@ def register_osp_loop_tools(registry: ToolRegistry, config, ctx: dict) -> None:
                     changed[pname] = [nlo, nhi]
             return (widened, changed) if changed else (None, None)
 
-        results = _grid(estimate, coarse)                    # coarse rank of the whole grid
+        if full_grid:
+            # exhaustive 5x3 (auditing / permeability-limited compounds you want fully covered)
+            pairs_a = [(pm, pe) for pm in parts for pe in perms]
+            results, compensated = _run_pairs(pairs_a, estimate, coarse, early_stop=False)
+        else:
+            # PHASE A: partition axis at the anchor permeability (the axis that actually moves Vd)
+            pairs_a = [(pm, ANCHOR_PERM) for pm in parts]
+            results, compensated = _run_pairs(pairs_a, estimate, coarse, early_stop=True)
         if not results:
             return ToolResult.error("sweep produced no successful fit across the method grid")
         results.sort(key=lambda x: x["gmfe"])
@@ -706,8 +729,37 @@ def register_osp_loop_tools(registry: ToolRegistry, config, ctx: dict) -> None:
         if est2:
             print(f"  sweep: free non-given param(s) railed -> widening to physical range and "
                   f"re-sweeping: {changed}", flush=True)
-            more = _grid(est2, coarse)
+            more, comp2 = _run_pairs(pairs_a, est2, coarse, early_stop=not full_grid)
+            compensated = compensated or comp2
             results = sorted(results + more, key=lambda x: x["gmfe"])
+        # PHASE B: the permeability axis. Coordinate descent (winner partition only) is safe ONLY
+        # when the partition fit at the anchor is already GOOD - that means permeability is inert
+        # (perfusion-limited) and does not interact with the partition ranking. When the fit is
+        # still poor (or it is a large molecule, or the caller asked), permeability CAN interact
+        # with partition, so the anchor-based partition ranking is untrustworthy and we must cover
+        # the FULL remaining grid (all partitions x non-anchor permeabilities) to not miss the
+        # optimum - exactly the Vancomycin (permeability-limited) case.
+        if not full_grid and len(perms) > 1 and not compensated:
+            best_gmfe = results[0]["gmfe"]
+            need_perm = (perm_requested or not is_small
+                         or best_gmfe > PERM_TRIGGER_GMFE)
+            if need_perm:
+                reason = ("caller requested permeability sweep" if perm_requested else
+                          "large molecule (permeability-limited)" if not is_small else
+                          f"partition fit still poor (GMFE {best_gmfe:.3g} > {PERM_TRIGGER_GMFE}) "
+                          f"- axes may interact")
+                print(f"  sweep: permeability MATTERS here ({reason}) - covering the full remaining "
+                      f"grid so a partition x permeability interaction is not missed", flush=True)
+                done = {(x["partition"], x["permeability"]) for x in results}
+                pairs_b = [(pm, pe) for pm in parts for pe in perms
+                           if pe != ANCHOR_PERM and (pm, pe) not in done]
+                more_b, _ = _run_pairs(pairs_b, est2 or estimate, coarse)
+                results = sorted(results + more_b, key=lambda x: x["gmfe"])
+            else:
+                print(f"  sweep: permeability axis SKIPPED (perfusion-limited small molecule and "
+                      f"partition fit already good, GMFE {best_gmfe:.3g}); anchored at "
+                      f"'{ANCHOR_PERM}'. Pass full_grid=true to force the exhaustive 5x3.",
+                      flush=True)
         # FINE refine the winning method at FULL fidelity (all studies + sensitivity + full-data run):
         # the grid ran in fast mode (subset studies, no sensitivity), so re-fit the winner properly
         # for the reported GMFE and identifiability.
@@ -752,16 +804,18 @@ def register_osp_loop_tools(registry: ToolRegistry, config, ctx: dict) -> None:
     registry.register(Tool(
         name="osp_sweep_methods",
         description=(
-            "ACT (deterministic structure sweep): try EVERY partition x permeability calculation "
-            "method (the full 5x3 grid) and RE-FIT your physchem (estimate={param:[lo,hi]}) under "
-            "each, then adopt the best-GMFE method. Use this whenever distribution / Vd is off - it "
-            "is cheaper and more reliable than guessing methods one at a time, and it avoids the "
-            "trap of judging a method at frozen physchem. Do NOT distort a measured physchem "
+            "ACT (deterministic structure sweep by COORDINATE DESCENT): sweep the 5 partition "
+            "methods at an anchor permeability, adopt the best, then sweep the 3 permeability "
+            "methods on that winner ONLY when it can matter (large molecule, poor partition fit, or "
+            "you pass permeability_methods) - typically ~5-8 fits, not the full 5x3=15, since "
+            "permeability is inert for perfusion-limited drugs. RE-FITs your physchem "
+            "(estimate={param:[lo,hi]}) under each method, so a method is never judged at frozen "
+            "physchem. Use whenever distribution / Vd is off. Do NOT distort a measured physchem "
             "parameter to fix Vd before you have swept the methods. Pass the SAME "
             "structure={add_processes:[...], processes:{...}} you use with osp_optimize - the "
-            "sweep holds your mechanism (added enzyme processes and all) fixed and only varies the "
-            "distribution/permeability methods. Optional: fix={param:value}, partition_methods/"
-            "permeability_methods to restrict the grid, max_evals (per combo, default 12)."),
+            "sweep holds your mechanism fixed and only varies the calculation methods. Optional: "
+            "fix={param:value}, partition_methods/permeability_methods to restrict the axes, "
+            "max_evals (per combo, default 12), full_grid=true to force the exhaustive 5x3."),
         input_schema={
             "type": "object",
             "properties": {
@@ -773,6 +827,9 @@ def register_osp_loop_tools(registry: ToolRegistry, config, ctx: dict) -> None:
                 "partition_methods": {"type": "array", "items": {"type": "string"}},
                 "permeability_methods": {"type": "array", "items": {"type": "string"}},
                 "max_evals": {"type": "integer", "description": "optimizer budget per combo (12)"},
+                "full_grid": {"type": "boolean",
+                              "description": "force the exhaustive 5x3 grid instead of coordinate "
+                                             "descent (auditing / permeability-limited drugs)"},
             },
             "required": ["estimate"],
         },

@@ -154,6 +154,55 @@ class TestSweepEarlyStopCompensation(unittest.TestCase):
         self.assertLess(len(self.seen), 15)
 
 
+class TestSweepCoordinateDescentCheapPath(unittest.TestCase):
+    """When the partition sweep at the anchor permeability ALREADY fits well (perfusion-limited,
+    small molecule), the permeability axis is inert and must be SKIPPED - the whole point of
+    coordinate descent. Only the 5 partition methods (at the anchor permeability) are fitted, plus
+    the winner's full-fidelity refine - never the other permeabilities."""
+    def setUp(self):
+        from pkpd_agent.engines.snapshot_edit import PARTITION_METHODS, PERMEABILITY_METHODS
+        self.PART, self.PERM = PARTITION_METHODS, PERMEABILITY_METHODS
+        self.anchor = PERMEABILITY_METHODS[0]
+        self.seen = []
+
+        def fake_run(cli, snap, observed, estimate, fix=None, structure=None, max_evals=30, **kw):
+            cm = (structure or {}).get("calculation_methods", {})
+            part, perm = cm.get("partition"), cm.get("permeability")
+            self.seen.append((part, perm))
+            # Rodgers and Rowland already fits great (1.20); others fit fine too. All GOOD (<=1.5),
+            # so permeability is inert and should never be tried beyond the anchor.
+            gmfe = 1.20 if part == "Rodgers and Rowland" else 1.45
+            return {"ok": True, "optimized": {k: sum(v) / 2 for k, v in estimate.items()},
+                    "fit": {"gmfe": gmfe}, "by_route": {}, "worst_datasets": [],
+                    "params_at_bound": [], "sensitivity": {}, "n_evals": max_evals,
+                    "fit_simulations": ["s1"]}
+        self._orig = OO.run_optimization
+        OO.run_optimization = fake_run
+        self.reg = ToolRegistry()
+        register_osp_loop_tools(self.reg, AgentConfig(mock=False),
+                                {"cli": object(), "snapshot_path": "x", "observed": [], "input": {}})
+        self.sweep = self.reg.get("osp_sweep_methods").handler
+
+    def tearDown(self):
+        OO.run_optimization = self._orig
+
+    def test_permeability_axis_skipped_when_partition_fit_is_good(self):
+        r = self.sweep({"estimate": {"Lipophilicity": [-2, 3]}}, ModelingSession(goal="g"))
+        self.assertTrue(r.ok)
+        used_perms = {pe for _, pe in self.seen}
+        self.assertEqual(used_perms, {self.anchor})            # ONLY the anchor permeability
+        # 5 partition coarse fits + 1 winner refine = 6, never the 15+ of a full grid
+        self.assertLessEqual(len(self.seen), len(self.PART) + 1)
+        self.assertEqual(r.data["best"]["partition"], "Rodgers and Rowland")
+        self.assertEqual(r.data["best"]["permeability"], self.anchor)
+
+    def test_full_grid_flag_forces_exhaustive(self):
+        self.sweep({"estimate": {"Lipophilicity": [-2, 3]}, "full_grid": True},
+                   ModelingSession(goal="g"))
+        combos = {(p, q) for p in self.PART for q in self.PERM}
+        self.assertTrue(combos <= set(self.seen))              # every combo covered
+
+
 class TestSweepWidening(unittest.TestCase):
     """A FREE (non-given) parameter that rails to a too-tight self-imposed bound is widened to its
     physical range and re-swept - the Vancomycin case: effective Lipophilicity capped at 1.5 (a
