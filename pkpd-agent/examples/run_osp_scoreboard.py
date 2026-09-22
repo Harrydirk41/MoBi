@@ -40,22 +40,28 @@ _LIB = os.path.abspath(os.path.join(_HERE, "..", "..", "OSP-PBPK-Model-Library")
 DEFAULT_ORDER = ["Vancomycin", "Tizanidine", "Triazolam", "Alprazolam", "Sufentanil",
                  "Mexiletine", "Alfentanil", "Raltegravir", "Fluvoxamine", "Montelukast",
                  "Dapagliflozin", "Sildenafil", "Midazolam", "Digoxin"]
+# Pediatric variants that give the agent something to fit (blanked compound params); the
+# child physiology is already in the snapshot. Alfentanil-Pediatrics is a pure extrapolation
+# (0 fitted params - nothing for the agent to do) and is intentionally left out.
+PEDIATRIC_ORDER = ["Montelukast", "Propofol", "Raltegravir", "Sufentanil", "Vancomycin"]
 
 
-def _resolve(model: str, hard: bool = False) -> "dict | None":
-    """Find the primary (non-pediatric) benchmark base for a model dir and resolve its files.
+def _resolve(model: str, hard: bool = False, pediatric: bool = False) -> "dict | None":
+    """Resolve a model dir's benchmark base and its four files.
 
     ``hard=True`` resolves the mechanism-DISCOVERY variant (``*.hard_blanked.json`` +
     ``*.hard.input.json``): structure stripped and the metabolizing enzyme withheld, so
-    the agent must build the model and discover the mechanism. The answer key and reference
-    are shared; the report is written to a separate ``*.hard.*`` path so it never clobbers
-    the easy-mode report."""
+    the agent must build the model and discover the mechanism. ``pediatric=True`` resolves
+    the ``*-Pediatrics`` variant (child physiology already in the snapshot; the agent re-fits
+    the blanked compound parameters). The answer key and reference are shared per variant; the
+    report path carries the base name so variants never clobber each other."""
     d = os.path.join(_LIB, model)
     suffix = ".hard_blanked.json" if hard else ".blanked.json"
-    # exclude the OTHER variant's snapshots from the glob
+    # exclude the OTHER hard/easy variant, then keep only the requested pediatric/adult family
     cand = [p for p in glob.glob(os.path.join(d, "benchmark", "*" + suffix))
             if hard or not p.endswith(".hard_blanked.json")]
-    blanked = sorted(cand, key=lambda p: ("pediatric" in p.lower(), len(p)))
+    cand = [p for p in cand if ("pediatric" in p.lower()) == pediatric]
+    blanked = sorted(cand, key=len)
     for b in blanked:
         base = os.path.basename(b)[: -len(suffix)]
         inp = os.path.join(d, "json_input", base + (".hard.input.json" if hard else ".input.json"))
@@ -154,8 +160,9 @@ def _aggregate(files: list, order: list, out: str) -> None:
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--models", default=",".join(DEFAULT_ORDER),
-                    help="comma-separated model dir names, easy->hard")
+    ap.add_argument("--models", default=None,
+                    help="comma-separated model dir names, easy->hard. Defaults to the "
+                         "adult list, or the pediatric list when --pediatric is set.")
     ap.add_argument("--run", action="store_true", help="execute the agent on each model")
     ap.add_argument("--aggregate", action="store_true", help="collect reports into a scoreboard")
     ap.add_argument("--target", type=float, default=1.6)
@@ -168,17 +175,22 @@ def main() -> None:
     ap.add_argument("--hard", action="store_true",
                     help="run the mechanism-DISCOVERY variant (structure stripped, "
                          "metabolizing enzyme withheld) instead of the fill-in-the-blank one")
+    ap.add_argument("--pediatric", action="store_true",
+                    help="run the *-Pediatrics variants (child physiology in the snapshot; the "
+                         "agent re-fits the blanked compound params) instead of the adult models")
     ap.add_argument("--out", default=None)
     args = ap.parse_args()
     if not (args.run or args.aggregate):
         args.run = args.aggregate = True
+    tag = ("_pediatric" if args.pediatric else "") + ("_hard" if args.hard else "")
     if args.out is None:
-        args.out = "osp_scoreboard_hard.md" if args.hard else "osp_scoreboard.md"
+        args.out = f"osp_scoreboard{tag}.md"
 
-    order = [m.strip() for m in args.models.split(",") if m.strip()]
+    default_order = PEDIATRIC_ORDER if args.pediatric else DEFAULT_ORDER
+    order = [m.strip() for m in (args.models or ",".join(default_order)).split(",") if m.strip()]
     files, missing = [], []
     for m in order:
-        f = _resolve(m, hard=args.hard)
+        f = _resolve(m, hard=args.hard, pediatric=args.pediatric)
         (files.append(f) if f else missing.append(m))
     if missing:
         print(f"[skipped - no complete benchmark found]: {missing}")
