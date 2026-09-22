@@ -70,13 +70,18 @@ def _resolve(model: str, hard: bool = False) -> "dict | None":
     return None
 
 
-def _run_one(f: dict, target: float, max_steps: int, pksim: "str | None") -> bool:
+def _run_one(f: dict, target: float, max_steps: int, pksim: "str | None",
+             model: "str | None" = None, effort: "str | None" = None) -> bool:
     cmd = [sys.executable, "-m", "examples.run_llm_build",
            "--snapshot", f["snapshot"], "--input", f["input"],
            "--reference", f["reference"], "--answer-edits", f["answer"],
            "--report", f["report"], "--target", str(target), "--max-steps", str(max_steps)]
     if pksim:
         cmd += ["--pksim", pksim]
+    if model:
+        cmd += ["--model", model]
+    if effort:
+        cmd += ["--effort", effort]
     print(f"\n{'='*70}\n== RUN {f['model']} ({f['base']}) ==\n{'='*70}", flush=True)
     try:
         return subprocess.run(cmd, cwd=os.path.join(_HERE, "..")).returncode == 0
@@ -156,6 +161,10 @@ def main() -> None:
     ap.add_argument("--target", type=float, default=1.6)
     ap.add_argument("--max-steps", type=int, default=6)
     ap.add_argument("--pksim", default=None)
+    ap.add_argument("--model", default=None,
+                    help="LLM model for the agent (e.g. claude-sonnet-5); default is the "
+                         "harness default. Use Sonnet to keep the full run cheap.")
+    ap.add_argument("--effort", default=None, help="reasoning effort passed to the agent")
     ap.add_argument("--hard", action="store_true",
                     help="run the mechanism-DISCOVERY variant (structure stripped, "
                          "metabolizing enzyme withheld) instead of the fill-in-the-blank one")
@@ -186,7 +195,8 @@ def main() -> None:
                         pass
         ok = 0
         for f in files:
-            ok += _run_one(f, args.target, args.max_steps, args.pksim)
+            ok += _run_one(f, args.target, args.max_steps, args.pksim,
+                           model=args.model, effort=args.effort)
             if args.aggregate:
                 _aggregate(files, order, args.out)   # refresh the scoreboard after EACH model
         print(f"\n== ran {ok}/{len(files)} models ==")
