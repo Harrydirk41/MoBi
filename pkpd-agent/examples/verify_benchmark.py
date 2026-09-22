@@ -297,10 +297,15 @@ def main() -> None:
     input_leaks = _value_leaks(answers, input_json)
     snapshot_leaks = _value_leaks(answers, blanked_json)
     named_leaks = _named_value_leaks(_named_answer_pairs(res), blanked)
-    method_leaks = _method_leaks(blanked)      # a non-default calc method = a STRUCTURAL-choice leak
+    # A non-default calc method is a STRUCTURAL-choice leak ONLY when the methods
+    # are withheld (single / hard mode, where the agent must choose them). In a
+    # DDI task the victim/perpetrator BASE models are given intact - the agent
+    # recovers only the interaction parameters - so their methods legitimately
+    # remain and are not a leak.
+    method_leaks = [] if args.type == "ddi" else _method_leaks(blanked)
     leak_ok = not input_leaks and not snapshot_leaks and not named_leaks and not method_leaks
     print(f"  LEAK  non-default calc method in blanked:      "
-          f"{method_leaks if method_leaks else 'none'}")
+          f"{method_leaks if method_leaks else 'none (given base model)' if args.type == 'ddi' else 'none'}")
     print(f"  declared answers to recover: {len(answers)} "
           f"({n_fp} precise enough to fingerprint by string)")
     print(f"  LEAK  answer values in the AGENT INPUT:        "

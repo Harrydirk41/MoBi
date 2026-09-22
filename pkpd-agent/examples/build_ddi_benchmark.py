@@ -72,6 +72,12 @@ def _blank(snapshot: dict, specs: list) -> dict:
                     par["Value"] = INTERACTION_DEFAULTS.get(par["Name"], 1.0)
                     par["ValueOrigin"] = {"Source": "Unknown",
                                           "Description": "benchmark naive prior (blanked)"}
+    # Strip ParameterIdentifications blocks: they are the reference's fitting
+    # configuration and carry the fitted interaction values as identification
+    # 'Start value' / result parameters (e.g. Efavirenz Emax 5.21), which would
+    # hand the agent the DDI answer. The single-compound builder strips these
+    # too; they are fitting metadata, not part of the physical model.
+    snap.pop("ParameterIdentifications", None)
     return snap
 
 

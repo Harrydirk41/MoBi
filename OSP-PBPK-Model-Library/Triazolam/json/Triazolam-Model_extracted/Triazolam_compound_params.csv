@@ -1,0 +1,14 @@
+parameter,value,unit
+Lipophilicity,1.897007419,Log Units
+"Fraction unbound (plasma, reference value)",0.174,
+Solubility at reference pH,4.53,mg/l
+Reference pH,7.0,
+Specific intestinal permeability (transcellular),7.0220146601e-05,cm/min
+In vitro Vmax for liver microsomes,2.36,nmol/min/mg mic. protein
+Km,74.2,µmol/l
+kcat,4.0317206142,1/min
+In vitro Vmax for liver microsomes,10.27,nmol/min/mg mic. protein
+Km,305.0,µmol/l
+kcat,17.5448180963,1/min
+Cl,2.0,
+Molecular weight,343.21,g/mol
