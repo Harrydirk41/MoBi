@@ -38,6 +38,12 @@ class AgentConfig:
     # ^ PKSim.CLI.exe: builds a .pksim5 from a snapshot and runs it (headless PBPK)
     pksim_timeout_s: int = 900      # PK-Sim snap+export can take minutes
     stream_optimizer: bool = True   # print each optimizer evaluation (live progress)
+    # optional hard cap on optimizer evaluations per optimize/sweep-combo call, so a
+    # big multi-compound sweep stays affordable (each eval is a full PK-Sim rebuild).
+    # None = no cap (use the agent's requested budget). Set via PKPD_MAX_EVALS.
+    max_evals_cap: int | None = field(
+        default_factory=lambda: int(os.environ["PKPD_MAX_EVALS"])
+        if os.environ.get("PKPD_MAX_EVALS") else None)
     nonmem_available: bool = False  # whether pharmpy can reach a NONMEM install
 
     # --- provenance ---

@@ -70,6 +70,12 @@ def _system_prompt(target: float) -> str:
         "parameter (from the data, or from established physchem knowledge if you "
         "have it); 'structural' = a real constant present as-is (e.g. molecular "
         "weight). Never trust a placeholder's starting value as if it were data.\n"
+        "   If osp_inspect returns a reference_library (LIBRARY-ASSISTED mode), USE "
+        "it: it holds finished models of OTHER, analogous compounds (leave-one-out). "
+        "Pick your STRUCTURE - distribution/permeability method and which "
+        "enzyme/transporter processes - by analogy to the most chemically/"
+        "mechanistically similar reference model, then FIT the parameters to THIS "
+        "compound's own data (do not copy their numbers blindly).\n"
         "2. DETERMINE the model:\n"
         "   - Structure: pick the distribution & permeability calculation methods "
         "and which processes are active, guided by the known biology (e.g. "
@@ -194,6 +200,13 @@ def main() -> None:
                          "the report (e.g. the original json/<Compound>-Model.json)")
     ap.add_argument("--answer-edits", default=None,
                     help="answer_key edit spec for the parameter comparison")
+    ap.add_argument("--library", default=None, choices=["all", "same-type"],
+                    help="LIBRARY-ASSISTED mode: inject the OTHER compounds' finished models "
+                         "(leave-one-out) as a reference library. 'same-type' keeps analogues "
+                         "sharing an enzyme/transporter with the target.")
+    ap.add_argument("--library-full", action="store_true",
+                    help="include the reference models' fitted VALUES (default: structure + "
+                         "parameter names only, so the agent still fits the numbers itself)")
     args = ap.parse_args()
 
     cfg = AgentConfig(mock=False, max_steps=args.max_steps)
@@ -233,6 +246,17 @@ def main() -> None:
     else:
         build_obs, inp_agent = observed, inp
         print(f"== held-out split: none ({_split.get('method')}) - graded on all data ==")
+
+    # LIBRARY-ASSISTED mode: inject the OTHER compounds' finished models (leave-one-out).
+    if args.library:
+        from pkpd_agent.engines import reference_library as _rl
+        inp_agent = dict(inp_agent)
+        lib = _rl.library_for_snapshot(args.snapshot,
+                                       same_type=(args.library == "same-type"),
+                                       full=args.library_full)
+        inp_agent["reference_library"] = lib
+        print(f"== library-assisted [{lib['mode']}]: {len(lib['models'])} reference "
+              f"model(s) available to the agent (leave-one-out) ==")
 
     registry = ToolRegistry()
     register_osp_loop_tools(registry, cfg, {

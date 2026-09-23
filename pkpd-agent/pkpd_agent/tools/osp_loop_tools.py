@@ -220,6 +220,12 @@ def register_osp_loop_tools(registry: ToolRegistry, config, ctx: dict) -> None:
     observed: list[dict] = ctx["observed"]
     inp: dict = ctx.get("input") or {}
 
+    def _cap_evals(n: int) -> int:
+        """Clamp a requested optimizer budget to config.max_evals_cap (if set), so a
+        big multi-compound run stays affordable - each eval is a full PK-Sim rebuild."""
+        cap = getattr(config, "max_evals_cap", None)
+        return min(n, cap) if cap else n
+
     # -- observe -------------------------------------------------------- #
     def inspect(args: dict, session) -> ToolResult:
         gd = inp.get("given_data", {}) or {}
@@ -244,6 +250,9 @@ def register_osp_loop_tools(registry: ToolRegistry, config, ctx: dict) -> None:
             literature_physicochemical=gd.get("literature_physicochemical")
             or inp.get("literature_physicochemical"),
             unknowns_guidance=inp.get("unknowns_guidance"),
+            # LIBRARY-ASSISTED mode: finished models of OTHER compounds (leave-one-out)
+            # the agent may reuse by analogy; None in de-novo mode.
+            reference_library=inp.get("reference_library"),
             parameters_to_determine=to_determine,
             given_input_parameters=given_in_model,
             evaluation_rubric=inp.get("evaluation_rubric"),
@@ -466,7 +475,7 @@ def register_osp_loop_tools(registry: ToolRegistry, config, ctx: dict) -> None:
             cli, snapshot_path, observed, estimate=estimate,
             fix=given_fix, structure=args.get("structure"),
             fit_simulations=args.get("fit_simulations"),
-            max_evals=int(args.get("max_evals") or 30),
+            max_evals=_cap_evals(int(args.get("max_evals") or 30)),
             on_eval=_progress if getattr(config, "stream_optimizer", True) else None,
             link_scale=link_scale or None)
         if not r.get("ok"):
@@ -580,6 +589,28 @@ def register_osp_loop_tools(registry: ToolRegistry, config, ctx: dict) -> None:
                 "provide 'estimate': {param:[lo,hi]} - the physchem to RE-FIT under each method "
                 "(e.g. Lipophilicity, Fraction unbound). The sweep fits these fresh for every "
                 "partition x permeability combo, so a method is never judged at frozen physchem.")
+        # A method sweep MUST re-fit the CLEARANCE alongside distribution, or the methods
+        # are judged at a wrong default clearance and the correct one (e.g. Rodgers and
+        # Rowland) is mis-ranked - the live Triazolam failure, where sweeping only
+        # Lipophilicity ranked R&R worst (3.03) and the agent adopted the wrong method.
+        _CLEARANCE_KW = ("kcat", "clint", "intrinsic clearance", "specific clearance",
+                         "clspec", "plasma clearance", "in vitro vmax", "vmax")
+        _is_clear = lambda nm: any(k in (nm or "").lower() for k in _CLEARANCE_KW)
+        if not any(_is_clear(n) for n in estimate):
+            try:
+                model_params = _current_model(snapshot_path)["parameters"]
+                clr = [p["name"] for p in model_params if _is_clear(p["name"])]
+            except Exception:                       # model unreadable (e.g. unit tests) -> skip guard
+                clr = []
+            if clr:
+                return ToolResult.error(
+                    "method ranking needs a CLEARANCE parameter free in `estimate` too. "
+                    "With clearance held at a naive default, each distribution method is "
+                    "judged at the wrong systemic exposure, so the correct method is "
+                    "mis-ranked (e.g. Rodgers and Rowland looked worst on Triazolam only "
+                    "because kcat was at its default). Add your clearance parameter to "
+                    f"estimate and re-sweep - candidates in this model: {clr[:4]}. Keep a "
+                    "GIVEN measured physchem (e.g. measured logP) in `fix`, not in the sweep.")
         fix = args.get("fix") or {}
         parts = args.get("partition_methods") or PARTITION_METHODS
         perms = args.get("permeability_methods") or PERMEABILITY_METHODS
@@ -613,7 +644,7 @@ def register_osp_loop_tools(registry: ToolRegistry, config, ctx: dict) -> None:
         # Only calculation_methods are swept, so strip them from the held-fixed base structure.
         base_structure = dict(args.get("structure") or {})
         base_structure.pop("calculation_methods", None)
-        max_evals = int(args.get("max_evals") or 12)
+        max_evals = _cap_evals(int(args.get("max_evals") or 12))
         # a given physchem (e.g. lipophilicity) must be FIXED, not swept-with-a-free-value: fitting it
         # frees a knob that compensates the method, making the sweep unable to tell methods apart.
         sweep_lit = (inp.get("given_data", {}) or {}).get("literature_physicochemical", [])
@@ -817,8 +848,11 @@ def register_osp_loop_tools(registry: ToolRegistry, config, ctx: dict) -> None:
             "you pass permeability_methods) - typically ~5-8 fits, not the full 5x3=15, since "
             "permeability is inert for perfusion-limited drugs. RE-FITs your physchem "
             "(estimate={param:[lo,hi]}) under each method, so a method is never judged at frozen "
-            "physchem. Use whenever distribution / Vd is off. Do NOT distort a measured physchem "
-            "parameter to fix Vd before you have swept the methods. Pass the SAME "
+            "physchem. Use whenever distribution / Vd is off. Your `estimate` MUST include a "
+            "CLEARANCE parameter (e.g. kcat@CYP3A4 / Intrinsic clearance) alongside the "
+            "distribution physchem - a method judged at a wrong default clearance is mis-ranked. "
+            "Do NOT distort a measured physchem parameter to fix Vd before you have swept the "
+            "methods. Pass the SAME "
             "structure={add_processes:[...], processes:{...}} you use with osp_optimize - the "
             "sweep holds your mechanism fixed and only varies the calculation methods. Optional: "
             "fix={param:value}, partition_methods/permeability_methods to restrict the axes, "

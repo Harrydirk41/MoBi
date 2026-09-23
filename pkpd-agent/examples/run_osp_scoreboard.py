@@ -77,7 +77,8 @@ def _resolve(model: str, hard: bool = False, pediatric: bool = False) -> "dict |
 
 
 def _run_one(f: dict, target: float, max_steps: int, pksim: "str | None",
-             model: "str | None" = None, effort: "str | None" = None) -> bool:
+             model: "str | None" = None, effort: "str | None" = None,
+             max_evals: "int | None" = None, library: str = "") -> bool:
     cmd = [sys.executable, "-m", "examples.run_llm_build",
            "--snapshot", f["snapshot"], "--input", f["input"],
            "--reference", f["reference"], "--answer-edits", f["answer"],
@@ -88,9 +89,14 @@ def _run_one(f: dict, target: float, max_steps: int, pksim: "str | None",
         cmd += ["--model", model]
     if effort:
         cmd += ["--effort", effort]
+    if library:                                        # "all" or "same-type"
+        cmd += ["--library", library]
+    env = dict(os.environ)
+    if max_evals is not None:                          # cap optimizer budget for a cheap sweep
+        env["PKPD_MAX_EVALS"] = str(max_evals)
     print(f"\n{'='*70}\n== RUN {f['model']} ({f['base']}) ==\n{'='*70}", flush=True)
     try:
-        return subprocess.run(cmd, cwd=os.path.join(_HERE, "..")).returncode == 0
+        return subprocess.run(cmd, cwd=os.path.join(_HERE, ".."), env=env).returncode == 0
     except Exception as e:                              # noqa: BLE001
         print(f"  {f['model']} FAILED to launch: {e}")
         return False
@@ -172,6 +178,15 @@ def main() -> None:
                     help="LLM model for the agent (e.g. claude-sonnet-5); default is the "
                          "harness default. Use Sonnet to keep the full run cheap.")
     ap.add_argument("--effort", default=None, help="reasoning effort passed to the agent")
+    ap.add_argument("--max-evals", type=int, default=None,
+                    help="cap optimizer evaluations per optimize/sweep-combo (sets PKPD_MAX_EVALS); "
+                         "e.g. 15 for a cheaper, rougher full-library sweep")
+    ap.add_argument("--library", nargs="?", const="all", default=None,
+                    choices=["all", "same-type"],
+                    help="LIBRARY-ASSISTED mode: let the agent read the OTHER compounds' finished "
+                         "models (strict leave-one-out) as a reference library - the realistic "
+                         "pharma workflow. 'same-type' restricts to compounds sharing an enzyme/"
+                         "pathway with the target. Writes a separate *_library scoreboard.")
     ap.add_argument("--hard", action="store_true",
                     help="run the mechanism-DISCOVERY variant (structure stripped, "
                          "metabolizing enzyme withheld) instead of the fill-in-the-blank one")
@@ -182,7 +197,8 @@ def main() -> None:
     args = ap.parse_args()
     if not (args.run or args.aggregate):
         args.run = args.aggregate = True
-    tag = ("_pediatric" if args.pediatric else "") + ("_hard" if args.hard else "")
+    tag = (("_pediatric" if args.pediatric else "") + ("_hard" if args.hard else "")
+           + ("_library" if args.library else ""))
     if args.out is None:
         args.out = f"osp_scoreboard{tag}.md"
 
@@ -208,7 +224,8 @@ def main() -> None:
         ok = 0
         for f in files:
             ok += _run_one(f, args.target, args.max_steps, args.pksim,
-                           model=args.model, effort=args.effort)
+                           model=args.model, effort=args.effort,
+                           max_evals=args.max_evals, library=args.library or "")
             if args.aggregate:
                 _aggregate(files, order, args.out)   # refresh the scoreboard after EACH model
         print(f"\n== ran {ok}/{len(files)} models ==")
