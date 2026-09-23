@@ -318,6 +318,8 @@ def cmd_loop(args) -> None:
                 sys.exit(f"--link-scale is not valid JSON: {exc}")
         if args.cmd == "sweep" and getattr(args, "full_grid", False):
             call["full_grid"] = True
+        if args.cmd == "sweep" and getattr(args, "perm_threshold", None) is not None:
+            call["perm_threshold"] = args.perm_threshold
         tool = "osp_optimize" if args.cmd == "optimize" else "osp_sweep_methods"
         _emit(_dispatch(registry, tool, call, session))
 
@@ -365,6 +367,9 @@ def build_parser() -> argparse.ArgumentParser:
         if nm == "sweep":
             q.add_argument("--full-grid", action="store_true",
                            help="force the exhaustive 5x3 grid instead of coordinate descent")
+            q.add_argument("--perm-threshold", type=float, default=None,
+                           help="partition-fit GMFE above which the permeability axis is also "
+                                "swept (default 2.0); lower = sweep permeability more eagerly")
     return ap
 
 

@@ -593,7 +593,14 @@ def register_osp_loop_tools(registry: ToolRegistry, config, ctx: dict) -> None:
         full_grid = bool(args.get("full_grid"))
         perm_requested = bool(args.get("permeability_methods"))
         ANCHOR_PERM = perms[0] if perms else "PK-Sim Standard"
-        PERM_TRIGGER_GMFE = 1.5
+        # Only escalate to the permeability axis when the partition fit is GENUINELY
+        # broken (permeability-limited). A merely-mediocre fit (e.g. 1.6-1.9, which
+        # just needs more parameter tuning) does NOT indicate a permeability problem
+        # - live Triazolam showed every permeability method giving an identical GMFE,
+        # so 1.5 was too aggressive and wasted 10 combos. 2.0 still catches a truly
+        # permeability-limited drug (e.g. vancomycin fits ~2.35 without the right
+        # permeability method). Tunable via perm_threshold.
+        PERM_TRIGGER_GMFE = float(args.get("perm_threshold") or 2.0)
         try:
             with open(snapshot_path, encoding="utf-8") as _fh:
                 _c0 = (json.load(_fh).get("Compounds") or [{}])[0]

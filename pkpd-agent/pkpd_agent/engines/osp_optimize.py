@@ -405,17 +405,33 @@ def _identifiability_actions(names, sensitivity, at_bound) -> list[dict]:
     weak = [n for n in names
             if (sensitivity.get(n) or {}).get("relative", 1.0) < _WEAK_SENS]
     for n in weak:
+        if "lipophil" in n.lower():
+            # Lipophilicity is an EFFECTIVE distribution parameter in PK-Sim - it
+            # commonly sits up to ~1 log unit off the measured logP, so pinning it
+            # at the measured value biases Vd and wrecks the IV/distribution fit
+            # (the classic reason a model matches PO but not IV, or vice versa).
+            action = (f"Do NOT fix '{n}' at the measured logP. In PK-Sim Lipophilicity "
+                      "is an EFFECTIVE distribution parameter that commonly differs from "
+                      "the measured logP by up to ~1 log unit; pinning it at the measured "
+                      "value biases the volume of distribution. Instead fit it within a "
+                      "BOUNDED window around the measured value (about measured +/- 1 log "
+                      "unit), and make sure IV data is in the fit set - IV exposure, not "
+                      "the oral curve, is what constrains it. If it looks weak here it is "
+                      "because a free clearance/absorption parameter is absorbing it: fix "
+                      "those to their literature values first, then re-fit lipophilicity "
+                      "over that narrow window.")
+        else:
+            action = (f"FIX '{n}' to a known value (the given literature anchor, or your "
+                      "own pharmacological knowledge). If you have NO value for it, do NOT "
+                      "fix it at an arbitrary number (that just moves the artifact) - "
+                      "instead fit only the identifiable combination it belongs to, or "
+                      "reconsider whether the structure needs it. Then refit the "
+                      "parameters the data actually constrain")
         acts.append({
             "parameter": n,
             "issue": "near-zero sensitivity - the observed data do not constrain "
                      "this parameter, so its fitted value is an optimizer artifact",
-            "action": f"FIX '{n}' to a known value (the given literature anchor, or "
-                      "your own pharmacological knowledge, e.g. a measured logP for "
-                      "lipophilicity). If you have NO value for it, do NOT fix it at "
-                      "an arbitrary number (that just moves the artifact) - instead "
-                      "fit only the identifiable combination it belongs to, or "
-                      "reconsider whether the structure needs it. Then refit the "
-                      "parameters the data actually constrain",
+            "action": action,
             "severity": "high"})
 
     # 2. collinear pairs -> fix one member (prefer one with an anchor), fit the rest.

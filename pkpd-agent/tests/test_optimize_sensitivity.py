@@ -170,16 +170,32 @@ class TestIdentifiabilityActions(unittest.TestCase):
     the agent fixes unidentifiable parameters instead of re-floating them."""
 
     def test_weak_parameter_gets_fix_action(self):
-        sens = {"Lipophilicity": {"relative": 0.0, "collinearity": 0.0,
-                                  "collinear_with": None},
+        # a generic weak parameter (not lipophilicity) is told to FIX at a known value
+        sens = {"Km@CYP3A4": {"relative": 0.0, "collinearity": 0.0,
+                              "collinear_with": None},
                 "CL": {"relative": 1.0, "collinearity": 0.0, "collinear_with": None}}
-        acts = _identifiability_actions(["Lipophilicity", "CL"], sens, [])
+        acts = _identifiability_actions(["Km@CYP3A4", "CL"], sens, [])
+        weak = [a for a in acts if a["parameter"] == "Km@CYP3A4"]
+        self.assertEqual(len(weak), 1)
+        self.assertEqual(weak[0]["severity"], "high")
+        self.assertIn("FIX", weak[0]["action"])
+        # a well-identified parameter gets no action
+        self.assertFalse(any(a["parameter"] == "CL" for a in acts))
+
+    def test_weak_lipophilicity_is_NOT_fixed_at_measured(self):
+        # Lipophilicity is an EFFECTIVE parameter: the note must steer AWAY from
+        # pinning it at the measured logP (the trap that fails Triazolam), toward
+        # fitting it in a bounded window with IV data in the fit set.
+        sens = {"Lipophilicity": {"relative": 0.0, "collinearity": 0.0,
+                                  "collinear_with": None}}
+        acts = _identifiability_actions(["Lipophilicity"], sens, [])
         lip = [a for a in acts if a["parameter"] == "Lipophilicity"]
         self.assertEqual(len(lip), 1)
         self.assertEqual(lip[0]["severity"], "high")
-        self.assertIn("FIX", lip[0]["action"])
-        # a well-identified parameter gets no action
-        self.assertFalse(any(a["parameter"] == "CL" for a in acts))
+        action = lip[0]["action"]
+        self.assertIn("Do NOT fix", action)
+        self.assertIn("effective", action.lower())
+        self.assertIn("IV", action)
 
     def test_collinear_pair_gets_one_action(self):
         sens = {"A": {"relative": 0.5, "collinearity": 0.9, "collinear_with": "B"},

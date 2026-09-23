@@ -97,7 +97,8 @@ def optimize(estimate: dict[str, Any], fix: dict[str, Any] | None = None,
 @server.tool()
 def sweep(estimate: dict[str, Any], fix: dict[str, Any] | None = None,
           structure: dict[str, Any] | None = None, max_evals: int | None = None,
-          full_grid: bool = False, workspace: str = "") -> dict:
+          full_grid: bool = False, perm_threshold: float | None = None,
+          workspace: str = "") -> dict:
     """Choose the distribution method deterministically by COORDINATE DESCENT: sweep the 5
     partition methods at an anchor permeability, adopt the best, then sweep the 3 permeability
     methods on that winner only when it can matter (large molecule, poor partition fit) - not the
@@ -114,6 +115,8 @@ def sweep(estimate: dict[str, Any], fix: dict[str, Any] | None = None,
         args["max_evals"] = max_evals
     if full_grid:
         args["full_grid"] = True
+    if perm_threshold is not None:
+        args["perm_threshold"] = perm_threshold
     return _call("osp_sweep_methods", args, workspace)
 
 
