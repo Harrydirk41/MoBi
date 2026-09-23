@@ -30,6 +30,14 @@ import os
 import subprocess
 import sys
 
+# Force UTF-8 console output (Windows consoles default to ascii/cp1252 and crash
+# on the model's non-ASCII reasoning / PK-Sim units).
+for _stream in (sys.stdout, sys.stderr):
+    try:
+        _stream.reconfigure(encoding="utf-8", errors="replace")
+    except (AttributeError, ValueError):
+        pass
+
 _HERE = os.path.dirname(os.path.abspath(__file__))
 _LIB = os.path.abspath(os.path.join(_HERE, "..", "..", "OSP-PBPK-Model-Library"))
 
@@ -92,6 +100,8 @@ def _run_one(f: dict, target: float, max_steps: int, pksim: "str | None",
     if library:                                        # "all" or "same-type"
         cmd += ["--library", library]
     env = dict(os.environ)
+    env["PYTHONUTF8"] = "1"                             # child Python uses UTF-8 for I/O
+    env["PYTHONIOENCODING"] = "utf-8"                   # ... incl. stdout/stderr (Windows)
     if max_evals is not None:                          # cap optimizer budget for a cheap sweep
         env["PKPD_MAX_EVALS"] = str(max_evals)
     print(f"\n{'='*70}\n== RUN {f['model']} ({f['base']}) ==\n{'='*70}", flush=True)

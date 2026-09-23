@@ -43,6 +43,17 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import sys
+
+# Force UTF-8 console output: the model's reasoning and PK-Sim units contain
+# non-ASCII characters (µmol/l, alpha/beta metabolites), which crash a Windows
+# console whose stdout defaults to ascii/cp1252 (UnicodeEncodeError). Reconfigure
+# to UTF-8 with replacement so a stray glyph never aborts a multi-hour run.
+for _stream in (sys.stdout, sys.stderr):
+    try:
+        _stream.reconfigure(encoding="utf-8", errors="replace")
+    except (AttributeError, ValueError):
+        pass
 
 from pkpd_agent.config import AgentConfig
 from pkpd_agent.engines.osp_cli import OSPCli
