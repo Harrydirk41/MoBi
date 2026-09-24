@@ -229,8 +229,6 @@
   .exrow{display:flex;align-items:center;gap:10px;margin:6px 0}
   .exrow>label{font-size:11px;color:var(--muted);width:150px;flex:0 0 auto;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .exrow .exsl{flex:1}.exrow .exv{width:66px;text-align:right;font-size:11.5px}
-  .exarm{flex:0 0 auto;width:24px;height:22px;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--faint);font-size:11px}
-  .exarm.armed{background:var(--good-soft);color:var(--good);border-color:var(--good)}
   .exfoot{display:flex;align-items:center;gap:10px;margin-top:6px}
   table.sbtbl{width:100%;border-collapse:collapse;font-size:12.5px}
   table.sbtbl th{text-align:left;font-size:10.5px;text-transform:uppercase;letter-spacing:.04em;color:var(--faint);padding:6px 14px;border-bottom:1px solid var(--border)}
@@ -626,9 +624,16 @@ async function openEditor(){
   edAdds=[];
   $("#edModal").hidden=false;$("#edTitle").textContent="Build / edit — "+current;
   $("#edBody").innerHTML='<div style="padding:24px;color:var(--faint)">loading the model…</div>';$("#edState").textContent="";
-  try{ED=await (await fetch(`/api/model?compound=${encodeURIComponent(current)}`)).json();}
-  catch(e){$("#edBody").innerHTML='<div style="padding:20px;color:var(--crit)">model unavailable</div>';return;}
-  renderEditor(ED);
+  const who=current;                              // guard against a slow load racing a new selection
+  let v;
+  try{const ctl=new AbortController();const to=setTimeout(()=>ctl.abort(),25000);
+    const resp=await fetch(`/api/model?compound=${encodeURIComponent(who)}`,{signal:ctl.signal});clearTimeout(to);
+    v=await resp.json();}
+  catch(e){if(who===current)$("#edBody").innerHTML='<div style="padding:20px;color:var(--crit)">could not load the model — the server may be busy running a build. Try again in a moment.</div>';return;}
+  if(who!==current)return;                        // user picked another compound meanwhile
+  if(!v||v.error||!v.methods){$("#edBody").innerHTML='<div style="padding:20px;color:var(--crit)">'+escapeHtml((v&&v.error)||'this task has no editable model')+'</div>';return;}
+  try{ED=v;renderEditor(ED);}
+  catch(e){$("#edBody").innerHTML='<div style="padding:20px;color:var(--crit)">editor error: '+escapeHtml(e.message||String(e))+'</div>';}
 }
 function seg(label,cur,opts,id){
   return `<div class="edrow"><label>${escapeHtml(label)}</label><div class="segm" id="${id}">`+
@@ -777,43 +782,16 @@ async function renderExplore(dir){
     seg("Partition",b.methods.partition.current,b.methods.partition.options,"exPart")+
     seg("Permeability",b.methods.permeability.current,b.methods.permeability.options,"exPerm")+
     b.params.map(p=>`<div class="exrow" data-name="${escapeHtml(p.name)}"><label title="${escapeHtml(p.name)}">${escapeHtml(p.name)}</label>`+
-      `<button class="exarm" title="pre-compute this parameter for real-time dragging">⚡</button>`+
       `<input class="exsl" type="range" min="${p.lo}" max="${p.hi}" step="${((p.hi-p.lo)/200)||0.001}" value="${p.value}">`+
       `<span class="exv mono">${(+p.value).toPrecision(3)}</span></div>`).join("")+
     `<div class="exfoot"><button class="act" id="exReset">reset to built</button><span id="exState" class="mono" style="font-size:11px;color:var(--faint)"></span></div>`+
     `</div></details>`;
-  $("#cmExplore").innerHTML=h;exGrids={};armedParam=null;
-  $("#cmExplore").querySelectorAll(".segm").forEach(sg=>sg.querySelectorAll(".seg").forEach(bt=>bt.onclick=()=>{sg.querySelectorAll(".seg").forEach(x=>x.classList.remove("on"));bt.classList.add("on");exGrids={};armedParam=null;$("#cmExplore").querySelectorAll(".exarm.armed").forEach(a=>a.classList.remove("armed"));exploreRun(dir);}));
-  $("#cmExplore").querySelectorAll(".exrow").forEach(row=>{const sl=row.querySelector(".exsl"),vv=row.querySelector(".exv"),arm=row.querySelector(".exarm");const name=row.dataset.name;
-    sl.oninput=()=>{vv.textContent=(+sl.value).toPrecision(3);if(exGrids[name])drawInterp(name,+sl.value);};
-    sl.onchange=()=>{if(name!==armedParam){exGrids={};armedParam=null;$("#cmExplore").querySelectorAll(".exarm.armed").forEach(a=>a.classList.remove("armed"));}exploreRun(dir);};
-    arm.onclick=()=>armSlider(dir,name,+sl.min,+sl.max,arm);});
+  $("#cmExplore").innerHTML=h;
+  $("#cmExplore").querySelectorAll(".segm").forEach(sg=>sg.querySelectorAll(".seg").forEach(bt=>bt.onclick=()=>{sg.querySelectorAll(".seg").forEach(x=>x.classList.remove("on"));bt.classList.add("on");exploreRun(dir);}));
+  $("#cmExplore").querySelectorAll(".exrow").forEach(row=>{const sl=row.querySelector(".exsl"),vv=row.querySelector(".exv");
+    sl.oninput=()=>{vv.textContent=(+sl.value).toPrecision(3);};sl.onchange=()=>exploreRun(dir);});
   $("#exReset").onclick=()=>renderExplore(dir);
 }
-let exGrids={}, armedParam=null;
-async function armSlider(dir,name,lo,hi,btn){
-  btn.textContent="…";btn.disabled=true;$("#exState").textContent=`pre-computing ${name} (grid of runs)…`;
-  let r;try{r=await (await fetch("/api/sweep1",{method:"POST",headers:{"Content-Type":"application/json"},
-    body:JSON.stringify({compound:dir,param:name,lo,hi,n:11,base:collectExplore()})})).json();}
-  catch(e){btn.textContent="⚡";btn.disabled=false;$("#exState").textContent="arm failed";return;}
-  btn.disabled=false;btn.textContent="⚡";
-  if(!r.ok){$("#exState").textContent=r.error||"arm failed";return;}
-  exGrids={};exGrids[name]=r;armedParam=name;
-  $("#cmExplore").querySelectorAll(".exarm.armed").forEach(a=>a.classList.remove("armed"));btn.classList.add("armed");
-  $("#exState").textContent=`${name} armed — drag for real-time`;
-  const row=btn.parentNode;drawInterp(name,+row.querySelector(".exsl").value);
-}
-function interpAt(name,x){
-  const g=exGrids[name];if(!g)return null;const V=g.values;
-  let i=0;while(i<V.length-1&&x>V[i+1])i++;const j=Math.min(i+1,V.length-1);
-  const t=(V[j]!==V[i])?Math.max(0,Math.min(1,(x-V[i])/(V[j]-V[i]))):0;
-  return g.observed.map((o,di)=>{const ca=(g.curves[i]&&g.curves[i][di])||[],cb=(g.curves[j]&&g.curves[j][di])||[];
-    const sim=ca.map((pt,k)=>{const q=cb[k]||pt;const la=Math.log(Math.max(pt[1],1e-9)),lb=Math.log(Math.max(q[1],1e-9));return [pt[0],Math.exp(la+(lb-la)*t)];});
-    return {study:o.study,route:o.route,dose:o.dose,observed:o.observed,simulated:sim};});
-}
-function drawInterp(name,x){const s=interpAt(name,x);if(!s)return;const f=plotFit(s);
-  $("#cmPlot").innerHTML=f.svg;$("#cmLegend").innerHTML=f.legend;
-  $("#cmLegend").querySelectorAll("span[data-i]").forEach(sp=>sp.onclick=()=>{sp.classList.toggle("off");const g=$("#cmPlot").querySelector(`g.sr[data-i="${sp.dataset.i}"]`);if(g)g.classList.toggle("off");});}
 function collectExplore(){
   const part=($("#exPart .seg.on")||{}).dataset, perm=($("#exPerm .seg.on")||{}).dataset;
   const edits={calculation_methods:{partition:part&&part.v,permeability:perm&&perm.v},parameters:{}};

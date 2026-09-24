@@ -347,50 +347,6 @@ def _built_view(project: str) -> dict:
             "params": params}
 
 
-def _sweep1(f: dict, param: str, lo: float, hi: float, n: int, base: dict) -> dict:
-    """Pre-compute the model at n values of ONE parameter (others held at `base`),
-    so the UI can interpolate curves in real time as that slider drags. Heavy
-    (n forward runs) but done once when a slider is 'armed'. Cached."""
-    from pkpd_agent.config import AgentConfig
-    from pkpd_agent.engines.osp_cli import OSPCli
-    from pkpd_agent.engines import osp_score, osp_split
-    cfg = AgentConfig(mock=False)
-    cli = OSPCli(pksim_cli_path=cfg.pksim_cli_path, timeout_s=cfg.pksim_timeout_s)
-    if not cli.pksim_cli_path or not os.path.exists(cli.pksim_cli_path):
-        return {"ok": False, "error": "PKSim.CLI not found — set PKPD_PKSIM_CLI."}
-    n = max(3, min(int(n or 11), 15))
-    inp = json.load(open(f["input"], encoding="utf-8"))
-    observed = (inp.get("given_data", {}) or {}).get("clinical_observed_data")
-    if not observed:
-        return {"ok": False, "error": "no plasma data for this task"}
-    snapd = json.load(open(f["snapshot"], encoding="utf-8"))
-    split = osp_split.split_studies(snapd, observed)
-    build = set(split.get("building") or [])
-    obs = [o for o in observed if o["dataset"] in build] or observed
-    linkage = osp_score.linkage_from_snapshot(snapd)
-    struct = {k: base[k] for k in ("calculation_methods", "processes", "add_processes") if k in base}
-    baseparams = dict(base.get("parameters") or {})
-    values = [lo + (hi - lo) * i / (n - 1) for i in range(n)]
-    obs_series = [{"study": o.get("study") or o["dataset"], "route": o.get("route", ""),
-                   "dose": o.get("dose", ""), "dataset": o["dataset"],
-                   "observed": [[t, c] for t, c in zip(o.get("time_h", []), o.get("conc_mg_L", []))
-                                if c is not None]} for o in obs]
-    curves = []
-    with _SIM_LOCK:
-        for v in values:
-            res = cli.build_and_run(f["snapshot"], edits={**struct,
-                                    "parameters": {**baseparams, param: v}})
-            if not res.get("ok"):
-                curves.append(None)
-                continue
-            predicted, _ = osp_score.map_predictions(res["profiles"], obs, linkage)
-            by = {p["dataset"]: p for p in predicted}
-            curves.append([_downsample([[t, c] for t, c in zip(by[o["dataset"]]["time_h"],
-                           by[o["dataset"]]["pred_conc_mg_L"]) if c is not None], 120)
-                           if o["dataset"] in by else [] for o in obs])
-    return {"ok": True, "param": param, "values": values,
-            "observed": obs_series, "curves": curves}
-
 
 def _topology(project: str, snapd: dict) -> dict:
     """The model's drug-specific structure (the NON-fixed part), parsed from a
@@ -893,6 +849,17 @@ def create_app():
 
     app = FastAPI(title="PBPK Copilot")
 
+    @app.on_event("startup")
+    async def _bump_threadpool():
+        # each open SSE stream and each sync PK-Sim endpoint holds a threadpool
+        # worker; the default (~40) can starve so a new /api/model call hangs on
+        # "loading…". Raise the ceiling so the UI stays responsive during runs.
+        try:
+            import anyio
+            anyio.to_thread.current_default_thread_limiter().total_tokens = 256
+        except Exception:                               # noqa: BLE001
+            pass
+
     # Optional access token: set PBPK_COPILOT_TOKEN to require it (needed before
     # exposing the server beyond localhost / a trusted LAN). Pass it once as
     # ?token=... — the server sets a cookie, so links, fetch and the SSE stream
@@ -984,18 +951,6 @@ def create_app():
     @app.get("/api/built")
     def built(compound: str):
         return JSONResponse(_built_view(compound))
-
-    @app.post("/api/sweep1")
-    def sweep1(payload: dict):
-        f = _find(payload.get("compound"))
-        if not f:
-            return JSONResponse({"error": "unknown compound"}, status_code=404)
-        try:
-            lo = float(payload["lo"]); hi = float(payload["hi"])
-        except (KeyError, TypeError, ValueError):
-            return JSONResponse({"error": "lo/hi required"}, status_code=400)
-        return JSONResponse(_sweep1(f, payload.get("param"), lo, hi,
-                                    payload.get("n", 11), payload.get("base") or {}))
 
     @app.get("/api/rw/topology")
     def rw_topology(project: str):
