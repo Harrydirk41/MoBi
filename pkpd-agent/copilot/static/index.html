@@ -1,0 +1,267 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>PBPK Copilot</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+  :root{
+    --bg:#F4F6F8;--surface:#fff;--surface-2:#EDF1F4;--ink:#141C26;--muted:#5B6773;--faint:#8C97A2;
+    --border:#E1E6EC;--border-2:#EAEEF2;--accent:#0E7C86;--accent-ink:#0A5B63;--accent-soft:#DCEFF1;
+    --good:#1C8A5B;--good-soft:#E1F3EA;--warn:#9A6C08;--warn-soft:#F7EDD4;--crit:#BE3A2C;--crit-soft:#F7E4E1;
+    --shadow:0 1px 2px rgba(20,28,38,.05),0 4px 16px rgba(20,28,38,.05);
+    --sans:'IBM Plex Sans',ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+    --mono:'IBM Plex Mono',ui-monospace,SFMono-Regular,Menlo,monospace;--r:12px;color-scheme:light;
+  }
+  @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+    --bg:#0C1117;--surface:#141C25;--surface-2:#1B2530;--ink:#E7ECF2;--muted:#9AA6B2;--faint:#66727E;
+    --border:#25303B;--border-2:#1F2933;--accent:#37B6BE;--accent-ink:#7FD6DB;--accent-soft:#123037;
+    --good:#3FBE86;--good-soft:#122A20;--warn:#D6A63C;--warn-soft:#2A2313;--crit:#E36A5D;--crit-soft:#2A1613;
+    --shadow:0 1px 2px rgba(0,0,0,.3),0 6px 20px rgba(0,0,0,.35);color-scheme:dark;}}
+  :root[data-theme="dark"]{
+    --bg:#0C1117;--surface:#141C25;--surface-2:#1B2530;--ink:#E7ECF2;--muted:#9AA6B2;--faint:#66727E;
+    --border:#25303B;--border-2:#1F2933;--accent:#37B6BE;--accent-ink:#7FD6DB;--accent-soft:#123037;
+    --good:#3FBE86;--good-soft:#122A20;--warn:#D6A63C;--warn-soft:#2A2313;--crit:#E36A5D;--crit-soft:#2A1613;
+    --shadow:0 1px 2px rgba(0,0,0,.3),0 6px 20px rgba(0,0,0,.35);color-scheme:dark;}
+  *{box-sizing:border-box}html,body{height:100%}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased}
+  h1,h2,h3,h4{margin:0;font-weight:600}button,input,select{font-family:inherit;font-size:inherit;color:inherit}
+  button{cursor:pointer}.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
+  .app{display:grid;grid-template-columns:262px minmax(0,1fr) 330px;height:100%}
+  .rail,.center,.aside{min-width:0;height:100%;overflow-y:auto}
+  .rail{background:var(--surface);border-right:1px solid var(--border)}
+  .aside{background:var(--surface);border-left:1px solid var(--border);padding:16px}
+  .center{display:flex;flex-direction:column;background:var(--bg)}
+  .brand{display:flex;align-items:center;gap:10px;padding:16px;border-bottom:1px solid var(--border-2)}
+  .logo{width:34px;height:34px;border-radius:9px;background:var(--accent-soft);display:grid;place-items:center;color:var(--accent)}
+  .brand b{font-size:15px;display:block}.brand span{font-size:11.5px;color:var(--faint)}
+  .rail-sec{padding:14px 12px 4px}.rail-sec h4{font-size:11px;text-transform:uppercase;letter-spacing:.07em;color:var(--faint);padding:0 6px 8px}
+  .m-item{display:flex;align-items:center;gap:10px;width:100%;text-align:left;background:none;border:1px solid transparent;border-radius:10px;padding:9px 10px;margin-bottom:2px;color:var(--ink)}
+  .m-item:hover{background:var(--surface-2)}.m-item.active{background:var(--accent-soft)}.m-item.active b{color:var(--accent-ink)}
+  .m-item .dot{width:8px;height:8px;border-radius:50%;flex:0 0 auto}
+  .dot.good{background:var(--good)}.dot.warn{background:var(--warn)}.dot.idle{background:var(--faint)}.dot.crit{background:var(--crit)}
+  .m-item .meta{flex:1;min-width:0}.m-item b{font-weight:500;font-size:13.5px;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .m-item small{font-size:11px;color:var(--faint)}
+  .ctrl{padding:6px 14px 16px;display:flex;flex-direction:column;gap:8px}
+  .ctrl label{font-size:11px;color:var(--faint);text-transform:uppercase;letter-spacing:.05em}
+  .ctrl select{width:100%;padding:7px 9px;border:1px solid var(--border);border-radius:9px;background:var(--surface)}
+  .topbar{position:sticky;top:0;z-index:5;display:flex;align-items:center;gap:12px;padding:12px 20px;background:color-mix(in srgb,var(--bg) 86%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--border-2)}
+  .crumb{font-size:13px;color:var(--muted)}.crumb b{color:var(--ink)}.spacer{flex:1}
+  .iconbtn{width:32px;height:32px;border-radius:9px;border:1px solid var(--border);background:var(--surface);display:grid;place-items:center;color:var(--muted)}
+  .iconbtn:hover{color:var(--ink)}
+  .badge{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;font-weight:600;padding:3px 9px;border-radius:999px}
+  .badge.pass{background:var(--good-soft);color:var(--good)}.badge.run{background:var(--warn-soft);color:var(--warn)}
+  .badge.fail{background:var(--crit-soft);color:var(--crit)}.badge.new{background:var(--surface-2);color:var(--muted)}
+  .thread{padding:20px;max-width:780px;width:100%;margin:0 auto;display:flex;flex-direction:column;gap:12px;flex:1}
+  .empty{text-align:center;color:var(--faint);padding:60px 20px}
+  .empty svg{opacity:.5;margin-bottom:10px}
+  .u-msg{align-self:flex-end;max-width:80%;background:var(--accent);color:#fff;padding:10px 14px;border-radius:14px 14px 4px 14px;font-size:13.5px}
+  :root[data-theme="dark"] .u-msg,:root:not([data-theme="light"]) .u-msg{color:#04262a}
+  .meta-line{font-size:12px;color:var(--muted);background:var(--surface-2);border-radius:9px;padding:7px 12px;align-self:center}
+  .step{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);box-shadow:var(--shadow);overflow:hidden}
+  .step .head{display:flex;align-items:center;gap:11px;padding:11px 14px;width:100%;background:none;border:0;text-align:left}
+  .step .ic{width:26px;height:26px;border-radius:7px;background:var(--surface-2);display:grid;place-items:center;color:var(--accent);flex:0 0 auto}
+  .step .t{flex:1;min-width:0}.step .t b{font-weight:500;font-size:13.5px}.step .t small{display:block;color:var(--faint);font-size:11.5px}
+  .step .rgt{font-family:var(--mono);font-size:12px;flex:0 0 auto;color:var(--muted)}
+  .step .body{padding:0 14px 12px;font-size:12px;color:var(--muted)}
+  .reason{font-size:13px;color:var(--muted);display:flex;gap:10px;padding:2px 2px}
+  .reason .av{width:24px;height:24px;border-radius:7px;background:var(--accent-soft);color:var(--accent);display:grid;place-items:center;flex:0 0 auto;margin-top:1px}
+  .callchips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+  .callchip{font-family:var(--mono);font-size:11px;padding:3px 8px;border-radius:6px;background:var(--accent-soft);color:var(--accent-ink)}
+  .log{margin-top:9px;background:var(--surface-2);border-radius:8px;padding:8px 10px;font-family:var(--mono);font-size:11px;color:var(--muted);max-height:150px;overflow:auto;white-space:pre-wrap}
+  .obs{margin-top:9px;font-size:12.5px;color:var(--ink);border-top:1px solid var(--border-2);padding-top:9px}
+  .obs .g{font-family:var(--mono);font-weight:600;color:var(--accent-ink)}
+  .verdict{border-radius:var(--r);padding:12px 14px;display:flex;gap:11px;align-items:center;font-size:13px}
+  .verdict.pass{background:var(--good-soft);border:1px solid color-mix(in srgb,var(--good) 30%,transparent)}
+  .verdict.pass b{color:var(--good)}
+  .verdict .ic{width:28px;height:28px;border-radius:8px;background:var(--good);color:#fff;display:grid;place-items:center;flex:0 0 auto}
+  .composer{position:sticky;bottom:0;padding:12px 20px calc(12px + env(safe-area-inset-bottom,0px));background:linear-gradient(to top,var(--bg) 70%,transparent);max-width:820px;width:100%;margin:0 auto}
+  .runbar{display:flex;gap:8px;align-items:center}
+  .btn{border:1px solid var(--border);background:var(--surface);border-radius:10px;padding:9px 16px;font-size:13.5px;font-weight:500;display:inline-flex;align-items:center;gap:8px}
+  .btn.primary{background:var(--accent);color:#fff;border-color:transparent}
+  :root[data-theme="dark"] .btn.primary,:root:not([data-theme="light"]) .btn.primary{color:#04262a}
+  .btn[disabled]{opacity:.5;cursor:default}
+  .toggle{display:inline-flex;border:1px solid var(--border);border-radius:9px;overflow:hidden}
+  .toggle button{padding:7px 11px;font-size:12px;background:var(--surface);border:0;border-left:1px solid var(--border);color:var(--muted)}
+  .toggle button:first-child{border-left:0}.toggle button.on{background:var(--accent-soft);color:var(--accent-ink);font-weight:600}
+  .hint{font-size:11px;color:var(--faint);text-align:center;padding:8px 0 2px}
+  .a-card{background:var(--bg);border:1px solid var(--border);border-radius:var(--r);margin-bottom:14px}
+  .a-card h4{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--faint);padding:12px 14px 0}
+  .a-card .in{padding:11px 14px 14px}
+  .gauge{display:flex;align-items:baseline;gap:8px}.gauge .big{font-size:36px;font-weight:600;font-family:var(--mono)}.gauge .lbl{font-size:11.5px;color:var(--faint)}
+  .chips{display:flex;flex-wrap:wrap;gap:6px}.chip{font-size:11.5px;padding:3px 8px;border-radius:999px;background:var(--surface-2);color:var(--muted);border:1px solid var(--border-2);font-family:var(--mono)}
+  .chip.hi{background:var(--accent-soft);color:var(--accent-ink);border-color:transparent;font-weight:500}
+  pre.edits{font-family:var(--mono);font-size:11px;color:var(--muted);white-space:pre-wrap;margin:0}
+  @media (max-width:1120px){.app{grid-template-columns:236px minmax(0,1fr) 296px}}
+  @media (max-width:980px){html,body{height:auto}.app{grid-template-columns:1fr;height:auto}.rail,.aside{height:auto;overflow:visible;border:0;border-bottom:1px solid var(--border)}.aside{order:3}.topbar{position:static}}
+</style>
+</head>
+<body>
+<div class="app">
+  <nav class="rail">
+    <div class="brand">
+      <div class="logo"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="5" r="2.1"/><circle cx="5.5" cy="16" r="2.1"/><circle cx="18.5" cy="16" r="2.1"/><path d="M12 7v4m0 0-5 4m5-4 5 4"/></svg></div>
+      <div><b>PBPK Copilot</b><span>AI modeling agent · live</span></div>
+    </div>
+    <div class="rail-sec"><h4>Models</h4><div id="modelList"><div class="m-item" style="opacity:.6"><span class="dot idle"></span><span class="meta"><b>loading…</b></span></div></div></div>
+    <div class="ctrl">
+      <label>LLM</label>
+      <select id="llm"><option value="claude-sonnet-5">Claude Sonnet 5 (cheaper)</option><option value="claude-opus-5">Claude Opus 5</option></select>
+      <label>Max steps</label>
+      <select id="steps"><option>8</option><option selected>10</option><option>14</option></select>
+      <label>Reference library</label>
+      <div class="toggle" id="libToggle">
+        <button data-v="" class="on">Off (de-novo)</button>
+        <button data-v="same-type">Same-type</button>
+        <button data-v="all">All</button>
+      </div>
+    </div>
+  </nav>
+
+  <main class="center">
+    <div class="topbar">
+      <div class="crumb">Models&nbsp;/&nbsp;<b id="crumbName">—</b></div>
+      <span id="crumbBadge" class="badge new">select a model</span>
+      <div class="spacer"></div>
+      <button class="iconbtn" id="themeBtn" aria-label="Theme"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z"/></svg></button>
+    </div>
+    <div class="thread" id="thread">
+      <div class="empty">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><circle cx="12" cy="12" r="9"/><path d="M8 12h8M12 8v8"/></svg>
+        <div>Pick a compound on the left, then <b>Build with agent</b>.<br>The agent's steps stream here live.</div>
+      </div>
+    </div>
+    <div class="composer">
+      <div class="runbar">
+        <button class="btn primary" id="runBtn" disabled><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 4l14 8-14 8V4Z"/></svg>Build with agent</button>
+        <button class="btn" id="stopBtn" hidden>Stop watching</button>
+        <span id="runState" class="hint" style="padding:0"></span>
+      </div>
+      <div class="hint">Runs the real agent on this machine — needs PKSim.CLI and an Anthropic key. The compound's own reference model is never in the library.</div>
+    </div>
+  </main>
+
+  <aside class="aside" id="aside">
+    <div class="a-card"><h4>Fit</h4><div class="in"><div class="gauge"><span class="big" id="fitGmfe">—</span><span class="lbl">best GMFE<br>updates live</span></div><div id="fitBadge" style="margin-top:12px"></div></div></div>
+    <div class="a-card"><h4>Adopted structure</h4><div class="in"><pre class="edits" id="editsBox">Run the agent to see the model it builds.</pre></div></div>
+    <div class="a-card"><h4>Reference library</h4><div class="in"><div id="libInfo" style="font-size:12px;color:var(--muted)">Turn on the library to give the agent analogous models.</div><div class="chips" id="libChips" style="margin-top:9px"></div></div></div>
+  </aside>
+</div>
+
+<script>
+"use strict";
+const $=(s)=>document.querySelector(s), el=(t,c,h)=>{const e=document.createElement(t);if(c)e.className=c;if(h!=null)e.innerHTML=h;return e;};
+let current=null, es=null, library="", curStep=null;
+
+/* theme */
+(function(){const root=document.documentElement,k="pbpk-theme";try{const s=localStorage.getItem(k);if(s)root.setAttribute("data-theme",s);}catch(e){}
+ $("#themeBtn").onclick=()=>{const c=root.getAttribute("data-theme");const d=c?c==="dark":matchMedia("(prefers-color-scheme:dark)").matches;const n=d?"light":"dark";root.setAttribute("data-theme",n);try{localStorage.setItem(k,n);}catch(e){}};})();
+
+/* library toggle */
+document.querySelectorAll("#libToggle button").forEach(b=>b.onclick=()=>{
+  document.querySelectorAll("#libToggle button").forEach(x=>x.classList.remove("on"));
+  b.classList.add("on");library=b.dataset.v; if(current)loadLibrary(current);});
+
+const STATUS={pass:["good","PASS"],fail:["crit","FAIL"],done:["idle","done"],new:["idle","not built"],run:["warn","running"]};
+function badge(status,gmfe){const[cls,txt]=STATUS[status]||STATUS.new;
+  return `<span class="badge ${status==='pass'?'pass':status==='fail'?'fail':status==='run'?'run':'new'}">${txt}${gmfe?' · '+(+gmfe).toFixed(2):''}</span>`;}
+
+async function loadModels(){
+  let list; try{list=await (await fetch("/api/models")).json();}catch(e){list=[];}
+  const wrap=$("#modelList");wrap.innerHTML="";
+  if(!list.length){wrap.innerHTML='<div class="m-item" style="opacity:.6"><span class="dot crit"></span><span class="meta"><b>no models found</b><small>library path not set</small></span></div>';return;}
+  list.forEach(m=>{const[cls]=STATUS[m.status]||STATUS.new;
+    const b=el("button","m-item");b.dataset.name=m.compound;
+    b.innerHTML=`<span class="dot ${cls}"></span><span class="meta"><b>${m.compound}</b><small>${m.gmfe?('held-out '+(+m.gmfe).toFixed(2)):'not built yet'}</small></span>`;
+    b.onclick=()=>select(m.compound,m.status,m.gmfe);wrap.appendChild(b);});
+}
+function select(name,status,gmfe){
+  current=name;
+  document.querySelectorAll(".m-item").forEach(x=>x.classList.toggle("active",x.dataset.name===name));
+  $("#crumbName").textContent=name;$("#crumbBadge").outerHTML=badge(status,gmfe).replace('class="badge','id="crumbBadge" class="badge');
+  $("#runBtn").disabled=false;
+  $("#thread").innerHTML='<div class="u-msg">Build a whole-body PBPK model for '+name+' — decide the structure, fit the identifiable parameters, grade on held-out studies.</div>';
+  $("#fitGmfe").textContent="—";$("#fitBadge").innerHTML="";$("#editsBox").textContent="Press Build with agent.";
+  loadLibrary(name);
+}
+async function loadLibrary(name){
+  const info=$("#libInfo"),chips=$("#libChips");
+  if(!library){info.textContent="De-novo: the agent gets no other models. Turn on the library to add analogues.";chips.innerHTML="";return;}
+  try{const l=await (await fetch(`/api/library?compound=${encodeURIComponent(name)}&same_type=${library==='same-type'}`)).json();
+    const names=(l.models||[]).map(m=>m.compound);
+    info.innerHTML=`${names.length} ${library==='same-type'?'same-type ':''}analogue(s) · ${name}'s own model withheld`;
+    chips.innerHTML=names.slice(0,10).map(n=>`<span class="chip">${n}</span>`).join("");
+  }catch(e){info.textContent="library unavailable";}
+}
+
+/* run + stream */
+$("#runBtn").onclick=async()=>{
+  if(!current)return;
+  $("#runBtn").disabled=true;$("#stopBtn").hidden=false;$("#runState").textContent="starting…";
+  $("#thread").querySelectorAll(".empty").forEach(x=>x.remove());
+  let run_id;
+  try{run_id=(await (await fetch("/api/run",{method:"POST",headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({compound:current,model:$("#llm").value,max_steps:+$("#steps").value,library:library||null})})).json()).run_id;}
+  catch(e){$("#runState").textContent="server not reachable";$("#runBtn").disabled=false;return;}
+  es=new EventSource(`/api/stream/${run_id}`);
+  es.onmessage=(m)=>handle(JSON.parse(m.data));
+  es.onerror=()=>{$("#runState").textContent="stream closed";};
+};
+$("#stopBtn").onclick=()=>{if(es)es.close();$("#stopBtn").hidden=true;$("#runBtn").disabled=false;$("#runState").textContent="stopped watching";};
+
+function addStep(icon,title,sub,right){
+  const s=el("div","step");
+  s.innerHTML=`<div class="head"><span class="ic">${icon}</span><span class="t"><b>${title}</b>${sub?`<small>${sub}</small>`:""}</span><span class="rgt">${right||""}</span></div><div class="body" hidden></div>`;
+  $("#thread").appendChild(s);s.scrollIntoView({block:"end"});return s;
+}
+const TOOLIC={osp_inspect:"🔍",osp_options:"🧭",osp_sweep_methods:"⚗️",osp_optimize:"📈",osp_try_model:"🧪"};
+function handle(ev){
+  const th=$("#thread");
+  if(ev.type==="meta"){
+    let t=[];if(ev.building!=null)t.push(`${ev.building} building · ${ev.held_out} held out (${ev.studies} studies)`);
+    if(ev.library)t.push(`library: ${ev.library}, ${ev.n_ref} models`);
+    th.appendChild(el("div","meta-line",t.join(" · ")));
+  }else if(ev.type==="status"){$("#runState").textContent=ev.phase;}
+  else if(ev.type==="decision"){
+    if(ev.text){const r=el("div","reason",`<span class="av"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M8 12h8M12 8v8"/></svg></span><span>${escapeHtml(ev.text).slice(0,900)}</span>`);th.appendChild(r);}
+    (ev.calls||[]).forEach(c=>{
+      curStep=addStep(TOOLIC[c.name]||"⚙️",prettyTool(c.name),argSummary(c),"");
+      const body=curStep.querySelector(".body");
+      const args=JSON.stringify(c.args);
+      if(args&&args!=="{}"){body.hidden=false;body.appendChild(el("div","callchips",`<span class="callchip">${escapeHtml(args).slice(0,240)}</span>`));}
+    });
+  }else if(ev.type==="log"){
+    if(!curStep)curStep=addStep("📈","optimizing","",""); const body=curStep.querySelector(".body");body.hidden=false;
+    let lg=body.querySelector(".log");if(!lg){lg=el("div","log");body.appendChild(lg);}
+    lg.textContent+=(lg.textContent?"\n":"")+ev.line;lg.scrollTop=lg.scrollHeight;
+    const mt=ev.line.match(/GMFE ([\d.]+)/);if(mt)curStep.querySelector(".rgt").textContent="GMFE "+mt[1];
+  }else if(ev.type==="observation"){
+    const step=curStep||addStep("⚙️",ev.tool,"","");const body=step.querySelector(".body");body.hidden=false;
+    if(ev.gmfe!=null){step.querySelector(".rgt").textContent="GMFE "+(+ev.gmfe).toFixed(3);$("#fitGmfe").textContent=(+ev.gmfe).toFixed(2);}
+    body.appendChild(el("div","obs",`${escapeHtml(ev.message||"").slice(0,400)}${ev.gmfe!=null?` · <span class="g">GMFE ${(+ev.gmfe).toFixed(3)}</span>`:""}`));
+    curStep=null;
+  }else if(ev.type==="done"){
+    if(ev.best_gmfe!=null)$("#fitGmfe").textContent=(+ev.best_gmfe).toFixed(2);
+    if(ev.best_edits)$("#editsBox").textContent=JSON.stringify(ev.best_edits,null,1);
+    const pass=ev.best_gmfe!=null&&+ev.best_gmfe<=1.6;
+    th.appendChild(el("div","verdict pass",`<span class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M5 12l4.5 4.5L19 7"/></svg></span><div>Best in-sample GMFE <b>${ev.best_gmfe!=null?(+ev.best_gmfe).toFixed(2):"—"}</b>. The held-out grade and report are written to the model's <span class="mono">report/</span> folder.</div>`));
+    $("#fitBadge").innerHTML=pass?'<span class="badge pass">converged ≤ 1.6</span>':'<span class="badge run">see held-out grade</span>';
+    $("#runState").textContent="done";
+  }else if(ev.type==="error"){
+    th.appendChild(el("div","verdict",`<div style="color:var(--crit)">⚠ ${escapeHtml(ev.message)}</div>`));
+    $("#runState").textContent="error";
+  }else if(ev.type==="end"){
+    if(es)es.close();$("#stopBtn").hidden=true;$("#runBtn").disabled=false;
+  }
+}
+function prettyTool(n){return({osp_inspect:"Inspecting task, priors & data",osp_options:"Reading the action space",osp_sweep_methods:"Sweeping distribution methods",osp_optimize:"Optimizing parameters",osp_try_model:"Trying a model edit"})[n]||n;}
+function argSummary(c){const a=c.args||{};if(a.estimate)return"fitting "+Object.keys(a.estimate).join(", ").slice(0,60);if(a.edits)return"applying an edit";return"";}
+function escapeHtml(s){return(s||"").replace(/[&<>]/g,x=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[x]));}
+
+loadModels();
+</script>
+</body>
+</html>
