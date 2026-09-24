@@ -339,7 +339,7 @@
   <div class="modal-back" id="sbBack"></div>
   <div class="modal-card">
     <div class="modal-head">
-      <div><b>Autonomous scoreboard</b><small>the agent builds every compound, then blind-grades on held-out studies</small></div>
+      <div><b>Autonomous scoreboard</b><small>the agent builds every compound, then blind-grades on held-out studies · click a running model on the left to watch its trace live</small></div>
       <button class="iconbtn" id="sbClose" aria-label="Close"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
     </div>
     <div class="modal-body"><table class="sbtbl"><thead><tr><th>Compound</th><th>Status</th><th>in-sample</th><th>held-out</th></tr></thead><tbody id="sbBody"></tbody></table></div>
@@ -427,7 +427,10 @@ function select(name,status,gmfe){
   $("#fitGmfe").textContent="—";$("#fitBadge").innerHTML="";$("#editsBox").textContent="Press Build with agent.";
   $("#givensBox").textContent=GIVENS_HINT;
   renderCtx();                       // re-render so the target row disables itself
-  renderHandoff(name);               // "what you're handed": curves + redacted report
+  attachedRun=null;
+  // while the autonomous batch is live, clicking a running compound mirrors its trace here
+  if(sbRunning&&SBRUN[name]&&RUNLOG[SBRUN[name]])attachRun(name);
+  else renderHandoff(name);          // otherwise: "what you're handed": curves + redacted report
 }
 
 /* ---- context data lake: which finished projects the agent may read -------- */
@@ -747,6 +750,20 @@ $("#catBtn").onclick=openEditor;
 let sbStop=false, sbAborts=new Set();
 let sbStopOne=new Set();               // compounds stopped individually
 let sbAbortByComp=new Map();           // compound -> its in-flight abort()
+let SBRUN={}, RUNLOG={}, attachedRun=null;  // compound->run_id ; run_id->events ; mirrored run
+// click a RUNNING model to watch its autonomous-run trace in the centre (same view as a single build)
+async function attachRun(compound){
+  const rid=SBRUN[compound];
+  if(!rid||!RUNLOG[rid])return false;
+  attachedRun=null;pending=[];                 // pause forwarding while we rebuild the thread
+  await renderHandoff(compound);
+  $("#thread").querySelectorAll(".empty").forEach(x=>x.remove());
+  $("#thread").appendChild(el("div","meta-line","▶ live — the autonomous run for "+compound+" streams here"));
+  RUNLOG[rid].slice().forEach(ev=>handle(ev));  // replay everything so far…
+  attachedRun=rid;                              // …then forward new events as they arrive
+  $("#runState").textContent="watching autonomous run";
+  return true;
+}
 let sbRunning=false;                   // a batch is live (even if the modal is closed)
 function sbRowId(c){return "sb-"+c.replace(/[^A-Za-z0-9]/g,"_");}
 function renderScoreboard(comps){
@@ -785,8 +802,11 @@ function runOne(compound){
         body:JSON.stringify({compound,model:$("#llm").value,max_steps:+$("#steps").value})})).json()).run_id;}
       catch(e){return finish({error:"server error"});}
       if(sbStop||sbStopOne.has(compound)||done){if(rid)fetch("/api/cancel/"+rid,{method:"POST"}).catch(()=>{});return finish({error:"stopped"});}
+      SBRUN[compound]=rid;RUNLOG[rid]=[];        // buffer this run so it can be watched in the centre
       s=new EventSource(`/api/stream/${rid}`);
       s.onmessage=(m)=>{let ev;try{ev=JSON.parse(m.data);}catch(e){return;}
+        (RUNLOG[rid]=RUNLOG[rid]||[]).push(ev);
+        if(attachedRun===rid&&current===compound)handle(ev);   // mirror into the live thread
         if(ev.type==="done"){best_gmfe=ev.best_gmfe;best_edits=ev.best_edits;}
         else if(ev.type==="error"){err=ev.message;}
         else if(ev.type==="end"){finish({best_gmfe,best_edits,error:err});}};
@@ -801,6 +821,7 @@ async function runAllAutonomous(){
   // resume: keep already-built compounds; if none remain, start a fresh full run
   if(comps.every(c=>SBRESULTS[c]))Object.keys(SBRESULTS).forEach(c=>delete SBRESULTS[c]);
   sbStop=false;sbStopOne=new Set();sbAbortByComp=new Map();sbRunning=true;
+  SBRUN={};RUNLOG={};attachedRun=null;         // fresh event buffers for this batch
   $("#sbStart").hidden=true;$("#sbStop").hidden=false;
   renderScoreboard(comps);
   Object.keys(SBRESULTS).forEach(c=>{if(comps.includes(c))sbSet(c,{status:"done",in_sample:SBRESULTS[c].in_sample,held_out:SBRESULTS[c].held_out});});
