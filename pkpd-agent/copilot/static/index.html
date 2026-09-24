@@ -147,8 +147,9 @@
   .act{font-size:12px;padding:6px 11px;border:1px solid var(--border);border-radius:8px;background:var(--surface);color:var(--muted);display:inline-flex;align-items:center;gap:6px}
   .act:hover{color:var(--ink);border-color:var(--accent)}
   .act.dl{background:var(--accent-soft);color:var(--accent-ink);border-color:transparent;font-weight:600}
-  .ctxrow .nm{cursor:pointer}.ctxrow .nm:hover{color:var(--accent-ink);text-decoration:underline}
-  .ctxrow .eye{opacity:0;flex:0 0 auto;color:var(--faint)}.ctxrow:hover .eye{opacity:1}
+  .ctxrow .nm{cursor:pointer;color:var(--accent-ink)}.ctxrow .nm:hover{text-decoration:underline}
+  .ctxrow.tgt .nm{color:var(--muted)}
+  .ctxrow .eye{opacity:.55;flex:0 0 auto;color:var(--accent)}.ctxrow:hover .eye{opacity:1}
   .modal{position:fixed;inset:0;z-index:50;display:flex;align-items:center;justify-content:center;padding:24px}
   .modal[hidden]{display:none}
   .modal-back{position:absolute;inset:0;background:rgba(8,12,17,.55);backdrop-filter:blur(2px)}
