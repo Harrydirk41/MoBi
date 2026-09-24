@@ -141,6 +141,8 @@
       <select id="llm"><option value="claude-sonnet-5">Claude Sonnet 5 (cheaper)</option><option value="claude-opus-5">Claude Opus 5</option></select>
       <label>Max steps</label>
       <select id="steps"><option>8</option><option selected>10</option><option>14</option></select>
+      <label>Givens</label>
+      <label style="display:flex;align-items:center;gap:8px;text-transform:none;letter-spacing:0;font-size:12.5px;color:var(--ink)"><input type="checkbox" id="selfExtract" checked style="width:15px;height:15px;accent-color:var(--accent)">Agent extracts them from the report</label>
       <label>Context the agent sees</label>
       <div style="font-size:12px;color:var(--muted)" id="ctxSummary">all projects (default)</div>
     </div>
@@ -321,7 +323,7 @@ $("#runBtn").onclick=async()=>{
   const others=PROJECTS.filter(p=>p!==current),sel=selectedCtx();
   const ctx=(!PROJECTS.length||sel.length===others.length)?null:sel;
   try{run_id=(await (await fetch("/api/run",{method:"POST",headers:{"Content-Type":"application/json"},
-    body:JSON.stringify({compound:current,model:$("#llm").value,max_steps:+$("#steps").value,context_projects:ctx})})).json()).run_id;}
+    body:JSON.stringify({compound:current,model:$("#llm").value,max_steps:+$("#steps").value,context_projects:ctx,self_extract:$("#selfExtract").checked})})).json()).run_id;}
   catch(e){$("#runState").textContent="server not reachable";$("#runBtn").disabled=false;return;}
   es=new EventSource(`/api/stream/${run_id}`);
   es.onmessage=(m)=>handle(JSON.parse(m.data));
@@ -340,7 +342,8 @@ function handle(ev){
   if(ev.type==="meta"){
     let t=[];if(ev.building!=null)t.push(`${ev.building} building · ${ev.held_out} held out (${ev.studies} studies)`);
     if(ev.library)t.push(`library: ${ev.library}, ${ev.n_ref} models`);
-    th.appendChild(el("div","meta-line",t.join(" · ")));
+    if(ev.self_extract)t.push("agent extracts givens from the report");
+    if(t.length)th.appendChild(el("div","meta-line",t.join(" · ")));
   }else if(ev.type==="status"){$("#runState").textContent=ev.phase;}
   else if(ev.type==="decision"){
     if(ev.text){const r=el("div","reason",`<span class="av"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M8 12h8M12 8v8"/></svg></span><span>${escapeHtml(ev.text).slice(0,900)}</span>`);th.appendChild(r);}

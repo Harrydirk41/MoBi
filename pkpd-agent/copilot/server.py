@@ -139,11 +139,12 @@ class _QueueWriter(io.TextIOBase):
 
 
 def _run_agent(run_id: str, compound: str, model: str, max_steps: int,
-               library: str | None, only: list | None) -> None:
+               library: str | None, only: list | None, self_extract: bool) -> None:
     q: queue.Queue = _RUNS[run_id]["queue"]
     try:
         with _RUN_LOCK:
-            _run_agent_locked(run_id, compound, model, max_steps, library, only, q)
+            _run_agent_locked(run_id, compound, model, max_steps, library, only,
+                              self_extract, q)
     except Exception as e:                              # noqa: BLE001
         q.put({"type": "error", "message": f"{type(e).__name__}: {e}"})
     finally:
@@ -151,7 +152,8 @@ def _run_agent(run_id: str, compound: str, model: str, max_steps: int,
         _RUNS[run_id]["done"] = True
 
 
-def _run_agent_locked(run_id, compound, model, max_steps, library, only, q) -> None:
+def _run_agent_locked(run_id, compound, model, max_steps, library, only,
+                      self_extract, q) -> None:
     from pkpd_agent.config import AgentConfig
     from pkpd_agent.engines.osp_cli import OSPCli
     from pkpd_agent.engines import osp_split
@@ -160,6 +162,7 @@ def _run_agent_locked(run_id, compound, model, max_steps, library, only, q) -> N
     from pkpd_agent.state import Decision, Observation
     from pkpd_agent.tools.registry import ToolRegistry
     from pkpd_agent.tools.osp_loop_tools import register_osp_loop_tools
+    from pkpd_agent.tools.context_tools import register_context_tools
     import examples.run_llm_build as R                 # reuse the system prompt
 
     f = _find(compound)
@@ -202,14 +205,32 @@ def _run_agent_locked(run_id, compound, model, max_steps, library, only, q) -> N
            "held_out": len(split.get("verification") or []),
            "studies": len(split.get("held_out_studies") or [])})
 
+    # SELF-EXTRACT: hand the agent the raw report+data so it builds its own
+    # context lake, and withhold the pre-digested givens. Confined to the handed
+    # materials (no web) so leave-one-out holds.
+    ctx_report = ctx_data = None
+    if self_extract:
+        tdir = os.path.join(_RW, compound, "test")
+        reps = glob.glob(os.path.join(tdir, "report", "*.md"))
+        ddir = os.path.join(tdir, "data")
+        if reps and os.path.isdir(ddir):
+            ctx_report, ctx_data = reps[0], ddir
+            inp_agent = dict(inp_agent)
+            inp_agent["given_data"] = {k: v for k, v in inp_agent["given_data"].items()
+                                       if k != "literature_physicochemical"}
+            q.put({"type": "meta", "self_extract": True})
+
     registry = ToolRegistry()
     register_osp_loop_tools(registry, cfg, {
         "cli": cli, "snapshot_path": f["snapshot"],
         "observed": build_obs, "input": inp_agent})
+    if ctx_report:
+        register_context_tools(registry, cfg, {
+            "report_path": ctx_report, "data_dir": ctx_data, "input": inp_agent})
 
     goal = (f"{inp.get('objective', 'Build the PBPK model.')}\n\nStart with osp_inspect, "
             "then determine the model and call osp_optimize.")
-    policy = LLMPolicy(cfg, registry, R._system_prompt(1.6))
+    policy = LLMPolicy(cfg, registry, R._system_prompt(1.6, self_extract=bool(ctx_report)))
     loop = DecisionLoop(config=cfg, registry=registry, policy=policy)
 
     def on_event(ev):
@@ -278,10 +299,13 @@ def create_app():
         # default: the agent sees ALL other projects' context; the selector narrows it.
         only = payload.get("context_projects")          # None (= all) | [compounds]
         lib = payload.get("library") or ("all" if only is None or only else None)
+        # default: agent builds its own context lake when a realworld tree exists.
+        se = payload.get("self_extract")
+        self_extract = os.path.isdir(_RW) if se is None else bool(se)
         run_id = uuid.uuid4().hex[:12]
         _RUNS[run_id] = {"queue": queue.Queue(), "done": False}
         threading.Thread(target=_run_agent,
-                         args=(run_id, compound, model, max_steps, lib, only),
+                         args=(run_id, compound, model, max_steps, lib, only, self_extract),
                          daemon=True).start()
         return JSONResponse({"run_id": run_id})
 

@@ -64,12 +64,27 @@ from pkpd_agent.tools.registry import ToolRegistry
 from pkpd_agent.tools.osp_loop_tools import register_osp_loop_tools
 
 
-def _system_prompt(target: float) -> str:
+def _system_prompt(target: float, self_extract: bool = False) -> str:
+    step0 = (
+        "0. SELF-EXTRACT the givens FIRST. osp_inspect will show NO pre-digested "
+        "literature_physicochemical - you build the context yourself from the raw "
+        "materials you were handed. Call osp_read_report (background, the "
+        "physicochemical/in-vitro table, and the metabolizing enzyme named in the "
+        "prose), and osp_list_studies / osp_read_study for the raw curves. Then "
+        "call osp_record_givens with the values you extracted (lipophilicity/logP, "
+        "fraction unbound, pKa, solubility, molecular weight, in-vitro Km/Vmax, and "
+        "the clearing enzyme), each with its source citation and provenance "
+        "('given' = read from the report, 'judged' = inferred). Your recorded "
+        "givens drive the fix-vs-fit split, so do this BEFORE osp_options / "
+        "osp_optimize. Extract ONLY from the handed report and data - you have no "
+        "web access, and the report's chosen methods and fitted values are "
+        "redacted.\n") if self_extract else ""
     return (
         "You are a PBPK modeler using the OSP PK-Sim engine with a numerical "
         "optimizer. The whole-body physiological structure is fixed; you decide "
         "the DRUG model and let the optimizer fit the numbers.\n\n"
         "Each round:\n"
+        + step0 +
         "1. Call osp_inspect (task: objective, known biology, priors, data) and "
         "osp_options (the authoritative ACTION SPACE: every editable parameter "
         "with its role/range, the legal calculation methods, the molecules the "
@@ -215,6 +230,11 @@ def main() -> None:
                     help="LIBRARY-ASSISTED mode: inject the OTHER compounds' finished models "
                          "(leave-one-out) as a reference library. 'same-type' keeps analogues "
                          "sharing an enzyme/transporter with the target.")
+    ap.add_argument("--self-extract", action="store_true",
+                    help="agent builds its own givens from the handed report+data "
+                         "(pbpk-realworld tree) instead of a pre-digested list")
+    ap.add_argument("--realworld", default=None,
+                    help="pbpk-realworld root (default: ../pbpk-realworld next to the library)")
     ap.add_argument("--library-full", action="store_true",
                     help="include the reference models' fitted VALUES (default: structure + "
                          "parameter names only, so the agent still fits the numbers itself)")
@@ -269,15 +289,42 @@ def main() -> None:
         print(f"== library-assisted [{lib['mode']}]: {len(lib['models'])} reference "
               f"model(s) available to the agent (leave-one-out) ==")
 
+    # SELF-EXTRACT mode: strip the pre-digested givens and hand the agent the raw
+    # report + data so it builds its own context data lake (osp_read_report /
+    # osp_record_givens). Confined to the handed materials - no web = no leak.
+    ctx_report = ctx_data = None
+    if args.self_extract:
+        comp = os.path.basename(os.path.dirname(os.path.dirname(args.snapshot)))
+        rw = args.realworld or os.path.join(os.path.dirname(args.snapshot),
+                                            "..", "..", "..", "pbpk-realworld")
+        tdir = os.path.join(rw, comp, "test")
+        import glob as _glob
+        reps = _glob.glob(os.path.join(tdir, "report", "*.md"))
+        ddir = os.path.join(tdir, "data")
+        if reps and os.path.isdir(ddir):
+            ctx_report, ctx_data = reps[0], ddir
+            inp_agent = dict(inp_agent)
+            inp_agent["given_data"] = {k: v for k, v in inp_agent["given_data"].items()
+                                       if k != "literature_physicochemical"}
+            print(f"== self-extract: agent builds givens from {comp}/test/"
+                  "{report,data} (pre-digested list withheld) ==")
+        else:
+            print(f"== self-extract requested but no realworld tree for {comp}; "
+                  "falling back to pre-digested givens ==")
+
     registry = ToolRegistry()
     register_osp_loop_tools(registry, cfg, {
         "cli": cli, "snapshot_path": args.snapshot,
         "observed": build_obs, "input": inp_agent})
+    if ctx_report:
+        from pkpd_agent.tools.context_tools import register_context_tools
+        register_context_tools(registry, cfg, {
+            "report_path": ctx_report, "data_dir": ctx_data, "input": inp_agent})
 
     goal = (f"{inp.get('objective','Build the PBPK model.')}\n\n"
             f"Target: overall GMFE <= {args.target}. Start by calling osp_inspect, "
             "then determine the model and call osp_optimize.")
-    policy = LLMPolicy(cfg, registry, _system_prompt(args.target))
+    policy = LLMPolicy(cfg, registry, _system_prompt(args.target, self_extract=bool(ctx_report)))
     loop = DecisionLoop(config=cfg, registry=registry, policy=policy)
 
     print(f"== LLM PBPK BUILD loop on {os.path.basename(args.snapshot)} "

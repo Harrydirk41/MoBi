@@ -20,13 +20,35 @@ Then open <http://127.0.0.1:8765>.
 ## What it does
 
 - **Left** — the compounds that have a benchmark snapshot, their status, and the
-  run controls: LLM (Sonnet/Opus), max steps, and the reference library toggle
-  (off / same-type / all).
-- **Centre** — the live agent thread. Each tool call (`osp_sweep_methods`,
-  `osp_optimize`, …) becomes a step card; the optimizer's per-eval progress
-  streams into it; each result shows its GMFE.
-- **Right** — the best GMFE so far, the model structure the agent adopts, and the
-  leave-one-out reference library (the target's own model is never included).
+  run controls: LLM (Sonnet/Opus), max steps, and whether the agent **extracts
+  the givens itself** from the handed report (on by default).
+- **Centre** — first a *"What you're handed"* panel (the digitized
+  concentration–time curves on a semi-log plot + the report with the answer
+  redacted), then the live agent thread. Each tool call (`osp_read_report`,
+  `osp_record_givens`, `osp_sweep_methods`, `osp_optimize`, …) becomes a step
+  card; the optimizer's per-eval progress streams into it; each result shows its
+  GMFE.
+- **Right** — the best GMFE so far, the model structure the agent adopts, and a
+  **Context the agent sees** selector: the finished projects it may read as
+  leave-one-out analogues (default all, target always withheld; built-status
+  dots; all/none). Unchecking narrows the reference library; unchecking all runs
+  de-novo.
+
+## Two honest defaults
+
+- **Self-extract (context data lake).** By default the pre-digested givens are
+  withheld and the agent builds them itself: it reads the handed report and raw
+  data (`osp_read_report` / `osp_list_studies` / `osp_read_study`) and records a
+  provenance-tagged parameter table (`osp_record_givens`), which then drives the
+  fix-vs-fit split. Extraction is confined to the handed materials — **no web
+  access** — so the agent can never pull the target's own published model off the
+  internet.
+- **Leave-one-out.** The context selector controls which *other* projects the
+  agent reads; the selected compound's own reference (methods, fitted values,
+  held-out data) is never readable, so held-out grading stays honest.
+
+The raw report+data tree the agent reads lives in `../pbpk-realworld/` (generate
+it with `python -m examples.build_realworld_projects --write`).
 
 The held-out grade and the report (`.html` / `.json` / `.pdf`) are written to the
 compound's `report/` folder, same as the CLI.
