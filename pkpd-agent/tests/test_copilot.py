@@ -48,6 +48,36 @@ class TestCopilotServer(unittest.TestCase):
         self.assertNotIn("Triazolam", names)       # never its own model
         self.assertIn("Midazolam", names)          # a CYP3A4 analogue
 
+    def test_rw_projects_and_series(self):
+        r = self.c.get("/api/rw/projects")
+        self.assertEqual(r.status_code, 200)
+        projs = r.json()
+        if not projs:
+            self.skipTest("pbpk-realworld not generated")
+        self.assertIn("Triazolam", projs)
+        s = self.c.get("/api/rw/series?project=Triazolam&kind=test").json()["series"]
+        self.assertTrue(s and all(len(e["points"]) >= 2 for e in s))
+
+    def test_rw_report_is_redacted(self):
+        r = self.c.get("/api/rw/report?project=Triazolam&kind=test")
+        self.assertEqual(r.status_code, 200)
+        md = r.json()["markdown"]
+        if not md:
+            self.skipTest("pbpk-realworld not generated")
+        self.assertNotIn("GMFE", md)               # no held-out grade
+        self.assertNotIn("Rodgers and Rowland", md)  # no chosen method leaked
+
+    def test_context_projects_narrows_library(self):
+        # an explicit allowlist restricts the reference library the run would see
+        from pkpd_agent.engines import reference_library as RL
+        from copilot import server
+        f = server._find("Triazolam")
+        allow = ["Midazolam", "Alprazolam"]
+        lib = RL.library_for_snapshot(f["snapshot"], same_type=False, full=False, only=allow)
+        got = {m["compound"] for m in lib["models"]}
+        self.assertTrue(got.issubset(set(allow)))
+        self.assertNotIn("Triazolam", got)
+
     def test_run_without_key_streams_error_not_crash(self):
         import json
         prev = os.environ.pop("ANTHROPIC_API_KEY", None)

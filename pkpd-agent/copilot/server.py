@@ -25,6 +25,40 @@ from contextlib import redirect_stdout
 _HERE = os.path.dirname(os.path.abspath(__file__))
 _PKG = os.path.dirname(_HERE)                       # pkpd-agent/
 _LIB = os.path.abspath(os.path.join(_PKG, "..", "OSP-PBPK-Model-Library"))
+_RW = os.path.abspath(os.path.join(_PKG, "..", "pbpk-realworld"))   # raw report+data tree
+
+
+def _rw_projects() -> list[str]:
+    if not os.path.isdir(_RW):
+        return []
+    return sorted(d for d in os.listdir(_RW)
+                  if os.path.isdir(os.path.join(_RW, d, "test")))
+
+
+def _rw_series(project: str, kind: str = "test", cap: int = 400) -> list[dict]:
+    """Parse a project's data CSVs into plottable series (downsampled)."""
+    ddir = os.path.join(_RW, project, kind, "data")
+    man = os.path.join(ddir, "_manifest.json")
+    entries = json.load(open(man, encoding="utf-8")) if os.path.isfile(man) else \
+        [{"file": os.path.basename(f)} for f in glob.glob(os.path.join(ddir, "*.csv"))]
+    out = []
+    for e in entries[:24]:
+        p = os.path.join(ddir, e["file"])
+        if not os.path.isfile(p):
+            continue
+        pts = []
+        for i, line in enumerate(open(p, encoding="utf-8")):
+            if i == 0 or not line.strip():
+                continue
+            try:
+                t, c = line.split(",")[:2]
+                pts.append([float(t), float(c)])
+            except ValueError:
+                pass
+        if len(pts) >= 2:
+            out.append({"study": e.get("study") or e["file"], "route": e.get("route", ""),
+                        "dose": e.get("dose", ""), "points": pts[:cap]})
+    return out
 
 # ---- runs registry -------------------------------------------------------- #
 _RUNS: dict[str, dict] = {}
@@ -105,11 +139,11 @@ class _QueueWriter(io.TextIOBase):
 
 
 def _run_agent(run_id: str, compound: str, model: str, max_steps: int,
-               library: str | None) -> None:
+               library: str | None, only: list | None) -> None:
     q: queue.Queue = _RUNS[run_id]["queue"]
     try:
         with _RUN_LOCK:
-            _run_agent_locked(run_id, compound, model, max_steps, library, q)
+            _run_agent_locked(run_id, compound, model, max_steps, library, only, q)
     except Exception as e:                              # noqa: BLE001
         q.put({"type": "error", "message": f"{type(e).__name__}: {e}"})
     finally:
@@ -117,7 +151,7 @@ def _run_agent(run_id: str, compound: str, model: str, max_steps: int,
         _RUNS[run_id]["done"] = True
 
 
-def _run_agent_locked(run_id, compound, model, max_steps, library, q) -> None:
+def _run_agent_locked(run_id, compound, model, max_steps, library, only, q) -> None:
     from pkpd_agent.config import AgentConfig
     from pkpd_agent.engines.osp_cli import OSPCli
     from pkpd_agent.engines import osp_split
@@ -158,7 +192,8 @@ def _run_agent_locked(run_id, compound, model, max_steps, library, q) -> None:
     if library:
         from pkpd_agent.engines import reference_library as RL
         lib = RL.library_for_snapshot(f["snapshot"],
-                                      same_type=(library == "same-type"), full=False)
+                                      same_type=(library == "same-type"), full=False,
+                                      only=only or None)
         inp_agent = dict(inp_agent)
         inp_agent["reference_library"] = lib
         q.put({"type": "meta", "library": lib["mode"], "n_ref": len(lib["models"])})
@@ -219,16 +254,34 @@ def create_app():
         return JSONResponse(RL.library_for_snapshot(f["snapshot"],
                                                     same_type=same_type, full=False))
 
+    @app.get("/api/rw/projects")
+    def rw_projects():
+        return JSONResponse(_rw_projects())
+
+    @app.get("/api/rw/report")
+    def rw_report(project: str, kind: str = "test"):
+        d = os.path.join(_RW, project, kind, "report")
+        files = glob.glob(os.path.join(d, "*.md"))
+        if not files:
+            return JSONResponse({"markdown": ""})
+        return JSONResponse({"markdown": open(files[0], encoding="utf-8").read()})
+
+    @app.get("/api/rw/series")
+    def rw_series(project: str, kind: str = "test"):
+        return JSONResponse({"series": _rw_series(project, kind)})
+
     @app.post("/api/run")
     def run(payload: dict):
         compound = payload.get("compound")
         model = payload.get("model") or "claude-sonnet-5"
         max_steps = int(payload.get("max_steps") or 10)
-        lib = payload.get("library")                    # None | "all" | "same-type"
+        # default: the agent sees ALL other projects' context; the selector narrows it.
+        only = payload.get("context_projects")          # None (= all) | [compounds]
+        lib = payload.get("library") or ("all" if only is None or only else None)
         run_id = uuid.uuid4().hex[:12]
         _RUNS[run_id] = {"queue": queue.Queue(), "done": False}
         threading.Thread(target=_run_agent,
-                         args=(run_id, compound, model, max_steps, lib),
+                         args=(run_id, compound, model, max_steps, lib, only),
                          daemon=True).start()
         return JSONResponse({"run_id": run_id})
 

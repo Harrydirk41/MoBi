@@ -95,6 +95,35 @@
   .chips{display:flex;flex-wrap:wrap;gap:6px}.chip{font-size:11.5px;padding:3px 8px;border-radius:999px;background:var(--surface-2);color:var(--muted);border:1px solid var(--border-2);font-family:var(--mono)}
   .chip.hi{background:var(--accent-soft);color:var(--accent-ink);border-color:transparent;font-weight:500}
   pre.edits{font-family:var(--mono);font-size:11px;color:var(--muted);white-space:pre-wrap;margin:0}
+  .ctxtools{display:flex;align-items:center;gap:6px;margin:10px 0 4px}
+  .mini{font-size:11px;padding:3px 9px;border:1px solid var(--border);border-radius:7px;background:var(--surface);color:var(--muted)}
+  .mini:hover{color:var(--ink)}
+  .ctxlist{margin-top:4px;max-height:340px;overflow:auto;display:flex;flex-direction:column;gap:1px}
+  .ctxrow{display:flex;align-items:center;gap:9px;padding:6px 7px;border-radius:8px;font-size:12.5px}
+  .ctxrow:hover{background:var(--surface-2)}
+  .ctxrow.tgt{opacity:.55}.ctxrow.tgt b::after{content:' · target';color:var(--faint);font-weight:400;font-size:11px}
+  .ctxrow input{accent-color:var(--accent);width:15px;height:15px;flex:0 0 auto}
+  .ctxrow .nm{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .ctxrow .st{width:7px;height:7px;border-radius:50%;flex:0 0 auto;background:var(--faint)}
+  .ctxrow .st.built{background:var(--good)}
+  .handoff{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);box-shadow:var(--shadow);overflow:hidden}
+  .handoff .hh{display:flex;align-items:center;gap:10px;padding:12px 14px;border-bottom:1px solid var(--border-2)}
+  .handoff .hh .ic{width:26px;height:26px;border-radius:7px;background:var(--accent-soft);color:var(--accent);display:grid;place-items:center}
+  .handoff .hh b{font-size:13.5px;font-weight:600}.handoff .hh small{display:block;color:var(--faint);font-size:11px}
+  .handoff .plotwrap{padding:8px 12px 4px}
+  .plotlegend{display:flex;flex-wrap:wrap;gap:5px 12px;padding:2px 14px 12px}
+  .plotlegend span{font-size:11px;color:var(--muted);display:inline-flex;align-items:center;gap:5px}
+  .plotlegend i{width:16px;height:2.5px;border-radius:2px;display:inline-block}
+  .handoff details{border-top:1px solid var(--border-2)}
+  .handoff summary{padding:9px 14px;font-size:12px;color:var(--muted);cursor:pointer;list-style:none;display:flex;align-items:center;gap:7px}
+  .handoff summary::-webkit-details-marker{display:none}
+  .handoff summary::before{content:'▸';color:var(--faint);transition:transform .15s}
+  .handoff details[open] summary::before{transform:rotate(90deg)}
+  .report{padding:2px 16px 16px;font-size:12.5px;color:var(--muted);max-height:300px;overflow:auto}
+  .report h1,.report h2,.report h3{font-size:13px;color:var(--ink);margin:12px 0 4px}
+  .report table{border-collapse:collapse;font-size:11.5px;margin:6px 0}
+  .report td,.report th{border:1px solid var(--border);padding:3px 7px;text-align:left}
+  .report code{font-family:var(--mono);font-size:11px}
   @media (max-width:1120px){.app{grid-template-columns:236px minmax(0,1fr) 296px}}
   @media (max-width:980px){html,body{height:auto}.app{grid-template-columns:1fr;height:auto}.rail,.aside{height:auto;overflow:visible;border:0;border-bottom:1px solid var(--border)}.aside{order:3}.topbar{position:static}}
 </style>
@@ -112,12 +141,8 @@
       <select id="llm"><option value="claude-sonnet-5">Claude Sonnet 5 (cheaper)</option><option value="claude-opus-5">Claude Opus 5</option></select>
       <label>Max steps</label>
       <select id="steps"><option>8</option><option selected>10</option><option>14</option></select>
-      <label>Reference library</label>
-      <div class="toggle" id="libToggle">
-        <button data-v="" class="on">Off (de-novo)</button>
-        <button data-v="same-type">Same-type</button>
-        <button data-v="all">All</button>
-      </div>
+      <label>Context the agent sees</label>
+      <div style="font-size:12px;color:var(--muted)" id="ctxSummary">all projects (default)</div>
     </div>
   </nav>
 
@@ -147,30 +172,33 @@
   <aside class="aside" id="aside">
     <div class="a-card"><h4>Fit</h4><div class="in"><div class="gauge"><span class="big" id="fitGmfe">—</span><span class="lbl">best GMFE<br>updates live</span></div><div id="fitBadge" style="margin-top:12px"></div></div></div>
     <div class="a-card"><h4>Adopted structure</h4><div class="in"><pre class="edits" id="editsBox">Run the agent to see the model it builds.</pre></div></div>
-    <div class="a-card"><h4>Reference library</h4><div class="in"><div id="libInfo" style="font-size:12px;color:var(--muted)">Turn on the library to give the agent analogous models.</div><div class="chips" id="libChips" style="margin-top:9px"></div></div></div>
+    <div class="a-card"><h4>Context the agent sees</h4><div class="in">
+      <div id="ctxNote" style="font-size:12px;color:var(--muted)">Finished projects the agent may read as analogues. The selected compound is always withheld — leave-one-out.</div>
+      <div class="ctxtools" id="ctxTools" hidden><button class="mini" id="ctxAll">all</button><button class="mini" id="ctxNone">none</button><span id="ctxCount" class="mono" style="margin-left:auto;color:var(--faint)"></span></div>
+      <div class="ctxlist" id="ctxList"></div>
+    </div></div>
   </aside>
 </div>
 
 <script>
 "use strict";
 const $=(s)=>document.querySelector(s), el=(t,c,h)=>{const e=document.createElement(t);if(c)e.className=c;if(h!=null)e.innerHTML=h;return e;};
-let current=null, es=null, library="", curStep=null;
+let current=null, es=null, curStep=null;
+let PROJECTS=[];        // every real-world project name (context data lake)
+let ctxSel={};          // project -> bool : projects the agent is allowed to read
 
 /* theme */
 (function(){const root=document.documentElement,k="pbpk-theme";try{const s=localStorage.getItem(k);if(s)root.setAttribute("data-theme",s);}catch(e){}
  $("#themeBtn").onclick=()=>{const c=root.getAttribute("data-theme");const d=c?c==="dark":matchMedia("(prefers-color-scheme:dark)").matches;const n=d?"light":"dark";root.setAttribute("data-theme",n);try{localStorage.setItem(k,n);}catch(e){}};})();
 
-/* library toggle */
-document.querySelectorAll("#libToggle button").forEach(b=>b.onclick=()=>{
-  document.querySelectorAll("#libToggle button").forEach(x=>x.classList.remove("on"));
-  b.classList.add("on");library=b.dataset.v; if(current)loadLibrary(current);});
-
 const STATUS={pass:["good","PASS"],fail:["crit","FAIL"],done:["idle","done"],new:["idle","not built"],run:["warn","running"]};
 function badge(status,gmfe){const[cls,txt]=STATUS[status]||STATUS.new;
   return `<span class="badge ${status==='pass'?'pass':status==='fail'?'fail':status==='run'?'run':'new'}">${txt}${gmfe?' · '+(+gmfe).toFixed(2):''}</span>`;}
 
+let MODELS=[], BUILT={};                 // compound -> build status (for the context dots)
 async function loadModels(){
   let list; try{list=await (await fetch("/api/models")).json();}catch(e){list=[];}
+  MODELS=list; list.forEach(m=>{BUILT[m.compound]=m.status;});
   const wrap=$("#modelList");wrap.innerHTML="";
   if(!list.length){wrap.innerHTML='<div class="m-item" style="opacity:.6"><span class="dot crit"></span><span class="meta"><b>no models found</b><small>library path not set</small></span></div>';return;}
   list.forEach(m=>{const[cls]=STATUS[m.status]||STATUS.new;
@@ -183,18 +211,104 @@ function select(name,status,gmfe){
   document.querySelectorAll(".m-item").forEach(x=>x.classList.toggle("active",x.dataset.name===name));
   $("#crumbName").textContent=name;$("#crumbBadge").outerHTML=badge(status,gmfe).replace('class="badge','id="crumbBadge" class="badge');
   $("#runBtn").disabled=false;
-  $("#thread").innerHTML='<div class="u-msg">Build a whole-body PBPK model for '+name+' — decide the structure, fit the identifiable parameters, grade on held-out studies.</div>';
   $("#fitGmfe").textContent="—";$("#fitBadge").innerHTML="";$("#editsBox").textContent="Press Build with agent.";
-  loadLibrary(name);
+  renderCtx();                       // re-render so the target row disables itself
+  renderHandoff(name);               // "what you're handed": curves + redacted report
 }
-async function loadLibrary(name){
-  const info=$("#libInfo"),chips=$("#libChips");
-  if(!library){info.textContent="De-novo: the agent gets no other models. Turn on the library to add analogues.";chips.innerHTML="";return;}
-  try{const l=await (await fetch(`/api/library?compound=${encodeURIComponent(name)}&same_type=${library==='same-type'}`)).json();
-    const names=(l.models||[]).map(m=>m.compound);
-    info.innerHTML=`${names.length} ${library==='same-type'?'same-type ':''}analogue(s) · ${name}'s own model withheld`;
-    chips.innerHTML=names.slice(0,10).map(n=>`<span class="chip">${n}</span>`).join("");
-  }catch(e){info.textContent="library unavailable";}
+
+/* ---- context data lake: which finished projects the agent may read -------- */
+async function loadProjects(){
+  try{PROJECTS=await (await fetch("/api/rw/projects")).json();}catch(e){PROJECTS=[];}
+  PROJECTS.forEach(p=>{if(!(p in ctxSel))ctxSel[p]=true;});   // default: all visible
+  renderCtx();
+}
+function selectedCtx(){return PROJECTS.filter(p=>p!==current&&ctxSel[p]);}
+function updateCtxCount(){
+  const others=PROJECTS.filter(p=>p!==current),n=others.filter(p=>ctxSel[p]).length,m=others.length;
+  $("#ctxCount").textContent=m?`${n}/${m}`:"";
+  const s=$("#ctxSummary");
+  if(s)s.textContent=!PROJECTS.length?"no projects loaded"
+      :!current?`${PROJECTS.length} projects loaded`
+      :n===m?"all projects (default)":n===0?"none — de-novo":`${n} of ${m} projects`;
+}
+function renderCtx(){
+  const list=$("#ctxList"),tools=$("#ctxTools");
+  if(!PROJECTS.length){list.innerHTML='<div style="font-size:12px;color:var(--faint);padding:8px 4px">no real-world projects — run <span class="mono">build_realworld_projects.py</span></div>';tools.hidden=true;updateCtxCount();return;}
+  tools.hidden=false;list.innerHTML="";
+  PROJECTS.forEach(p=>{
+    const tgt=(p===current),built=BUILT[p]&&BUILT[p]!=="new";
+    const row=el("div","ctxrow"+(tgt?" tgt":""));
+    row.innerHTML=`<input type="checkbox" ${(!tgt&&ctxSel[p])?"checked":""} ${tgt?"disabled":""}>`+
+      `<span class="st ${built?'built':''}" title="${built?'model built':'not built'}"></span><b class="nm">${p}</b>`;
+    if(!tgt)row.querySelector("input").onchange=(e)=>{ctxSel[p]=e.target.checked;updateCtxCount();};
+    list.appendChild(row);
+  });
+  updateCtxCount();
+}
+$("#ctxAll").onclick=()=>{PROJECTS.forEach(p=>ctxSel[p]=true);renderCtx();};
+$("#ctxNone").onclick=()=>{PROJECTS.forEach(p=>ctxSel[p]=false);renderCtx();};
+
+/* ---- what the modeler is handed: data viz + redacted report --------------- */
+async function renderHandoff(name){
+  const th=$("#thread");
+  th.innerHTML=`<div class="handoff" id="handoff"><div class="hh"><span class="ic">📎</span>`+
+    `<div><b>What you're handed</b><small>${name} · digitized curves + a report with the answer redacted — the agent extracts the givens itself</small></div></div>`+
+    `<div class="plotwrap" id="plotWrap"><div style="color:var(--faint);font-size:12px;padding:24px;text-align:center">loading curves…</div></div>`+
+    `<div class="plotlegend" id="plotLegend"></div></div>`+
+    `<div class="u-msg">Build a whole-body PBPK model for ${name} — decide the structure, fit the identifiable parameters, grade on held-out studies.</div>`;
+  try{const s=(await (await fetch(`/api/rw/series?project=${encodeURIComponent(name)}&kind=test`)).json()).series||[];
+    const r=plot(s);$("#plotWrap").innerHTML=r.svg;$("#plotLegend").innerHTML=r.legend;
+  }catch(e){$("#plotWrap").innerHTML='<div style="color:var(--faint);font-size:12px;padding:24px;text-align:center">no curves for this project</div>';}
+  try{const md=(await (await fetch(`/api/rw/report?project=${encodeURIComponent(name)}&kind=test`)).json()).markdown||"";
+    if(md&&name===current){const d=el("details");d.innerHTML=`<summary>The report you were given — modeling strategy & fitted values redacted</summary><div class="report">${mdToHtml(md)}</div>`;$("#handoff").appendChild(d);}
+  }catch(e){}
+}
+function plot(series){
+  series=(series||[]).filter(s=>s.points&&s.points.length>=2);
+  if(!series.length)return{svg:'<div style="color:var(--faint);font-size:12px;padding:24px;text-align:center">no digitized concentration–time curves in this project</div>',legend:''};
+  const W=660,H=250,pL=48,pR=14,pT=12,pB=30;
+  let tmax=0,cmin=Infinity,cmax=0;
+  series.forEach(s=>s.points.forEach(([t,c])=>{if(t>tmax)tmax=t;if(c>0){if(c<cmin)cmin=c;if(c>cmax)cmax=c;}}));
+  if(!(cmax>0))return{svg:'',legend:''};
+  const lo=Math.floor(Math.log10(cmin)),hi=Math.ceil(Math.log10(cmax));
+  const X=t=>pL+(t/(tmax||1))*(W-pL-pR);
+  const Y=c=>{const l=Math.log10(Math.max(c,10**lo));return pT+(1-(l-lo)/((hi-lo)||1))*(H-pT-pB);};
+  const COL=["#0E7C86","#BE3A2C","#9A6C08","#1C8A5B","#6A4CB6","#C24E8F","#2C6FB0","#B0662C"];
+  let g="";
+  for(let d=lo;d<=hi;d++){const y=Y(10**d);g+=`<line x1="${pL}" y1="${y.toFixed(1)}" x2="${W-pR}" y2="${y.toFixed(1)}" stroke="var(--border)"/>`+
+    `<text x="${pL-6}" y="${(y+3).toFixed(1)}" text-anchor="end" font-size="9" fill="var(--faint)">1e${d}</text>`;}
+  for(let k=0;k<=4;k++){const tv=tmax*k/4,x=X(tv);g+=`<text x="${x.toFixed(1)}" y="${H-pB+15}" text-anchor="middle" font-size="9" fill="var(--faint)">${tv.toFixed(tv<10?1:0)}</text>`;}
+  g+=`<text x="${(pL+(W-pR-pL)/2).toFixed(0)}" y="${H-4}" text-anchor="middle" font-size="9.5" fill="var(--muted)">time (h)</text>`;
+  g+=`<text transform="translate(12,${(pT+(H-pT-pB)/2).toFixed(0)}) rotate(-90)" text-anchor="middle" font-size="9.5" fill="var(--muted)">conc (log)</text>`;
+  const leg=[];
+  series.forEach((s,i)=>{const col=COL[i%COL.length],pts=s.points.filter(([t,c])=>c>0);if(pts.length<2)return;
+    const dd=pts.map(([t,c],j)=>(j?"L":"M")+X(t).toFixed(1)+" "+Y(c).toFixed(1)).join(" ");
+    g+=`<path d="${dd}" fill="none" stroke="${col}" stroke-width="1.7" opacity=".92"/>`;
+    g+=pts.map(([t,c])=>`<circle cx="${X(t).toFixed(1)}" cy="${Y(c).toFixed(1)}" r="2" fill="${col}"/>`).join("");
+    const lbl=[s.route,s.dose].filter(Boolean).join(" ")||s.study;
+    leg.push(`<span><i style="background:${col}"></i>${escapeHtml(String(lbl)).slice(0,44)}</span>`);
+  });
+  return{svg:`<svg viewBox="0 0 ${W} ${H}" width="100%" style="display:block">${g}</svg>`,legend:leg.join("")};
+}
+function mdToHtml(md){
+  const lines=(md||"").split(/\r?\n/);let html="",i=0;
+  function inline(s){return escapeHtml(s).replace(/\*\*(.+?)\*\*/g,"<b>$1</b>").replace(/`([^`]+?)`/g,"<code>$1</code>");}
+  const cells=r=>r.trim().replace(/^\||\|$/g,"").split("|").map(c=>c.trim());
+  while(i<lines.length){
+    const ln=lines[i];
+    if(/^\s*\|/.test(ln)&&i+1<lines.length&&/^\s*\|?[\s:|-]+\|/.test(lines[i+1])){
+      const rows=[];while(i<lines.length&&/^\s*\|/.test(lines[i])){rows.push(lines[i]);i++;}
+      let t='<table><thead><tr>'+cells(rows[0]).map(h=>`<th>${inline(h)}</th>`).join("")+'</tr></thead><tbody>';
+      rows.slice(2).forEach(r=>{t+='<tr>'+cells(r).map(c=>`<td>${inline(c)}</td>`).join("")+'</tr>';});
+      html+=t+'</tbody></table>';continue;
+    }
+    const h=ln.match(/^(#{1,4})\s+(.*)/);
+    if(h){const lv=Math.min(h[1].length,3);html+=`<h${lv}>${inline(h[2])}</h${lv}>`;i++;continue;}
+    if(!ln.trim()){i++;continue;}
+    const para=[];while(i<lines.length&&lines[i].trim()&&!/^\s*\|/.test(lines[i])&&!/^#{1,4}\s/.test(lines[i])){para.push(lines[i]);i++;}
+    html+=`<p>${inline(para.join(" "))}</p>`;
+  }
+  return html;
 }
 
 /* run + stream */
@@ -203,8 +317,11 @@ $("#runBtn").onclick=async()=>{
   $("#runBtn").disabled=true;$("#stopBtn").hidden=false;$("#runState").textContent="starting…";
   $("#thread").querySelectorAll(".empty").forEach(x=>x.remove());
   let run_id;
+  // all-selected -> null (agent sees every other project); a subset (incl. none) -> the list.
+  const others=PROJECTS.filter(p=>p!==current),sel=selectedCtx();
+  const ctx=(!PROJECTS.length||sel.length===others.length)?null:sel;
   try{run_id=(await (await fetch("/api/run",{method:"POST",headers:{"Content-Type":"application/json"},
-    body:JSON.stringify({compound:current,model:$("#llm").value,max_steps:+$("#steps").value,library:library||null})})).json()).run_id;}
+    body:JSON.stringify({compound:current,model:$("#llm").value,max_steps:+$("#steps").value,context_projects:ctx})})).json()).run_id;}
   catch(e){$("#runState").textContent="server not reachable";$("#runBtn").disabled=false;return;}
   es=new EventSource(`/api/stream/${run_id}`);
   es.onmessage=(m)=>handle(JSON.parse(m.data));
@@ -261,7 +378,7 @@ function prettyTool(n){return({osp_inspect:"Inspecting task, priors & data",osp_
 function argSummary(c){const a=c.args||{};if(a.estimate)return"fitting "+Object.keys(a.estimate).join(", ").slice(0,60);if(a.edits)return"applying an edit";return"";}
 function escapeHtml(s){return(s||"").replace(/[&<>]/g,x=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[x]));}
 
-loadModels();
+loadModels().then(loadProjects);
 </script>
 </body>
 </html>

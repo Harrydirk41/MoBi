@@ -72,7 +72,8 @@ def _digest(ak: dict, comp_dir: str, full: bool) -> tuple[dict, set]:
 
 def build_reference_library(target_dir: str, lib_dir: str, *, same_type: bool = False,
                             full: bool = False,
-                            target_molecules: list[str] | None = None) -> list[dict]:
+                            target_molecules: list[str] | None = None,
+                            only: list[str] | None = None) -> list[dict]:
     """Digests of every OTHER compound's finished model (strict leave-one-out).
 
     `target_dir` is the target compound's directory NAME (e.g. 'Triazolam'); ALL
@@ -86,6 +87,8 @@ def build_reference_library(target_dir: str, lib_dir: str, *, same_type: bool = 
             continue
         comp_dir = os.path.basename(os.path.dirname(os.path.dirname(akf)))
         if comp_dir == target_dir:                     # leave-one-out (all variants)
+            continue
+        if only is not None and comp_dir not in only:  # modeler restricted the set
             continue
         try:
             ak = json.load(open(akf, encoding="utf-8"))
@@ -103,7 +106,7 @@ def build_reference_library(target_dir: str, lib_dir: str, *, same_type: bool = 
 
 
 def library_for_snapshot(snapshot_path: str, *, same_type: bool = False,
-                         full: bool = False) -> dict:
+                         full: bool = False, only: list[str] | None = None) -> dict:
     """Assemble the reference_library block to inject into a task input, deriving
     the library root and target compound from the snapshot path
     (.../OSP-PBPK-Model-Library/<Compound>/benchmark/<stem>.blanked.json)."""
@@ -113,7 +116,7 @@ def library_for_snapshot(snapshot_path: str, *, same_type: bool = False,
     target_dir = os.path.basename(comp_dir_path)
     tmols = target_clearing_molecules(snapshot_path) if same_type else None
     models = build_reference_library(target_dir, lib_dir, same_type=same_type,
-                                     full=full, target_molecules=tmols)
+                                     full=full, target_molecules=tmols, only=only)
     note = (
         "REFERENCE LIBRARY (leave-one-out): finished OSP models for OTHER compounds - "
         "public, qualified models you may reuse as a human modeler would. The target "
