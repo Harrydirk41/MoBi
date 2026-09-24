@@ -97,9 +97,24 @@ compound's `report/` folder, same as the CLI.
   `…/?token=<something>` get in (the server sets a cookie, so fetch and the SSE
   stream carry it afterwards). The startup banner prints the ready-to-use URL.
 
+## Running in parallel (faster)
+
+PK-Sim calls each use their own temp dir, so fits are independent and can run
+concurrently. Two knobs (both default to serial, so behavior is unchanged unless
+you opt in), sized near the machine's core count:
+
+- `PKPD_JOBS=N` — run a build's method **sweep** with N fits at once (~N× faster
+  sweep, the slowest phase of a build).
+- `PKPD_COPILOT_JOBS=N` — allow N **agent runs** at once; the "Autonomous run all"
+  scoreboard also has a *parallel* selector. Each run's stdout is routed
+  per-thread so their live streams don't interleave.
+
+Keep `PKPD_JOBS × PKPD_COPILOT_JOBS` around the core count — each PK-Sim process
+uses a core and a few hundred MB, so over-subscribing thrashes.
+
 ## Notes
 
-- One run at a time (the server captures optimizer stdout, which is process-global).
+- Set `PKPD_COPILOT_JOBS`/`PKPD_JOBS` to 1 (default) for one run at a time.
 - Set `PBPK_COPILOT_PORT` / `PBPK_COPILOT_HOST` to change where it binds.
 - This is a thin UI over the same engine the CLI and scoreboard use — no separate
   modeling logic.

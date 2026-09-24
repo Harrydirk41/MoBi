@@ -340,3 +340,39 @@ class TestSweepScreenVerdict(unittest.TestCase):
         r = self._sweep(3.10)                    # every method fits badly
         self.assertFalse(r.data["screen_adequate"])
         self.assertIn("not the lever here", r.data["advice"])
+
+
+class TestSweepParallel(unittest.TestCase):
+    def setUp(self):
+        self._orig = OO.run_optimization
+
+    def tearDown(self):
+        OO.run_optimization = self._orig
+
+    def test_parallel_runs_all_combos_and_picks_best(self):
+        import threading
+        seen, tids, lock = [], set(), threading.Lock()
+
+        def fake(cli, snap, obs, estimate, fix=None, structure=None, max_evals=30, **kw):
+            import time
+            time.sleep(0.01)
+            cm = (structure or {}).get("calculation_methods", {})
+            with lock:
+                seen.append((cm.get("partition"), cm.get("permeability")))
+                tids.add(threading.get_ident())
+            good = cm.get("partition") == "Schmitt"
+            return {"ok": True, "optimized": {k: sum(v) / 2 for k, v in estimate.items()},
+                    "fit": {"gmfe": 1.4 if good else 2.3}, "by_route": {}, "params_at_bound": [],
+                    "sensitivity": {}, "n_evals": max_evals, "fit_simulations": ["s1"]}
+        OO.run_optimization = fake
+        cfg = AgentConfig(mock=False)
+        cfg.parallel_jobs = 4
+        reg = ToolRegistry()
+        register_osp_loop_tools(reg, cfg, {"cli": object(), "snapshot_path": "x",
+                                           "observed": [], "input": {}})
+        r = reg.get("osp_sweep_methods").handler(
+            {"estimate": {"Lipophilicity": [-2, 3], "Intrinsic clearance": [0.1, 5]}},
+            ModelingSession(goal="g"))
+        self.assertTrue(r.ok)
+        self.assertEqual(r.data["best"]["partition"], "Schmitt")
+        self.assertGreater(len(tids), 1)              # actually ran on multiple threads

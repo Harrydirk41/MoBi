@@ -114,6 +114,26 @@ class TestCopilotServer(unittest.TestCase):
         self.assertFalse(j["ok"])
         self.assertTrue(j.get("error"))
 
+    def test_stdout_router_isolates_threads(self):
+        import io as _io
+        import threading
+        from copilot.server import _install_router
+        r = _install_router()
+        outs = {}
+
+        def worker(name):
+            buf = _io.StringIO()
+            r.register(buf)
+            try:
+                for i in range(4):
+                    print(f"{name}{i}")
+            finally:
+                r.flush(); outs[name] = buf.getvalue(); r.unregister()
+        ts = [threading.Thread(target=worker, args=(n,)) for n in "ABCD"]
+        [t.start() for t in ts]; [t.join() for t in ts]
+        for n, v in outs.items():                      # no cross-thread leakage
+            self.assertTrue(all(line.startswith(n) for line in v.strip().splitlines()))
+
     def test_model_view_is_editable_action_space(self):
         r = self.c.get("/api/model?compound=Tizanidine")
         self.assertEqual(r.status_code, 200)

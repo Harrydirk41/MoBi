@@ -334,7 +334,9 @@
       <button class="iconbtn" id="sbClose" aria-label="Close"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
     </div>
     <div class="modal-body"><table class="sbtbl"><thead><tr><th>Compound</th><th>Status</th><th>in-sample</th><th>held-out</th></tr></thead><tbody id="sbBody"></tbody></table></div>
-    <div class="ed-foot"><button class="btn primary" id="sbStart">▶ Run all</button><button class="btn" id="sbStop" hidden>Stop</button><span id="sbState" class="hint" style="padding:0"></span></div>
+    <div class="ed-foot"><button class="btn primary" id="sbStart">▶ Run all</button><button class="btn" id="sbStop" hidden>Stop</button>
+      <label style="font-size:12px;color:var(--muted)">parallel&nbsp;<select id="sbConc" style="padding:4px 6px;border:1px solid var(--border);border-radius:7px;background:var(--surface)"><option>1</option><option>2</option><option>3</option><option>4</option></select></label>
+      <span id="sbState" class="hint" style="padding:0"></span></div>
   </div>
 </div>
 
@@ -718,7 +720,7 @@ $("#edBack").onclick=()=>$("#edModal").hidden=true;$("#edClose").onclick=()=>$("
 $("#catBtn").onclick=openEditor;
 
 /* -------- #3 autonomous batch scoreboard -------------------------------- */
-let sbStop=false, sbAbort=null;
+let sbStop=false, sbStreams=new Set();
 function sbRowId(c){return "sb-"+c.replace(/[^A-Za-z0-9]/g,"_");}
 function renderScoreboard(comps){
   $("#sbBody").innerHTML=comps.map(c=>`<tr id="${sbRowId(c)}"><td>${escapeHtml(c)}</td><td><span class="sbst idle">queued</span></td><td class="g">—</td><td class="g">—</td></tr>`).join("");
@@ -737,39 +739,43 @@ function runOne(compound){
     try{rid=(await (await fetch("/api/run",{method:"POST",headers:{"Content-Type":"application/json"},
       body:JSON.stringify({compound,model:$("#llm").value,max_steps:+$("#steps").value})})).json()).run_id;}
     catch(e){return resolve({error:"server error"});}
-    const s=new EventSource(`/api/stream/${rid}`);
-    sbAbort=()=>{try{s.close();}catch(e){}resolve({error:"stopped"});};
+    const s=new EventSource(`/api/stream/${rid}`);sbStreams.add(s);
+    const finish=(o)=>{try{s.close();}catch(e){}sbStreams.delete(s);resolve(o);};
     s.onmessage=(m)=>{let ev;try{ev=JSON.parse(m.data);}catch(e){return;}
       if(ev.type==="done"){best_gmfe=ev.best_gmfe;best_edits=ev.best_edits;}
       else if(ev.type==="error"){err=ev.message;}
-      else if(ev.type==="end"){try{s.close();}catch(e){}resolve({best_gmfe,best_edits,error:err});}};
+      else if(ev.type==="end"){finish({best_gmfe,best_edits,error:err});}};
     s.onerror=()=>{};
   });
 }
 async function runAllAutonomous(){
   const comps=(MODELS||[]).map(m=>m.compound);
   if(!comps.length){$("#sbState").textContent="no compounds";return;}
+  const conc=Math.max(1,+($("#sbConc").value||1));
   sbStop=false;$("#sbStart").hidden=true;$("#sbStop").hidden=false;
-  renderScoreboard(comps);let done=0;
-  for(const c of comps){
-    if(sbStop)break;
-    $("#sbState").textContent=`running ${c} (${done+1}/${comps.length})…`;
-    sbSet(c,{status:"running"});
-    const r=await runOne(c);
-    if(sbStop){sbSet(c,{status:"failed",note:"stopped"});break;}
-    if(r.error){sbSet(c,{status:"failed",note:r.error});done++;continue;}
-    sbSet(c,{status:"grading",in_sample:r.best_gmfe});
-    let held=null;
-    if(r.best_edits){try{const g=await (await fetch("/api/grade",{method:"POST",headers:{"Content-Type":"application/json"},
-      body:JSON.stringify({compound:c,edits:r.best_edits})})).json();if(g.ok)held=g.gmfe;}catch(e){}}
-    sbSet(c,{status:"done",in_sample:r.best_gmfe,held_out:held});done++;
+  renderScoreboard(comps);let done=0,idx=0;
+  async function worker(){
+    while(!sbStop){
+      const i=idx++;if(i>=comps.length)break;const c=comps[i];
+      sbSet(c,{status:"running"});
+      const r=await runOne(c);
+      if(sbStop){sbSet(c,{status:"failed",note:"stopped"});break;}
+      if(r.error){sbSet(c,{status:"failed",note:r.error});done++;}
+      else{sbSet(c,{status:"grading",in_sample:r.best_gmfe});
+        let held=null;
+        if(r.best_edits){try{const g=await (await fetch("/api/grade",{method:"POST",headers:{"Content-Type":"application/json"},
+          body:JSON.stringify({compound:c,edits:r.best_edits})})).json();if(g.ok)held=g.gmfe;}catch(e){}}
+        sbSet(c,{status:"done",in_sample:r.best_gmfe,held_out:held});done++;}
+      $("#sbState").textContent=`${done}/${comps.length} done`+(conc>1?` · ${conc} parallel`:"");
+    }
   }
+  await Promise.all(Array.from({length:conc},()=>worker()));
   $("#sbStart").hidden=false;$("#sbStop").hidden=true;
   $("#sbState").textContent=sbStop?"stopped":`finished ${done}/${comps.length}`;
 }
 $("#sbBtn").onclick=()=>{$("#sbModal").hidden=false;if(!$("#sbBody").children.length)renderScoreboard((MODELS||[]).map(m=>m.compound));};
 $("#sbStart").onclick=runAllAutonomous;
-$("#sbStop").onclick=()=>{sbStop=true;if(sbAbort)sbAbort();$("#sbState").textContent="stopping…";};
+$("#sbStop").onclick=()=>{sbStop=true;sbStreams.forEach(s=>{try{s.close();}catch(e){}});sbStreams.clear();$("#sbState").textContent="stopping…";};
 $("#sbBack").onclick=()=>{if($("#sbStop").hidden)$("#sbModal").hidden=true;};
 $("#sbClose").onclick=()=>{if($("#sbStop").hidden)$("#sbModal").hidden=true;else $("#sbState").textContent="stop the run first";};
 

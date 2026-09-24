@@ -22,7 +22,6 @@ import queue
 import threading
 import uuid
 import zipfile
-from contextlib import redirect_stdout
 
 _HERE = os.path.dirname(os.path.abspath(__file__))
 _PKG = os.path.dirname(_HERE)                       # pkpd-agent/
@@ -64,8 +63,53 @@ def _rw_series(project: str, kind: str = "test", cap: int = 400) -> list[dict]:
 
 # ---- runs registry -------------------------------------------------------- #
 _RUNS: dict[str, dict] = {}
-_RUN_LOCK = threading.Lock()                        # serialize runs (stdout capture)
+# Concurrent agent runs. Default 1 (serial, unchanged). Set PKPD_COPILOT_JOBS>1
+# to run several compounds at once — each run's stdout is routed per-thread so
+# their SSE streams don't interleave. Keep near the core count.
+_RUN_SEM = threading.Semaphore(max(1, int(os.environ.get("PKPD_COPILOT_JOBS", "1"))))
 _SIM_LOCK = threading.Lock()                        # serialize reference-fit sims
+
+
+class _StdoutRouter:
+    """A process-wide sys.stdout replacement that routes writes to the writer
+    registered for the CURRENT thread (falling back to the real stdout). Lets
+    parallel runs each capture their own output without a global redirect."""
+    def __init__(self, real):
+        self._real = real
+        self._map: dict = {}
+
+    def register(self, w):
+        self._map[threading.get_ident()] = w
+
+    def unregister(self):
+        self._map.pop(threading.get_ident(), None)
+
+    def _w(self):
+        return self._map.get(threading.get_ident(), self._real)
+
+    def write(self, s):
+        return self._w().write(s)
+
+    def flush(self):
+        try:
+            self._w().flush()
+        except Exception:                               # noqa: BLE001
+            pass
+
+    def __getattr__(self, n):
+        return getattr(self._real, n)
+
+
+_ROUTER = None
+
+
+def _install_router():
+    global _ROUTER
+    if _ROUTER is None:
+        import sys
+        _ROUTER = _StdoutRouter(sys.stdout)
+        sys.stdout = _ROUTER
+    return _ROUTER
 _REFFIT_CACHE: dict[str, list] = {}                 # project -> per-dataset obs+sim
 
 
@@ -714,7 +758,7 @@ class _QueueWriter(io.TextIOBase):
 def _run_agent(run_id: str, p: dict) -> None:
     q: queue.Queue = _RUNS[run_id]["queue"]
     try:
-        with _RUN_LOCK:
+        with _RUN_SEM:                                  # up to PKPD_COPILOT_JOBS at once
             _run_agent_locked(run_id, p, q)
     except Exception as e:                              # noqa: BLE001
         q.put({"type": "error", "message": f"{type(e).__name__}: {e}"})
@@ -825,8 +869,13 @@ def _run_agent_locked(run_id, p, q) -> None:
 
     q.put({"type": "status", "phase": "running"})
     writer = _QueueWriter(q)
-    with redirect_stdout(writer):
+    router = _install_router()                          # route THIS thread's prints to q
+    router.register(writer)
+    try:
         session = loop.run(goal, on_event=on_event)
+    finally:
+        router.flush()
+        router.unregister()
 
     best = session.get("osp_best_gmfe")
     edits = session.get("osp_best_edits")

@@ -44,6 +44,10 @@ class AgentConfig:
     max_evals_cap: int | None = field(
         default_factory=lambda: int(os.environ["PKPD_MAX_EVALS"])
         if os.environ.get("PKPD_MAX_EVALS") else None)
+    # concurrent PK-Sim fits inside a method sweep (each uses its own temp dir).
+    # 1 = serial (default, unchanged). Set via PKPD_JOBS; keep near the core count.
+    parallel_jobs: int = field(
+        default_factory=lambda: max(1, int(os.environ.get("PKPD_JOBS", "1"))))
     nonmem_available: bool = False  # whether pharmpy can reach a NONMEM install
 
     # --- provenance ---

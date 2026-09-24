@@ -717,6 +717,34 @@ def register_osp_loop_tools(registry: ToolRegistry, config, ctx: dict) -> None:
             single-axis partition phase): >=2 combos tie in GMFE AND a free
             physchem took different values across them, meaning the free param
             absorbed the method difference - a structural degeneracy, safe to stop."""
+            jobs = max(1, int(getattr(config, "parallel_jobs", 1) or 1))
+            if jobs > 1 and len(pairs) > 1:
+                # PARALLEL: each combo's PK-Sim runs in its own temp dir, so the
+                # fits are independent. Run them concurrently; prints stay on THIS
+                # thread (workers don't print) so stdout capture is not interleaved.
+                # early_stop / per-eval streaming are dropped in parallel mode.
+                from concurrent.futures import ThreadPoolExecutor
+                print(f"  sweep: fitting {len(pairs)} method combos in parallel "
+                      f"(jobs={jobs})…", flush=True)
+
+                def _one(pmpe):
+                    pm, pe = pmpe
+                    st = dict(base_structure)
+                    st["calculation_methods"] = {"partition": pm, "permeability": pe}
+                    return pm, pe, OO.run_optimization(cli, snapshot_path, observed,
+                                                       estimate=est, fix=fix, structure=st,
+                                                       max_evals=budget, fast=True)
+                out = []
+                with ThreadPoolExecutor(max_workers=jobs) as ex:
+                    for pm, pe, r in ex.map(_one, list(pairs)):
+                        if r.get("ok") and r["fit"].get("gmfe") is not None:
+                            out.append({"partition": pm, "permeability": pe,
+                                        "gmfe": r["fit"]["gmfe"], "optimized": r["optimized"],
+                                        "params_at_bound": r.get("params_at_bound")})
+                            fit_str = ", ".join(f"{k}={v:.3g}" for k, v in r["optimized"].items())
+                            print(f"  sweep [{pm} / {pe}] -> GMFE {r['fit']['gmfe']}  "
+                                  f"(fit: {fit_str})", flush=True)
+                return out, False
             out = []
             done = 0
             for pm, pe in pairs:
