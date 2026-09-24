@@ -242,15 +242,91 @@ def _serialize_decision(ev) -> dict:
                       for c in getattr(ev, "calls", []) or []]}
 
 
+def _obs_detail(tool: str, c: dict):
+    """A compact, size-capped view of what a tool actually returned, so the step
+    card can be expanded to show what the agent read/saw (not just a one-liner)."""
+    def trim(s, n=2000):
+        s = str(s)
+        return s if len(s) <= n else s[:n] + " …"
+
+    def molname(m):
+        return m.get("molecule") if isinstance(m, dict) else m
+
+    if tool == "osp_read_report":
+        md = c.get("report_markdown") or ""
+        return {"report excerpt (agent extracts givens from this)": trim(md, 2400)} if md else None
+    if tool == "osp_inspect":
+        d = {}
+        if c.get("objective"):
+            d["objective"] = trim(c["objective"], 500)
+        if c.get("parameters_to_determine"):
+            d["to determine (fit these)"] = c["parameters_to_determine"]
+        if c.get("given_input_parameters"):
+            d["given inputs (trusted)"] = c["given_input_parameters"]
+        lit = c.get("literature_physicochemical")
+        if lit:
+            d["literature values"] = [
+                f"{x.get('parameter')} = {x.get('value')} {x.get('unit', '')}".strip()
+                for x in lit][:40]
+        cm = c.get("candidate_clearance_molecules")
+        if cm:
+            d["candidate enzymes/transporters"] = cm[:40]
+        rl = c.get("reference_library")
+        if isinstance(rl, dict):
+            d["reference library"] = f"{rl.get('mode')} · {len(rl.get('models') or [])} models"
+        return d or None
+    if tool == "osp_options":
+        d = {}
+        ep = c.get("editable_parameters") or []
+        if ep:
+            d["editable parameters"] = [f"{p.get('name')} ({p.get('tier', '?')})" for p in ep][:60]
+        methods = c.get("calculation_methods") or {}
+        if (methods.get("partition") or {}).get("options"):
+            d["partition methods"] = methods["partition"]["options"]
+        if (methods.get("permeability") or {}).get("options"):
+            d["permeability methods"] = methods["permeability"]["options"]
+        if c.get("expressed_molecules"):
+            d["expressed molecules"] = [molname(m) for m in c["expressed_molecules"]][:40]
+        if c.get("addable_process_types"):
+            d["addable process types"] = c["addable_process_types"][:40]
+        return d or None
+    if tool == "osp_list_studies":
+        st = c.get("studies") or []
+        return {"studies handed": [
+            f"{s.get('study')} · {s.get('route', '')} {s.get('dose', '')} · {s.get('n_points')} pts"
+            for s in st][:60]} if st else None
+    if tool == "osp_read_study":
+        pts = c.get("points") or []
+        return {"study": f"{c.get('study')} · {c.get('route', '')} {c.get('dose', '')} · "
+                f"{len(pts)} points"} if pts else None
+    if tool in ("osp_optimize", "osp_sweep_methods"):
+        d = {}
+        opt = c.get("optimized")
+        if isinstance(opt, dict) and opt:
+            d["fitted parameters"] = [f"{k} = {v}" for k, v in list(opt.items())[:30]]
+        if c.get("recommendations"):
+            d["recommendations"] = [trim(r, 200) for r in c["recommendations"]][:12]
+        if c.get("params_at_bound"):
+            d["params at bound"] = c["params_at_bound"]
+        br = c.get("by_route")
+        if isinstance(br, dict):
+            d["by route"] = [f"{k}: GMFE {v.get('gmfe') if isinstance(v, dict) else v}"
+                             for k, v in br.items()]
+        return d or None
+    return None
+
+
 def _serialize_observation(ev) -> dict:
     c = getattr(ev, "content", {}) or {}
-    return {"type": "observation", "tool": getattr(ev, "tool", ""),
+    tool = getattr(ev, "tool", "")
+    return {"type": "observation", "tool": tool,
             "message": c.get("message", ""),
             "gmfe": (c.get("best") or {}).get("gmfe") if isinstance(c.get("best"), dict) else c.get("gmfe"),
             "optimized": c.get("optimized"),
             "by_route": c.get("by_route"),
             "ranked_top": c.get("ranked_top"),
-            "recorded": c.get("recorded")}       # agent's self-extracted givens table
+            "recorded": c.get("recorded"),        # agent's self-extracted givens table
+            "detail": _obs_detail(tool, c)}       # what the agent actually read/saw
 
 
 class _QueueWriter(io.TextIOBase):

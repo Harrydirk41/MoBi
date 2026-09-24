@@ -168,6 +168,21 @@ class TestCopilotServer(unittest.TestCase):
         finally:
             _os.environ.pop("PBPK_COPILOT_TOKEN", None)
 
+    def test_obs_detail_surfaces_what_agent_saw(self):
+        from copilot.server import _obs_detail
+        d = _obs_detail("osp_inspect", {
+            "objective": "Build PBPK", "parameters_to_determine": ["Lipophilicity"],
+            "literature_physicochemical": [{"parameter": "fu", "value": 0.1, "unit": ""}]})
+        self.assertIn("objective", d)
+        self.assertIn("to determine (fit these)", d)
+        o = _obs_detail("osp_options", {"editable_parameters": [
+            {"name": "Lipophilicity", "tier": "estimate"}],
+            "calculation_methods": {"partition": {"options": ["Schmitt"]}}})
+        self.assertIn("editable parameters", o)
+        r = _obs_detail("osp_read_report", {"report_markdown": "x" * 5000})
+        self.assertTrue(list(r.values())[0].endswith("…"))     # trimmed
+        self.assertIsNone(_obs_detail("osp_inspect", {}))      # nothing to show
+
     def test_no_token_is_open(self):
         # default (no token set) stays open — unchanged local behavior
         self.assertEqual(self.c.get("/api/models").status_code, 200)
