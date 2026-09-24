@@ -720,7 +720,7 @@ $("#edBack").onclick=()=>$("#edModal").hidden=true;$("#edClose").onclick=()=>$("
 $("#catBtn").onclick=openEditor;
 
 /* -------- #3 autonomous batch scoreboard -------------------------------- */
-let sbStop=false, sbStreams=new Set();
+let sbStop=false, sbAborts=new Set();
 function sbRowId(c){return "sb-"+c.replace(/[^A-Za-z0-9]/g,"_");}
 function renderScoreboard(comps){
   $("#sbBody").innerHTML=comps.map(c=>`<tr id="${sbRowId(c)}"><td>${escapeHtml(c)}</td><td><span class="sbst idle">queued</span></td><td class="g">—</td><td class="g">—</td></tr>`).join("");
@@ -734,18 +734,24 @@ function sbSet(c,o){
   if("held_out" in o)tds[3].innerHTML=o.held_out!=null?`<span class="${+o.held_out<=1.5?'sbpass':'sbfail-v'}">${(+o.held_out).toFixed(2)}</span>`:"—";
 }
 function runOne(compound){
-  return new Promise(async(resolve)=>{
-    let best_gmfe=null,best_edits=null,err=null;let rid;
-    try{rid=(await (await fetch("/api/run",{method:"POST",headers:{"Content-Type":"application/json"},
-      body:JSON.stringify({compound,model:$("#llm").value,max_steps:+$("#steps").value})})).json()).run_id;}
-    catch(e){return resolve({error:"server error"});}
-    const s=new EventSource(`/api/stream/${rid}`);sbStreams.add(s);
-    const finish=(o)=>{try{s.close();}catch(e){}sbStreams.delete(s);resolve(o);};
-    s.onmessage=(m)=>{let ev;try{ev=JSON.parse(m.data);}catch(e){return;}
-      if(ev.type==="done"){best_gmfe=ev.best_gmfe;best_edits=ev.best_edits;}
-      else if(ev.type==="error"){err=ev.message;}
-      else if(ev.type==="end"){finish({best_gmfe,best_edits,error:err});}};
-    s.onerror=()=>{};
+  return new Promise((resolve)=>{
+    let best_gmfe=null,best_edits=null,err=null,s=null,done=false;
+    const finish=(o)=>{if(done)return;done=true;try{if(s)s.close();}catch(e){}sbAborts.delete(abort);resolve(o);};
+    const abort=()=>finish({error:"stopped"});   // Stop resolves the pending run
+    sbAborts.add(abort);
+    (async()=>{
+      let rid;
+      try{rid=(await (await fetch("/api/run",{method:"POST",headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({compound,model:$("#llm").value,max_steps:+$("#steps").value})})).json()).run_id;}
+      catch(e){return finish({error:"server error"});}
+      if(sbStop||done)return finish({error:"stopped"});
+      s=new EventSource(`/api/stream/${rid}`);
+      s.onmessage=(m)=>{let ev;try{ev=JSON.parse(m.data);}catch(e){return;}
+        if(ev.type==="done"){best_gmfe=ev.best_gmfe;best_edits=ev.best_edits;}
+        else if(ev.type==="error"){err=ev.message;}
+        else if(ev.type==="end"){finish({best_gmfe,best_edits,error:err});}};
+      s.onerror=()=>{};
+    })();
   });
 }
 async function runAllAutonomous(){
@@ -775,7 +781,7 @@ async function runAllAutonomous(){
 }
 $("#sbBtn").onclick=()=>{$("#sbModal").hidden=false;if(!$("#sbBody").children.length)renderScoreboard((MODELS||[]).map(m=>m.compound));};
 $("#sbStart").onclick=runAllAutonomous;
-$("#sbStop").onclick=()=>{sbStop=true;sbStreams.forEach(s=>{try{s.close();}catch(e){}});sbStreams.clear();$("#sbState").textContent="stopping…";};
+$("#sbStop").onclick=()=>{sbStop=true;$("#sbState").textContent="stopping…";sbAborts.forEach(a=>a());sbAborts.clear();};
 $("#sbBack").onclick=()=>{if($("#sbStop").hidden)$("#sbModal").hidden=true;};
 $("#sbClose").onclick=()=>{if($("#sbStop").hidden)$("#sbModal").hidden=true;else $("#sbState").textContent="stop the run first";};
 
