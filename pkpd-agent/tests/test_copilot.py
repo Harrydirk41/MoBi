@@ -78,6 +78,17 @@ class TestCopilotServer(unittest.TestCase):
         self.assertTrue(self.c.get(
             "/api/rw/series?project=Midazolam&kind=context").json()["series"])
 
+    def test_rw_topology_parses_structure(self):
+        r = self.c.get("/api/rw/topology?project=Tizanidine")
+        if r.status_code == 404:
+            self.skipTest("snapshot not present")
+        t = r.json()
+        self.assertTrue(t.get("distribution"))          # partition method
+        self.assertTrue(t.get("renal"))                 # has GFR
+        self.assertTrue(t.get("oral"))                  # tablet formulation
+        self.assertIn("CYP1A2", [m["enzyme"] for m in t["metabolism"]])
+        self.assertEqual(self.c.get("/api/rw/topology?project=NoSuch").status_code, 404)
+
     def test_rw_simulate_degrades_gracefully(self):
         # without PKSim.CLI the reference-fit run returns a clean error, never 500
         import os as _os

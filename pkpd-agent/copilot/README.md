@@ -62,6 +62,11 @@ it with `python -m examples.build_realworld_projects --write`).
   methods, fitted values, GMFE) and curves. This is the already-built modeling
   the agent leans on by analogy; the target's own report is redacted in the
   main panel and only openable here with an explicit "you're the modeler" note.
+- **Model topology** — the viewer draws the whole-body PBPK structure: the
+  fixed organ network + arterial/venous/portal blood flow in grey, and the
+  drug-specific model the modeler chose/fit in teal (distribution & permeability
+  methods, the metabolizing enzyme on the liver, renal GFR on the kidney, oral
+  absorption on the gut). Fixed vs decided at a glance.
 - **Overlay the reference fit** — inside that viewer, **▶ Run the model** runs
   the finished reference snapshot (forward simulation only, no fitting — fast)
   and overlays its simulated curves (lines) on the observed data (open points),

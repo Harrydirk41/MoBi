@@ -165,6 +165,16 @@
   .modal-body{overflow:auto;padding:10px 8px 18px}
   .modal-body .report{max-height:none;padding:2px 18px 8px}
   .modal-warn{margin:0 14px 6px;padding:7px 11px;border-radius:9px;background:var(--warn-soft);color:var(--warn);font-size:11.5px}
+  .topo{padding:6px 14px 2px}
+  .topotitle{font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--faint);margin:2px 0 8px}
+  .topohdr{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:6px}
+  .tchip{font-size:11px;font-family:var(--mono);padding:3px 9px;border-radius:999px;background:var(--surface-2);color:var(--muted);border:1px solid var(--border-2)}
+  .tchip.pick{background:var(--accent-soft);color:var(--accent-ink);border-color:transparent;font-weight:500}
+  .topolegend{display:flex;flex-wrap:wrap;gap:14px;margin:4px 0 8px;font-size:11px;color:var(--muted)}
+  .topolegend span{display:inline-flex;align-items:center;gap:6px}
+  .topolegend i{width:12px;height:12px;border-radius:4px;display:inline-block}
+  .lx.fixed{background:var(--surface-2);border:1px solid var(--border)}
+  .lx.pick{background:var(--accent-soft);border:1px solid var(--accent)}
   .fitbar{display:flex;align-items:center;gap:10px;padding:4px 14px 2px}
   .fitbar .act[disabled]{opacity:.55;cursor:default}
   @media (max-width:1120px){.app{grid-template-columns:236px minmax(0,1fr) 296px}}
@@ -238,6 +248,7 @@
     </div>
     <div class="modal-body">
       <div id="cmWarn" class="modal-warn" hidden></div>
+      <div id="cmTopo" class="topo"></div>
       <div class="fitbar"><button class="act dl" id="cmRunFit">▶ Run the model — overlay its fit</button><span id="cmFitState" class="mono" style="font-size:11px;color:var(--faint)"></span></div>
       <div class="plotwrap" id="cmPlot"></div>
       <div class="plotlegend" id="cmLegend"></div>
@@ -330,8 +341,12 @@ async function openContext(project){
   if(tgt){warn.hidden=false;warn.textContent="This is the target's own reference answer. The agent never sees it — you're viewing it as the modeler.";}
   else warn.hidden=true;
   $("#cmPlot").innerHTML='<div style="color:var(--faint);font-size:12px;padding:24px;text-align:center">loading…</div>';
-  $("#cmLegend").innerHTML="";$("#cmReport").innerHTML="";
+  $("#cmLegend").innerHTML="";$("#cmReport").innerHTML="";$("#cmTopo").innerHTML="";
   $("#ctxModal").hidden=false;
+  try{const td=await (await fetch(`/api/rw/topology?project=${encodeURIComponent(project)}`)).json();
+    if(td&&!td.error){const r=topology(td);
+      $("#cmTopo").innerHTML='<div class="topotitle">Model topology — fixed physiology + the drug model</div>'+r.header+r.svg;}
+  }catch(e){}
   try{const s=(await (await fetch(`/api/rw/series?project=${encodeURIComponent(project)}&kind=context`)).json()).series||[];
     const r=plot(s);$("#cmPlot").innerHTML=r.svg;$("#cmLegend").innerHTML=r.legend;
     $("#cmLegend").querySelectorAll("span[data-i]").forEach(sp=>sp.onclick=()=>{sp.classList.toggle("off");
@@ -341,6 +356,55 @@ async function openContext(project){
     const imgBase=`/api/rw/figure?project=${encodeURIComponent(project)}&path=`;   // reference fit figures
     $("#cmReport").innerHTML=md?mdToHtml(md,imgBase):'<div style="color:var(--faint);padding:16px">no report</div>';
   }catch(e){$("#cmReport").innerHTML='<div style="color:var(--faint);padding:16px">report unavailable</div>';}
+}
+/* whole-body PBPK topology: FIXED organ network + the drug model overlaid */
+function topology(d){
+  d=d||{};
+  const enz=(d.metabolism||[]).map(m=>m.enzyme).filter(Boolean);
+  const trans=(d.transport||[]).map(t=>t.molecule).filter(Boolean);
+  const liverTags=enz.concat(trans);
+  const organs=[
+    {n:"Brain"},{n:"Heart"},
+    {n:"Kidney",hi:!!d.renal,tag:d.renal?"GFR · renal":null},
+    {n:"Gut",portal:true,hi:!!d.oral,tag:d.oral?"oral absorption":null},
+    {n:"Spleen",portal:true},
+    {n:"Liver",hi:liverTags.length>0,tag:liverTags.join(", ")||null},
+    {n:"Muscle"},{n:"Skin"},{n:"Fat"},{n:"Bone"}
+  ];
+  const W=680,rowH=44,top=78,bw=168,boxH=rowH-14;
+  const H=top+organs.length*rowH+16, cx=W/2, bx=cx-bw/2, bxr=cx+bw/2, vL=W-46;
+  const midY=i=>top+i*rowH+6+boxH/2;
+  const liverMid=midY(organs.findIndex(o=>o.n==="Liver"));
+  let g="";
+  // blood rails
+  g+=`<rect x="24" y="60" width="22" height="${H-72}" rx="7" fill="var(--crit-soft)" stroke="var(--crit)" stroke-opacity=".35"/>`;
+  g+=`<rect x="${W-46}" y="60" width="22" height="${H-72}" rx="7" fill="var(--accent-soft)" stroke="var(--accent)" stroke-opacity=".35"/>`;
+  g+=`<text x="35" y="54" text-anchor="middle" font-size="9" fill="var(--crit)">arterial</text>`;
+  g+=`<text x="${W-35}" y="54" text-anchor="middle" font-size="9" fill="var(--accent-ink)">venous</text>`;
+  // lung bridges venous -> arterial
+  g+=`<path d="M${W-35} 60 L${W-35} 33 L${cx+58} 33" fill="none" stroke="var(--accent)" stroke-opacity=".5"/>`;
+  g+=`<path d="M${cx-58} 33 L35 33 L35 60" fill="none" stroke="var(--crit)" stroke-opacity=".5"/>`;
+  g+=`<rect x="${cx-58}" y="18" width="116" height="30" rx="8" fill="var(--surface-2)" stroke="var(--border)"/>`;
+  g+=`<text x="${cx}" y="37" text-anchor="middle" font-size="12" fill="var(--muted)">Lung</text>`;
+  organs.forEach((o,i)=>{
+    const y=midY(i), boxY=top+i*rowH+6;
+    g+=`<line x1="46" y1="${y}" x2="${bx}" y2="${y}" stroke="var(--crit)" stroke-opacity=".3"/>`;   // arterial in
+    if(o.portal)   // portal vein -> liver
+      g+=`<path d="M${bxr} ${y} C ${bxr+38} ${y}, ${bxr+38} ${liverMid}, ${bxr} ${liverMid}" fill="none" stroke="var(--warn)" stroke-width="1.3" stroke-dasharray="3 3" stroke-opacity=".85"/>`;
+    else
+      g+=`<line x1="${bxr}" y1="${y}" x2="${vL}" y2="${y}" stroke="var(--accent)" stroke-opacity=".3"/>`;  // venous out
+    g+=`<rect x="${bx}" y="${boxY}" width="${bw}" height="${boxH}" rx="8" fill="${o.hi?'var(--accent-soft)':'var(--surface-2)'}" stroke="${o.hi?'var(--accent)':'var(--border)'}" stroke-width="${o.hi?1.5:1}"/>`;
+    g+=`<text x="${cx}" y="${o.tag?y-1:y+4}" text-anchor="middle" font-size="12" font-weight="${o.hi?600:400}" fill="${o.hi?'var(--accent-ink)':'var(--ink)'}">${escapeHtml(o.n)}</text>`;
+    if(o.tag)g+=`<text x="${cx}" y="${y+11}" text-anchor="middle" font-size="9" fill="var(--accent-ink)">${escapeHtml(o.tag)}</text>`;
+  });
+  const header=`<div class="topohdr">`+
+    `<span class="tchip pick">distribution: ${escapeHtml(d.distribution||'—')}</span>`+
+    `<span class="tchip pick">permeability: ${escapeHtml(d.permeability||'—')}</span>`+
+    (d.oral?`<span class="tchip pick">oral · dissolution fitted</span>`:`<span class="tchip">IV</span>`)+
+    `</div><div class="topolegend"><span><i class="lx fixed"></i>fixed whole-body physiology (organs &amp; blood flow)</span>`+
+    `<span><i class="lx pick"></i>drug model the modeler chose / fit</span>`+
+    `<span><i style="width:14px;height:0;border-top:2px dashed var(--warn)"></i>portal vein</span></div>`;
+  return {svg:`<svg viewBox="0 0 ${W} ${H}" width="100%" style="display:block">${g}</svg>`,header};
 }
 function closeContext(){$("#ctxModal").hidden=true;}
 $("#ctxBack").onclick=closeContext;$("#cmClose").onclick=closeContext;

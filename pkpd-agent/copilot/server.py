@@ -76,6 +76,45 @@ def _downsample(pts: list, n: int = 160) -> list:
     return [pts[int(i * step)] for i in range(n)]
 
 
+def _topology(project: str, snapd: dict) -> dict:
+    """The model's drug-specific structure (the NON-fixed part), parsed from a
+    finished snapshot: distribution/permeability methods, metabolizing enzymes,
+    renal clearance, transporters, and whether an oral formulation dissolves.
+    The whole-body organ network is fixed and drawn client-side."""
+    comp = (snapd.get("Compounds") or [{}])[0]
+    cms = comp.get("CalculationMethods") or []
+
+    def pick(prefix):
+        for m in cms:
+            if isinstance(m, str) and m.lower().startswith(prefix):
+                return m.split(" - ")[-1].strip()
+        return None
+
+    metab, transport = [], []
+    renal = False
+    for p in comp.get("Processes") or []:
+        internal = (p.get("InternalName") or "").lower()
+        mol = p.get("Molecule")
+        if "metaboli" in internal:
+            metab.append({"enzyme": mol, "source": p.get("DataSource")})
+        elif "glomerular" in internal or "gfr" in internal or "renalclear" in internal:
+            renal = True
+        elif "transport" in internal or "active" in internal or "efflux" in internal \
+                or "uptake" in internal:
+            transport.append({"molecule": mol})
+    forms = snapd.get("Formulations") or []
+
+    def ftype(f):
+        return str(f.get("FormulationType") or f.get("Type") or f.get("Name") or "").lower()
+    oral = any(any(k in ftype(f) for k in ("tablet", "capsule", "weibull", "particle"))
+               for f in forms)
+    return {"compound": project,
+            "distribution": pick("cellular partition"),
+            "permeability": pick("cellular permeability"),
+            "metabolism": metab, "renal": renal, "transport": transport,
+            "oral": oral, "formulations": [f.get("Name") for f in forms]}
+
+
 def _reffit(project: str) -> dict:
     """Run a FINISHED reference model (forward simulation only — no fitting) and
     return per-dataset observed + simulated curves for an interactive fit overlay.
@@ -537,6 +576,17 @@ def create_app():
     @app.get("/api/rw/series")
     def rw_series(project: str, kind: str = "test"):
         return JSONResponse({"series": _rw_series(project, kind)})
+
+    @app.get("/api/rw/topology")
+    def rw_topology(project: str):
+        snap = os.path.join(_LIB, project, "json", f"{project}-Model.json")
+        if not os.path.isfile(snap):
+            return JSONResponse({"error": "no snapshot"}, status_code=404)
+        try:
+            snapd = json.load(open(snap, encoding="utf-8"))
+        except (OSError, ValueError):
+            return JSONResponse({"error": "unreadable snapshot"}, status_code=404)
+        return JSONResponse(_topology(project, snapd))
 
     @app.get("/api/rw/simulate")
     def rw_simulate(project: str):
