@@ -583,6 +583,14 @@ def register_osp_loop_tools(registry: ToolRegistry, config, ctx: dict) -> None:
         no answer is used."""
         from ..engines import osp_optimize as OO
         from ..engines.snapshot_edit import PARTITION_METHODS, PERMEABILITY_METHODS
+
+        def _sweep_progress(i, values, sse, error=None):    # live per-eval line during a sweep
+            if not getattr(config, "stream_optimizer", True):
+                return
+            vs = ", ".join(f"{k}={v:.3g}" for k, v in values.items())
+            tag = f"log_sse={sse}" if sse is not None else f"run FAILED{(' — ' + error) if error else ''}"
+            print(f"       eval {i}: {tag} [{vs}]", flush=True)
+
         estimate = dict(args.get("estimate") or {})
         if not estimate:
             return ToolResult.error(
@@ -691,9 +699,13 @@ def register_osp_loop_tools(registry: ToolRegistry, config, ctx: dict) -> None:
             for pm, pe in pairs:
                 structure = dict(base_structure)          # add_processes/processes held fixed
                 structure["calculation_methods"] = {"partition": pm, "permeability": pe}
+                # announce the combo BEFORE the (multi-minute) fit so the live view
+                # shows what is running, not silence; stream per-eval progress too.
+                print(f"  sweep [{pm} / {pe}] fitting… ({done + 1}/{len(pairs)})", flush=True)
                 r = OO.run_optimization(cli, snapshot_path, observed, estimate=est,
                                         fix=fix, structure=structure, max_evals=budget,
-                                        fast=True)   # ranking only: fewer studies, no sens/full
+                                        fast=True,   # ranking only: fewer studies, no sens/full
+                                        on_eval=_sweep_progress)
                 if r.get("ok") and r["fit"].get("gmfe") is not None:
                     out.append({"partition": pm, "permeability": pe,
                                 "gmfe": r["fit"]["gmfe"], "optimized": r["optimized"],
@@ -807,8 +819,11 @@ def register_osp_loop_tools(registry: ToolRegistry, config, ctx: dict) -> None:
             structure = dict(base_structure)          # add_processes/processes held fixed
             structure["calculation_methods"] = {"partition": top["partition"],
                                                  "permeability": top["permeability"]}
+            print(f"  sweep: refining winner {top['partition']} / {top['permeability']} "
+                  "at full budget…", flush=True)
             rr = OO.run_optimization(cli, snapshot_path, observed, estimate=est_final, fix=fix,
-                                     structure=structure, max_evals=max_evals)
+                                     structure=structure, max_evals=max_evals,
+                                     on_eval=_sweep_progress)
             if rr.get("ok") and rr["fit"].get("gmfe") is not None:
                 top["gmfe"] = rr["fit"]["gmfe"]
                 top["optimized"] = rr["optimized"]
