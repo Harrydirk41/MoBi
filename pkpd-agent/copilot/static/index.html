@@ -466,7 +466,11 @@ function topology(d){
   const pc=d.physchem||{}, kp=`Kp from ${escapeHtml(d.distribution||'?')}; permeability ${escapeHtml(d.permeability||'?')}.`;
   const info={};
   organs.forEach(o=>{
-    let s=`<b>${escapeHtml(o.n)}</b> — perfusion-limited (well-stirred) tissue. ODE: dA/dt = Q·(C_art − C/Kp). ${kp}`;
+    // the compartment ODE = sum of its edge fluxes (+ elimination where it clears)
+    let ode="Vₜ·dC/dt = Q·C_art − Q·(C/Kp)";
+    if(o.n==="Liver"&&(d.metabolism||[]).length) ode+=" − CLᵢₙₜ·fu·C";
+    if(o.n==="Kidney"&&d.renal) ode+=" − GFR·fu·C";
+    let s=`<b>${escapeHtml(o.n)}</b> — perfusion-limited (well-stirred). ODE: ${ode}. ${kp}`;
     if(o.n==="Liver"&&(d.metabolism||[]).length)
       s+='<br><b>Eliminating:</b> '+d.metabolism.map(m=>`${escapeHtml(m.enzyme||'enzyme')} (`+(Object.entries(m.params||{}).map(([k,v])=>escapeHtml(k)+' = '+num(v)).join(', ')||escapeHtml(m.source||'metabolism'))+')').join('; ');
     if(o.n==="Kidney"&&d.renal)
@@ -474,20 +478,20 @@ function topology(d){
     if(o.n==="Gut"&&d.oral)
       s+='<br><b>Absorption:</b> oral dissolution'+((d.formulations||[]).length?` (${d.formulations.map(escapeHtml).join(', ')})`:'');
     info[o.n]=s;
-    // the connecting flow lines (rail <-> organ box)
-    info["a:"+o.n]=`<b>Arterial blood → ${escapeHtml(o.n)}</b> — arterial blood delivers drug into ${escapeHtml(o.n)} at its fixed blood flow Q; tissue uptake follows the ${escapeHtml(d.distribution||'?')} Kp.`;
+    // each flow line is one FLUX TERM in that ODE
+    info["a:"+o.n]=`<b>Arterial → ${escapeHtml(o.n)}</b> — inflow flux <b>+Q·C_art</b>: arterial blood delivers drug into ${escapeHtml(o.n)} at its fixed flow Q. Tissue uptake follows the ${escapeHtml(d.distribution||'?')} Kp.`;
     let vnote="";
-    if(o.n==="Liver"&&(d.metabolism||[]).length) vnote=` Drug is cleared here first (first-pass) by ${d.metabolism.map(m=>escapeHtml(m.enzyme||'enzyme')).join(', ')}.`;
+    if(o.n==="Liver"&&(d.metabolism||[]).length) vnote=` Cleared here first (first-pass) by ${d.metabolism.map(m=>escapeHtml(m.enzyme||'enzyme')).join(', ')}.`;
     if(o.n==="Kidney"&&d.renal) vnote=" Some drug is filtered out here (GFR).";
     if(o.portal)
-      info["p:"+o.n]=`<b>${escapeHtml(o.n)} → portal vein → Liver</b> — ${escapeHtml(o.n)} drains into the liver FIRST (portal/first-pass), not straight back to venous blood.`;
+      info["p:"+o.n]=`<b>${escapeHtml(o.n)} → portal → Liver</b> — outflow flux <b>Q·(C/Kp)</b> routed into the LIVER (first-pass), not to venous blood.`;
     else
-      info["v:"+o.n]=`<b>${escapeHtml(o.n)} → venous blood</b> — returns drug to the venous pool at flow Q.${vnote}`;
+      info["v:"+o.n]=`<b>${escapeHtml(o.n)} → venous</b> — outflow flux <b>−Q·(C/Kp)</b>: the well-stirred effluent leaves ${escapeHtml(o.n)}.${vnote}`;
   });
-  info.Lung="<b>Lung</b> — receives the whole venous return and passes it to arterial blood (mixing compartment).";
-  info.arterial="<b>Arterial blood</b> — delivers drug from the lung to every organ. Organ blood flows Q are fixed physiology.";
-  info.venous="<b>Venous blood</b> — collects organ outflow and returns it to the lung.";
-  info.portal="<b>Portal vein</b> — gut and spleen drain into the liver first (first-pass metabolism), not straight to venous blood.";
+  info.Lung="<b>Lung</b> — receives the whole venous return and passes it to arterial blood. Sets C_art (mixing compartment).";
+  info.arterial="<b>Arterial blood</b> — C_art from the lung feeds every organ as +Q_i·C_art. Organ flows Q_i are fixed physiology.";
+  info.venous="<b>Venous blood</b> — flow-weighted mix of organ effluents: C_ven = Σ Q_i·(C_i/Kp_i) / Σ Q_i, returned to the lung.";
+  info.portal="<b>Portal vein</b> — gut + spleen effluents Q·(C/Kp) enter the LIVER first (first-pass), not the venous pool.";
   info._default=`<b>${escapeHtml(d.compound||'')}</b> — logP ${num(pc.lipophilicity)}, fu ${num(pc.fraction_unbound)}, MW ${num(pc.molecular_weight)} g/mol, solubility ${num(pc.solubility)} mg/mL. <span style="color:var(--faint)">Hover an organ or vessel for its role, ODE and parameters.</span>`;
   return {svg:`<svg viewBox="0 0 ${W} ${H}" width="100%" style="display:block">${g}</svg>`,header,info};
 }
