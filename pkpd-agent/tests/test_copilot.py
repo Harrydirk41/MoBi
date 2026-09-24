@@ -101,6 +101,16 @@ class TestCopilotServer(unittest.TestCase):
             self.assertLessEqual(p["value"], p["hi"])
         self.assertTrue(any("clearance" in p["name"].lower() for p in v["params"]))
 
+    def test_sweep1_realtime_grid_degrades(self):
+        r = self.c.post("/api/sweep1", json={"compound": "Tizanidine",
+                        "param": "Lipophilicity", "lo": 0, "hi": 3, "n": 5, "base": {}})
+        self.assertEqual(r.status_code, 200)
+        self.assertIn("ok", r.json())                       # runs need CLI; graceful otherwise
+        self.assertEqual(self.c.post("/api/sweep1",
+                         json={"compound": "Tizanidine"}).status_code, 400)   # lo/hi required
+        self.assertEqual(self.c.post("/api/sweep1",
+                         json={"compound": "Nope", "lo": 0, "hi": 1}).status_code, 404)
+
     def test_pediatric_and_ddi_tasks_listed(self):
         ms = self.c.get("/api/models").json()
         kinds = {m["compound"]: m["kind"] for m in ms}
