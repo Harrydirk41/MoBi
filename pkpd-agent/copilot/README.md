@@ -52,6 +52,11 @@ it with `python -m examples.build_realworld_projects --write`).
 
 ## Interactivity
 
+- **Collapsed detail** — the noisy sweep grid and per-eval optimizer log are
+  hidden inside each step; the header shows the live best GMFE and the outcome
+  line. Click a step to expand its detail.
+- **Toggle curves** — click a legend entry in the "What you're handed" plot to
+  show/hide that study's curve.
 - **Steer the run** — a composer note ("focus on oral absorption", "try
   CYP3A4 + P-gp") is passed to the agent as a modeler note on the goal.
 - **Live givens table** — as the agent self-extracts, its provenance-tagged

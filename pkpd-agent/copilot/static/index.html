@@ -62,17 +62,23 @@
   :root[data-theme="dark"] .u-msg,:root:not([data-theme="light"]) .u-msg{color:#04262a}
   .meta-line{font-size:12px;color:var(--muted);background:var(--surface-2);border-radius:9px;padding:7px 12px;align-self:center}
   .step{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);box-shadow:var(--shadow);overflow:hidden}
-  .step .head{display:flex;align-items:center;gap:11px;padding:11px 14px;width:100%;background:none;border:0;text-align:left}
+  .step .head{display:flex;align-items:center;gap:11px;padding:11px 14px;width:100%;background:none;border:0;text-align:left;cursor:pointer}
+  .step .head:hover{background:var(--surface-2)}
   .step .ic{width:26px;height:26px;border-radius:7px;background:var(--surface-2);display:grid;place-items:center;color:var(--accent);flex:0 0 auto}
   .step .t{flex:1;min-width:0}.step .t b{font-weight:500;font-size:13.5px}.step .t small{display:block;color:var(--faint);font-size:11.5px}
   .step .rgt{font-family:var(--mono);font-size:12px;flex:0 0 auto;color:var(--muted)}
-  .step .body{padding:0 14px 12px;font-size:12px;color:var(--muted)}
+  .step .chev{color:var(--faint);flex:0 0 auto;display:grid;place-items:center;transition:transform .15s;opacity:0}
+  .step.hasdetail .chev{opacity:1}.step.open .chev{transform:rotate(90deg)}
+  .step .result{padding:0 14px 12px}.step .result:empty{display:none}
+  .step .body{padding:0 14px 12px;font-size:12px;color:var(--muted);display:none}
+  .step.open .body{display:block}
   .reason{font-size:13px;color:var(--muted);display:flex;gap:10px;padding:2px 2px}
   .reason .av{width:24px;height:24px;border-radius:7px;background:var(--accent-soft);color:var(--accent);display:grid;place-items:center;flex:0 0 auto;margin-top:1px}
   .callchips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
   .callchip{font-family:var(--mono);font-size:11px;padding:3px 8px;border-radius:6px;background:var(--accent-soft);color:var(--accent-ink)}
   .log{margin-top:9px;background:var(--surface-2);border-radius:8px;padding:8px 10px;font-family:var(--mono);font-size:11px;color:var(--muted);max-height:150px;overflow:auto;white-space:pre-wrap}
   .obs{margin-top:9px;font-size:12.5px;color:var(--ink);border-top:1px solid var(--border-2);padding-top:9px}
+  .result>.obs:first-child{border-top:0;margin-top:2px;padding-top:0}
   .obs .g{font-family:var(--mono);font-weight:600;color:var(--accent-ink)}
   .verdict{border-radius:var(--r);padding:12px 14px;display:flex;gap:11px;align-items:center;font-size:13px}
   .verdict.pass{background:var(--good-soft);border:1px solid color-mix(in srgb,var(--good) 30%,transparent)}
@@ -112,8 +118,10 @@
   .handoff .hh b{font-size:13.5px;font-weight:600}.handoff .hh small{display:block;color:var(--faint);font-size:11px}
   .handoff .plotwrap{padding:8px 12px 4px}
   .plotlegend{display:flex;flex-wrap:wrap;gap:5px 12px;padding:2px 14px 12px}
-  .plotlegend span{font-size:11px;color:var(--muted);display:inline-flex;align-items:center;gap:5px}
+  .plotlegend span{font-size:11px;color:var(--muted);display:inline-flex;align-items:center;gap:5px;cursor:pointer;user-select:none}
+  .plotlegend span:hover{color:var(--ink)}.plotlegend span.off{opacity:.4;text-decoration:line-through}
   .plotlegend i{width:16px;height:2.5px;border-radius:2px;display:inline-block}
+  svg g.sr.off{display:none}
   .handoff details{border-top:1px solid var(--border-2)}
   .handoff summary{padding:9px 14px;font-size:12px;color:var(--muted);cursor:pointer;list-style:none;display:flex;align-items:center;gap:7px}
   .handoff summary::-webkit-details-marker{display:none}
@@ -280,6 +288,10 @@ async function renderHandoff(name){
     `<div class="u-msg">Build a whole-body PBPK model for ${name} — decide the structure, fit the identifiable parameters, grade on held-out studies.</div>`;
   try{const s=(await (await fetch(`/api/rw/series?project=${encodeURIComponent(name)}&kind=test`)).json()).series||[];
     const r=plot(s);$("#plotWrap").innerHTML=r.svg;$("#plotLegend").innerHTML=r.legend;
+    $("#plotLegend").querySelectorAll("span[data-i]").forEach(sp=>sp.onclick=()=>{  // click a curve to toggle it
+      sp.classList.toggle("off");
+      const gEl=$("#plotWrap").querySelector(`g.sr[data-i="${sp.dataset.i}"]`);
+      if(gEl)gEl.classList.toggle("off");});
   }catch(e){$("#plotWrap").innerHTML='<div style="color:var(--faint);font-size:12px;padding:24px;text-align:center">no curves for this project</div>';}
   try{const md=(await (await fetch(`/api/rw/report?project=${encodeURIComponent(name)}&kind=test`)).json()).markdown||"";
     if(md&&name===current){const d=el("details");d.innerHTML=`<summary>The report you were given — modeling strategy & fitted values redacted</summary><div class="report">${mdToHtml(md)}</div>`;$("#handoff").appendChild(d);}
@@ -305,10 +317,11 @@ function plot(series){
   const leg=[];
   series.forEach((s,i)=>{const col=COL[i%COL.length],pts=s.points.filter(([t,c])=>c>0);if(pts.length<2)return;
     const dd=pts.map(([t,c],j)=>(j?"L":"M")+X(t).toFixed(1)+" "+Y(c).toFixed(1)).join(" ");
-    g+=`<path d="${dd}" fill="none" stroke="${col}" stroke-width="1.7" opacity=".92"/>`;
-    g+=pts.map(([t,c])=>`<circle cx="${X(t).toFixed(1)}" cy="${Y(c).toFixed(1)}" r="2" fill="${col}"/>`).join("");
+    let sg=`<path d="${dd}" fill="none" stroke="${col}" stroke-width="1.7" opacity=".92"/>`;
+    sg+=pts.map(([t,c])=>`<circle cx="${X(t).toFixed(1)}" cy="${Y(c).toFixed(1)}" r="2" fill="${col}"/>`).join("");
+    g+=`<g class="sr" data-i="${i}">${sg}</g>`;
     const lbl=[s.route,s.dose].filter(Boolean).join(" ")||s.study;
-    leg.push(`<span><i style="background:${col}"></i>${escapeHtml(String(lbl)).slice(0,44)}</span>`);
+    leg.push(`<span data-i="${i}" title="${escapeHtml(String(s.study||""))}"><i style="background:${col}"></i>${escapeHtml(String(lbl)).slice(0,44)}</span>`);
   });
   return{svg:`<svg viewBox="0 0 ${W} ${H}" width="100%" style="display:block">${g}</svg>`,legend:leg.join("")};
 }
@@ -351,12 +364,22 @@ $("#runBtn").onclick=async()=>{
 };
 $("#stopBtn").onclick=()=>{if(es)es.close();$("#stopBtn").hidden=true;$("#runBtn").disabled=false;$("#runState").textContent="stopped watching";};
 
-function addStep(icon,title,sub,right){
+function addStep(icon,title,sub){
   const s=el("div","step");
-  s.innerHTML=`<div class="head"><span class="ic">${icon}</span><span class="t"><b>${title}</b>${sub?`<small>${sub}</small>`:""}</span><span class="rgt">${right||""}</span></div><div class="body" hidden></div>`;
+  s.innerHTML=`<button class="head" type="button"><span class="ic">${icon}</span>`+
+    `<span class="t"><b>${title}</b>${sub?`<small>${escapeHtml(sub)}</small>`:""}</span>`+
+    `<span class="rgt"></span>`+
+    `<span class="chev"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M9 6l6 6-6 6"/></svg></span></button>`+
+    `<div class="result"></div><div class="body"></div>`;
+  s.querySelector(".head").onclick=()=>{if(s.classList.contains("hasdetail"))s.classList.toggle("open");};
   $("#thread").appendChild(s);s.scrollIntoView({block:"end"});return s;
 }
-const TOOLIC={osp_inspect:"🔍",osp_options:"🧭",osp_sweep_methods:"⚗️",osp_optimize:"📈",osp_try_model:"🧪"};
+// detail (args, sweep grid, optimizer log) is collapsed by default; click to expand
+function stepBody(step){step.classList.add("hasdetail");return step.querySelector(".body");}
+function setRgt(step,txt){step.querySelector(".rgt").textContent=txt;}
+const TOOLIC={osp_inspect:"🔍",osp_options:"🧭",osp_sweep_methods:"⚗️",osp_optimize:"📈",
+  osp_try_model:"🧪",osp_read_report:"📄",osp_list_studies:"📊",osp_read_study:"📉",
+  osp_record_givens:"🧾"};
 function handle(ev){
   const th=$("#thread");
   if(ev.type==="meta"){
@@ -368,20 +391,24 @@ function handle(ev){
   else if(ev.type==="decision"){
     if(ev.text){const r=el("div","reason",`<span class="av"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M8 12h8M12 8v8"/></svg></span><span>${escapeHtml(ev.text).slice(0,900)}</span>`);th.appendChild(r);}
     (ev.calls||[]).forEach(c=>{
-      curStep=addStep(TOOLIC[c.name]||"⚙️",prettyTool(c.name),argSummary(c),"");
-      const body=curStep.querySelector(".body");
+      curStep=addStep(TOOLIC[c.name]||"⚙️",prettyTool(c.name),argSummary(c));
       const args=JSON.stringify(c.args);
-      if(args&&args!=="{}"){body.hidden=false;body.appendChild(el("div","callchips",`<span class="callchip">${escapeHtml(args).slice(0,240)}</span>`));}
+      if(args&&args!=="{}")stepBody(curStep).appendChild(el("div","callchips",`<span class="callchip">${escapeHtml(args).slice(0,240)}</span>`));
+      setRgt(curStep,"running…");
     });
   }else if(ev.type==="log"){
-    if(!curStep)curStep=addStep("📈","optimizing","",""); const body=curStep.querySelector(".body");body.hidden=false;
+    // the noisy sweep/optimizer per-eval output: kept in the collapsed body, with
+    // only the live best-GMFE surfaced on the header (click the step to expand).
+    if(!curStep)curStep=addStep("📈","Optimizing parameters","");
+    const body=stepBody(curStep);
     let lg=body.querySelector(".log");if(!lg){lg=el("div","log");body.appendChild(lg);}
     lg.textContent+=(lg.textContent?"\n":"")+ev.line;lg.scrollTop=lg.scrollHeight;
-    const mt=ev.line.match(/GMFE ([\d.]+)/);if(mt)curStep.querySelector(".rgt").textContent="GMFE "+mt[1];
+    const mt=ev.line.match(/GMFE ([\d.]+)/);setRgt(curStep,mt?("best GMFE "+mt[1]):"running…");
   }else if(ev.type==="observation"){
-    const step=curStep||addStep("⚙️",ev.tool,"","");const body=step.querySelector(".body");body.hidden=false;
-    if(ev.gmfe!=null){step.querySelector(".rgt").textContent="GMFE "+(+ev.gmfe).toFixed(3);$("#fitGmfe").textContent=(+ev.gmfe).toFixed(2);}
-    body.appendChild(el("div","obs",`${escapeHtml(ev.message||"").slice(0,400)}${ev.gmfe!=null?` · <span class="g">GMFE ${(+ev.gmfe).toFixed(3)}</span>`:""}`));
+    const step=curStep||addStep(TOOLIC[ev.tool]||"⚙️",prettyTool(ev.tool));
+    if(ev.gmfe!=null){setRgt(step,"GMFE "+(+ev.gmfe).toFixed(3));$("#fitGmfe").textContent=(+ev.gmfe).toFixed(2);}
+    else if(step.querySelector(".rgt").textContent==="running…")setRgt(step,"done");
+    step.querySelector(".result").appendChild(el("div","obs",`${escapeHtml(ev.message||"").slice(0,400)}${ev.gmfe!=null?` · <span class="g">GMFE ${(+ev.gmfe).toFixed(3)}</span>`:""}`));
     if(ev.recorded)renderGivens(ev.recorded);   // agent's self-extracted givens
     curStep=null;
   }else if(ev.type==="done"){
@@ -400,7 +427,7 @@ function handle(ev){
     if(es)es.close();$("#stopBtn").hidden=true;$("#runBtn").disabled=false;
   }
 }
-function prettyTool(n){return({osp_inspect:"Inspecting task, priors & data",osp_options:"Reading the action space",osp_sweep_methods:"Sweeping distribution methods",osp_optimize:"Optimizing parameters",osp_try_model:"Trying a model edit"})[n]||n;}
+function prettyTool(n){return({osp_inspect:"Inspecting task, priors & data",osp_options:"Reading the action space",osp_sweep_methods:"Sweeping distribution methods",osp_optimize:"Optimizing parameters",osp_try_model:"Trying a model edit",osp_read_report:"Reading the report",osp_list_studies:"Listing the data files",osp_read_study:"Reading a study curve",osp_record_givens:"Recording extracted givens"})[n]||n;}
 function argSummary(c){const a=c.args||{};if(a.estimate)return"fitting "+Object.keys(a.estimate).join(", ").slice(0,60);if(a.edits)return"applying an edit";return"";}
 function escapeHtml(s){return(s||"").replace(/[&<>]/g,x=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[x]));}
 const GIVENS_HINT="The agent reads the report and records its own parameter table here — with each value's source.";
