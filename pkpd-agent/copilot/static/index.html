@@ -207,7 +207,8 @@
   .stat.st-a{background:var(--good-soft);color:var(--good)}.stat.st-p{background:var(--warn-soft);color:var(--warn)}
   .stat.st-k{background:var(--surface-2);color:var(--muted)}.stat.st-m{background:var(--accent-soft);color:var(--accent-ink)}
   .edsec{padding:8px 16px 4px}.edsec h4{font-size:12px;color:var(--ink);margin:8px 0 4px}.edsec .sub{font-size:11px;color:var(--faint);margin-bottom:6px}
-  .edrow{display:flex;align-items:center;gap:10px;margin:5px 0}.edrow>label{font-size:11.5px;color:var(--muted);width:88px;flex:0 0 auto}
+  .edrow{display:flex;align-items:center;gap:10px;margin:5px 0;flex-wrap:wrap}.edrow>label{font-size:11.5px;color:var(--muted);width:88px;flex:0 0 auto}
+  .edrow select{padding:5px 8px;border:1px solid var(--border);border-radius:8px;background:var(--surface);font-size:11.5px;max-width:230px}
   .segm{display:flex;flex-wrap:wrap;gap:5px}
   .seg{font-size:11.5px;padding:5px 10px;border:1px solid var(--border);border-radius:8px;background:var(--surface);color:var(--muted)}
   .seg.on{background:var(--accent-soft);color:var(--accent-ink);border-color:var(--accent);font-weight:600}
@@ -604,9 +605,10 @@ $("#catBack").onclick=()=>$("#catModal").hidden=true;
 $("#catClose").onclick=()=>$("#catModal").hidden=true;
 
 /* -------- interactive model editor (human-in-the-loop) ------------------- */
-let ED=null;
+let ED=null, edAdds=[];
 async function openEditor(){
   if(!current){openCatalog();return;}           // no compound yet -> show the reference map
+  edAdds=[];
   $("#edModal").hidden=false;$("#edTitle").textContent="Build / edit — "+current;
   $("#edBody").innerHTML='<div style="padding:24px;color:var(--faint)">loading the model…</div>';$("#edState").textContent="";
   try{ED=await (await fetch(`/api/model?compound=${encodeURIComponent(current)}`)).json();}
@@ -627,6 +629,12 @@ function renderEditor(v){
   if((v.processes||[]).length)
     h+=`<div class="edsec"><h4>Active clearance / transport</h4><div class="sub">uncheck to disable a mechanism.</div>`+
       v.processes.map(p=>`<label class="edtog"><input type="checkbox" data-proc="${escapeHtml(p.molecule||p.internal||'')}" checked> ${escapeHtml(p.molecule||p.internal||'process')} <small>${escapeHtml(p.internal||'')}</small></label>`).join("")+`</div>`;
+  // #2 coverage: add a NEW mechanism (enzyme/transporter/systemic clearance) from the catalog
+  const mols=(v.expressed||[]).map(e=>e.molecule||e).filter(Boolean);
+  h+=`<div class="edsec"><h4>Add a mechanism</h4><div class="sub">attach clearance/transport to an expressed molecule; its parameters start at catalog defaults and can be fit after.</div>`+
+    `<div class="edrow"><select id="addType">${(v.addable||[]).map(a=>`<option value="${escapeHtml(a.type)}">${escapeHtml(a.type)}${a.applies_to?` · ${escapeHtml(a.applies_to)}`:""}</option>`).join("")}</select>`+
+    `<select id="addMol"><option value="">(system)</option>${mols.map(m=>`<option>${escapeHtml(m)}</option>`).join("")}</select>`+
+    `<button type="button" class="seg" id="addBtn">+ add</button></div><div class="pp" id="addList"></div></div>`;
   h+=`<div class="edsec"><h4>Identifiable parameters — fit or fix</h4><div class="sub">checked = fit within [lo, hi]; unchecked = fix at a value.</div>`+
     est.map(p=>{const r=p.range||[0,1];return `<div class="edp" data-name="${escapeHtml(p.name)}" data-tier="estimate">`+
       `<label class="pn"><input type="checkbox" class="pfit" checked> ${escapeHtml(p.name)}</label>`+
@@ -643,6 +651,14 @@ function renderEditor(v){
   $("#edBody").querySelectorAll(".segm").forEach(sg=>sg.querySelectorAll(".seg").forEach(b=>b.onclick=()=>{sg.querySelectorAll(".seg").forEach(x=>x.classList.remove("on"));b.classList.add("on");}));
   $("#edBody").querySelectorAll('.edp[data-tier=estimate]').forEach(row=>{const cb=row.querySelector(".pfit");cb.onchange=()=>{row.querySelector(".pb").hidden=!cb.checked;row.querySelector(".pval").hidden=cb.checked;};});
   $("#edRefLink").onclick=e=>{e.preventDefault();openCatalog();};
+  const addBtn=$("#addBtn");if(addBtn)addBtn.onclick=()=>{const t=$("#addType").value,m=$("#addMol").value;
+    if(t&&!edAdds.some(a=>a.type===t&&a.molecule===m)){edAdds.push({type:t,molecule:m||null});renderAdds();}};
+  renderAdds();
+}
+function renderAdds(){
+  const box=$("#addList");if(!box)return;
+  box.innerHTML=edAdds.map((a,i)=>`<span>${escapeHtml(a.type)}${a.molecule?" @ "+escapeHtml(a.molecule):""} <b data-i="${i}" style="cursor:pointer;color:var(--crit)">✕</b></span>`).join("");
+  box.querySelectorAll("b[data-i]").forEach(b=>b.onclick=()=>{edAdds.splice(+b.dataset.i,1);renderAdds();});
 }
 function collectEdits(){
   const part=($("#segPart .seg.on")||{}).dataset, perm=($("#segPerm .seg.on")||{}).dataset;
@@ -656,6 +672,7 @@ function collectEdits(){
     else if(tier==='measured'){const val=row.querySelector(".pval").value;if(val!=='')params[name]=+val;}});
   if(Object.keys(estimate).length)edits.estimate=estimate;
   if(Object.keys(params).length)edits.parameters=params;
+  if(edAdds.length)edits.add_processes=edAdds.map(a=>({type:a.type,molecule:a.molecule}));
   return edits;
 }
 $("#edRun").onclick=async()=>{
@@ -672,6 +689,7 @@ $("#edRun").onclick=async()=>{
 $("#edToAgent").onclick=()=>{
   const e=collectEdits(),cm=e.calculation_methods||{};
   const note=`Start from this structure: partition=${cm.partition||'?'}, permeability=${cm.permeability||'?'}`+
+    (e.add_processes?`; add ${e.add_processes.map(a=>a.type+(a.molecule?'@'+a.molecule:'')).join(', ')}`:"")+
     (e.processes?`; disable ${Object.keys(e.processes).join(', ')}`:"")+
     (e.estimate?`; fit ${Object.keys(e.estimate).join(', ')}`:"")+". Refine from here.";
   $("#noteBox").value=note;$("#edModal").hidden=true;$("#runBtn").click();
