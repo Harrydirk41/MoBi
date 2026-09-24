@@ -80,6 +80,18 @@ it with `python -m examples.build_realworld_projects --write`).
 The held-out grade and the report (`.html` / `.json` / `.pdf`) are written to the
 compound's `report/` folder, same as the CLI.
 
+## Reaching it from another computer
+
+- **Same network:** start with `PBPK_COPILOT_HOST=0.0.0.0`; the console prints the
+  LAN URLs. Open one from the other machine (allow the port in the firewall).
+- **Any network:** run a tunnel to the port —
+  `cloudflared tunnel --url http://localhost:8765` (public https URL, no account)
+  or Tailscale (private mesh). The compute, PK-Sim and your API key stay on the host.
+- **Protect it first.** There is no login by default. Before exposing it beyond a
+  trusted LAN, set `PBPK_COPILOT_TOKEN=<something>`; then only URLs opened as
+  `…/?token=<something>` get in (the server sets a cookie, so fetch and the SSE
+  stream carry it afterwards). The startup banner prints the ready-to-use URL.
+
 ## Notes
 
 - One run at a time (the server captures optimizer stdout, which is process-global).

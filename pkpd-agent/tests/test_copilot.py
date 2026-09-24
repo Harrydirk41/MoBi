@@ -153,6 +153,25 @@ class TestCopilotServer(unittest.TestCase):
         r = self.c.get("/api/deliverable?compound=NoSuchCompound")
         self.assertEqual(r.status_code, 404)
 
+    def test_access_token_gates_when_set(self):
+        import os as _os
+        from copilot import server
+        _os.environ["PBPK_COPILOT_TOKEN"] = "sekret123"
+        try:
+            c = TestClient(server.create_app())
+            self.assertEqual(c.get("/api/models").status_code, 401)     # no token
+            self.assertEqual(c.get("/api/models?token=nope").status_code, 401)
+            r = c.get("/?token=sekret123")
+            self.assertEqual(r.status_code, 200)
+            self.assertIn("pbpk_token", r.headers.get("set-cookie", ""))
+            self.assertEqual(c.get("/api/models").status_code, 200)     # via cookie
+        finally:
+            _os.environ.pop("PBPK_COPILOT_TOKEN", None)
+
+    def test_no_token_is_open(self):
+        # default (no token set) stays open — unchanged local behavior
+        self.assertEqual(self.c.get("/api/models").status_code, 200)
+
     def test_run_without_key_streams_error_not_crash(self):
         import json
         prev = os.environ.pop("ANTHROPIC_API_KEY", None)

@@ -397,10 +397,33 @@ def _run_agent_locked(run_id, p, q) -> None:
 
 # ---- FastAPI app ---------------------------------------------------------- #
 def create_app():
+    import hmac
     from fastapi import FastAPI
     from fastapi.responses import HTMLResponse, JSONResponse, StreamingResponse
 
     app = FastAPI(title="PBPK Copilot")
+
+    # Optional access token: set PBPK_COPILOT_TOKEN to require it (needed before
+    # exposing the server beyond localhost / a trusted LAN). Pass it once as
+    # ?token=... — the server sets a cookie, so links, fetch and the SSE stream
+    # all carry it afterwards. Unset -> no auth (unchanged local behavior).
+    TOKEN = os.environ.get("PBPK_COPILOT_TOKEN")
+
+    @app.middleware("http")
+    async def _auth(request, call_next):
+        if not TOKEN:
+            return await call_next(request)
+        supplied = request.cookies.get("pbpk_token") or request.query_params.get("token")
+        if supplied and hmac.compare_digest(supplied, TOKEN):
+            resp = await call_next(request)
+            if request.query_params.get("token"):        # first visit -> remember it
+                resp.set_cookie("pbpk_token", TOKEN, httponly=True, samesite="lax")
+            return resp
+        return HTMLResponse(
+            "<body style='font:15px system-ui;max-width:34em;margin:12vh auto;padding:0 6vw'>"
+            "<h2>PBPK Copilot</h2><p>This server requires an access token. Open it as "
+            "<code>?token=YOUR_TOKEN</code> (the token set in <code>PBPK_COPILOT_TOKEN</code> "
+            "on the host).</p></body>", status_code=401)
 
     @app.get("/", response_class=HTMLResponse)
     def index():
@@ -537,15 +560,22 @@ def main():
     import uvicorn
     host = os.environ.get("PBPK_COPILOT_HOST", "127.0.0.1")
     port = int(os.environ.get("PBPK_COPILOT_PORT", "8765"))
-    print(f"PBPK Copilot -> http://{host}:{port}")
+    token = os.environ.get("PBPK_COPILOT_TOKEN")
+    suffix = f"/?token={token}" if token else ""
+    print(f"PBPK Copilot -> http://{host}:{port}{suffix}")
     if host in ("0.0.0.0", "::"):                   # bound to all interfaces
         for ip in _lan_ips():
-            print(f"   reachable from another computer on this network -> http://{ip}:{port}")
-        print("   (same network only; no login — keep it to a trusted network. "
-              "The agent, PK-Sim and your API key all run on THIS machine.)")
+            print(f"   from another computer on this network -> http://{ip}:{port}{suffix}")
     else:
-        print("   local only. To reach it from another computer set "
-              "PBPK_COPILOT_HOST=0.0.0.0 and use this machine's LAN IP.")
+        print("   local only. Set PBPK_COPILOT_HOST=0.0.0.0 to reach it from other machines.")
+    if token:
+        print("   access token is ON — only URLs with ?token=... get in.")
+    else:
+        print("   NO access token. Set PBPK_COPILOT_TOKEN before exposing it beyond a "
+              "trusted LAN (there is no other login; the API key/compute run on THIS host).")
+    print("   To reach it from ANY network: run a tunnel to this port, e.g. "
+          "`cloudflared tunnel --url http://localhost:%d` (public https URL) or Tailscale "
+          "(private). Keep the token on when you do." % port)
     uvicorn.run(create_app(), host=host, port=port, log_level="info")
 
 
