@@ -244,7 +244,8 @@
 <script>
 "use strict";
 const $=(s)=>document.querySelector(s), el=(t,c,h)=>{const e=document.createElement(t);if(c)e.className=c;if(h!=null)e.innerHTML=h;return e;};
-let current=null, es=null, curStep=null, cmProject=null;
+let current=null, es=null, cmProject=null;
+let pending=[];         // tool calls awaiting their result, matched by tool name
 let PROJECTS=[];        // every real-world project name (context data lake)
 let ctxSel={};          // project -> bool : projects the agent is allowed to read
 
@@ -464,6 +465,7 @@ function mdToHtml(md,imgBase){
 /* run + stream */
 $("#runBtn").onclick=async()=>{
   if(!current)return;
+  pending=[];
   $("#runBtn").disabled=true;$("#stopBtn").hidden=false;$("#runState").textContent="starting…";
   $("#thread").querySelectorAll(".empty").forEach(x=>x.remove());
   let run_id;
@@ -505,27 +507,34 @@ function handle(ev){
   }else if(ev.type==="status"){$("#runState").textContent=ev.phase;}
   else if(ev.type==="decision"){
     if(ev.text){const r=el("div","reason",`<span class="av"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M8 12h8M12 8v8"/></svg></span><span>${escapeHtml(ev.text).slice(0,900)}</span>`);th.appendChild(r);}
+    // one decision may fire SEVERAL tool calls; track them all so each
+    // observation lands on its own card (not just the last one).
     (ev.calls||[]).forEach(c=>{
-      curStep=addStep(TOOLIC[c.name]||"⚙️",prettyTool(c.name),argSummary(c));
+      const step=addStep(TOOLIC[c.name]||"⚙️",prettyTool(c.name),argSummary(c));
       const args=JSON.stringify(c.args);
-      if(args&&args!=="{}")stepBody(curStep).appendChild(el("div","callchips",`<span class="callchip">${escapeHtml(args).slice(0,240)}</span>`));
-      setRgt(curStep,"running…");
+      if(args&&args!=="{}")stepBody(step).appendChild(el("div","callchips",`<span class="callchip">${escapeHtml(args).slice(0,240)}</span>`));
+      setRgt(step,"running…");
+      pending.push({name:c.name,step});
     });
   }else if(ev.type==="log"){
     // the noisy sweep/optimizer per-eval output: kept in the collapsed body, with
     // only the live best-GMFE surfaced on the header (click the step to expand).
-    if(!curStep)curStep=addStep("📈","Optimizing parameters","");
-    const body=stepBody(curStep);
+    let step=null;
+    for(let k=pending.length-1;k>=0;k--){if(pending[k].name==="osp_optimize"||pending[k].name==="osp_sweep_methods"){step=pending[k].step;break;}}
+    if(!step)step=(pending.length?pending[pending.length-1].step:null)||addStep("📈","Optimizing parameters","");
+    const body=stepBody(step);
     let lg=body.querySelector(".log");if(!lg){lg=el("div","log");body.appendChild(lg);}
     lg.textContent+=(lg.textContent?"\n":"")+ev.line;lg.scrollTop=lg.scrollHeight;
-    const mt=ev.line.match(/GMFE ([\d.]+)/);setRgt(curStep,mt?("best GMFE "+mt[1]):"running…");
+    const mt=ev.line.match(/GMFE ([\d.]+)/);setRgt(step,mt?("best GMFE "+mt[1]):"running…");
   }else if(ev.type==="observation"){
-    const step=curStep||addStep(TOOLIC[ev.tool]||"⚙️",prettyTool(ev.tool));
+    // match this result to the FIRST pending call with the same tool name
+    let idx=pending.findIndex(p=>p.name===ev.tool);
+    if(idx<0&&pending.length)idx=0;
+    const step=idx>=0?pending.splice(idx,1)[0].step:addStep(TOOLIC[ev.tool]||"⚙️",prettyTool(ev.tool));
     if(ev.gmfe!=null){setRgt(step,"GMFE "+(+ev.gmfe).toFixed(3));$("#fitGmfe").textContent=(+ev.gmfe).toFixed(2);}
     else if(step.querySelector(".rgt").textContent==="running…")setRgt(step,"done");
     step.querySelector(".result").appendChild(el("div","obs",`${escapeHtml(ev.message||"").slice(0,400)}${ev.gmfe!=null?` · <span class="g">GMFE ${(+ev.gmfe).toFixed(3)}</span>`:""}`));
     if(ev.recorded)renderGivens(ev.recorded);   // agent's self-extracted givens
-    curStep=null;
   }else if(ev.type==="done"){
     if(ev.best_gmfe!=null)$("#fitGmfe").textContent=(+ev.best_gmfe).toFixed(2);
     if(ev.best_edits)$("#editsBox").textContent=JSON.stringify(ev.best_edits,null,1);
