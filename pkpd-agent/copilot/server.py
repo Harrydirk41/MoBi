@@ -287,8 +287,10 @@ def _obs_detail(tool: str, c: dict):
             d["permeability methods"] = methods["permeability"]["options"]
         if c.get("expressed_molecules"):
             d["expressed molecules"] = [molname(m) for m in c["expressed_molecules"]][:40]
-        if c.get("addable_process_types"):
-            d["addable process types"] = c["addable_process_types"][:40]
+        apt = c.get("addable_process_types")
+        if apt:
+            d["addable process types"] = [
+                (p.get("type") if isinstance(p, dict) else str(p)) for p in apt][:40]
         return d or None
     if tool == "osp_list_studies":
         st = c.get("studies") or []

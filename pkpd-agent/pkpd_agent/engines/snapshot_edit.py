@@ -61,10 +61,31 @@ def apply_edits(snapshot: dict, edits: dict | None) -> tuple[dict, dict]:
     _apply_parameters(comp, edits.get("parameters") or {}, report,
                       formulations=snap.get("Formulations") or [])
     _apply_calc_methods(comp, sims, comp_name, edits.get("calculation_methods") or {}, report)
-    _apply_processes(comp, sims, comp_name, edits.get("processes") or {}, report)
+    # 'processes' is a {molecule: false} DISABLE map. Agents sometimes pass a LIST
+    # of process specs here (confusing it with add_processes); coerce instead of
+    # crashing: explicit disables -> the map, everything else -> add_processes.
+    raw_proc = edits.get("processes")
+    disable_map, extra_add = {}, []
+    if isinstance(raw_proc, dict):
+        disable_map = raw_proc
+    elif isinstance(raw_proc, list):
+        for item in raw_proc:
+            if not isinstance(item, dict):
+                continue
+            mol = item.get("molecule") or item.get("Molecule")
+            if mol and (item.get("enable") is False or item.get("disable") is True
+                        or str(item.get("action", "")).lower() == "disable"):
+                disable_map[mol] = False
+            elif mol or item.get("type") or item.get("internal") or item.get("parameters"):
+                extra_add.append(item)
+        report["processes"]["_note"] = (
+            "'processes' was a list; entries were routed to add_processes. Use "
+            "{molecule: false} to DISABLE a process and add_processes:[{type,molecule,"
+            "parameters}] to ADD one.")
+    _apply_processes(comp, sims, comp_name, disable_map, report)
     _apply_add_processes(comp, sims, comp_name,
-                         edits.get("add_processes") or [], expressed, report,
-                         snapshot=snap)
+                         list(edits.get("add_processes") or []) + extra_add,
+                         expressed, report, snapshot=snap)
     _apply_interaction_parameters(snap.get("Compounds") or [],
                                   edits.get("interaction_parameters") or [], report)
     return snap, report

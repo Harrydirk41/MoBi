@@ -565,7 +565,8 @@ function renderDetail(step,detail){
   const box=el("div","detail");
   box.innerHTML=Object.entries(detail).map(([k,v])=>{
     let val;
-    if(Array.isArray(v))val='<div class="dchips">'+v.map(x=>`<span class="dchip">${escapeHtml(String(x))}</span>`).join("")+'</div>';
+    const str=x=>escapeHtml(x&&typeof x==="object"?JSON.stringify(x):String(x));
+    if(Array.isArray(v))val='<div class="dchips">'+v.map(x=>`<span class="dchip">${str(x)}</span>`).join("")+'</div>';
     else val=`<div class="dval">${escapeHtml(String(v))}</div>`;
     return `<div class="drow"><div class="dkey">${escapeHtml(k)}</div>${val}</div>`;
   }).join("");

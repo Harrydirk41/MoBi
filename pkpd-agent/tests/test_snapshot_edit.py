@@ -270,3 +270,22 @@ class TestQualifiedParameters(unittest.TestCase):
         _, rep = apply_edits(self.SNAP,
                              {"parameters": {"CLspec/[Enzyme]@NOPE": 1.0}})
         self.assertTrue(any("NOPE" in m for m in rep["not_found"]))
+
+
+class TestProcessesListCoercion(unittest.TestCase):
+    SNAP = {"Compounds": [{"Name": "X", "Processes": [
+        {"Molecule": "CYP1A2", "InternalName": "Metab"}]}],
+        "Simulations": [], "Formulations": [],
+        "ExpressionProfiles": [{"Molecule": "CYP1A2", "Type": "Enzyme"}]}
+
+    def test_processes_as_list_does_not_crash(self):
+        # agents sometimes pass add-specs under 'processes' (a list); must not raise
+        out, rep = apply_edits(self.SNAP, {"processes": [
+            {"molecule": "CYP1A2", "internal": "MetabolizationIntrinsic_FirstOrder"},
+            {"molecule": None}]})
+        self.assertIn("_note", rep["processes"])
+        self.assertIsInstance(out, dict)
+
+    def test_processes_dict_disable_still_works(self):
+        _, rep = apply_edits(self.SNAP, {"processes": {"CYP1A2": False}})
+        self.assertEqual(rep["processes"].get("CYP1A2"), "disabled")
