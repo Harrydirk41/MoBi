@@ -13,6 +13,7 @@ the browser as SSE. One run at a time (stdout capture is process-global).
 """
 from __future__ import annotations
 
+import csv
 import glob
 import io
 import json
@@ -20,6 +21,7 @@ import os
 import queue
 import threading
 import uuid
+import zipfile
 from contextlib import redirect_stdout
 
 _HERE = os.path.dirname(os.path.abspath(__file__))
@@ -100,6 +102,70 @@ def _find(compound: str) -> dict | None:
     return next((c for c in _compounds() if c["compound"] == compound), None)
 
 
+# ---- rerunnable deliverable ----------------------------------------------- #
+def _deliverable_readme(compound, best_gmfe, building, held, givens, edits) -> str:
+    n_given = sum(1 for g in (givens or []) if (g.get("provenance") or "given") == "given")
+    n_fit = len((edits.get("parameters") or {})) if edits else 0
+    methods = (edits or {}).get("calculation_methods") or {}
+    return (
+        f"# {compound} — PBPK model deliverable\n\n"
+        "A rerunnable handoff produced by the PBPK Copilot agent. Every parameter "
+        "is provenance-tagged so a reviewer can see what was **given** (read from "
+        "the literature/report), what was **judged** (fixed by assumption), and "
+        "what was **fitted** (identified from the building data).\n\n"
+        "## Files\n"
+        "- `adopted_model.json` — the structure the agent adopted (distribution / "
+        "permeability methods, processes) and the edit spec that reproduces it.\n"
+        "- `parameter_table.csv` — parameter, value, unit, source, provenance.\n"
+        "- `observed_curves.csv` — the digitized clinical curves (time, conc).\n\n"
+        "## Result\n"
+        f"- Best in-sample GMFE: **{best_gmfe if best_gmfe is not None else '—'}**\n"
+        f"- Distribution method: {methods.get('partition', '—')}; "
+        f"permeability: {methods.get('permeability', '—')}\n"
+        f"- Givens recorded: {len(givens or [])} ({n_given} read from source); "
+        f"parameters fitted: {n_fit}\n\n"
+        "## Held-out validation (leave-one-out)\n"
+        f"- Building studies (fitted): {', '.join(building) if building else '—'}\n"
+        f"- Held-out studies (graded, never seen in the fit): "
+        f"{', '.join(held) if held else '—'}\n\n"
+        "The agent never saw the reference model's chosen methods, fitted values, "
+        "or held-out data. To produce the graded held-out report, run "
+        "`examples/run_llm_build.py --report`.\n")
+
+
+def _write_deliverable(compound, snapshot_path, edits, best_gmfe, givens, split, observed):
+    """Assemble a rerunnable handoff folder for one finished run and return its
+    path: the adopted model, a provenance-tagged parameter table, the observed
+    curves, the held-out split, and a README. Packaging never raises into a run."""
+    out = os.path.join(_LIB, compound, "deliverable")
+    os.makedirs(out, exist_ok=True)
+    edits = edits or {}
+    with open(os.path.join(out, "adopted_model.json"), "w", encoding="utf-8") as fh:
+        json.dump({"compound": compound, "best_gmfe": best_gmfe,
+                   "calculation_methods": edits.get("calculation_methods"),
+                   "structure": edits.get("structure"),
+                   "estimated_parameters": edits.get("estimate"),
+                   "adopted_edits": edits}, fh, indent=2)
+    with open(os.path.join(out, "parameter_table.csv"), "w", newline="", encoding="utf-8") as fh:
+        w = csv.writer(fh)
+        w.writerow(["parameter", "value", "unit", "source", "provenance"])
+        for g in givens or []:
+            w.writerow([g.get("parameter"), g.get("value"), g.get("unit", ""),
+                        g.get("source", ""), g.get("provenance", "given")])
+        for k, v in (edits.get("parameters") or {}).items():
+            w.writerow([k, v, "", "optimizer fit to building data", "fitted"])
+    with open(os.path.join(out, "observed_curves.csv"), "w", newline="", encoding="utf-8") as fh:
+        w = csv.writer(fh)
+        w.writerow(["dataset", "route", "dose", "time_h", "conc_mg_L"])
+        for d in observed or []:
+            for t, c in zip(d.get("time_h", []), d.get("conc_mg_L", [])):
+                w.writerow([d.get("dataset"), d.get("route"), d.get("dose"), t, c])
+    with open(os.path.join(out, "README.md"), "w", encoding="utf-8") as fh:
+        fh.write(_deliverable_readme(compound, best_gmfe, split.get("building") or [],
+                                     split.get("held_out_studies") or [], givens, edits))
+    return out
+
+
 # ---- the agent worker ----------------------------------------------------- #
 def _push(q: queue.Queue, ev: dict) -> None:
     q.put(ev)
@@ -119,7 +185,8 @@ def _serialize_observation(ev) -> dict:
             "gmfe": (c.get("best") or {}).get("gmfe") if isinstance(c.get("best"), dict) else c.get("gmfe"),
             "optimized": c.get("optimized"),
             "by_route": c.get("by_route"),
-            "ranked_top": c.get("ranked_top")}
+            "ranked_top": c.get("ranked_top"),
+            "recorded": c.get("recorded")}       # agent's self-extracted givens table
 
 
 class _QueueWriter(io.TextIOBase):
@@ -138,13 +205,11 @@ class _QueueWriter(io.TextIOBase):
         return len(s)
 
 
-def _run_agent(run_id: str, compound: str, model: str, max_steps: int,
-               library: str | None, only: list | None, self_extract: bool) -> None:
+def _run_agent(run_id: str, p: dict) -> None:
     q: queue.Queue = _RUNS[run_id]["queue"]
     try:
         with _RUN_LOCK:
-            _run_agent_locked(run_id, compound, model, max_steps, library, only,
-                              self_extract, q)
+            _run_agent_locked(run_id, p, q)
     except Exception as e:                              # noqa: BLE001
         q.put({"type": "error", "message": f"{type(e).__name__}: {e}"})
     finally:
@@ -152,8 +217,14 @@ def _run_agent(run_id: str, compound: str, model: str, max_steps: int,
         _RUNS[run_id]["done"] = True
 
 
-def _run_agent_locked(run_id, compound, model, max_steps, library, only,
-                      self_extract, q) -> None:
+def _run_agent_locked(run_id, p, q) -> None:
+    compound = p["compound"]
+    model = p["model"]
+    max_steps = p["max_steps"]
+    library = p.get("library")
+    only = p.get("only")
+    self_extract = p.get("self_extract")
+    note = (p.get("note") or "").strip()
     from pkpd_agent.config import AgentConfig
     from pkpd_agent.engines.osp_cli import OSPCli
     from pkpd_agent.engines import osp_split
@@ -228,8 +299,10 @@ def _run_agent_locked(run_id, compound, model, max_steps, library, only,
         register_context_tools(registry, cfg, {
             "report_path": ctx_report, "data_dir": ctx_data, "input": inp_agent})
 
-    goal = (f"{inp.get('objective', 'Build the PBPK model.')}\n\nStart with osp_inspect, "
-            "then determine the model and call osp_optimize.")
+    goal = f"{inp.get('objective', 'Build the PBPK model.')}\n\n"
+    if note:                                 # modeler steering from the composer
+        goal += f"Modeler note: {note}\n\n"
+    goal += "Start with osp_inspect, then determine the model and call osp_optimize."
     policy = LLMPolicy(cfg, registry, R._system_prompt(1.6, self_extract=bool(ctx_report)))
     loop = DecisionLoop(config=cfg, registry=registry, policy=policy)
 
@@ -246,7 +319,16 @@ def _run_agent_locked(run_id, compound, model, max_steps, library, only,
 
     best = session.get("osp_best_gmfe")
     edits = session.get("osp_best_edits")
-    q.put({"type": "done", "best_gmfe": best, "best_edits": edits})
+    givens = session.get("extracted_givens") or \
+        (inp_agent.get("given_data", {}) or {}).get("literature_physicochemical")
+    deliverable = None
+    try:
+        deliverable = _write_deliverable(compound, f["snapshot"], edits, best,
+                                         givens, split, build_obs)
+    except Exception:                        # noqa: BLE001 - packaging must never sink a run
+        pass
+    q.put({"type": "done", "best_gmfe": best, "best_edits": edits,
+           "givens": givens, "deliverable": bool(deliverable)})
 
 
 # ---- FastAPI app ---------------------------------------------------------- #
@@ -304,10 +386,28 @@ def create_app():
         self_extract = os.path.isdir(_RW) if se is None else bool(se)
         run_id = uuid.uuid4().hex[:12]
         _RUNS[run_id] = {"queue": queue.Queue(), "done": False}
-        threading.Thread(target=_run_agent,
-                         args=(run_id, compound, model, max_steps, lib, only, self_extract),
-                         daemon=True).start()
+        params = {"compound": compound, "model": model, "max_steps": max_steps,
+                  "library": lib, "only": only, "self_extract": self_extract,
+                  "note": payload.get("note")}
+        threading.Thread(target=_run_agent, args=(run_id, params), daemon=True).start()
         return JSONResponse({"run_id": run_id})
+
+    @app.get("/api/deliverable")
+    def deliverable(compound: str):
+        from fastapi.responses import Response
+        d = os.path.join(_LIB, compound, "deliverable")
+        if not os.path.isdir(d):
+            return JSONResponse({"error": "no deliverable yet — run the agent first"},
+                                status_code=404)
+        buf = io.BytesIO()
+        with zipfile.ZipFile(buf, "w", zipfile.ZIP_DEFLATED) as z:
+            for name in sorted(os.listdir(d)):
+                fp = os.path.join(d, name)
+                if os.path.isfile(fp):
+                    z.write(fp, arcname=f"{compound}_deliverable/{name}")
+        return Response(buf.getvalue(), media_type="application/zip",
+                        headers={"Content-Disposition":
+                                 f'attachment; filename="{compound}_deliverable.zip"'})
 
     @app.get("/api/stream/{run_id}")
     def stream(run_id: str):

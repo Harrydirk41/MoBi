@@ -124,6 +124,21 @@
   .report table{border-collapse:collapse;font-size:11.5px;margin:6px 0}
   .report td,.report th{border:1px solid var(--border);padding:3px 7px;text-align:left}
   .report code{font-family:var(--mono);font-size:11px}
+  table.giv{width:100%;border-collapse:collapse;font-size:11px}
+  table.giv td{padding:3px 4px;border-bottom:1px solid var(--border-2);vertical-align:top}
+  table.giv td.p{color:var(--ink)}table.giv td.v{font-family:var(--mono);text-align:right;white-space:nowrap}
+  table.giv td.s{color:var(--faint);font-size:10px}
+  .tag{font-size:9.5px;padding:1px 5px;border-radius:5px;font-weight:600}
+  .tag.given{background:var(--accent-soft);color:var(--accent-ink)}
+  .tag.judged{background:var(--warn-soft);color:var(--warn)}
+  .tag.fitted{background:var(--good-soft);color:var(--good)}
+  .noterow{display:flex;gap:8px;margin-bottom:8px}
+  .noterow input{flex:1;padding:8px 11px;border:1px solid var(--border);border-radius:10px;background:var(--surface);font-size:13px}
+  .noterow input:focus{outline:none;border-color:var(--accent)}
+  .actions{display:flex;flex-wrap:wrap;gap:7px;margin-top:4px}
+  .act{font-size:12px;padding:6px 11px;border:1px solid var(--border);border-radius:8px;background:var(--surface);color:var(--muted);display:inline-flex;align-items:center;gap:6px}
+  .act:hover{color:var(--ink);border-color:var(--accent)}
+  .act.dl{background:var(--accent-soft);color:var(--accent-ink);border-color:transparent;font-weight:600}
   @media (max-width:1120px){.app{grid-template-columns:236px minmax(0,1fr) 296px}}
   @media (max-width:980px){html,body{height:auto}.app{grid-template-columns:1fr;height:auto}.rail,.aside{height:auto;overflow:visible;border:0;border-bottom:1px solid var(--border)}.aside{order:3}.topbar{position:static}}
 </style>
@@ -162,6 +177,9 @@
       </div>
     </div>
     <div class="composer">
+      <div class="noterow">
+        <input id="noteBox" placeholder="Optional — steer the agent (e.g. “focus on oral absorption”, “try CYP3A4 + P-gp”)">
+      </div>
       <div class="runbar">
         <button class="btn primary" id="runBtn" disabled><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 4l14 8-14 8V4Z"/></svg>Build with agent</button>
         <button class="btn" id="stopBtn" hidden>Stop watching</button>
@@ -173,6 +191,7 @@
 
   <aside class="aside" id="aside">
     <div class="a-card"><h4>Fit</h4><div class="in"><div class="gauge"><span class="big" id="fitGmfe">—</span><span class="lbl">best GMFE<br>updates live</span></div><div id="fitBadge" style="margin-top:12px"></div></div></div>
+    <div class="a-card"><h4>Givens the agent extracted</h4><div class="in"><div id="givensBox" style="font-size:12px;color:var(--muted)">The agent reads the report and records its own parameter table here — with each value's source.</div></div></div>
     <div class="a-card"><h4>Adopted structure</h4><div class="in"><pre class="edits" id="editsBox">Run the agent to see the model it builds.</pre></div></div>
     <div class="a-card"><h4>Context the agent sees</h4><div class="in">
       <div id="ctxNote" style="font-size:12px;color:var(--muted)">Finished projects the agent may read as analogues. The selected compound is always withheld — leave-one-out.</div>
@@ -214,6 +233,7 @@ function select(name,status,gmfe){
   $("#crumbName").textContent=name;$("#crumbBadge").outerHTML=badge(status,gmfe).replace('class="badge','id="crumbBadge" class="badge');
   $("#runBtn").disabled=false;
   $("#fitGmfe").textContent="—";$("#fitBadge").innerHTML="";$("#editsBox").textContent="Press Build with agent.";
+  $("#givensBox").textContent=GIVENS_HINT;
   renderCtx();                       // re-render so the target row disables itself
   renderHandoff(name);               // "what you're handed": curves + redacted report
 }
@@ -323,7 +343,7 @@ $("#runBtn").onclick=async()=>{
   const others=PROJECTS.filter(p=>p!==current),sel=selectedCtx();
   const ctx=(!PROJECTS.length||sel.length===others.length)?null:sel;
   try{run_id=(await (await fetch("/api/run",{method:"POST",headers:{"Content-Type":"application/json"},
-    body:JSON.stringify({compound:current,model:$("#llm").value,max_steps:+$("#steps").value,context_projects:ctx,self_extract:$("#selfExtract").checked})})).json()).run_id;}
+    body:JSON.stringify({compound:current,model:$("#llm").value,max_steps:+$("#steps").value,context_projects:ctx,self_extract:$("#selfExtract").checked,note:$("#noteBox").value.trim()||null})})).json()).run_id;}
   catch(e){$("#runState").textContent="server not reachable";$("#runBtn").disabled=false;return;}
   es=new EventSource(`/api/stream/${run_id}`);
   es.onmessage=(m)=>handle(JSON.parse(m.data));
@@ -362,12 +382,15 @@ function handle(ev){
     const step=curStep||addStep("⚙️",ev.tool,"","");const body=step.querySelector(".body");body.hidden=false;
     if(ev.gmfe!=null){step.querySelector(".rgt").textContent="GMFE "+(+ev.gmfe).toFixed(3);$("#fitGmfe").textContent=(+ev.gmfe).toFixed(2);}
     body.appendChild(el("div","obs",`${escapeHtml(ev.message||"").slice(0,400)}${ev.gmfe!=null?` · <span class="g">GMFE ${(+ev.gmfe).toFixed(3)}</span>`:""}`));
+    if(ev.recorded)renderGivens(ev.recorded);   // agent's self-extracted givens
     curStep=null;
   }else if(ev.type==="done"){
     if(ev.best_gmfe!=null)$("#fitGmfe").textContent=(+ev.best_gmfe).toFixed(2);
     if(ev.best_edits)$("#editsBox").textContent=JSON.stringify(ev.best_edits,null,1);
+    if(ev.givens)renderGivens(ev.givens);
     const pass=ev.best_gmfe!=null&&+ev.best_gmfe<=1.6;
     th.appendChild(el("div","verdict pass",`<span class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M5 12l4.5 4.5L19 7"/></svg></span><div>Best in-sample GMFE <b>${ev.best_gmfe!=null?(+ev.best_gmfe).toFixed(2):"—"}</b>. The held-out grade and report are written to the model's <span class="mono">report/</span> folder.</div>`));
+    doneActions(ev);
     $("#fitBadge").innerHTML=pass?'<span class="badge pass">converged ≤ 1.6</span>':'<span class="badge run">see held-out grade</span>';
     $("#runState").textContent="done";
   }else if(ev.type==="error"){
@@ -380,6 +403,31 @@ function handle(ev){
 function prettyTool(n){return({osp_inspect:"Inspecting task, priors & data",osp_options:"Reading the action space",osp_sweep_methods:"Sweeping distribution methods",osp_optimize:"Optimizing parameters",osp_try_model:"Trying a model edit"})[n]||n;}
 function argSummary(c){const a=c.args||{};if(a.estimate)return"fitting "+Object.keys(a.estimate).join(", ").slice(0,60);if(a.edits)return"applying an edit";return"";}
 function escapeHtml(s){return(s||"").replace(/[&<>]/g,x=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[x]));}
+const GIVENS_HINT="The agent reads the report and records its own parameter table here — with each value's source.";
+function renderGivens(list){
+  const box=$("#givensBox");
+  if(!list||!list.length){box.textContent=GIVENS_HINT;return;}
+  box.innerHTML='<table class="giv">'+list.map(g=>{
+    const prov=(g.provenance||"given"),val=(g.value==null||g.value==="")?"—":g.value;
+    return `<tr><td class="p">${escapeHtml(String(g.parameter||""))}${g.source?`<div class="s">${escapeHtml(String(g.source))}</div>`:""}</td>`+
+      `<td class="v">${escapeHtml(String(val))} <span class="tag ${prov}">${prov}</span></td></tr>`;
+  }).join("")+'</table>';
+}
+function doneActions(ev){
+  const wrap=el("div","actions");
+  if(ev.deliverable){
+    const a=el("a","act dl");a.href=`/api/deliverable?compound=${encodeURIComponent(current)}`;
+    a.setAttribute("download","");a.innerHTML="⬇ Download deliverable";wrap.appendChild(a);
+  }
+  // "new task from here": each reconfigures a control, then re-runs
+  [["↻ More steps (14)",()=>{$("#steps").value="14";}],
+   ["⚗ Re-run de-novo",()=>{PROJECTS.forEach(p=>ctxSel[p]=false);renderCtx();}],
+   ["📚 Re-run with all context",()=>{PROJECTS.forEach(p=>ctxSel[p]=true);renderCtx();}],
+   ["✦ Switch to Opus 5",()=>{$("#llm").value="claude-opus-5";}]
+  ].forEach(([label,apply])=>{const b=el("button","act");b.textContent=label;
+    b.onclick=()=>{apply();$("#runBtn").click();};wrap.appendChild(b);});
+  $("#thread").appendChild(wrap);
+}
 
 loadModels().then(loadProjects);
 </script>

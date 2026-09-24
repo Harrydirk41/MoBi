@@ -78,6 +78,38 @@ class TestCopilotServer(unittest.TestCase):
         self.assertTrue(got.issubset(set(allow)))
         self.assertNotIn("Triazolam", got)
 
+    def test_deliverable_packaging_and_zip(self):
+        import io as _io
+        import shutil
+        import zipfile
+        from copilot import server
+        edits = {"calculation_methods": {"partition": "Schmitt"},
+                 "estimate": {"Lipophilicity": [-2, 3]},
+                 "parameters": {"Lipophilicity": 2.1, "CLspec": 4.4}}
+        givens = [{"parameter": "Fraction unbound", "value": 0.17, "unit": "",
+                   "source": "PMID x", "provenance": "given"}]
+        split = {"building": ["A"], "held_out_studies": ["B"]}
+        obs = [{"dataset": "A IV", "route": "IV", "dose": "1 mg",
+                "time_h": [0.5, 1.0], "conc_mg_L": [0.01, 0.008]}]
+        out = server._write_deliverable("Triazolam", "x", edits, 1.42, givens, split, obs)
+        try:
+            names = set(os.listdir(out))
+            self.assertLessEqual({"README.md", "parameter_table.csv",
+                                  "adopted_model.json", "observed_curves.csv"}, names)
+            table = open(os.path.join(out, "parameter_table.csv"), encoding="utf-8").read()
+            self.assertIn("given", table)          # extracted given
+            self.assertIn("fitted", table)         # optimizer fit, tagged distinctly
+            r = self.c.get("/api/deliverable?compound=Triazolam")
+            self.assertEqual(r.status_code, 200)
+            z = zipfile.ZipFile(_io.BytesIO(r.content))
+            self.assertTrue(any(n.endswith("parameter_table.csv") for n in z.namelist()))
+        finally:
+            shutil.rmtree(out, ignore_errors=True)
+
+    def test_deliverable_missing_is_404(self):
+        r = self.c.get("/api/deliverable?compound=NoSuchCompound")
+        self.assertEqual(r.status_code, 404)
+
     def test_run_without_key_streams_error_not_crash(self):
         import json
         prev = os.environ.pop("ANTHROPIC_API_KEY", None)

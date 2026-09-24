@@ -263,3 +263,6 @@ src/**/licenses.licx
 /Directory.Build.props
 *.pksim5
 *.pksim.lock
+
+# PBPK copilot run artifacts (generated per-run deliverables)
+OSP-PBPK-Model-Library/*/deliverable/

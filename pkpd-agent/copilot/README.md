@@ -50,6 +50,18 @@ Then open <http://127.0.0.1:8765>.
 The raw report+data tree the agent reads lives in `../pbpk-realworld/` (generate
 it with `python -m examples.build_realworld_projects --write`).
 
+## Interactivity
+
+- **Steer the run** — a composer note ("focus on oral absorption", "try
+  CYP3A4 + P-gp") is passed to the agent as a modeler note on the goal.
+- **Live givens table** — as the agent self-extracts, its provenance-tagged
+  parameter table (given / judged / fitted) fills the right rail.
+- **Deliverable** — each finished run writes a rerunnable handoff folder
+  (`<compound>/deliverable/`: `adopted_model.json`, `parameter_table.csv`,
+  `observed_curves.csv`, `README.md`); **Download deliverable** zips it.
+- **New task from here** — follow-up chips reconfigure a control (more steps,
+  de-novo, all context, Opus) and re-run in one click.
+
 The held-out grade and the report (`.html` / `.json` / `.pdf`) are written to the
 compound's `report/` folder, same as the CLI.
 
