@@ -90,18 +90,36 @@ def _topology(project: str, snapd: dict) -> dict:
                 return m.split(" - ")[-1].strip()
         return None
 
+    def proc_params(p):
+        return {pp.get("Name"): pp.get("Value") for pp in (p.get("Parameters") or [])
+                if pp.get("Name")}
+
     metab, transport = [], []
-    renal = False
+    renal, renal_params = False, {}
     for p in comp.get("Processes") or []:
         internal = (p.get("InternalName") or "").lower()
         mol = p.get("Molecule")
         if "metaboli" in internal:
-            metab.append({"enzyme": mol, "source": p.get("DataSource")})
+            metab.append({"enzyme": mol, "source": p.get("DataSource"),
+                          "params": proc_params(p)})
         elif "glomerular" in internal or "gfr" in internal or "renalclear" in internal:
             renal = True
+            renal_params = proc_params(p)
         elif "transport" in internal or "active" in internal or "efflux" in internal \
                 or "uptake" in internal:
-            transport.append({"molecule": mol})
+            transport.append({"molecule": mol, "params": proc_params(p)})
+
+    def first_val(block):
+        for entry in (block or []):
+            for pp in (entry.get("Parameters") or []):
+                return pp.get("Value")
+        return None
+    mw = next((pp.get("Value") for pp in (comp.get("Parameters") or [])
+               if pp.get("Name") == "Molecular weight"), None)
+    physchem = {"lipophilicity": first_val(comp.get("Lipophilicity")),
+                "fraction_unbound": first_val(comp.get("FractionUnbound")),
+                "solubility": first_val(comp.get("Solubility")),
+                "molecular_weight": mw}
     forms = snapd.get("Formulations") or []
 
     def ftype(f):
@@ -111,7 +129,8 @@ def _topology(project: str, snapd: dict) -> dict:
     return {"compound": project,
             "distribution": pick("cellular partition"),
             "permeability": pick("cellular permeability"),
-            "metabolism": metab, "renal": renal, "transport": transport,
+            "metabolism": metab, "renal": renal, "renal_params": renal_params,
+            "transport": transport, "physchem": physchem,
             "oral": oral, "formulations": [f.get("Name") for f in forms]}
 
 

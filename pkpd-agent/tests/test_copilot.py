@@ -87,6 +87,10 @@ class TestCopilotServer(unittest.TestCase):
         self.assertTrue(t.get("renal"))                 # has GFR
         self.assertTrue(t.get("oral"))                  # tablet formulation
         self.assertIn("CYP1A2", [m["enzyme"] for m in t["metabolism"]])
+        # hover-info fields: physchem + per-process clearance parameters
+        self.assertIsNotNone(t["physchem"]["lipophilicity"])
+        self.assertIsNotNone(t["physchem"]["molecular_weight"])
+        self.assertTrue(t["metabolism"][0]["params"])           # e.g. intrinsic clearance
         self.assertEqual(self.c.get("/api/rw/topology?project=NoSuch").status_code, 404)
 
     def test_rw_simulate_degrades_gracefully(self):
