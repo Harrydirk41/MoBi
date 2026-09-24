@@ -57,6 +57,11 @@ it with `python -m examples.build_realworld_projects --write`).
   line. Click a step to expand its detail.
 - **Toggle curves** — click a legend entry in the "What you're handed" plot to
   show/hide that study's curve.
+- **Open a support-context report** — click a project name in the "Context the
+  agent sees" list to pop open that reference model's **full** report (its
+  methods, fitted values, GMFE) and curves. This is the already-built modeling
+  the agent leans on by analogy; the target's own report is redacted in the
+  main panel and only openable here with an explicit "you're the modeler" note.
 - **Steer the run** — a composer note ("focus on oral absorption", "try
   CYP3A4 + P-gp") is passed to the agent as a modeler note on the goal.
 - **Live givens table** — as the agent self-extracts, its provenance-tagged

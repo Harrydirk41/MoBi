@@ -147,6 +147,17 @@
   .act{font-size:12px;padding:6px 11px;border:1px solid var(--border);border-radius:8px;background:var(--surface);color:var(--muted);display:inline-flex;align-items:center;gap:6px}
   .act:hover{color:var(--ink);border-color:var(--accent)}
   .act.dl{background:var(--accent-soft);color:var(--accent-ink);border-color:transparent;font-weight:600}
+  .ctxrow .nm{cursor:pointer}.ctxrow .nm:hover{color:var(--accent-ink);text-decoration:underline}
+  .ctxrow .eye{opacity:0;flex:0 0 auto;color:var(--faint)}.ctxrow:hover .eye{opacity:1}
+  .modal{position:fixed;inset:0;z-index:50;display:flex;align-items:center;justify-content:center;padding:24px}
+  .modal[hidden]{display:none}
+  .modal-back{position:absolute;inset:0;background:rgba(8,12,17,.55);backdrop-filter:blur(2px)}
+  .modal-card{position:relative;background:var(--surface);border:1px solid var(--border);border-radius:14px;box-shadow:var(--shadow);width:min(780px,100%);max-height:88vh;display:flex;flex-direction:column;overflow:hidden}
+  .modal-head{display:flex;align-items:center;gap:12px;padding:14px 18px;border-bottom:1px solid var(--border-2)}
+  .modal-head>div{flex:1;min-width:0}.modal-head b{font-size:15px}.modal-head small{display:block;color:var(--faint);font-size:11.5px}
+  .modal-body{overflow:auto;padding:10px 8px 18px}
+  .modal-body .report{max-height:none;padding:2px 18px 8px}
+  .modal-warn{margin:0 14px 6px;padding:7px 11px;border-radius:9px;background:var(--warn-soft);color:var(--warn);font-size:11.5px}
   @media (max-width:1120px){.app{grid-template-columns:236px minmax(0,1fr) 296px}}
   @media (max-width:980px){html,body{height:auto}.app{grid-template-columns:1fr;height:auto}.rail,.aside{height:auto;overflow:visible;border:0;border-bottom:1px solid var(--border)}.aside{order:3}.topbar{position:static}}
 </style>
@@ -202,11 +213,27 @@
     <div class="a-card"><h4>Givens the agent extracted</h4><div class="in"><div id="givensBox" style="font-size:12px;color:var(--muted)">The agent reads the report and records its own parameter table here — with each value's source.</div></div></div>
     <div class="a-card"><h4>Adopted structure</h4><div class="in"><pre class="edits" id="editsBox">Run the agent to see the model it builds.</pre></div></div>
     <div class="a-card"><h4>Context the agent sees</h4><div class="in">
-      <div id="ctxNote" style="font-size:12px;color:var(--muted)">Finished projects the agent may read as analogues. The selected compound is always withheld — leave-one-out.</div>
+      <div id="ctxNote" style="font-size:12px;color:var(--muted)">Finished projects the agent may read as analogues. The selected compound is always withheld — leave-one-out. <b style="color:var(--accent-ink)">Click a name</b> to open its full report.</div>
       <div class="ctxtools" id="ctxTools" hidden><button class="mini" id="ctxAll">all</button><button class="mini" id="ctxNone">none</button><span id="ctxCount" class="mono" style="margin-left:auto;color:var(--faint)"></span></div>
       <div class="ctxlist" id="ctxList"></div>
     </div></div>
   </aside>
+</div>
+
+<div class="modal" id="ctxModal" hidden>
+  <div class="modal-back" id="ctxBack"></div>
+  <div class="modal-card">
+    <div class="modal-head">
+      <div><b id="cmTitle">—</b><small id="cmSub">reference model — full report</small></div>
+      <button class="iconbtn" id="cmClose" aria-label="Close"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+    </div>
+    <div class="modal-body">
+      <div id="cmWarn" class="modal-warn" hidden></div>
+      <div class="plotwrap" id="cmPlot"></div>
+      <div class="plotlegend" id="cmLegend"></div>
+      <div class="report" id="cmReport"></div>
+    </div>
+  </div>
 </div>
 
 <script>
@@ -269,14 +296,41 @@ function renderCtx(){
     const tgt=(p===current),built=BUILT[p]&&BUILT[p]!=="new";
     const row=el("div","ctxrow"+(tgt?" tgt":""));
     row.innerHTML=`<input type="checkbox" ${(!tgt&&ctxSel[p])?"checked":""} ${tgt?"disabled":""}>`+
-      `<span class="st ${built?'built':''}" title="${built?'model built':'not built'}"></span><b class="nm">${p}</b>`;
+      `<span class="st ${built?'built':''}" title="${built?'model built':'not built'}"></span>`+
+      `<b class="nm" title="open full report">${p}</b>`+
+      `<span class="eye"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="2.6"/></svg></span>`;
     if(!tgt)row.querySelector("input").onchange=(e)=>{ctxSel[p]=e.target.checked;updateCtxCount();};
+    row.querySelector(".nm").onclick=()=>openContext(p);
     list.appendChild(row);
   });
   updateCtxCount();
 }
 $("#ctxAll").onclick=()=>{PROJECTS.forEach(p=>ctxSel[p]=true);renderCtx();};
 $("#ctxNone").onclick=()=>{PROJECTS.forEach(p=>ctxSel[p]=false);renderCtx();};
+
+/* ---- support-context viewer: open another project's FULL built model ------ */
+async function openContext(project){
+  const tgt=(project===current);
+  $("#cmTitle").textContent=project;
+  $("#cmSub").textContent=tgt?"the compound you're modeling":"reference model — full report (methods & fitted values)";
+  const warn=$("#cmWarn");
+  if(tgt){warn.hidden=false;warn.textContent="This is the target's own reference answer. The agent never sees it — you're viewing it as the modeler.";}
+  else warn.hidden=true;
+  $("#cmPlot").innerHTML='<div style="color:var(--faint);font-size:12px;padding:24px;text-align:center">loading…</div>';
+  $("#cmLegend").innerHTML="";$("#cmReport").innerHTML="";
+  $("#ctxModal").hidden=false;
+  try{const s=(await (await fetch(`/api/rw/series?project=${encodeURIComponent(project)}&kind=context`)).json()).series||[];
+    const r=plot(s);$("#cmPlot").innerHTML=r.svg;$("#cmLegend").innerHTML=r.legend;
+    $("#cmLegend").querySelectorAll("span[data-i]").forEach(sp=>sp.onclick=()=>{sp.classList.toggle("off");
+      const g=$("#cmPlot").querySelector(`g.sr[data-i="${sp.dataset.i}"]`);if(g)g.classList.toggle("off");});
+  }catch(e){$("#cmPlot").innerHTML='<div style="color:var(--faint);font-size:12px;padding:24px;text-align:center">no curves</div>';}
+  try{const md=(await (await fetch(`/api/rw/report?project=${encodeURIComponent(project)}&kind=context`)).json()).markdown||"";
+    $("#cmReport").innerHTML=md?mdToHtml(md):'<div style="color:var(--faint);padding:16px">no report</div>';
+  }catch(e){$("#cmReport").innerHTML='<div style="color:var(--faint);padding:16px">report unavailable</div>';}
+}
+function closeContext(){$("#ctxModal").hidden=true;}
+$("#ctxBack").onclick=closeContext;$("#cmClose").onclick=closeContext;
+document.addEventListener("keydown",e=>{if(e.key==="Escape"&&!$("#ctxModal").hidden)closeContext();});
 
 /* ---- what the modeler is handed: data viz + redacted report --------------- */
 async function renderHandoff(name){

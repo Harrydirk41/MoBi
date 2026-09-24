@@ -67,6 +67,17 @@ class TestCopilotServer(unittest.TestCase):
         self.assertNotIn("GMFE", md)               # no held-out grade
         self.assertNotIn("Rodgers and Rowland", md)  # no chosen method leaked
 
+    def test_rw_context_report_is_full_disclosure(self):
+        # the support-context viewer opens OTHER projects' complete reports
+        r = self.c.get("/api/rw/report?project=Midazolam&kind=context")
+        self.assertEqual(r.status_code, 200)
+        md = r.json()["markdown"]
+        if not md:
+            self.skipTest("pbpk-realworld not generated")
+        self.assertIn("GMFE", md)                  # full model report, not redacted
+        self.assertTrue(self.c.get(
+            "/api/rw/series?project=Midazolam&kind=context").json()["series"])
+
     def test_context_projects_narrows_library(self):
         # an explicit allowlist restricts the reference library the run would see
         from pkpd_agent.engines import reference_library as RL
