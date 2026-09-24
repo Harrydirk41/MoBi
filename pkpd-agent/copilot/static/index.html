@@ -238,6 +238,8 @@
   .sbst.run{background:var(--warn-soft);color:var(--warn)}.sbst.done{background:var(--good-soft);color:var(--good)}
   .sbst.fail{background:var(--crit-soft);color:var(--crit)}.sbst.idle{background:var(--surface-2);color:var(--muted)}
   .sbpass{color:var(--good);font-weight:600}.sbfail-v{color:var(--crit)}
+  .sbx{margin-left:6px;border:1px solid var(--border);background:var(--surface);color:var(--muted);border-radius:5px;font-size:10px;line-height:1;padding:2px 5px;cursor:pointer}
+  .sbx:hover{background:var(--crit-soft);color:var(--crit);border-color:var(--crit)}
   .topoinfo b{color:var(--ink)}
   .fitbar{display:flex;align-items:center;gap:10px;padding:4px 14px 2px}
   .fitbar .act[disabled]{opacity:.55;cursor:default}
@@ -721,6 +723,9 @@ $("#catBtn").onclick=openEditor;
 
 /* -------- #3 autonomous batch scoreboard -------------------------------- */
 let sbStop=false, sbAborts=new Set();
+let sbStopOne=new Set();               // compounds stopped individually
+let sbAbortByComp=new Map();           // compound -> its in-flight abort()
+let sbRunning=false;                   // a batch is live (even if the modal is closed)
 function sbRowId(c){return "sb-"+c.replace(/[^A-Za-z0-9]/g,"_");}
 function renderScoreboard(comps){
   $("#sbBody").innerHTML=comps.map(c=>`<tr id="${sbRowId(c)}"><td>${escapeHtml(c)}</td><td><span class="sbst idle">queued</span></td><td class="g">—</td><td class="g">—</td></tr>`).join("");
@@ -729,22 +734,30 @@ function sbSet(c,o){
   const row=document.getElementById(sbRowId(c));if(!row)return;
   const tds=row.querySelectorAll("td");
   if(o.status){const map={running:["run","building…"],grading:["run","grading held-out…"],done:["done","done"],failed:["fail","failed"]};
-    const[cls,lbl]=map[o.status]||["idle",o.status];tds[1].innerHTML=`<span class="sbst ${cls}">${escapeHtml(o.note||lbl)}</span>`;}
+    const[cls,lbl]=map[o.status]||["idle",o.status];
+    const stoppable=(o.status==="running"||o.status==="grading");
+    tds[1].innerHTML=`<span class="sbst ${cls}">${escapeHtml(o.note||lbl)}</span>`+
+      (stoppable?` <button class="sbx" data-stop="${escapeHtml(c)}" title="stop just this one">✕</button>`:"");}
   if("in_sample" in o)tds[2].textContent=o.in_sample!=null?(+o.in_sample).toFixed(2):"—";
   if("held_out" in o)tds[3].innerHTML=o.held_out!=null?`<span class="${+o.held_out<=1.5?'sbpass':'sbfail-v'}">${(+o.held_out).toFixed(2)}</span>`:"—";
+}
+function stopOne(c){                    // stop a single compound; the rest keep going
+  sbStopOne.add(c);
+  const ab=sbAbortByComp.get(c);if(ab)ab();
+  sbSet(c,{status:"failed",note:"stopped"});
 }
 function runOne(compound){
   return new Promise((resolve)=>{
     let best_gmfe=null,best_edits=null,err=null,s=null,done=false;
-    const finish=(o)=>{if(done)return;done=true;try{if(s)s.close();}catch(e){}sbAborts.delete(abort);resolve(o);};
-    const abort=()=>finish({error:"stopped"});   // Stop resolves the pending run
-    sbAborts.add(abort);
+    const finish=(o)=>{if(done)return;done=true;try{if(s)s.close();}catch(e){}sbAborts.delete(abort);sbAbortByComp.delete(compound);resolve(o);};
+    const abort=()=>finish({error:"stopped"});   // Stop (all or one) resolves the pending run
+    sbAborts.add(abort);sbAbortByComp.set(compound,abort);
     (async()=>{
       let rid;
       try{rid=(await (await fetch("/api/run",{method:"POST",headers:{"Content-Type":"application/json"},
         body:JSON.stringify({compound,model:$("#llm").value,max_steps:+$("#steps").value})})).json()).run_id;}
       catch(e){return finish({error:"server error"});}
-      if(sbStop||done)return finish({error:"stopped"});
+      if(sbStop||sbStopOne.has(compound)||done)return finish({error:"stopped"});
       s=new EventSource(`/api/stream/${rid}`);
       s.onmessage=(m)=>{let ev;try{ev=JSON.parse(m.data);}catch(e){return;}
         if(ev.type==="done"){best_gmfe=ev.best_gmfe;best_edits=ev.best_edits;}
@@ -758,32 +771,40 @@ async function runAllAutonomous(){
   const comps=(MODELS||[]).map(m=>m.compound);
   if(!comps.length){$("#sbState").textContent="no compounds";return;}
   const conc=Math.max(1,+($("#sbConc").value||1));
-  sbStop=false;$("#sbStart").hidden=true;$("#sbStop").hidden=false;
+  sbStop=false;sbStopOne=new Set();sbAbortByComp=new Map();sbRunning=true;
+  $("#sbStart").hidden=true;$("#sbStop").hidden=false;
   renderScoreboard(comps);let done=0,idx=0;
   async function worker(){
     while(!sbStop){
       const i=idx++;if(i>=comps.length)break;const c=comps[i];
+      if(sbStopOne.has(c)){sbSet(c,{status:"failed",note:"stopped"});done++;continue;}
       sbSet(c,{status:"running"});
       const r=await runOne(c);
       if(sbStop){sbSet(c,{status:"failed",note:"stopped"});break;}
-      if(r.error){sbSet(c,{status:"failed",note:r.error});done++;}
+      if(r.error==="stopped"||sbStopOne.has(c)){sbSet(c,{status:"failed",note:"stopped"});done++;}
+      else if(r.error){sbSet(c,{status:"failed",note:r.error});done++;}
       else{sbSet(c,{status:"grading",in_sample:r.best_gmfe});
         let held=null;
-        if(r.best_edits){try{const g=await (await fetch("/api/grade",{method:"POST",headers:{"Content-Type":"application/json"},
+        if(r.best_edits&&!sbStopOne.has(c)){try{const g=await (await fetch("/api/grade",{method:"POST",headers:{"Content-Type":"application/json"},
           body:JSON.stringify({compound:c,edits:r.best_edits})})).json();if(g.ok)held=g.gmfe;}catch(e){}}
-        sbSet(c,{status:"done",in_sample:r.best_gmfe,held_out:held});done++;}
+        if(sbStopOne.has(c))sbSet(c,{status:"failed",note:"stopped"});
+        else sbSet(c,{status:"done",in_sample:r.best_gmfe,held_out:held});
+        done++;}
       $("#sbState").textContent=`${done}/${comps.length} done`+(conc>1?` · ${conc} parallel`:"");
     }
   }
   await Promise.all(Array.from({length:conc},()=>worker()));
-  $("#sbStart").hidden=false;$("#sbStop").hidden=true;
+  sbRunning=false;$("#sbStart").hidden=false;$("#sbStop").hidden=true;
   $("#sbState").textContent=sbStop?"stopped":`finished ${done}/${comps.length}`;
 }
-$("#sbBtn").onclick=()=>{$("#sbModal").hidden=false;if(!$("#sbBody").children.length)renderScoreboard((MODELS||[]).map(m=>m.compound));};
+$("#sbBtn").onclick=()=>{$("#sbModal").hidden=false;if(!sbRunning&&!$("#sbBody").children.length)renderScoreboard((MODELS||[]).map(m=>m.compound));};
 $("#sbStart").onclick=runAllAutonomous;
 $("#sbStop").onclick=()=>{sbStop=true;$("#sbState").textContent="stopping…";sbAborts.forEach(a=>a());sbAborts.clear();};
-$("#sbBack").onclick=()=>{if($("#sbStop").hidden)$("#sbModal").hidden=true;};
-$("#sbClose").onclick=()=>{if($("#sbStop").hidden)$("#sbModal").hidden=true;else $("#sbState").textContent="stop the run first";};
+// per-row ✕ (delegated: rows are re-rendered each run)
+$("#sbBody").addEventListener("click",(e)=>{const b=e.target.closest("button[data-stop]");if(b)stopOne(b.dataset.stop);});
+// close the modal any time — the batch keeps running in the background; reopen to watch it
+$("#sbBack").onclick=()=>$("#sbModal").hidden=true;
+$("#sbClose").onclick=()=>$("#sbModal").hidden=true;
 
 /* interactive built-model sandbox: drag sliders / toggle methods, re-run, watch the curve */
 async function renderExplore(dir){
