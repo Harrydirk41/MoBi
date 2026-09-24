@@ -381,22 +381,28 @@ function plot(series){
   return{svg:`<svg viewBox="0 0 ${W} ${H}" width="100%" style="display:block">${g}</svg>`,legend:leg.join("")};
 }
 function mdToHtml(md){
-  const lines=(md||"").split(/\r?\n/);let html="",i=0;
-  function inline(s){return escapeHtml(s).replace(/\*\*(.+?)\*\*/g,"<b>$1</b>").replace(/`([^`]+?)`/g,"<code>$1</code>");}
+  // OSP reports: tables come with AND without leading pipes; strip anchors, <br>,
+  // <sub>/<sup>, and drop the (broken) figure images so it reads cleanly.
+  md=(md||"").replace(/<a\s+id="[^"]*">\s*<\/a>/g,"").replace(/<\/?br\s*\/?>/g," ").replace(/<\/?su[bp]>/g,"");
+  const lines=md.split(/\r?\n/);let html="",i=0;
+  const inline=s=>escapeHtml(s).replace(/\*\*(.+?)\*\*/g,"<b>$1</b>").replace(/`([^`]+?)`/g,"<code>$1</code>");
   const cells=r=>r.trim().replace(/^\||\|$/g,"").split("|").map(c=>c.trim());
+  const isSep=l=>l.includes("|")&&/-/.test(l)&&/^[\s:|-]+$/.test(l.trim());
   while(i<lines.length){
     const ln=lines[i];
-    if(/^\s*\|/.test(ln)&&i+1<lines.length&&/^\s*\|?[\s:|-]+\|/.test(lines[i+1])){
-      const rows=[];while(i<lines.length&&/^\s*\|/.test(lines[i])){rows.push(lines[i]);i++;}
-      let t='<table><thead><tr>'+cells(rows[0]).map(h=>`<th>${inline(h)}</th>`).join("")+'</tr></thead><tbody>';
-      rows.slice(2).forEach(r=>{t+='<tr>'+cells(r).map(c=>`<td>${inline(c)}</td>`).join("")+'</tr>';});
-      html+=t+'</tbody></table>';continue;
+    if(/^\s*!\[/.test(ln)){i++;continue;}                       // drop broken figure images
+    if(ln.includes("|")&&!isSep(ln)&&i+1<lines.length&&isSep(lines[i+1])){
+      const head=cells(ln);i+=2;const body=[];
+      while(i<lines.length&&lines[i].includes("|")&&lines[i].trim()&&!isSep(lines[i])){body.push(lines[i]);i++;}
+      html+='<table><thead><tr>'+head.map(h=>`<th>${inline(h)}</th>`).join("")+'</tr></thead><tbody>'+
+        body.map(r=>'<tr>'+cells(r).map(c=>`<td>${inline(c)}</td>`).join("")+'</tr>').join("")+'</tbody></table>';
+      continue;
     }
-    const h=ln.match(/^(#{1,4})\s+(.*)/);
-    if(h){const lv=Math.min(h[1].length,3);html+=`<h${lv}>${inline(h[2])}</h${lv}>`;i++;continue;}
-    if(!ln.trim()){i++;continue;}
-    const para=[];while(i<lines.length&&lines[i].trim()&&!/^\s*\|/.test(lines[i])&&!/^#{1,4}\s/.test(lines[i])){para.push(lines[i]);i++;}
-    html+=`<p>${inline(para.join(" "))}</p>`;
+    const h=ln.match(/^(#{1,6})\s+(.*)/);
+    if(h){const lv=Math.min(h[1].length,3);html+=`<h${lv}>${inline(h[2].trim())}</h${lv}>`;i++;continue;}
+    if(!ln.trim()||isSep(ln)){i++;continue;}
+    const para=[];while(i<lines.length&&lines[i].trim()&&!lines[i].includes("|")&&!/^#{1,6}\s/.test(lines[i])&&!/^\s*!\[/.test(lines[i])){para.push(lines[i]);i++;}
+    if(para.length)html+=`<p>${inline(para.join(" "))}</p>`;else i++;
   }
   return html;
 }
