@@ -72,8 +72,9 @@
   .step .result{padding:0 14px 12px}.step .result:empty{display:none}
   .step .body{padding:0 14px 12px;font-size:12px;color:var(--muted);display:none}
   .step.open .body{display:block}
-  .reason{font-size:13px;color:var(--muted);display:flex;gap:10px;padding:2px 2px}
+  .reason{font-size:13px;color:var(--ink);display:flex;gap:10px;padding:10px 12px;background:var(--surface);border:1px solid var(--border-2);border-left:3px solid var(--accent);border-radius:10px;line-height:1.55}
   .reason .av{width:24px;height:24px;border-radius:7px;background:var(--accent-soft);color:var(--accent);display:grid;place-items:center;flex:0 0 auto;margin-top:1px}
+  .reason b{display:block;font-size:10.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--faint);font-weight:600;margin-bottom:2px}
   .callchips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
   .callchip{font-family:var(--mono);font-size:11px;padding:3px 8px;border-radius:6px;background:var(--accent-soft);color:var(--accent-ink)}
   .log{margin-top:9px;background:var(--surface-2);border-radius:8px;padding:8px 10px;font-family:var(--mono);font-size:11px;color:var(--muted);max-height:150px;overflow:auto;white-space:pre-wrap}
@@ -575,7 +576,7 @@ function handle(ev){
     if(t.length)th.appendChild(el("div","meta-line",t.join(" · ")));
   }else if(ev.type==="status"){$("#runState").textContent=ev.phase;}
   else if(ev.type==="decision"){
-    if(ev.text){const r=el("div","reason",`<span class="av"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M8 12h8M12 8v8"/></svg></span><span>${escapeHtml(ev.text).slice(0,900)}</span>`);th.appendChild(r);}
+    if(ev.text){const r=el("div","reason",`<span class="av"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M8 12h8M12 8v8"/></svg></span><span><b>agent reasoning</b>${escapeHtml(ev.text).slice(0,1600)}</span>`);th.appendChild(r);}
     // one decision may fire SEVERAL tool calls; track them all so each
     // observation lands on its own card (not just the last one).
     (ev.calls||[]).forEach(c=>{
@@ -592,6 +593,7 @@ function handle(ev){
     for(let k=pending.length-1;k>=0;k--){if(pending[k].name==="osp_optimize"||pending[k].name==="osp_sweep_methods"){step=pending[k].step;break;}}
     if(!step)step=(pending.length?pending[pending.length-1].step:null)||addStep("📈","Optimizing parameters","");
     const body=stepBody(step);
+    step.classList.add("open","autopen");       // watch the sweep/optimizer live; collapses when done
     let lg=body.querySelector(".log");if(!lg){lg=el("div","log");body.appendChild(lg);}
     lg.textContent+=(lg.textContent?"\n":"")+ev.line;lg.scrollTop=lg.scrollHeight;
     const mt=ev.line.match(/GMFE ([\d.]+)/);setRgt(step,mt?("best GMFE "+mt[1]):"running…");
@@ -605,6 +607,7 @@ function handle(ev){
     step.querySelector(".result").appendChild(el("div","obs",`${escapeHtml(ev.message||"").slice(0,400)}${ev.gmfe!=null?` · <span class="g">GMFE ${(+ev.gmfe).toFixed(3)}</span>`:""}`));
     if(ev.detail)renderDetail(step,ev.detail);  // what the agent actually read/saw (expandable)
     if(ev.recorded)renderGivens(ev.recorded);   // agent's self-extracted givens
+    if(step.classList.contains("autopen"))step.classList.remove("open","autopen");  // done -> collapse
   }else if(ev.type==="done"){
     if(ev.best_gmfe!=null)$("#fitGmfe").textContent=(+ev.best_gmfe).toFixed(2);
     if(ev.best_edits)$("#editsBox").textContent=JSON.stringify(ev.best_edits,null,1);
