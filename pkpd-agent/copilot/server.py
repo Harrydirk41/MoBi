@@ -361,9 +361,16 @@ def _obs_detail(tool: str, c: dict):
                 f"{len(pts)} points"} if pts else None
     if tool in ("osp_optimize", "osp_sweep_methods"):
         d = {}
-        opt = c.get("optimized")
+        rt = c.get("ranked_top")
+        if isinstance(rt, list) and rt:
+            d["methods ranked (by data)"] = [
+                f"{x.get('partition')} / {x.get('permeability')} → GMFE {x.get('gmfe')}"
+                for x in rt]
+        opt = c.get("optimized") or (c.get("best") or {}).get("optimized")
         if isinstance(opt, dict) and opt:
             d["fitted parameters"] = [f"{k} = {v}" for k, v in list(opt.items())[:30]]
+        if c.get("advice"):
+            d["verdict"] = trim(c["advice"], 400)
         if c.get("recommendations"):
             d["recommendations"] = [trim(r, 200) for r in c["recommendations"]][:12]
         if c.get("params_at_bound"):

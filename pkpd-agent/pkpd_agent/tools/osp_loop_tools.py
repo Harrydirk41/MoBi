@@ -845,14 +845,30 @@ def register_osp_loop_tools(registry: ToolRegistry, config, ctx: dict) -> None:
         # are heavy and not needed by the agent, which only picks the winning method.
         ranked_compact = [{"partition": x["partition"], "permeability": x["permeability"],
                            "gmfe": x["gmfe"]} for x in results[:5]]
+        # verdict for the "quick screen -> if none good, adjust and re-sweep" flow:
+        # the best screened method is adequate only if it fits reasonably AND did not
+        # rail a free bound. Otherwise tell the agent the lever is elsewhere.
+        railed = bool(best.get("params_at_bound"))
+        adequate = best["gmfe"] is not None and best["gmfe"] <= PERM_TRIGGER_GMFE and not railed
+        advice = None
+        if not adequate:
+            advice = (f"No screened method fit adequately (best GMFE {best['gmfe']}"
+                      + (", and the winner railed on a bound" if railed else "")
+                      + "). The distribution method is not the lever here: free a measured "
+                      "physchem WITHIN its measured range, or revisit the mechanism "
+                      "(add/disable a process), then re-sweep your shortlist - do not accept "
+                      "this winner as final.")
+            print(f"  sweep: screen NOT adequate - {advice}", flush=True)
+        msg = (f"screened {len(results)} method combo(s), re-fitting {list(estimate)} under each; "
+               f"BEST = {best['partition']} / {best['permeability']} -> GMFE {best['gmfe']} "
+               f"(best so far {session.get('osp_best_gmfe')}). ")
+        msg += (advice if not adequate else
+                "The distribution method is now chosen - refine with osp_optimize, "
+                "do NOT re-sweep the same grid.")
         return ToolResult.success(
-            f"swept {len(results)} method combos, re-fitting {list(estimate)} under each; BEST = "
-            f"{best['partition']} / {best['permeability']} -> GMFE {best['gmfe']} "
-            f"(best so far {session.get('osp_best_gmfe')}). The distribution method is now chosen - "
-            f"refine with osp_optimize, do NOT re-sweep the same grid.",
-            ranked_top=ranked_compact, best={"partition": best["partition"],
-                                             "permeability": best["permeability"],
-                                             "gmfe": best["gmfe"], "optimized": best["optimized"]})
+            msg, ranked_top=ranked_compact, screen_adequate=adequate, advice=advice,
+            best={"partition": best["partition"], "permeability": best["permeability"],
+                  "gmfe": best["gmfe"], "optimized": best["optimized"]})
 
     registry.register(Tool(
         name="osp_sweep_methods",

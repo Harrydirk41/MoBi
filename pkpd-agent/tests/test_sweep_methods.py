@@ -308,3 +308,35 @@ class TestGFRGuard(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class TestSweepScreenVerdict(unittest.TestCase):
+    def setUp(self):
+        self._orig = OO.run_optimization
+
+    def tearDown(self):
+        OO.run_optimization = self._orig
+
+    def _sweep(self, gmfe):
+        def fake(cli, snap, observed, estimate, fix=None, structure=None, max_evals=30, **kw):
+            return {"ok": True, "optimized": {k: sum(v) / 2 for k, v in estimate.items()},
+                    "fit": {"gmfe": gmfe}, "by_route": {}, "worst_datasets": [],
+                    "params_at_bound": [], "sensitivity": {}, "n_evals": max_evals,
+                    "fit_simulations": ["s1"]}
+        OO.run_optimization = fake
+        reg = ToolRegistry()
+        register_osp_loop_tools(reg, AgentConfig(mock=False),
+                                {"cli": object(), "snapshot_path": "x", "observed": [], "input": {}})
+        return reg.get("osp_sweep_methods").handler(
+            {"estimate": {"Lipophilicity": [-2, 3], "Intrinsic clearance": [0.1, 5]}},
+            ModelingSession(goal="g"))
+
+    def test_adequate_when_fit_is_good(self):
+        r = self._sweep(1.30)
+        self.assertTrue(r.data["screen_adequate"])
+        self.assertIsNone(r.data["advice"])
+
+    def test_not_adequate_when_all_poor(self):
+        r = self._sweep(3.10)                    # every method fits badly
+        self.assertFalse(r.data["screen_adequate"])
+        self.assertIn("not the lever here", r.data["advice"])
