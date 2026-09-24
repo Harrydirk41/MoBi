@@ -104,20 +104,63 @@ def _catalog() -> dict:
                       "applies_to": spec.get("applies_to"),
                       "validated": spec.get("validated", False),
                       "parameters": [p.get("name") for p in spec.get("parameters") or []]})
+    ddi = [{"type": d.get("type"), "description": d.get("description"),
+            "parameters": [p.get("name") for p in d.get("parameters") or []]}
+           for d in C.interaction_process_types()]
     params = {"constant": [], "measured_soft": [], "estimate": []}
     for name, v in C.PARAM_CATALOG.items():
         tier = v.get("tier", "estimate")
         params.setdefault(tier, []).append(
             {"name": name, "role": v.get("role"), "description": v.get("description")})
+    # the FULL PK-Sim / MoBi capability map, each area tagged with how much of it the
+    # agent actually wires up: active | partial | pksim (native, not wired) | mobi.
+    pksim_areas = [
+        {"area": "Administration routes", "status": "partial",
+         "note": "IV & oral are active; the others are PK-Sim-native but not wired into the agent.",
+         "items": ["IV bolus", "IV infusion", "Oral", "Dermal", "Inhalation",
+                   "Intramuscular", "Subcutaneous", "Intra-arterial", "Intraperitoneal", "Ocular"]},
+        {"area": "Formulations / dissolution", "status": "partial",
+         "note": "Weibull dissolution parameters are fit; other dissolution/particle models are not exposed.",
+         "items": ["Dissolved (solution)", "Weibull", "Lint80 particle dissolution",
+                   "Tablet", "Capsule", "Suspension"]},
+        {"area": "Populations", "status": "pksim",
+         "note": "Pediatric snapshots exist; building virtual populations is not wired.",
+         "items": ["Virtual population", "Age / weight / height / BMI", "Ethnicity database",
+                   "Disease states", "Pregnancy", "Pediatric ontogeny", "Geriatric"]},
+        {"area": "Species & physiology", "status": "pksim",
+         "note": "Human physiology is fixed; editing it or switching species is not exposed.",
+         "items": ["Human", "Rat", "Dog", "Monkey", "Mouse", "Minipig", "Rabbit",
+                   "Organ volumes", "Blood flows", "Tissue composition",
+                   "GFR / hematocrit / cardiac output"]},
+        {"area": "Expression & ontogeny", "status": "pksim",
+         "note": "Per-model enzyme/transporter expression is used; the full database & ontogeny are not visualized.",
+         "items": ["Relative tissue expression", "Enzyme/transporter database",
+                   "Age-dependent ontogeny", "Reference concentrations"]},
+        {"area": "Large molecules / biologics", "status": "pksim",
+         "note": "Small-molecule disposition only; biologic mechanisms are not modeled.",
+         "items": ["FcRn recycling", "Target-mediated drug disposition (TMDD)", "Target binding",
+                   "Lymph flow", "Size-based (2-pore) distribution", "Endosomal turnover"]},
+        {"area": "MoBi (open modeling)", "status": "mobi",
+         "note": "The open-ended engine behind PK-Sim — entirely outside the structured action space.",
+         "items": ["Custom ODEs", "Arbitrary reaction networks", "Events",
+                   "Custom compartments & molecules", "Observers", "Passive transports"]},
+        {"area": "Simulation & analysis", "status": "pksim",
+         "note": "Abstracted or automated by the harness.",
+         "items": ["Solver settings", "Output intervals", "Parameter-identification algorithms",
+                   "PK / NCA analysis", "Sensitivity analysis", "Population PK"]},
+    ]
     return {
         "partition_methods": [{"name": m, "description": _PART_DESC.get(m)} for m in PARTITION_METHODS],
         "permeability_methods": [{"name": m, "description": _PERM_DESC.get(m)} for m in PERMEABILITY_METHODS],
         "process_types": procs,
+        "ddi_types": ddi,
         "parameters": params,
+        "pksim_areas": pksim_areas,
         "counts": {"partition": len(PARTITION_METHODS), "permeability": len(PERMEABILITY_METHODS),
-                   "process_types": len(procs),
+                   "process_types": len(procs), "ddi": len(ddi),
                    "constant": len(params["constant"]), "measured": len(params["measured_soft"]),
-                   "fittable": len(params["estimate"])},
+                   "fittable": len(params["estimate"]),
+                   "areas": len(pksim_areas)},
     }
 
 

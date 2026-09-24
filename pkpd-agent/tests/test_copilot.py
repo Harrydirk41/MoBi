@@ -87,6 +87,10 @@ class TestCopilotServer(unittest.TestCase):
         self.assertTrue(c["parameters"]["constant"])       # never-fit set
         self.assertTrue(all(m.get("description") for m in c["partition_methods"]))
         self.assertEqual(c["counts"]["fittable"], len(c["parameters"]["estimate"]))
+        self.assertEqual(len(c["ddi_types"]), 6)                     # inhibition/induction kinetics
+        areas = {a["area"]: a["status"] for a in c["pksim_areas"]}   # the wider PK-Sim/MoBi map
+        self.assertIn("MoBi (open modeling)", areas)
+        self.assertEqual(areas["MoBi (open modeling)"], "mobi")
 
     def test_rw_topology_parses_structure(self):
         r = self.c.get("/api/rw/topology?project=Tizanidine")

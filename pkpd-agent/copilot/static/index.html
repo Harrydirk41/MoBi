@@ -198,6 +198,14 @@
   .catcol ul{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:3px}
   .catcol li{font-size:11.5px;color:var(--ink);border-bottom:1px solid var(--border-2);padding-bottom:3px}
   .catcol li small{color:var(--faint);font-size:10px}
+  .area{border:1px solid var(--border);border-radius:10px;padding:9px 11px;margin-top:8px;background:var(--surface)}
+  .area-h{display:flex;align-items:center;gap:8px}.area-h b{font-size:12.5px;flex:1}
+  .area .d{font-size:11.5px;color:var(--muted);margin:3px 0 6px;line-height:1.45}
+  .area .pp{display:flex;flex-wrap:wrap;gap:4px}
+  .area .pp span{font-family:var(--mono);font-size:10px;padding:1px 6px;border-radius:5px;background:var(--surface-2);color:var(--muted)}
+  .stat{font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.03em;padding:2px 7px;border-radius:6px;flex:0 0 auto}
+  .stat.st-a{background:var(--good-soft);color:var(--good)}.stat.st-p{background:var(--warn-soft);color:var(--warn)}
+  .stat.st-k{background:var(--surface-2);color:var(--muted)}.stat.st-m{background:var(--accent-soft);color:var(--accent-ink)}
   .topoinfo b{color:var(--ink)}
   .fitbar{display:flex;align-items:center;gap:10px;padding:4px 14px 2px}
   .fitbar .act[disabled]{opacity:.55;cursor:default}
@@ -286,7 +294,7 @@
   <div class="modal-back" id="catBack"></div>
   <div class="modal-card">
     <div class="modal-head">
-      <div><b>PK-Sim action space</b><small id="catSub">the whole set of structural choices &amp; parameters</small></div>
+      <div><b>PK-Sim / MoBi capability map</b><small id="catSub">what the agent actively uses, plus the wider feature set tagged by status</small></div>
       <button class="iconbtn" id="catClose" aria-label="Close"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
     </div>
     <div class="modal-body" id="catBody"></div>
@@ -511,6 +519,10 @@ function renderCatalog(c){
   });
   h+=`<div class="catsec"><h4>Mechanisms you can add · ${c.process_types.length}</h4>`+
      `<div class="sub">attach to an expressed enzyme/transporter to model clearance or transport.</div>${ph}</div>`;
+  if((c.ddi_types||[]).length)
+    h+=`<div class="catsec"><h4>DDI interaction kinetics · ${c.ddi_types.length}</h4>`+
+       `<div class="sub">for the drug-interaction mode (a perpetrator inhibits/induces the victim's enzyme).</div>`+
+       `<div class="catcards">${c.ddi_types.map(x=>card(x.type,x.description,x.parameters&&x.parameters.length?`<div class="pp">${x.parameters.map(p=>`<span>${escapeHtml(p)}</span>`).join("")}</div>`:"")).join("")}</div></div>`;
   const col=(tier,label,tag,note)=>{const list=(c.parameters[tier]||[]);
     return `<div class="catcol"><h5><span class="tg ${tag}">${label}</span> ${list.length}</h5><div class="sub">${note}</div><ul>`+
       list.map(p=>`<li>${escapeHtml(p.name)}${p.role?` <small>${escapeHtml(p.role)}</small>`:""}</li>`).join("")+`</ul></div>`;};
@@ -520,6 +532,16 @@ function renderCatalog(c){
      col("measured_soft","measured","measured","fixed by default; fit only within the measured range")+
      col("estimate","fittable","fittable","the identifiable set the optimizer fits to data")+
      `</div></div>`;
+  const STAT={active:["st-a","active"],partial:["st-p","partial"],pksim:["st-k","PK-Sim, not wired"],mobi:["st-m","MoBi"]};
+  if((c.pksim_areas||[]).length){
+    h+=`<div class="catsec"><h4>The rest of PK-Sim / MoBi · ${c.pksim_areas.length} areas</h4>`+
+       `<div class="sub">The sections above are what the agent actively uses. Below is the wider PK-Sim / MoBi capability map, each area tagged by how far it is wired in.</div>`;
+    c.pksim_areas.forEach(a=>{const[cls,lbl]=STAT[a.status]||STAT.pksim;
+      h+=`<div class="area"><div class="area-h"><b>${escapeHtml(a.area)}</b><span class="stat ${cls}">${lbl}</span></div>`+
+         (a.note?`<div class="d">${escapeHtml(a.note)}</div>`:"")+
+         `<div class="pp">${a.items.map(x=>`<span>${escapeHtml(x)}</span>`).join("")}</div></div>`;});
+    h+=`</div>`;
+  }
   $("#catBody").innerHTML=h;
 }
 $("#catBtn").onclick=openCatalog;
