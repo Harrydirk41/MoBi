@@ -397,11 +397,16 @@ function topology(d){
      `<text x="${cx}" y="37" text-anchor="middle" font-size="12" fill="var(--muted)">Lung</text></g>`;
   organs.forEach((o,i)=>{
     const y=midY(i), boxY=top+i*rowH+6;
+    // visible thin flow line + a fat TRANSPARENT hit line so the 1px edge is hoverable
     g+=`<line x1="46" y1="${y}" x2="${bx}" y2="${y}" stroke="var(--crit)" stroke-opacity=".3"/>`;   // arterial in
-    if(o.portal)   // portal vein -> liver
-      g+=`<path class="tedge" data-k="portal" d="M${bxr} ${y} C ${bxr+38} ${y}, ${bxr+38} ${liverMid}, ${bxr} ${liverMid}" fill="none" stroke="var(--warn)" stroke-width="1.3" stroke-dasharray="3 3" stroke-opacity=".85"/>`;
-    else
+    g+=`<line class="tedge" data-k="arterial" x1="46" y1="${y}" x2="${bx}" y2="${y}" stroke="transparent" stroke-width="12" pointer-events="stroke"/>`;
+    if(o.portal){   // portal vein -> liver
+      g+=`<path d="M${bxr} ${y} C ${bxr+38} ${y}, ${bxr+38} ${liverMid}, ${bxr} ${liverMid}" fill="none" stroke="var(--warn)" stroke-width="1.3" stroke-dasharray="3 3" stroke-opacity=".85"/>`;
+      g+=`<path class="tedge" data-k="portal" d="M${bxr} ${y} C ${bxr+38} ${y}, ${bxr+38} ${liverMid}, ${bxr} ${liverMid}" fill="none" stroke="transparent" stroke-width="13" pointer-events="stroke"/>`;
+    }else{
       g+=`<line x1="${bxr}" y1="${y}" x2="${vL}" y2="${y}" stroke="var(--accent)" stroke-opacity=".3"/>`;  // venous out
+      g+=`<line class="tedge" data-k="venous" x1="${bxr}" y1="${y}" x2="${vL}" y2="${y}" stroke="transparent" stroke-width="12" pointer-events="stroke"/>`;
+    }
     g+=`<g class="torg" data-k="${escapeHtml(o.n)}">`+
        `<rect x="${bx}" y="${boxY}" width="${bw}" height="${boxH}" rx="8" fill="${o.hi?'var(--accent-soft)':'var(--surface-2)'}" stroke="${o.hi?'var(--accent)':'var(--border)'}" stroke-width="${o.hi?1.5:1}"/>`+
        `<text x="${cx}" y="${o.tag?y-1:y+4}" text-anchor="middle" font-size="12" font-weight="${o.hi?600:400}" fill="${o.hi?'var(--accent-ink)':'var(--ink)'}">${escapeHtml(o.n)}</text>`+
