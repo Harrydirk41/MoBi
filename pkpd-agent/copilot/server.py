@@ -373,6 +373,18 @@ def create_app():
     def rw_series(project: str, kind: str = "test"):
         return JSONResponse({"series": _rw_series(project, kind)})
 
+    @app.get("/api/rw/figure")
+    def rw_figure(project: str, path: str):
+        # the context report's simulated-vs-observed fit figures live in the OSP
+        # library (images/...); serve them so the reference fit renders in-viewer.
+        from fastapi.responses import FileResponse, Response
+        base = os.path.normpath(os.path.join(_LIB, project))
+        fp = os.path.normpath(os.path.join(base, path))
+        if (not fp.startswith(base + os.sep) or not fp.lower().endswith(".png")
+                or not os.path.isfile(fp)):
+            return Response(status_code=404)
+        return FileResponse(fp, media_type="image/png")
+
     @app.post("/api/run")
     def run(payload: dict):
         compound = payload.get("compound")

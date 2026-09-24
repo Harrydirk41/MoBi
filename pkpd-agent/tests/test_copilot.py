@@ -78,6 +78,18 @@ class TestCopilotServer(unittest.TestCase):
         self.assertTrue(self.c.get(
             "/api/rw/series?project=Midazolam&kind=context").json()["series"])
 
+    def test_rw_figure_serves_png_and_blocks_traversal(self):
+        p = ("images/006_section_results-and-discussion/008_section_diagnostics-plots/"
+             "2_gof_plot_predictedVsObserved.png")
+        r = self.c.get("/api/rw/figure", params={"project": "Alfentanil", "path": p})
+        if r.status_code == 404:
+            self.skipTest("OSP figure not present")
+        self.assertEqual(r.headers.get("content-type"), "image/png")
+        self.assertEqual(r.content[:4], b"\x89PNG")
+        bad = self.c.get("/api/rw/figure",
+                         params={"project": "Alfentanil", "path": "../../../etc/passwd"})
+        self.assertEqual(bad.status_code, 404)
+
     def test_context_projects_narrows_library(self):
         # an explicit allowlist restricts the reference library the run would see
         from pkpd_agent.engines import reference_library as RL
