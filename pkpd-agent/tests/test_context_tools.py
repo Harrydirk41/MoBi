@@ -88,5 +88,36 @@ class TestContextToolsNoMaterials(unittest.TestCase):
         self.assertFalse(r.ok)
 
 
+class TestSelfExtractNoSplitLeak(unittest.TestCase):
+    """In self-extract mode osp_inspect must NOT hand the agent the reference
+    model's fix-vs-fit split (a chosen method) — the agent decides it itself."""
+    def _inspect(self, self_extract):
+        import glob
+        from pkpd_agent.tools.registry import ToolRegistry
+        from pkpd_agent.tools.osp_loop_tools import register_osp_loop_tools
+        snaps = glob.glob(os.path.join(
+            os.path.dirname(__file__), "..", "..", "OSP-PBPK-Model-Library",
+            "*", "benchmark", "*-Model.blanked.json"))
+        if not snaps:
+            self.skipTest("OSP library not present")
+        reg = ToolRegistry()
+        register_osp_loop_tools(reg, AgentConfig(mock=False), {
+            "cli": object(), "snapshot_path": snaps[0], "observed": [],
+            "input": {}, "self_extract": self_extract})
+        return reg.get("osp_inspect").handler({}, ModelingSession(goal="g")).data
+
+    def test_split_withheld_in_self_extract(self):
+        d = self._inspect(True)
+        self.assertNotIn("parameters_to_determine", d)
+        self.assertNotIn("given_input_parameters", d)
+        self.assertIn("fix_vs_fit_note", d)
+        self.assertFalse(any("value_status" in p for p in d["current_model"]["parameters"]))
+
+    def test_split_kept_in_normal_mode(self):
+        d = self._inspect(False)
+        self.assertIn("parameters_to_determine", d)
+        self.assertIn("given_input_parameters", d)
+
+
 if __name__ == "__main__":
     unittest.main()

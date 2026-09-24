@@ -324,7 +324,8 @@ def main() -> None:
     registry = ToolRegistry()
     register_osp_loop_tools(registry, cfg, {
         "cli": cli, "snapshot_path": args.snapshot,
-        "observed": build_obs, "input": inp_agent})
+        "observed": build_obs, "input": inp_agent,
+        "self_extract": bool(ctx_report)})
     if ctx_report:
         from pkpd_agent.tools.context_tools import register_context_tools
         register_context_tools(registry, cfg, {

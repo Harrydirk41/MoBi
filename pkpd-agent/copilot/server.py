@@ -804,7 +804,8 @@ def _run_agent_locked(run_id, p, q) -> None:
     registry = ToolRegistry()
     register_osp_loop_tools(registry, cfg, {
         "cli": cli, "snapshot_path": f["snapshot"],
-        "observed": build_obs, "input": inp_agent})
+        "observed": build_obs, "input": inp_agent,
+        "self_extract": bool(ctx_report)})
     if ctx_report:
         register_context_tools(registry, cfg, {
             "report_path": ctx_report, "data_dir": ctx_data, "input": inp_agent})

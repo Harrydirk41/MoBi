@@ -219,6 +219,14 @@ def register_osp_loop_tools(registry: ToolRegistry, config, ctx: dict) -> None:
     snapshot_path: str = ctx["snapshot_path"]
     observed: list[dict] = ctx["observed"]
     inp: dict = ctx.get("input") or {}
+    # SELF-EXTRACT: the agent extracts givens itself, so we must NOT hand it the
+    # reference model's fix-vs-fit split (which params it fit vs took as given) -
+    # that is a chosen method. The agent decides from its own recorded givens.
+    self_extract: bool = bool(ctx.get("self_extract"))
+
+    def _hide_status(model: dict) -> dict:
+        return {**model, "parameters": [{k: v for k, v in p.items() if k != "value_status"}
+                                        for p in model.get("parameters", [])]}
 
     def _cap_evals(n: int) -> int:
         """Clamp a requested optimizer budget to config.max_evals_cap (if set), so a
@@ -237,9 +245,7 @@ def register_osp_loop_tools(registry: ToolRegistry, config, ctx: dict) -> None:
                         if p.get("value_status") == "placeholder"]
         given_in_model = [p["name"] for p in model["parameters"]
                           if p.get("value_status") == "given"]
-        return ToolResult.success(
-            "task description: objective, known biology, literature priors, "
-            "current model, and the observed clinical data",
+        out = dict(
             objective=inp.get("objective"),
             background=bg.get("description"),
             known_biology=bg.get("literature_facts"),
@@ -253,14 +259,29 @@ def register_osp_loop_tools(registry: ToolRegistry, config, ctx: dict) -> None:
             # LIBRARY-ASSISTED mode: finished models of OTHER compounds (leave-one-out)
             # the agent may reuse by analogy; None in de-novo mode.
             reference_library=inp.get("reference_library"),
-            parameters_to_determine=to_determine,
-            given_input_parameters=given_in_model,
             evaluation_rubric=inp.get("evaluation_rubric"),
             current_model=model,
             observed_overview=_observed_overview(observed),
             valid_partition_methods=PARTITION_METHODS,
             valid_permeability_methods=PERMEABILITY_METHODS,
         )
+        if self_extract:
+            # withhold the reference's fix-vs-fit split and the given/placeholder
+            # labels; the agent decides from ITS recorded givens + the tiers.
+            out["current_model"] = _hide_status(model)
+            out["fix_vs_fit_note"] = (
+                "You decide the split: FIX each parameter you recorded as a measured "
+                "given (via osp_record_givens) at that value, and FIT the rest that "
+                "are uncertain. The task does NOT tell you which the reference fit vs "
+                "fixed - use the parameter tiers in osp_options (tier=estimate is "
+                "normally fit; tier=measured_soft/constant is normally fixed) and your "
+                "own givens.")
+        else:
+            out["parameters_to_determine"] = to_determine
+            out["given_input_parameters"] = given_in_model
+        return ToolResult.success(
+            "task description: objective, known biology, literature priors, "
+            "current model, and the observed clinical data", **out)
 
     # -- act (run + score) ---------------------------------------------- #
     def try_model(args: dict, session) -> ToolResult:
@@ -339,6 +360,8 @@ def register_osp_loop_tools(registry: ToolRegistry, config, ctx: dict) -> None:
             entry = {**p, "description": cat.get("description"),
                      "plausible_range": cat.get("range"),
                      "role": cat.get("role", "unknown"), "tier": tier}
+            if self_extract:
+                entry.pop("value_status", None)      # don't leak the reference fix-vs-fit split
             if "@" in p["name"]:
                 entry["per_process"] = True     # set/estimate with this exact qualified name
             # measured_soft params carry their measured range (a fit may not exceed it).
