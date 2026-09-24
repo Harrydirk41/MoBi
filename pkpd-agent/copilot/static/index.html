@@ -771,7 +771,7 @@ async function renderExplore(dir){
   $("#cmExplore").innerHTML="";
   let b;try{b=await (await fetch(`/api/built?compound=${encodeURIComponent(dir)}`)).json();}catch(e){return;}
   if(!b||b.error||!(b.params||[]).length)return;
-  let h=`<details class="exp"><summary>Explore — drag a slider or switch a method, it re-runs the model</summary><div class="expbody">`+
+  let h=`<details class="exp" open><summary>Explore — drag a slider or switch a method, it re-runs the model</summary><div class="expbody">`+
     seg("Partition",b.methods.partition.current,b.methods.partition.options,"exPart")+
     seg("Permeability",b.methods.permeability.current,b.methods.permeability.options,"exPerm")+
     b.params.map(p=>`<div class="exrow" data-name="${escapeHtml(p.name)}"><label title="${escapeHtml(p.name)}">${escapeHtml(p.name)}</label>`+
