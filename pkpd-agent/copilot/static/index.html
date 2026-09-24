@@ -206,6 +206,19 @@
   .stat{font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.03em;padding:2px 7px;border-radius:6px;flex:0 0 auto}
   .stat.st-a{background:var(--good-soft);color:var(--good)}.stat.st-p{background:var(--warn-soft);color:var(--warn)}
   .stat.st-k{background:var(--surface-2);color:var(--muted)}.stat.st-m{background:var(--accent-soft);color:var(--accent-ink)}
+  .edsec{padding:8px 16px 4px}.edsec h4{font-size:12px;color:var(--ink);margin:8px 0 4px}.edsec .sub{font-size:11px;color:var(--faint);margin-bottom:6px}
+  .edrow{display:flex;align-items:center;gap:10px;margin:5px 0}.edrow>label{font-size:11.5px;color:var(--muted);width:88px;flex:0 0 auto}
+  .segm{display:flex;flex-wrap:wrap;gap:5px}
+  .seg{font-size:11.5px;padding:5px 10px;border:1px solid var(--border);border-radius:8px;background:var(--surface);color:var(--muted)}
+  .seg.on{background:var(--accent-soft);color:var(--accent-ink);border-color:var(--accent);font-weight:600}
+  .edtog{display:flex;align-items:center;gap:8px;font-size:12.5px;padding:4px 2px}.edtog small{color:var(--faint);font-size:10.5px}
+  .edp{display:flex;align-items:center;gap:8px;font-size:12px;padding:4px 2px;border-bottom:1px solid var(--border-2);flex-wrap:wrap}
+  .edp .pn{flex:1;min-width:140px;display:flex;align-items:center;gap:7px}
+  .edp input[type=number]{width:76px;padding:4px 6px;border:1px solid var(--border);border-radius:7px;background:var(--surface);font-size:11.5px}
+  .edp .pb{display:flex;align-items:center;gap:4px;color:var(--faint);font-size:11px}
+  .edp small{color:var(--faint);font-size:10px}
+  .ed-foot{display:flex;align-items:center;gap:10px;padding:12px 16px;border-top:1px solid var(--border-2)}
+  #edPlotWrap{padding:6px 12px 0}
   .topoinfo b{color:var(--ink)}
   .fitbar{display:flex;align-items:center;gap:10px;padding:4px 14px 2px}
   .fitbar .act[disabled]{opacity:.55;cursor:default}
@@ -220,7 +233,7 @@
       <div class="logo"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="5" r="2.1"/><circle cx="5.5" cy="16" r="2.1"/><circle cx="18.5" cy="16" r="2.1"/><path d="M12 7v4m0 0-5 4m5-4 5 4"/></svg></div>
       <div><b>PBPK Copilot</b><span>AI modeling agent · live</span></div>
     </div>
-    <div style="padding:10px 12px 2px"><button class="catbtn" id="catBtn"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="4" width="18" height="5" rx="1.5"/><rect x="3" y="12" width="11" height="5" rx="1.5"/></svg>PK-Sim action space</button></div>
+    <div style="padding:10px 12px 2px"><button class="catbtn" id="catBtn"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>Build / edit model</button></div>
     <div class="rail-sec"><h4>Models</h4><div id="modelList"><div class="m-item" style="opacity:.6"><span class="dot idle"></span><span class="meta"><b>loading…</b></span></div></div></div>
     <div class="ctrl">
       <label>LLM</label>
@@ -286,6 +299,22 @@
       <div class="plotwrap" id="cmPlot"></div>
       <div class="plotlegend" id="cmLegend"></div>
       <div class="report" id="cmReport"></div>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="edModal" hidden>
+  <div class="modal-back" id="edBack"></div>
+  <div class="modal-card">
+    <div class="modal-head">
+      <div><b id="edTitle">Build / edit model</b><small>pick the structure &amp; parameters, then run it or hand it to the agent</small></div>
+      <button class="iconbtn" id="edClose" aria-label="Close"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+    </div>
+    <div class="modal-body" id="edBody"></div>
+    <div class="ed-foot">
+      <button class="btn primary" id="edRun"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 4l14 8-14 8V4Z"/></svg>Run this model</button>
+      <button class="btn" id="edToAgent">Hand to agent →</button>
+      <span id="edState" class="hint" style="padding:0"></span>
     </div>
   </div>
 </div>
@@ -548,13 +577,88 @@ function renderCatalog(c){
   }
   $("#catBody").innerHTML=h;
 }
-$("#catBtn").onclick=openCatalog;
 $("#catBack").onclick=()=>$("#catModal").hidden=true;
 $("#catClose").onclick=()=>$("#catModal").hidden=true;
 
+/* -------- interactive model editor (human-in-the-loop) ------------------- */
+let ED=null;
+async function openEditor(){
+  if(!current){openCatalog();return;}           // no compound yet -> show the reference map
+  $("#edModal").hidden=false;$("#edTitle").textContent="Build / edit — "+current;
+  $("#edBody").innerHTML='<div style="padding:24px;color:var(--faint)">loading the model…</div>';$("#edState").textContent="";
+  try{ED=await (await fetch(`/api/model?compound=${encodeURIComponent(current)}`)).json();}
+  catch(e){$("#edBody").innerHTML='<div style="padding:20px;color:var(--crit)">model unavailable</div>';return;}
+  renderEditor(ED);
+}
+function seg(label,cur,opts,id){
+  return `<div class="edrow"><label>${escapeHtml(label)}</label><div class="segm" id="${id}">`+
+    opts.map(o=>`<button type="button" class="seg${o===cur?' on':''}" data-v="${escapeHtml(o)}">${escapeHtml(o)}</button>`).join("")+`</div></div>`;
+}
+function renderEditor(v){
+  const est=v.parameters.filter(p=>p.tier==='estimate');
+  const meas=v.parameters.filter(p=>p.tier==='measured_soft');
+  const con=v.parameters.filter(p=>p.tier==='constant');
+  let h=`<div class="edsec"><h4>Distribution &amp; permeability method</h4>`+
+    seg("Partition",v.methods.partition.current,v.methods.partition.options,"segPart")+
+    seg("Permeability",v.methods.permeability.current,v.methods.permeability.options,"segPerm")+`</div>`;
+  if((v.processes||[]).length)
+    h+=`<div class="edsec"><h4>Active clearance / transport</h4><div class="sub">uncheck to disable a mechanism.</div>`+
+      v.processes.map(p=>`<label class="edtog"><input type="checkbox" data-proc="${escapeHtml(p.molecule||p.internal||'')}" checked> ${escapeHtml(p.molecule||p.internal||'process')} <small>${escapeHtml(p.internal||'')}</small></label>`).join("")+`</div>`;
+  h+=`<div class="edsec"><h4>Identifiable parameters — fit or fix</h4><div class="sub">checked = fit within [lo, hi]; unchecked = fix at a value.</div>`+
+    est.map(p=>{const r=p.range||[0,1];return `<div class="edp" data-name="${escapeHtml(p.name)}" data-tier="estimate">`+
+      `<label class="pn"><input type="checkbox" class="pfit" checked> ${escapeHtml(p.name)}</label>`+
+      `<span class="pb"><input class="plo" type="number" step="any" value="${r[0]}"> – <input class="phi" type="number" step="any" value="${r[1]}"></span>`+
+      `<input class="pval" type="number" step="any" placeholder="value" hidden></div>`;}).join("")+`</div>`;
+  if(meas.length)
+    h+=`<div class="edsec"><h4>Measured (fixed by default)</h4>`+
+      meas.map(p=>`<div class="edp" data-name="${escapeHtml(p.name)}" data-tier="measured"><label class="pn">${escapeHtml(p.name)}</label><input class="pval" type="number" step="any" value="${p.value!=null?p.value:''}">${p.measured_range?`<small>meas. ${(+p.measured_range[0]).toPrecision(3)}–${(+p.measured_range[1]).toPrecision(3)}</small>`:''}</div>`).join("")+`</div>`;
+  if(con.length)
+    h+=`<div class="edsec"><h4>Constants (locked)</h4><div class="pp">`+con.map(p=>`<span>${escapeHtml(p.name)} = ${p.value}</span>`).join("")+`</div></div>`;
+  h+=`<div id="edPlotWrap"></div><div class="plotlegend" id="edLegend"></div>`;
+  h+=`<div class="edsec"><a href="#" id="edRefLink" style="font-size:12px;color:var(--accent-ink)">See the full PK-Sim / MoBi capability reference ↗</a></div>`;
+  $("#edBody").innerHTML=h;
+  $("#edBody").querySelectorAll(".segm").forEach(sg=>sg.querySelectorAll(".seg").forEach(b=>b.onclick=()=>{sg.querySelectorAll(".seg").forEach(x=>x.classList.remove("on"));b.classList.add("on");}));
+  $("#edBody").querySelectorAll('.edp[data-tier=estimate]').forEach(row=>{const cb=row.querySelector(".pfit");cb.onchange=()=>{row.querySelector(".pb").hidden=!cb.checked;row.querySelector(".pval").hidden=cb.checked;};});
+  $("#edRefLink").onclick=e=>{e.preventDefault();openCatalog();};
+}
+function collectEdits(){
+  const part=($("#segPart .seg.on")||{}).dataset, perm=($("#segPerm .seg.on")||{}).dataset;
+  const edits={calculation_methods:{partition:part&&part.v,permeability:perm&&perm.v}};
+  const proc={};$("#edBody").querySelectorAll("[data-proc]").forEach(cb=>{if(!cb.checked)proc[cb.dataset.proc]=false;});
+  if(Object.keys(proc).length)edits.processes=proc;
+  const estimate={},params={};
+  $("#edBody").querySelectorAll(".edp").forEach(row=>{const name=row.dataset.name,tier=row.dataset.tier;
+    if(tier==='estimate'){if(row.querySelector(".pfit").checked){const lo=+row.querySelector(".plo").value,hi=+row.querySelector(".phi").value;if(!isNaN(lo)&&!isNaN(hi))estimate[name]=[lo,hi];}
+      else{const val=row.querySelector(".pval").value;if(val!=='')params[name]=+val;}}
+    else if(tier==='measured'){const val=row.querySelector(".pval").value;if(val!=='')params[name]=+val;}});
+  if(Object.keys(estimate).length)edits.estimate=estimate;
+  if(Object.keys(params).length)edits.parameters=params;
+  return edits;
+}
+$("#edRun").onclick=async()=>{
+  const edits=collectEdits();$("#edState").textContent="running the model…";$("#edRun").disabled=true;
+  let r;try{r=await (await fetch("/api/try",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({compound:current,edits})})).json();}
+  catch(e){$("#edState").textContent="server not reachable";$("#edRun").disabled=false;return;}
+  $("#edRun").disabled=false;
+  if(!r.ok){$("#edState").textContent=r.error||"failed";return;}
+  $("#edState").textContent=`GMFE ${(+r.gmfe).toFixed(3)}`+(r.optimized&&Object.keys(r.optimized).length?` · fitted ${Object.keys(r.optimized).length} param(s)`:" (no fit — forward run)");
+  const f=plotFit(r.series);$("#edPlotWrap").innerHTML=f.svg;$("#edLegend").innerHTML=f.legend;
+  $("#edLegend").querySelectorAll("span[data-i]").forEach(sp=>sp.onclick=()=>{sp.classList.toggle("off");const g=$("#edPlotWrap").querySelector(`g.sr[data-i="${sp.dataset.i}"]`);if(g)g.classList.toggle("off");});
+  if(r.gmfe!=null)$("#fitGmfe").textContent=(+r.gmfe).toFixed(2);
+};
+$("#edToAgent").onclick=()=>{
+  const e=collectEdits(),cm=e.calculation_methods||{};
+  const note=`Start from this structure: partition=${cm.partition||'?'}, permeability=${cm.permeability||'?'}`+
+    (e.processes?`; disable ${Object.keys(e.processes).join(', ')}`:"")+
+    (e.estimate?`; fit ${Object.keys(e.estimate).join(', ')}`:"")+". Refine from here.";
+  $("#noteBox").value=note;$("#edModal").hidden=true;$("#runBtn").click();
+};
+$("#edBack").onclick=()=>$("#edModal").hidden=true;$("#edClose").onclick=()=>$("#edModal").hidden=true;
+$("#catBtn").onclick=openEditor;
+
 function closeContext(){$("#ctxModal").hidden=true;}
 $("#ctxBack").onclick=closeContext;$("#cmClose").onclick=closeContext;
-document.addEventListener("keydown",e=>{if(e.key==="Escape"){if(!$("#ctxModal").hidden)closeContext();if(!$("#catModal").hidden)$("#catModal").hidden=true;}});
+document.addEventListener("keydown",e=>{if(e.key==="Escape"){if(!$("#ctxModal").hidden)closeContext();if(!$("#catModal").hidden)$("#catModal").hidden=true;if(!$("#edModal").hidden)$("#edModal").hidden=true;}});
 
 /* run the finished reference model → overlay its simulated fit on the observed points */
 $("#cmRunFit").onclick=async()=>{

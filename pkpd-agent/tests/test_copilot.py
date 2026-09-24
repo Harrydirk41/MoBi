@@ -92,6 +92,26 @@ class TestCopilotServer(unittest.TestCase):
         self.assertIn("MoBi (open modeling)", areas)
         self.assertEqual(areas["MoBi (open modeling)"], "mobi")
 
+    def test_model_view_is_editable_action_space(self):
+        r = self.c.get("/api/model?compound=Tizanidine")
+        self.assertEqual(r.status_code, 200)
+        v = r.json()
+        self.assertEqual(len(v["methods"]["partition"]["options"]), 5)
+        self.assertTrue(v["methods"]["partition"]["current"])
+        tiers = {p["tier"] for p in v["parameters"]}
+        self.assertTrue({"estimate", "measured_soft", "constant"} & tiers)
+        self.assertEqual(self.c.get("/api/model?compound=NoSuch").status_code, 404)
+
+    def test_try_model_degrades_without_cli(self):
+        r = self.c.post("/api/try", json={"compound": "Tizanidine",
+                                          "edits": {"calculation_methods": {"partition": "Schmitt"}}})
+        self.assertEqual(r.status_code, 200)
+        j = r.json()
+        self.assertIn("ok", j)
+        if not j["ok"]:
+            self.assertTrue(j.get("error"))
+        self.assertEqual(self.c.post("/api/try", json={"compound": "NoSuch"}).status_code, 404)
+
     def test_rw_topology_parses_structure(self):
         r = self.c.get("/api/rw/topology?project=Tizanidine")
         if r.status_code == 404:

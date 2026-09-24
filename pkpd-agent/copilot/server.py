@@ -164,6 +164,112 @@ def _catalog() -> dict:
     }
 
 
+def _model_view(f: dict) -> dict:
+    """The selected compound's EDITABLE action space: current methods + all legal
+    options, the parameters (with tier/range so the UI knows what may be fit), the
+    active processes, and the molecules a mechanism can attach to."""
+    from pkpd_agent.tools import osp_loop_tools as T
+    from pkpd_agent.engines import osp_catalog as C
+    from pkpd_agent.engines.snapshot_edit import PARTITION_METHODS, PERMEABILITY_METHODS
+    snap = f["snapshot"]
+    model = T._current_model(snap)
+    expressed = T._expressed_molecules(snap)                 # [{molecule,type}]
+    inp = json.load(open(f["input"], encoding="utf-8"))
+    lit = (inp.get("given_data", {}) or {}).get("literature_physicochemical", []) or []
+    cms = model["calculation_methods"]
+
+    def cur(word):
+        for m in cms:
+            if word in m.lower():
+                return m.split(" - ")[-1].strip()
+        return None
+
+    editable = []
+    for p in model["parameters"]:
+        base = p["name"].split("@", 1)[0]
+        cat = C.describe_parameter(base)
+        tier = C.param_tier(base)
+        e = {"name": p["name"], "value": p.get("value"), "unit": p.get("unit"),
+             "value_status": p.get("value_status"), "tier": tier,
+             "role": cat.get("role"), "range": cat.get("range"),
+             "description": cat.get("description")}
+        if tier == "measured_soft":
+            mr = C.measured_range(p["name"], lit)
+            if mr:
+                e["measured_range"] = list(mr)
+        editable.append(e)
+    return {
+        "compound": f["compound"],
+        "methods": {
+            "partition": {"current": cur("partition"), "options": list(PARTITION_METHODS)},
+            "permeability": {"current": cur("permeability"), "options": list(PERMEABILITY_METHODS)}},
+        "parameters": editable,
+        "processes": model["processes"],
+        "expressed": expressed,
+        "addable": [{"type": p.get("type"), "can_attach_to": p.get("can_attach_to")}
+                    for p in C.addable_process_types(expressed)],
+    }
+
+
+def _try_model(f: dict, edits: dict) -> dict:
+    """Run the human-edited model. If `edits` has an `estimate` block, optimize it;
+    otherwise just build+run with the given values. Returns GMFE + per-study
+    observed vs simulated series for the fit overlay. Needs PKSim.CLI."""
+    from pkpd_agent.config import AgentConfig
+    from pkpd_agent.engines.osp_cli import OSPCli
+    from pkpd_agent.engines import osp_score, osp_split
+    from pkpd_agent.engines import osp_optimize as OO
+    cfg = AgentConfig(mock=False)
+    cli = OSPCli(pksim_cli_path=cfg.pksim_cli_path, timeout_s=cfg.pksim_timeout_s)
+    if not cli.pksim_cli_path or not os.path.exists(cli.pksim_cli_path):
+        return {"ok": False, "error": "PKSim.CLI not found — set PKPD_PKSIM_CLI to run a model."}
+    inp = json.load(open(f["input"], encoding="utf-8"))
+    observed = inp["given_data"]["clinical_observed_data"]
+    snapd = json.load(open(f["snapshot"], encoding="utf-8"))
+    split = osp_split.split_studies(snapd, observed)
+    build = set(split.get("building") or [])
+    obs = [o for o in observed if o["dataset"] in build] or observed
+    estimate = edits.get("estimate") or {}
+    structure = {k: edits[k] for k in ("calculation_methods", "processes", "add_processes")
+                 if k in edits}
+    fixp = edits.get("parameters") or edits.get("fix") or {}
+    optimized = None
+    with _SIM_LOCK:
+        if estimate:
+            r = OO.run_optimization(cli, f["snapshot"], obs, estimate=estimate, fix=fixp,
+                                    structure=structure)
+            if not r.get("ok"):
+                return {"ok": False, "error": r.get("message", "optimization failed")}
+            optimized = r.get("optimized") or {}
+            run_edits = {**structure, "parameters": {**fixp, **optimized}}
+            gmfe = (r.get("fit") or {}).get("gmfe")
+            by_route = r.get("by_route")
+        else:
+            run_edits = {**structure, "parameters": fixp}
+            gmfe, by_route = None, None
+        res = cli.build_and_run(f["snapshot"], edits=run_edits)
+        if not res.get("ok"):
+            return {"ok": False, "error": res.get("message", "PK-Sim run failed")}
+        linkage = osp_score.linkage_from_snapshot(snapd)
+        predicted, _ = osp_score.map_predictions(res["profiles"], obs, linkage)
+        sc = osp_score.score_fit(obs, predicted)
+        if gmfe is None:
+            gmfe = sc["overall"].get("gmfe")
+        by_route = by_route or sc.get("by_route")
+    pred_by = {p["dataset"]: p for p in predicted}
+    series = []
+    for o in obs:
+        p = pred_by.get(o["dataset"])
+        series.append({
+            "study": o.get("study") or o["dataset"], "route": o.get("route", ""),
+            "dose": o.get("dose", ""),
+            "observed": [[t, c] for t, c in zip(o.get("time_h", []), o.get("conc_mg_L", []))
+                         if c is not None],
+            "simulated": _downsample([[t, c] for t, c in zip(p["time_h"], p["pred_conc_mg_L"])
+                                      if c is not None]) if p else []})
+    return {"ok": True, "gmfe": gmfe, "by_route": by_route, "optimized": optimized, "series": series}
+
+
 def _topology(project: str, snapd: dict) -> dict:
     """The model's drug-specific structure (the NON-fixed part), parsed from a
     finished snapshot: distribution/permeability methods, metabolizing enzymes,
@@ -694,6 +800,22 @@ def create_app():
     @app.get("/api/catalog")
     def catalog():
         return JSONResponse(_catalog())
+
+    @app.get("/api/model")
+    def model_view(compound: str):
+        f = _find(compound)
+        if not f:
+            return JSONResponse({"error": "unknown compound"}, status_code=404)
+        return JSONResponse(_model_view(f))
+
+    @app.post("/api/try")
+    def try_model(payload: dict):
+        compound = payload.get("compound")
+        edits = payload.get("edits") or {}
+        f = _find(compound)
+        if not f:
+            return JSONResponse({"error": "unknown compound"}, status_code=404)
+        return JSONResponse(_try_model(f, edits))
 
     @app.get("/api/rw/topology")
     def rw_topology(project: str):
