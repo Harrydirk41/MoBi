@@ -219,6 +219,14 @@
   .edp small{color:var(--faint);font-size:10px}
   .ed-foot{display:flex;align-items:center;gap:10px;padding:12px 16px;border-top:1px solid var(--border-2)}
   #edPlotWrap{padding:6px 12px 0}
+  table.sbtbl{width:100%;border-collapse:collapse;font-size:12.5px}
+  table.sbtbl th{text-align:left;font-size:10.5px;text-transform:uppercase;letter-spacing:.04em;color:var(--faint);padding:6px 14px;border-bottom:1px solid var(--border)}
+  table.sbtbl td{padding:7px 14px;border-bottom:1px solid var(--border-2)}
+  table.sbtbl td.g{font-family:var(--mono);text-align:right}
+  .sbst{font-size:10.5px;font-weight:600;padding:2px 8px;border-radius:6px}
+  .sbst.run{background:var(--warn-soft);color:var(--warn)}.sbst.done{background:var(--good-soft);color:var(--good)}
+  .sbst.fail{background:var(--crit-soft);color:var(--crit)}.sbst.idle{background:var(--surface-2);color:var(--muted)}
+  .sbpass{color:var(--good);font-weight:600}.sbfail-v{color:var(--crit)}
   .topoinfo b{color:var(--ink)}
   .fitbar{display:flex;align-items:center;gap:10px;padding:4px 14px 2px}
   .fitbar .act[disabled]{opacity:.55;cursor:default}
@@ -233,7 +241,10 @@
       <div class="logo"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="5" r="2.1"/><circle cx="5.5" cy="16" r="2.1"/><circle cx="18.5" cy="16" r="2.1"/><path d="M12 7v4m0 0-5 4m5-4 5 4"/></svg></div>
       <div><b>PBPK Copilot</b><span>AI modeling agent · live</span></div>
     </div>
-    <div style="padding:10px 12px 2px"><button class="catbtn" id="catBtn"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>Build / edit model</button></div>
+    <div style="padding:10px 12px 2px;display:flex;flex-direction:column;gap:6px">
+      <button class="catbtn" id="catBtn"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>Build / edit model</button>
+      <button class="catbtn" id="sbBtn"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 19V5m6 14V9m6 10V3"/></svg>Autonomous run all</button>
+    </div>
     <div class="rail-sec"><h4>Models</h4><div id="modelList"><div class="m-item" style="opacity:.6"><span class="dot idle"></span><span class="meta"><b>loading…</b></span></div></div></div>
     <div class="ctrl">
       <label>LLM</label>
@@ -300,6 +311,18 @@
       <div class="plotlegend" id="cmLegend"></div>
       <div class="report" id="cmReport"></div>
     </div>
+  </div>
+</div>
+
+<div class="modal" id="sbModal" hidden>
+  <div class="modal-back" id="sbBack"></div>
+  <div class="modal-card">
+    <div class="modal-head">
+      <div><b>Autonomous scoreboard</b><small>the agent builds every compound, then blind-grades on held-out studies</small></div>
+      <button class="iconbtn" id="sbClose" aria-label="Close"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+    </div>
+    <div class="modal-body"><table class="sbtbl"><thead><tr><th>Compound</th><th>Status</th><th>in-sample</th><th>held-out</th></tr></thead><tbody id="sbBody"></tbody></table></div>
+    <div class="ed-foot"><button class="btn primary" id="sbStart">▶ Run all</button><button class="btn" id="sbStop" hidden>Stop</button><span id="sbState" class="hint" style="padding:0"></span></div>
   </div>
 </div>
 
@@ -655,6 +678,62 @@ $("#edToAgent").onclick=()=>{
 };
 $("#edBack").onclick=()=>$("#edModal").hidden=true;$("#edClose").onclick=()=>$("#edModal").hidden=true;
 $("#catBtn").onclick=openEditor;
+
+/* -------- #3 autonomous batch scoreboard -------------------------------- */
+let sbStop=false, sbAbort=null;
+function sbRowId(c){return "sb-"+c.replace(/[^A-Za-z0-9]/g,"_");}
+function renderScoreboard(comps){
+  $("#sbBody").innerHTML=comps.map(c=>`<tr id="${sbRowId(c)}"><td>${escapeHtml(c)}</td><td><span class="sbst idle">queued</span></td><td class="g">—</td><td class="g">—</td></tr>`).join("");
+}
+function sbSet(c,o){
+  const row=document.getElementById(sbRowId(c));if(!row)return;
+  const tds=row.querySelectorAll("td");
+  if(o.status){const map={running:["run","building…"],grading:["run","grading held-out…"],done:["done","done"],failed:["fail","failed"]};
+    const[cls,lbl]=map[o.status]||["idle",o.status];tds[1].innerHTML=`<span class="sbst ${cls}">${escapeHtml(o.note||lbl)}</span>`;}
+  if("in_sample" in o)tds[2].textContent=o.in_sample!=null?(+o.in_sample).toFixed(2):"—";
+  if("held_out" in o)tds[3].innerHTML=o.held_out!=null?`<span class="${+o.held_out<=1.5?'sbpass':'sbfail-v'}">${(+o.held_out).toFixed(2)}</span>`:"—";
+}
+function runOne(compound){
+  return new Promise(async(resolve)=>{
+    let best_gmfe=null,best_edits=null,err=null;let rid;
+    try{rid=(await (await fetch("/api/run",{method:"POST",headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({compound,model:$("#llm").value,max_steps:+$("#steps").value})})).json()).run_id;}
+    catch(e){return resolve({error:"server error"});}
+    const s=new EventSource(`/api/stream/${rid}`);
+    sbAbort=()=>{try{s.close();}catch(e){}resolve({error:"stopped"});};
+    s.onmessage=(m)=>{let ev;try{ev=JSON.parse(m.data);}catch(e){return;}
+      if(ev.type==="done"){best_gmfe=ev.best_gmfe;best_edits=ev.best_edits;}
+      else if(ev.type==="error"){err=ev.message;}
+      else if(ev.type==="end"){try{s.close();}catch(e){}resolve({best_gmfe,best_edits,error:err});}};
+    s.onerror=()=>{};
+  });
+}
+async function runAllAutonomous(){
+  const comps=(MODELS||[]).map(m=>m.compound);
+  if(!comps.length){$("#sbState").textContent="no compounds";return;}
+  sbStop=false;$("#sbStart").hidden=true;$("#sbStop").hidden=false;
+  renderScoreboard(comps);let done=0;
+  for(const c of comps){
+    if(sbStop)break;
+    $("#sbState").textContent=`running ${c} (${done+1}/${comps.length})…`;
+    sbSet(c,{status:"running"});
+    const r=await runOne(c);
+    if(sbStop){sbSet(c,{status:"failed",note:"stopped"});break;}
+    if(r.error){sbSet(c,{status:"failed",note:r.error});done++;continue;}
+    sbSet(c,{status:"grading",in_sample:r.best_gmfe});
+    let held=null;
+    if(r.best_edits){try{const g=await (await fetch("/api/grade",{method:"POST",headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({compound:c,edits:r.best_edits})})).json();if(g.ok)held=g.gmfe;}catch(e){}}
+    sbSet(c,{status:"done",in_sample:r.best_gmfe,held_out:held});done++;
+  }
+  $("#sbStart").hidden=false;$("#sbStop").hidden=true;
+  $("#sbState").textContent=sbStop?"stopped":`finished ${done}/${comps.length}`;
+}
+$("#sbBtn").onclick=()=>{$("#sbModal").hidden=false;if(!$("#sbBody").children.length)renderScoreboard((MODELS||[]).map(m=>m.compound));};
+$("#sbStart").onclick=runAllAutonomous;
+$("#sbStop").onclick=()=>{sbStop=true;if(sbAbort)sbAbort();$("#sbState").textContent="stopping…";};
+$("#sbBack").onclick=()=>{if($("#sbStop").hidden)$("#sbModal").hidden=true;};
+$("#sbClose").onclick=()=>{if($("#sbStop").hidden)$("#sbModal").hidden=true;else $("#sbState").textContent="stop the run first";};
 
 function closeContext(){$("#ctxModal").hidden=true;}
 $("#ctxBack").onclick=closeContext;$("#cmClose").onclick=closeContext;

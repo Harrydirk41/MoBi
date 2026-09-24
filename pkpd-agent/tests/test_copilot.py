@@ -112,6 +112,12 @@ class TestCopilotServer(unittest.TestCase):
             self.assertTrue(j.get("error"))
         self.assertEqual(self.c.post("/api/try", json={"compound": "NoSuch"}).status_code, 404)
 
+    def test_grade_endpoint_held_out(self):
+        r = self.c.post("/api/grade", json={"compound": "Triazolam", "edits": {}})
+        self.assertEqual(r.status_code, 200)
+        self.assertIn("ok", r.json())                       # graceful (needs CLI to actually grade)
+        self.assertEqual(self.c.post("/api/grade", json={"compound": "NoSuch"}).status_code, 404)
+
     def test_rw_topology_parses_structure(self):
         r = self.c.get("/api/rw/topology?project=Tizanidine")
         if r.status_code == 404:

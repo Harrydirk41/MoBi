@@ -211,10 +211,11 @@ def _model_view(f: dict) -> dict:
     }
 
 
-def _try_model(f: dict, edits: dict) -> dict:
+def _try_model(f: dict, edits: dict, subset: str = "building") -> dict:
     """Run the human-edited model. If `edits` has an `estimate` block, optimize it;
-    otherwise just build+run with the given values. Returns GMFE + per-study
-    observed vs simulated series for the fit overlay. Needs PKSim.CLI."""
+    otherwise just build+run with the given values. `subset` picks which studies to
+    score on: 'building' (fit set) or 'held_out' (blind grade). Returns GMFE +
+    per-study observed vs simulated series for the fit overlay. Needs PKSim.CLI."""
     from pkpd_agent.config import AgentConfig
     from pkpd_agent.engines.osp_cli import OSPCli
     from pkpd_agent.engines import osp_score, osp_split
@@ -228,7 +229,13 @@ def _try_model(f: dict, edits: dict) -> dict:
     snapd = json.load(open(f["snapshot"], encoding="utf-8"))
     split = osp_split.split_studies(snapd, observed)
     build = set(split.get("building") or [])
-    obs = [o for o in observed if o["dataset"] in build] or observed
+    if subset == "held_out":
+        held = set(split.get("verification") or [])
+        obs = [o for o in observed if o["dataset"] in held]
+        if not obs:
+            return {"ok": False, "error": "no held-out studies for this compound"}
+    else:
+        obs = [o for o in observed if o["dataset"] in build] or observed
     estimate = edits.get("estimate") or {}
     structure = {k: edits[k] for k in ("calculation_methods", "processes", "add_processes")
                  if k in edits}
@@ -816,6 +823,17 @@ def create_app():
         if not f:
             return JSONResponse({"error": "unknown compound"}, status_code=404)
         return JSONResponse(_try_model(f, edits))
+
+    @app.post("/api/grade")
+    def grade(payload: dict):
+        # blind held-out grade of an adopted model (forward run on the verification
+        # studies the agent never fit). edits should carry fitted `parameters`.
+        compound = payload.get("compound")
+        edits = payload.get("edits") or {}
+        f = _find(compound)
+        if not f:
+            return JSONResponse({"error": "unknown compound"}, status_code=404)
+        return JSONResponse(_try_model(f, edits, subset="held_out"))
 
     @app.get("/api/rw/topology")
     def rw_topology(project: str):
