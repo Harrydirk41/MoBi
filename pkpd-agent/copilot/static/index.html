@@ -297,7 +297,7 @@
       </div>
       <div class="runbar">
         <button class="btn primary" id="runBtn" disabled><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 4l14 8-14 8V4Z"/></svg>Build with agent</button>
-        <button class="btn" id="stopBtn" hidden>Stop watching</button>
+        <button class="btn" id="stopBtn" hidden>Stop</button>
         <span id="runState" class="hint" style="padding:0"></span>
       </div>
       <div class="hint">Runs the real agent on this machine — needs PKSim.CLI and an Anthropic key. The compound's own reference model is never in the library.</div>
@@ -379,7 +379,7 @@
 <script>
 "use strict";
 const $=(s)=>document.querySelector(s), el=(t,c,h)=>{const e=document.createElement(t);if(c)e.className=c;if(h!=null)e.innerHTML=h;return e;};
-let current=null, es=null, cmProject=null;
+let current=null, es=null, cmProject=null, curRunId=null;
 let pending=[];         // tool calls awaiting their result, matched by tool name
 let PROJECTS=[];        // every real-world project name (context data lake)
 let ctxSel={};          // project -> bool : projects the agent is allowed to read
@@ -775,16 +775,16 @@ function stopOne(c){                    // stop a single compound; the rest keep
 }
 function runOne(compound){
   return new Promise((resolve)=>{
-    let best_gmfe=null,best_edits=null,err=null,s=null,done=false;
+    let best_gmfe=null,best_edits=null,err=null,s=null,done=false,rid=null;
     const finish=(o)=>{if(done)return;done=true;try{if(s)s.close();}catch(e){}sbAborts.delete(abort);sbAbortByComp.delete(compound);resolve(o);};
-    const abort=()=>finish({error:"stopped"});   // Stop (all or one) resolves the pending run
+    // Stop (all or one) also cancels the run on the SERVER so it stops building
+    const abort=()=>{if(rid)fetch("/api/cancel/"+rid,{method:"POST"}).catch(()=>{});finish({error:"stopped"});};
     sbAborts.add(abort);sbAbortByComp.set(compound,abort);
     (async()=>{
-      let rid;
       try{rid=(await (await fetch("/api/run",{method:"POST",headers:{"Content-Type":"application/json"},
         body:JSON.stringify({compound,model:$("#llm").value,max_steps:+$("#steps").value})})).json()).run_id;}
       catch(e){return finish({error:"server error"});}
-      if(sbStop||sbStopOne.has(compound)||done)return finish({error:"stopped"});
+      if(sbStop||sbStopOne.has(compound)||done){if(rid)fetch("/api/cancel/"+rid,{method:"POST"}).catch(()=>{});return finish({error:"stopped"});}
       s=new EventSource(`/api/stream/${rid}`);
       s.onmessage=(m)=>{let ev;try{ev=JSON.parse(m.data);}catch(e){return;}
         if(ev.type==="done"){best_gmfe=ev.best_gmfe;best_edits=ev.best_edits;}
@@ -1013,11 +1013,17 @@ $("#runBtn").onclick=async()=>{
   try{run_id=(await (await fetch("/api/run",{method:"POST",headers:{"Content-Type":"application/json"},
     body:JSON.stringify({compound:current,model:$("#llm").value,max_steps:+$("#steps").value,context_projects:ctx,self_extract:$("#selfExtract").checked,note:$("#noteBox").value.trim()||null})})).json()).run_id;}
   catch(e){$("#runState").textContent="server not reachable";$("#runBtn").disabled=false;return;}
+  curRunId=run_id;
   es=new EventSource(`/api/stream/${run_id}`);
   es.onmessage=(m)=>handle(JSON.parse(m.data));
   es.onerror=()=>{$("#runState").textContent="stream closed";};
 };
-$("#stopBtn").onclick=()=>{if(es)es.close();$("#stopBtn").hidden=true;$("#runBtn").disabled=false;$("#runState").textContent="stopped watching";};
+// Stop = cancel the run on the SERVER (not just stop watching) + mark the rail
+$("#stopBtn").onclick=()=>{
+  if(curRunId)fetch("/api/cancel/"+curRunId,{method:"POST"}).catch(()=>{});
+  if(es)es.close();$("#stopBtn").hidden=true;$("#runBtn").disabled=false;$("#runState").textContent="stopping the run…";
+  if(buildingComp)railSet(buildingComp,"stopped");
+};
 
 function addStep(icon,title,sub){
   const s=el("div","step");

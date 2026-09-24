@@ -25,6 +25,27 @@ class TestLoopWithScriptedPolicy(unittest.TestCase):
         tools_run = [o.tool for o in session.observations]
         self.assertEqual(tools_run, ["pharmpy_load_model", "pharmpy_fit", "pharmpy_vpc"])
 
+    def test_should_stop_cancels_before_any_tool(self):
+        # a caller-supplied cancel flag stops the loop cleanly at the first
+        # boundary: no tool runs, and the transcript ends in Finish.
+        policy = ScriptedPolicy(steps=[
+            ("call", "pharmpy_load_model", {"path": "warfarin.mod"}),
+            ("finish", "done"),
+        ])
+        loop = DecisionLoop(config=AgentConfig(mock=True), policy=policy)
+        session = loop.run("Fit a model.", should_stop=lambda: True)
+        self.assertEqual(len(session.observations), 0)          # nothing dispatched
+        self.assertTrue(any(isinstance(e, Finish) for e in session.transcript))
+
+    def test_should_stop_false_runs_normally(self):
+        policy = ScriptedPolicy(steps=[
+            ("call", "pharmpy_load_model", {"path": "warfarin.mod"}),
+            ("finish", "done"),
+        ])
+        loop = DecisionLoop(config=AgentConfig(mock=True), policy=policy)
+        session = loop.run("Fit a model.", should_stop=lambda: False)
+        self.assertEqual([o.tool for o in session.observations], ["pharmpy_load_model"])
+
     def test_parallel_calls_in_one_step(self):
         policy = ScriptedPolicy(steps=[
             ("calls", [

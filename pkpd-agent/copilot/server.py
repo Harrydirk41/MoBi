@@ -871,8 +871,11 @@ def _run_agent_locked(run_id, p, q) -> None:
     writer = _QueueWriter(q)
     router = _install_router()                          # route THIS thread's prints to q
     router.register(writer)
+    # cooperative cancel: /api/cancel sets this flag; the loop checks it at each
+    # step/tool boundary and stops cleanly (frees the worker slot).
+    should_stop = lambda: bool(_RUNS.get(run_id, {}).get("cancel"))
     try:
-        session = loop.run(goal, on_event=on_event)
+        session = loop.run(goal, on_event=on_event, should_stop=should_stop)
     finally:
         router.flush()
         router.unregister()
@@ -1050,6 +1053,16 @@ def create_app():
         threading.Thread(target=_run_agent, args=(run_id, params), daemon=True).start()
         return JSONResponse({"run_id": run_id})
 
+    @app.post("/api/cancel/{run_id}")
+    def cancel(run_id: str):
+        # cooperatively stop the server-side agent run: the loop checks this
+        # flag at each step/tool boundary and finishes cleanly, freeing the slot.
+        run = _RUNS.get(run_id)
+        if not run:
+            return JSONResponse({"ok": False, "error": "unknown run"}, status_code=404)
+        run["cancel"] = True
+        return JSONResponse({"ok": True, "cancelled": run_id, "done": run.get("done", False)})
+
     @app.get("/api/deliverable")
     def deliverable(compound: str):
         from fastapi.responses import Response
@@ -1110,7 +1123,29 @@ def _lan_ips() -> list[str]:
     return ips
 
 
+def _clear_cache() -> int:
+    """Delete the on-disk reference-fit cache (the *.reffit.json overlay files
+    the '▶ Run the model' button writes). The agent build itself is never
+    cached; /api/try and Explore run live in throwaway temp dirs. The in-memory
+    cache clears whenever the server restarts."""
+    import glob as _glob
+    n = 0
+    for fp in _glob.glob(os.path.join(_LIB, "*", "benchmark", ".reffit.json")):
+        try:
+            os.remove(fp); n += 1
+        except OSError:
+            pass
+    _REFFIT_CACHE.clear()
+    return n
+
+
 def main():
+    import sys
+    if "--clear-cache" in sys.argv[1:]:
+        n = _clear_cache()
+        print(f"cleared {n} cached reference-fit file(s) under {_LIB}")
+        print("(the agent build is never cached; the in-memory cache clears on restart)")
+        return
     import uvicorn
     host = os.environ.get("PBPK_COPILOT_HOST", "127.0.0.1")
     port = int(os.environ.get("PBPK_COPILOT_PORT", "8765"))

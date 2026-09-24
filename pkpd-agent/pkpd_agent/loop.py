@@ -37,10 +37,15 @@ class DecisionLoop:
         return LLMPolicy(self.config, self.registry, SYSTEM_PROMPT)
 
     def run(self, goal: str, session: Optional[ModelingSession] = None,
-            on_event=None) -> ModelingSession:
+            on_event=None, should_stop=None) -> ModelingSession:
         """Drive the loop. ``on_event(event)`` is called after each event is
         recorded, so callers can stream the trace live (each step includes a
-        slow tool call, so batched output would look frozen)."""
+        slow tool call, so batched output would look frozen).
+
+        ``should_stop`` is an optional zero-arg callable; when it returns true
+        the loop stops cleanly at the next step/tool boundary (it cannot
+        interrupt a PK-Sim call already in flight, but no new step or call is
+        started), so a caller can cancel a run and free the worker."""
         session = session or ModelingSession(goal=goal)
         policy = self.policy or self._build_policy()
 
@@ -49,7 +54,13 @@ class DecisionLoop:
             if on_event is not None:
                 on_event(ev)
 
+        def stopped():
+            return bool(should_stop and should_stop())
+
         for _ in range(self.config.max_steps):
+            if stopped():
+                emit(Finish("Cancelled by request."))
+                break
             if hasattr(policy, "observe"):
                 policy.observe(session)
 
@@ -67,6 +78,10 @@ class DecisionLoop:
 
             halted = False
             for call in calls:
+                if stopped():
+                    emit(Finish("Cancelled by request."))
+                    halted = True
+                    break
                 result = self.registry.dispatch(call.name, call.arguments, session)
                 findings = self._verify(call.name, result)
                 obs = Observation(

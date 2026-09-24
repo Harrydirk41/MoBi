@@ -112,6 +112,31 @@ you opt in), sized near the machine's core count:
 Keep `PKPD_JOBS × PKPD_COPILOT_JOBS` around the core count — each PK-Sim process
 uses a core and a few hundred MB, so over-subscribing thrashes.
 
+## Stopping a run
+
+**Stop** (single build), the scoreboard's **Stop**, and each row's **✕** now
+cancel the run *on the server*, not just in the browser: the button POSTs to
+`/api/cancel/{run_id}` and the agent loop checks that flag at every step/tool
+boundary and finishes cleanly, freeing the worker slot. It can't interrupt a
+PK-Sim call already in flight (that subprocess runs to its own timeout), but no
+new step or fit is started, so a stop takes effect within one tool call. Closing
+the page only stops *watching*; use a Stop button (or `POST /api/cancel/<id>`) to
+stop the work itself.
+
+## Clearing the cache
+
+The only thing cached on disk is the reference-fit overlay (`▶ Run the model`),
+one `.reffit.json` per compound under `OSP-PBPK-Model-Library/*/benchmark/`. The
+agent build is never cached, and `/api/try` + Explore run live in throwaway temp
+dirs. To clear it:
+
+```powershell
+python -m copilot.server --clear-cache     # deletes the .reffit.json files, reports the count
+```
+
+The in-memory copy of that cache clears whenever you restart the server. (Raw
+equivalent: delete `OSP-PBPK-Model-Library\*\benchmark\.reffit.json`.)
+
 ## Notes
 
 - Set `PKPD_COPILOT_JOBS`/`PKPD_JOBS` to 1 (default) for one run at a time.

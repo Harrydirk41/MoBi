@@ -303,6 +303,38 @@ class TestCopilotServer(unittest.TestCase):
             if prev is not None:
                 os.environ["ANTHROPIC_API_KEY"] = prev
 
+    def test_cancel_sets_flag_and_404s_unknown(self):
+        from copilot import server
+        self.assertEqual(self.c.post("/api/cancel/nosuchrun").status_code, 404)
+        rid = "unit_cancel_run"
+        server._RUNS[rid] = {"queue": None, "done": False}
+        try:
+            r = self.c.post(f"/api/cancel/{rid}")
+            self.assertEqual(r.status_code, 200)
+            self.assertTrue(r.json()["ok"])
+            self.assertTrue(server._RUNS[rid]["cancel"])     # loop's should_stop reads this
+        finally:
+            server._RUNS.pop(rid, None)
+
+    def test_clear_cache_removes_reffit_only(self):
+        import os as _os
+        from copilot import server
+        server._REFFIT_CACHE["Zz"] = [1]
+        # drop a fake .reffit.json into a compound's benchmark dir, if the library exists
+        libs = [d for d in (_os.path.isdir(server._LIB) and _os.listdir(server._LIB) or [])
+                if _os.path.isdir(_os.path.join(server._LIB, d, "benchmark"))]
+        made = None
+        if libs:
+            made = _os.path.join(server._LIB, libs[0], "benchmark", ".reffit.json")
+            existed = _os.path.exists(made)
+            if not existed:
+                open(made, "w").write("[]")
+        n = server._clear_cache()
+        self.assertEqual(server._REFFIT_CACHE, {})           # in-memory cache cleared
+        if made:
+            self.assertFalse(_os.path.exists(made))          # the disk cache file is gone
+            self.assertGreaterEqual(n, 1)
+
 
 if __name__ == "__main__":
     unittest.main()
