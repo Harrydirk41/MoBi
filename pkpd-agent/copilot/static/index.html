@@ -397,15 +397,16 @@ function topology(d){
      `<text x="${cx}" y="37" text-anchor="middle" font-size="12" fill="var(--muted)">Lung</text></g>`;
   organs.forEach((o,i)=>{
     const y=midY(i), boxY=top+i*rowH+6;
-    // visible thin flow line + a fat TRANSPARENT hit line so the 1px edge is hoverable
+    // visible thin flow line + a fat TRANSPARENT hit line so the 1px edge is hoverable,
+    // each tagged per-organ so it shows a specific "which vessel -> which organ" note
     g+=`<line x1="46" y1="${y}" x2="${bx}" y2="${y}" stroke="var(--crit)" stroke-opacity=".3"/>`;   // arterial in
-    g+=`<line class="tedge" data-k="arterial" x1="46" y1="${y}" x2="${bx}" y2="${y}" stroke="transparent" stroke-width="12" pointer-events="stroke"/>`;
+    g+=`<line class="tedge" data-k="a:${escapeHtml(o.n)}" x1="46" y1="${y}" x2="${bx}" y2="${y}" stroke="transparent" stroke-width="13" pointer-events="stroke"/>`;
     if(o.portal){   // portal vein -> liver
       g+=`<path d="M${bxr} ${y} C ${bxr+38} ${y}, ${bxr+38} ${liverMid}, ${bxr} ${liverMid}" fill="none" stroke="var(--warn)" stroke-width="1.3" stroke-dasharray="3 3" stroke-opacity=".85"/>`;
-      g+=`<path class="tedge" data-k="portal" d="M${bxr} ${y} C ${bxr+38} ${y}, ${bxr+38} ${liverMid}, ${bxr} ${liverMid}" fill="none" stroke="transparent" stroke-width="13" pointer-events="stroke"/>`;
+      g+=`<path class="tedge" data-k="p:${escapeHtml(o.n)}" d="M${bxr} ${y} C ${bxr+38} ${y}, ${bxr+38} ${liverMid}, ${bxr} ${liverMid}" fill="none" stroke="transparent" stroke-width="14" pointer-events="stroke"/>`;
     }else{
       g+=`<line x1="${bxr}" y1="${y}" x2="${vL}" y2="${y}" stroke="var(--accent)" stroke-opacity=".3"/>`;  // venous out
-      g+=`<line class="tedge" data-k="venous" x1="${bxr}" y1="${y}" x2="${vL}" y2="${y}" stroke="transparent" stroke-width="12" pointer-events="stroke"/>`;
+      g+=`<line class="tedge" data-k="v:${escapeHtml(o.n)}" x1="${bxr}" y1="${y}" x2="${vL}" y2="${y}" stroke="transparent" stroke-width="13" pointer-events="stroke"/>`;
     }
     g+=`<g class="torg" data-k="${escapeHtml(o.n)}">`+
        `<rect x="${bx}" y="${boxY}" width="${bw}" height="${boxH}" rx="8" fill="${o.hi?'var(--accent-soft)':'var(--surface-2)'}" stroke="${o.hi?'var(--accent)':'var(--border)'}" stroke-width="${o.hi?1.5:1}"/>`+
@@ -434,6 +435,15 @@ function topology(d){
     if(o.n==="Gut"&&d.oral)
       s+='<br><b>Absorption:</b> oral dissolution'+((d.formulations||[]).length?` (${d.formulations.map(escapeHtml).join(', ')})`:'');
     info[o.n]=s;
+    // the connecting flow lines (rail <-> organ box)
+    info["a:"+o.n]=`<b>Arterial blood → ${escapeHtml(o.n)}</b> — arterial blood delivers drug into ${escapeHtml(o.n)} at its fixed blood flow Q; tissue uptake follows the ${escapeHtml(d.distribution||'?')} Kp.`;
+    let vnote="";
+    if(o.n==="Liver"&&(d.metabolism||[]).length) vnote=` Drug is cleared here first (first-pass) by ${d.metabolism.map(m=>escapeHtml(m.enzyme||'enzyme')).join(', ')}.`;
+    if(o.n==="Kidney"&&d.renal) vnote=" Some drug is filtered out here (GFR).";
+    if(o.portal)
+      info["p:"+o.n]=`<b>${escapeHtml(o.n)} → portal vein → Liver</b> — ${escapeHtml(o.n)} drains into the liver FIRST (portal/first-pass), not straight back to venous blood.`;
+    else
+      info["v:"+o.n]=`<b>${escapeHtml(o.n)} → venous blood</b> — returns drug to the venous pool at flow Q.${vnote}`;
   });
   info.Lung="<b>Lung</b> — receives the whole venous return and passes it to arterial blood (mixing compartment).";
   info.arterial="<b>Arterial blood</b> — delivers drug from the lung to every organ. Organ blood flows Q are fixed physiology.";
