@@ -76,6 +76,51 @@ def _downsample(pts: list, n: int = 160) -> list:
     return [pts[int(i * step)] for i in range(n)]
 
 
+_PART_DESC = {
+    "PK-Sim Standard": "Lipophilicity-based empirical tissue:plasma partitioning (PK-Sim default).",
+    "Rodgers and Rowland": "Mechanistic tissue:plasma for ionizable drugs — tissue lipids/water plus "
+    "electrostatic binding to acidic phospholipids (bases) or to albumin (acids/neutrals).",
+    "Schmitt": "Mechanistic partitioning from lipophilicity, pKa and tissue lipid/water/protein content.",
+    "Poulin and Theil": "Lipid/water partition from logP and tissue composition (neutral-drug oriented).",
+    "Berezhkovskiy": "Poulin & Theil corrected for the drug fraction in tissue vs plasma (volume correction).",
+}
+_PERM_DESC = {
+    "PK-Sim Standard": "Cellular permeability from lipophilicity / molecular weight (PK-Sim default).",
+    "Charge dependent Schmitt": "Permeability accounting for the charged fraction (pKa-dependent).",
+    "Charge dependent Schmitt normalized to PK-Sim": "Charge-dependent Schmitt rescaled to the "
+    "PK-Sim standard baseline.",
+}
+
+
+def _catalog() -> dict:
+    """The whole (compound-independent) PK-Sim action space the agent chooses from:
+    distribution/permeability methods, the mechanisms it may add, and the universe
+    of parameters grouped by tier (never-fit / measured / fittable)."""
+    from pkpd_agent.engines import osp_catalog as C
+    from pkpd_agent.engines.snapshot_edit import PARTITION_METHODS, PERMEABILITY_METHODS
+    procs = []
+    for key, spec in C.PROCESS_TYPES.items():
+        procs.append({"key": key, "description": spec.get("description"),
+                      "applies_to": spec.get("applies_to"),
+                      "validated": spec.get("validated", False),
+                      "parameters": [p.get("name") for p in spec.get("parameters") or []]})
+    params = {"constant": [], "measured_soft": [], "estimate": []}
+    for name, v in C.PARAM_CATALOG.items():
+        tier = v.get("tier", "estimate")
+        params.setdefault(tier, []).append(
+            {"name": name, "role": v.get("role"), "description": v.get("description")})
+    return {
+        "partition_methods": [{"name": m, "description": _PART_DESC.get(m)} for m in PARTITION_METHODS],
+        "permeability_methods": [{"name": m, "description": _PERM_DESC.get(m)} for m in PERMEABILITY_METHODS],
+        "process_types": procs,
+        "parameters": params,
+        "counts": {"partition": len(PARTITION_METHODS), "permeability": len(PERMEABILITY_METHODS),
+                   "process_types": len(procs),
+                   "constant": len(params["constant"]), "measured": len(params["measured_soft"]),
+                   "fittable": len(params["estimate"])},
+    }
+
+
 def _topology(project: str, snapd: dict) -> dict:
     """The model's drug-specific structure (the NON-fixed part), parsed from a
     finished snapshot: distribution/permeability methods, metabolizing enzymes,
@@ -602,6 +647,10 @@ def create_app():
     @app.get("/api/rw/series")
     def rw_series(project: str, kind: str = "test"):
         return JSONResponse({"series": _rw_series(project, kind)})
+
+    @app.get("/api/catalog")
+    def catalog():
+        return JSONResponse(_catalog())
 
     @app.get("/api/rw/topology")
     def rw_topology(project: str):

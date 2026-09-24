@@ -78,6 +78,16 @@ class TestCopilotServer(unittest.TestCase):
         self.assertTrue(self.c.get(
             "/api/rw/series?project=Midazolam&kind=context").json()["series"])
 
+    def test_catalog_lists_full_action_space(self):
+        c = self.c.get("/api/catalog").json()
+        self.assertEqual(len(c["partition_methods"]), 5)
+        self.assertEqual(len(c["permeability_methods"]), 3)
+        self.assertGreaterEqual(len(c["process_types"]), 15)
+        self.assertTrue(c["parameters"]["estimate"])       # fittable set
+        self.assertTrue(c["parameters"]["constant"])       # never-fit set
+        self.assertTrue(all(m.get("description") for m in c["partition_methods"]))
+        self.assertEqual(c["counts"]["fittable"], len(c["parameters"]["estimate"]))
+
     def test_rw_topology_parses_structure(self):
         r = self.c.get("/api/rw/topology?project=Tizanidine")
         if r.status_code == 404:
