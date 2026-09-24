@@ -512,11 +512,40 @@ def create_app():
     return app
 
 
+def _lan_ips() -> list[str]:
+    """Best-effort local IPv4 addresses, for the 'open from another computer' case."""
+    import socket
+    ips = []
+    try:                                            # the IP that routes outbound
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        s.connect(("8.8.8.8", 80))
+        ips.append(s.getsockname()[0])
+        s.close()
+    except OSError:
+        pass
+    try:
+        for info in socket.getaddrinfo(socket.gethostname(), None, socket.AF_INET):
+            ip = info[4][0]
+            if ip not in ips and not ip.startswith("127."):
+                ips.append(ip)
+    except OSError:
+        pass
+    return ips
+
+
 def main():
     import uvicorn
     host = os.environ.get("PBPK_COPILOT_HOST", "127.0.0.1")
     port = int(os.environ.get("PBPK_COPILOT_PORT", "8765"))
     print(f"PBPK Copilot -> http://{host}:{port}")
+    if host in ("0.0.0.0", "::"):                   # bound to all interfaces
+        for ip in _lan_ips():
+            print(f"   reachable from another computer on this network -> http://{ip}:{port}")
+        print("   (same network only; no login — keep it to a trusted network. "
+              "The agent, PK-Sim and your API key all run on THIS machine.)")
+    else:
+        print("   local only. To reach it from another computer set "
+              "PBPK_COPILOT_HOST=0.0.0.0 and use this machine's LAN IP.")
     uvicorn.run(create_app(), host=host, port=port, log_level="info")
 
 
