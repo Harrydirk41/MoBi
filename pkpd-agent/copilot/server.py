@@ -65,6 +65,70 @@ def _rw_series(project: str, kind: str = "test", cap: int = 400) -> list[dict]:
 # ---- runs registry -------------------------------------------------------- #
 _RUNS: dict[str, dict] = {}
 _RUN_LOCK = threading.Lock()                        # serialize runs (stdout capture)
+_SIM_LOCK = threading.Lock()                        # serialize reference-fit sims
+_REFFIT_CACHE: dict[str, list] = {}                 # project -> per-dataset obs+sim
+
+
+def _downsample(pts: list, n: int = 160) -> list:
+    if len(pts) <= n:
+        return pts
+    step = len(pts) / n
+    return [pts[int(i * step)] for i in range(n)]
+
+
+def _reffit(project: str) -> dict:
+    """Run a FINISHED reference model (forward simulation only — no fitting) and
+    return per-dataset observed + simulated curves for an interactive fit overlay.
+    Cached in-memory and on disk, so re-opening is instant. Needs PKSim.CLI."""
+    if project in _REFFIT_CACHE:
+        return {"ok": True, "series": _REFFIT_CACHE[project], "cached": True}
+    snap = os.path.join(_LIB, project, "json", f"{project}-Model.json")
+    inp = os.path.join(_LIB, project, "json_input", f"{project}-Model.input.json")
+    if not (os.path.isfile(snap) and os.path.isfile(inp)):
+        return {"ok": False, "error": f"no finished snapshot for {project}"}
+    disk = os.path.join(_LIB, project, "benchmark", ".reffit.json")
+    if os.path.isfile(disk):
+        try:
+            s = json.load(open(disk, encoding="utf-8"))
+            _REFFIT_CACHE[project] = s
+            return {"ok": True, "series": s, "cached": True}
+        except (OSError, ValueError):
+            pass
+    from pkpd_agent.config import AgentConfig
+    from pkpd_agent.engines.osp_cli import OSPCli
+    from pkpd_agent.engines import osp_score
+    cfg = AgentConfig(mock=False)
+    cli = OSPCli(pksim_cli_path=cfg.pksim_cli_path, timeout_s=cfg.pksim_timeout_s)
+    if not cli.pksim_cli_path or not os.path.exists(cli.pksim_cli_path):
+        return {"ok": False, "error": "PKSim.CLI not found — set PKPD_PKSIM_CLI to run the fit."}
+    with _SIM_LOCK:
+        if project in _REFFIT_CACHE:                # another request just built it
+            return {"ok": True, "series": _REFFIT_CACHE[project], "cached": True}
+        observed = json.load(open(inp, encoding="utf-8"))["given_data"]["clinical_observed_data"]
+        snapd = json.load(open(snap, encoding="utf-8"))
+        res = cli.build_and_run(snap, edits={})
+        if not res["ok"]:
+            return {"ok": False, "error": res["message"]}
+        linkage = osp_score.linkage_from_snapshot(snapd)
+        predicted, _ = osp_score.map_predictions(res["profiles"], observed, linkage)
+        pred_by_ds = {p["dataset"]: p for p in predicted}
+        series = []
+        for o in observed:
+            ds = o["dataset"]
+            obs = [[t, c] for t, c in zip(o.get("time_h", []), o.get("conc_mg_L", []))
+                   if c is not None]
+            p = pred_by_ds.get(ds)
+            sim = _downsample([[t, c] for t, c in zip(p["time_h"], p["pred_conc_mg_L"])
+                               if c is not None]) if p else []
+            series.append({"study": o.get("study") or ds, "route": o.get("route", ""),
+                           "dose": o.get("dose", ""), "observed": obs, "simulated": sim})
+        _REFFIT_CACHE[project] = series
+        try:
+            os.makedirs(os.path.dirname(disk), exist_ok=True)
+            json.dump(series, open(disk, "w", encoding="utf-8"))
+        except OSError:
+            pass
+        return {"ok": True, "series": series, "cached": False}
 
 
 def _compounds() -> list[dict]:
@@ -372,6 +436,11 @@ def create_app():
     @app.get("/api/rw/series")
     def rw_series(project: str, kind: str = "test"):
         return JSONResponse({"series": _rw_series(project, kind)})
+
+    @app.get("/api/rw/simulate")
+    def rw_simulate(project: str):
+        # run the finished reference model to get its simulated fit (cached)
+        return JSONResponse(_reffit(project))
 
     @app.get("/api/rw/figure")
     def rw_figure(project: str, path: str):

@@ -78,6 +78,26 @@ class TestCopilotServer(unittest.TestCase):
         self.assertTrue(self.c.get(
             "/api/rw/series?project=Midazolam&kind=context").json()["series"])
 
+    def test_rw_simulate_degrades_gracefully(self):
+        # without PKSim.CLI the reference-fit run returns a clean error, never 500
+        import os as _os
+        from copilot import server
+        prev = _os.environ.pop("PKPD_PKSIM_CLI", None)
+        server._REFFIT_CACHE.pop("Alfentanil", None)
+        try:
+            r = self.c.get("/api/rw/simulate?project=Alfentanil")
+            self.assertEqual(r.status_code, 200)
+            j = r.json()
+            # either it ran (CLI present) with series, or it reported why it couldn't
+            self.assertIn("ok", j)
+            if not j["ok"]:
+                self.assertTrue(j.get("error"))
+            miss = self.c.get("/api/rw/simulate?project=NoSuchProject").json()
+            self.assertFalse(miss["ok"])
+        finally:
+            if prev is not None:
+                _os.environ["PKPD_PKSIM_CLI"] = prev
+
     def test_rw_figure_serves_png_and_blocks_traversal(self):
         p = ("images/006_section_results-and-discussion/008_section_diagnostics-plots/"
              "2_gof_plot_predictedVsObserved.png")

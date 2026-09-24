@@ -160,6 +160,8 @@
   .modal-body{overflow:auto;padding:10px 8px 18px}
   .modal-body .report{max-height:none;padding:2px 18px 8px}
   .modal-warn{margin:0 14px 6px;padding:7px 11px;border-radius:9px;background:var(--warn-soft);color:var(--warn);font-size:11.5px}
+  .fitbar{display:flex;align-items:center;gap:10px;padding:4px 14px 2px}
+  .fitbar .act[disabled]{opacity:.55;cursor:default}
   @media (max-width:1120px){.app{grid-template-columns:236px minmax(0,1fr) 296px}}
   @media (max-width:980px){html,body{height:auto}.app{grid-template-columns:1fr;height:auto}.rail,.aside{height:auto;overflow:visible;border:0;border-bottom:1px solid var(--border)}.aside{order:3}.topbar{position:static}}
 </style>
@@ -231,6 +233,7 @@
     </div>
     <div class="modal-body">
       <div id="cmWarn" class="modal-warn" hidden></div>
+      <div class="fitbar"><button class="act dl" id="cmRunFit">▶ Run the model — overlay its fit</button><span id="cmFitState" class="mono" style="font-size:11px;color:var(--faint)"></span></div>
       <div class="plotwrap" id="cmPlot"></div>
       <div class="plotlegend" id="cmLegend"></div>
       <div class="report" id="cmReport"></div>
@@ -241,7 +244,7 @@
 <script>
 "use strict";
 const $=(s)=>document.querySelector(s), el=(t,c,h)=>{const e=document.createElement(t);if(c)e.className=c;if(h!=null)e.innerHTML=h;return e;};
-let current=null, es=null, curStep=null;
+let current=null, es=null, curStep=null, cmProject=null;
 let PROJECTS=[];        // every real-world project name (context data lake)
 let ctxSel={};          // project -> bool : projects the agent is allowed to read
 
@@ -313,6 +316,8 @@ $("#ctxNone").onclick=()=>{PROJECTS.forEach(p=>ctxSel[p]=false);renderCtx();};
 /* ---- support-context viewer: open another project's FULL built model ------ */
 async function openContext(project){
   const tgt=(project===current);
+  cmProject=project;
+  $("#cmRunFit").disabled=false;$("#cmFitState").textContent="";
   $("#cmTitle").textContent=project;
   $("#cmSub").textContent=tgt?"the compound you're modeling":"reference model — full report (methods & fitted values)";
   const warn=$("#cmWarn");
@@ -334,6 +339,51 @@ async function openContext(project){
 function closeContext(){$("#ctxModal").hidden=true;}
 $("#ctxBack").onclick=closeContext;$("#cmClose").onclick=closeContext;
 document.addEventListener("keydown",e=>{if(e.key==="Escape"&&!$("#ctxModal").hidden)closeContext();});
+
+/* run the finished reference model → overlay its simulated fit on the observed points */
+$("#cmRunFit").onclick=async()=>{
+  if(!cmProject)return;
+  const btn=$("#cmRunFit"),st=$("#cmFitState");
+  btn.disabled=true;st.textContent="running the model… (forward simulation)";
+  let r;try{r=await (await fetch(`/api/rw/simulate?project=${encodeURIComponent(cmProject)}`)).json();}
+  catch(e){st.textContent="server not reachable";btn.disabled=false;return;}
+  if(!r.ok){st.textContent=r.error||"failed";btn.disabled=false;return;}
+  const f=plotFit(r.series);$("#cmPlot").innerHTML=f.svg;$("#cmLegend").innerHTML=f.legend;
+  $("#cmLegend").querySelectorAll("span[data-i]").forEach(sp=>sp.onclick=()=>{sp.classList.toggle("off");
+    const g=$("#cmPlot").querySelector(`g.sr[data-i="${sp.dataset.i}"]`);if(g)g.classList.toggle("off");});
+  st.textContent=`line = model · ○ = observed${r.cached?" · cached":""}`;btn.disabled=false;
+};
+function plotFit(series){
+  series=(series||[]).filter(s=>(s.observed&&s.observed.length)||(s.simulated&&s.simulated.length));
+  if(!series.length)return{svg:'<div style="color:var(--faint);font-size:12px;padding:24px;text-align:center">no fit produced</div>',legend:''};
+  const W=720,H=300,pL=48,pR=14,pT=12,pB=30;
+  let tmax=0,cmin=Infinity,cmax=0;
+  const scan=pts=>pts.forEach(([t,c])=>{if(t>tmax)tmax=t;if(c>0){if(c<cmin)cmin=c;if(c>cmax)cmax=c;}});
+  series.forEach(s=>{scan(s.observed||[]);scan(s.simulated||[]);});
+  if(!(cmax>0))return{svg:'',legend:''};
+  const lo=Math.floor(Math.log10(cmin)),hi=Math.ceil(Math.log10(cmax));
+  const X=t=>pL+(t/(tmax||1))*(W-pL-pR);
+  const Y=c=>{const l=Math.log10(Math.max(c,10**lo));return pT+(1-(l-lo)/((hi-lo)||1))*(H-pT-pB);};
+  const COL=["#0E7C86","#BE3A2C","#9A6C08","#1C8A5B","#6A4CB6","#C24E8F","#2C6FB0","#B0662C"];
+  let g="";
+  for(let d=lo;d<=hi;d++){const y=Y(10**d);g+=`<line x1="${pL}" y1="${y.toFixed(1)}" x2="${W-pR}" y2="${y.toFixed(1)}" stroke="var(--border)"/>`+
+    `<text x="${pL-6}" y="${(y+3).toFixed(1)}" text-anchor="end" font-size="9" fill="var(--faint)">1e${d}</text>`;}
+  for(let k=0;k<=4;k++){const tv=tmax*k/4,x=X(tv);g+=`<text x="${x.toFixed(1)}" y="${H-pB+15}" text-anchor="middle" font-size="9" fill="var(--faint)">${tv.toFixed(tv<10?1:0)}</text>`;}
+  g+=`<text x="${(pL+(W-pR-pL)/2).toFixed(0)}" y="${H-4}" text-anchor="middle" font-size="9.5" fill="var(--muted)">time (h)</text>`;
+  g+=`<text transform="translate(12,${(pT+(H-pT-pB)/2).toFixed(0)}) rotate(-90)" text-anchor="middle" font-size="9.5" fill="var(--muted)">conc (log)</text>`;
+  const leg=[];
+  series.forEach((s,i)=>{const col=COL[i%COL.length];let sg="";
+    const sim=(s.simulated||[]).filter(([t,c])=>c>0);
+    if(sim.length>1){const dd=sim.map(([t,c],j)=>(j?"L":"M")+X(t).toFixed(1)+" "+Y(c).toFixed(1)).join(" ");
+      sg+=`<path d="${dd}" fill="none" stroke="${col}" stroke-width="1.8" opacity=".92"/>`;}
+    (s.observed||[]).filter(([t,c])=>c>0).forEach(([t,c])=>{
+      sg+=`<circle cx="${X(t).toFixed(1)}" cy="${Y(c).toFixed(1)}" r="2.7" fill="var(--surface)" stroke="${col}" stroke-width="1.3"><title>${escapeHtml(String(s.study||""))}: ${t} h · ${(+c).toPrecision(3)} mg/L</title></circle>`;});
+    g+=`<g class="sr" data-i="${i}">${sg}</g>`;
+    const lbl=[s.route,s.dose].filter(Boolean).join(" ")||s.study;
+    leg.push(`<span data-i="${i}" title="${escapeHtml(String(s.study||""))}"><i style="background:${col}"></i>${escapeHtml(String(lbl)).slice(0,40)}</span>`);
+  });
+  return{svg:`<svg viewBox="0 0 ${W} ${H}" width="100%" style="display:block">${g}</svg>`,legend:leg.join("")};
+}
 
 /* ---- what the modeler is handed: data viz + redacted report --------------- */
 async function renderHandoff(name){

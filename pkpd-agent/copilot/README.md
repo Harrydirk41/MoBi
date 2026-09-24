@@ -62,6 +62,11 @@ it with `python -m examples.build_realworld_projects --write`).
   methods, fitted values, GMFE) and curves. This is the already-built modeling
   the agent leans on by analogy; the target's own report is redacted in the
   main panel and only openable here with an explicit "you're the modeler" note.
+- **Overlay the reference fit** — inside that viewer, **▶ Run the model** runs
+  the finished reference snapshot (forward simulation only, no fitting — fast)
+  and overlays its simulated curves (lines) on the observed data (open points),
+  per-study toggle + hover. Result cached on disk. Needs PKSim.CLI; the report's
+  static goodness-of-fit figures render regardless.
 - **Steer the run** — a composer note ("focus on oral absorption", "try
   CYP3A4 + P-gp") is passed to the agent as a modeler note on the goal.
 - **Live givens table** — as the agent self-extracts, its provenance-tagged
