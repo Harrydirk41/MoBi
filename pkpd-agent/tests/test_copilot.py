@@ -92,6 +92,15 @@ class TestCopilotServer(unittest.TestCase):
         self.assertIn("MoBi (open modeling)", areas)
         self.assertEqual(areas["MoBi (open modeling)"], "mobi")
 
+    def test_built_view_gives_tunable_sliders(self):
+        v = self.c.get("/api/built?compound=Tizanidine").json()
+        self.assertTrue(v["methods"]["partition"]["current"])
+        self.assertTrue(v["params"])
+        for p in v["params"]:                                # each slider has value in range
+            self.assertLessEqual(p["lo"], p["value"])
+            self.assertLessEqual(p["value"], p["hi"])
+        self.assertTrue(any("clearance" in p["name"].lower() for p in v["params"]))
+
     def test_pediatric_and_ddi_tasks_listed(self):
         ms = self.c.get("/api/models").json()
         kinds = {m["compound"]: m["kind"] for m in ms}

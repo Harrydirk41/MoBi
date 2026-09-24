@@ -280,6 +280,73 @@ def _try_model(f: dict, edits: dict, subset: str = "building") -> dict:
     return {"ok": True, "gmfe": gmfe, "by_route": by_route, "optimized": optimized, "series": series}
 
 
+def _built_view(project: str) -> dict:
+    """A finished model's adopted methods + its key tunable parameters (with their
+    fitted values and a plausible slider range), so the UI can perturb them and
+    re-run to watch the curve move."""
+    from pkpd_agent.engines.snapshot_edit import PARTITION_METHODS, PERMEABILITY_METHODS
+    from pkpd_agent.engines import osp_score
+    project = _task_dir(project)
+    snap = os.path.join(_LIB, project, "json", f"{project}-Model.json")
+    if not os.path.isfile(snap):
+        return {"error": "no built model for this compound"}
+    try:
+        snapd = json.load(open(snap, encoding="utf-8"))
+    except (OSError, ValueError):
+        return {"error": "unreadable model"}
+    comp = (snapd.get("Compounds") or [{}])[0]
+    cms = comp.get("CalculationMethods") or []
+
+    def cur(w):
+        for m in cms:
+            if isinstance(m, str) and w in m.lower():
+                return m.split(" - ")[-1].strip()
+        return None
+
+    def first_val(block):
+        for e in (block or []):
+            for pp in (e.get("Parameters") or []):
+                return pp.get("Value")
+        return None
+
+    params = []
+
+    def add(name, val):
+        if val is None:
+            return
+        try:
+            v = float(val)
+        except (TypeError, ValueError):
+            return
+        pb = None
+        try:
+            pb = osp_score.physical_bounds(name.split("@", 1)[0])
+        except Exception:                               # noqa: BLE001
+            pb = None
+        if pb and pb[0] < pb[1]:
+            lo, hi = pb
+        elif v > 0:
+            lo, hi = v / 4.0, v * 4.0
+        else:
+            lo, hi = v - 1, v + 1
+        lo, hi = min(lo, v), max(hi, v)
+        params.append({"name": name, "value": v, "lo": lo, "hi": hi})
+
+    add("Lipophilicity", first_val(comp.get("Lipophilicity")))
+    add("Fraction unbound (plasma, reference value)", first_val(comp.get("FractionUnbound")))
+    add("Solubility at reference pH", first_val(comp.get("Solubility")))
+    for p in comp.get("Processes") or []:
+        for pp in (p.get("Parameters") or []):
+            nm = pp.get("Name") or ""
+            if nm in ("Intrinsic clearance", "GFR fraction", "kcat", "Km", "Vmax") \
+                    or "clearance" in nm.lower():
+                add(nm, pp.get("Value"))
+    return {"compound": project,
+            "methods": {"partition": {"current": cur("partition"), "options": list(PARTITION_METHODS)},
+                        "permeability": {"current": cur("permeability"), "options": list(PERMEABILITY_METHODS)}},
+            "params": params}
+
+
 def _topology(project: str, snapd: dict) -> dict:
     """The model's drug-specific structure (the NON-fixed part), parsed from a
     finished snapshot: distribution/permeability methods, metabolizing enzymes,
@@ -444,7 +511,9 @@ def _compounds() -> list[dict]:
 
 
 def _find(compound: str) -> dict | None:
-    return next((c for c in _compounds() if c["compound"] == compound), None)
+    cs = _compounds()
+    return (next((c for c in cs if c["compound"] == compound), None)
+            or next((c for c in cs if c["dir"] == compound), None))
 
 
 def _task_dir(x: str) -> str:
@@ -866,6 +935,10 @@ def create_app():
         if not f:
             return JSONResponse({"error": "unknown compound"}, status_code=404)
         return JSONResponse(_try_model(f, edits, subset="held_out"))
+
+    @app.get("/api/built")
+    def built(compound: str):
+        return JSONResponse(_built_view(compound))
 
     @app.get("/api/rw/topology")
     def rw_topology(project: str):

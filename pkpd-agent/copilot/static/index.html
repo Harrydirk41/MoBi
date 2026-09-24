@@ -222,6 +222,14 @@
   .edp small{color:var(--faint);font-size:10px}
   .ed-foot{display:flex;align-items:center;gap:10px;padding:12px 16px;border-top:1px solid var(--border-2)}
   #edPlotWrap{padding:6px 12px 0}
+  .explore{padding:0 14px}
+  details.exp>summary{font-size:12px;color:var(--accent-ink);cursor:pointer;padding:6px 0;list-style:none;display:flex;align-items:center;gap:6px}
+  details.exp>summary::-webkit-details-marker{display:none}details.exp>summary::before{content:'▸';color:var(--faint)}details.exp[open]>summary::before{content:'▾'}
+  .expbody{padding:4px 2px 8px}
+  .exrow{display:flex;align-items:center;gap:10px;margin:6px 0}
+  .exrow>label{font-size:11px;color:var(--muted);width:150px;flex:0 0 auto;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .exrow .exsl{flex:1}.exrow .exv{width:66px;text-align:right;font-size:11.5px}
+  .exfoot{display:flex;align-items:center;gap:10px;margin-top:6px}
   table.sbtbl{width:100%;border-collapse:collapse;font-size:12.5px}
   table.sbtbl th{text-align:left;font-size:10.5px;text-transform:uppercase;letter-spacing:.04em;color:var(--faint);padding:6px 14px;border-bottom:1px solid var(--border)}
   table.sbtbl td{padding:7px 14px;border-bottom:1px solid var(--border-2)}
@@ -310,6 +318,7 @@
       <div id="cmWarn" class="modal-warn" hidden></div>
       <div id="cmTopo" class="topo"></div>
       <div class="fitbar"><button class="act dl" id="cmRunFit">▶ Run the model — overlay its fit</button><span id="cmFitState" class="mono" style="font-size:11px;color:var(--faint)"></span></div>
+      <div id="cmExplore" class="explore"></div>
       <div class="plotwrap" id="cmPlot"></div>
       <div class="plotlegend" id="cmLegend"></div>
       <div class="report" id="cmReport"></div>
@@ -441,8 +450,9 @@ async function openContext(project){
   if(tgt){warn.hidden=false;warn.textContent="This is the target's own reference answer. The agent never sees it — you're viewing it as the modeler.";}
   else warn.hidden=true;
   $("#cmPlot").innerHTML='<div style="color:var(--faint);font-size:12px;padding:24px;text-align:center">loading…</div>';
-  $("#cmLegend").innerHTML="";$("#cmReport").innerHTML="";$("#cmTopo").innerHTML="";
+  $("#cmLegend").innerHTML="";$("#cmReport").innerHTML="";$("#cmTopo").innerHTML="";$("#cmExplore").innerHTML="";
   $("#ctxModal").hidden=false;
+  renderExplore(project);
   try{const td=await (await fetch(`/api/rw/topology?project=${encodeURIComponent(project)}`)).json();
     if(td&&!td.error){const r=topology(td);
       $("#cmTopo").innerHTML='<div class="topotitle">Model topology — fixed physiology + the drug model</div>'+r.header+r.svg+'<div class="topoinfo" id="topoInfo"></div>';
@@ -756,6 +766,40 @@ $("#sbStop").onclick=()=>{sbStop=true;if(sbAbort)sbAbort();$("#sbState").textCon
 $("#sbBack").onclick=()=>{if($("#sbStop").hidden)$("#sbModal").hidden=true;};
 $("#sbClose").onclick=()=>{if($("#sbStop").hidden)$("#sbModal").hidden=true;else $("#sbState").textContent="stop the run first";};
 
+/* interactive built-model sandbox: drag sliders / toggle methods, re-run, watch the curve */
+async function renderExplore(dir){
+  $("#cmExplore").innerHTML="";
+  let b;try{b=await (await fetch(`/api/built?compound=${encodeURIComponent(dir)}`)).json();}catch(e){return;}
+  if(!b||b.error||!(b.params||[]).length)return;
+  let h=`<details class="exp"><summary>Explore — drag a slider or switch a method, it re-runs the model</summary><div class="expbody">`+
+    seg("Partition",b.methods.partition.current,b.methods.partition.options,"exPart")+
+    seg("Permeability",b.methods.permeability.current,b.methods.permeability.options,"exPerm")+
+    b.params.map(p=>`<div class="exrow" data-name="${escapeHtml(p.name)}"><label title="${escapeHtml(p.name)}">${escapeHtml(p.name)}</label>`+
+      `<input class="exsl" type="range" min="${p.lo}" max="${p.hi}" step="${((p.hi-p.lo)/200)||0.001}" value="${p.value}">`+
+      `<span class="exv mono">${(+p.value).toPrecision(3)}</span></div>`).join("")+
+    `<div class="exfoot"><button class="act" id="exReset">reset to built</button><span id="exState" class="mono" style="font-size:11px;color:var(--faint)"></span></div>`+
+    `</div></details>`;
+  $("#cmExplore").innerHTML=h;
+  $("#cmExplore").querySelectorAll(".segm").forEach(sg=>sg.querySelectorAll(".seg").forEach(bt=>bt.onclick=()=>{sg.querySelectorAll(".seg").forEach(x=>x.classList.remove("on"));bt.classList.add("on");exploreRun(dir);}));
+  $("#cmExplore").querySelectorAll(".exrow").forEach(row=>{const sl=row.querySelector(".exsl"),vv=row.querySelector(".exv");
+    sl.oninput=()=>{vv.textContent=(+sl.value).toPrecision(3);};sl.onchange=()=>exploreRun(dir);});
+  $("#exReset").onclick=()=>renderExplore(dir);
+}
+function collectExplore(){
+  const part=($("#exPart .seg.on")||{}).dataset, perm=($("#exPerm .seg.on")||{}).dataset;
+  const edits={calculation_methods:{partition:part&&part.v,permeability:perm&&perm.v},parameters:{}};
+  $("#cmExplore").querySelectorAll(".exrow").forEach(row=>{edits.parameters[row.dataset.name]=+row.querySelector(".exsl").value;});
+  return edits;
+}
+async function exploreRun(dir){
+  const st=$("#exState");if(st)st.textContent="running…";
+  let r;try{r=await (await fetch("/api/try",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({compound:dir,edits:collectExplore()})})).json();}
+  catch(e){if(st)st.textContent="server error";return;}
+  if(!r.ok){if(st)st.textContent=r.error||"failed";return;}
+  if(st)st.textContent=`GMFE ${(+r.gmfe).toFixed(3)} — line moves with your change`;
+  const f=plotFit(r.series);$("#cmPlot").innerHTML=f.svg;$("#cmLegend").innerHTML=f.legend;
+  $("#cmLegend").querySelectorAll("span[data-i]").forEach(sp=>sp.onclick=()=>{sp.classList.toggle("off");const g=$("#cmPlot").querySelector(`g.sr[data-i="${sp.dataset.i}"]`);if(g)g.classList.toggle("off");});
+}
 function closeContext(){$("#ctxModal").hidden=true;}
 $("#ctxBack").onclick=closeContext;$("#cmClose").onclick=closeContext;
 document.addEventListener("keydown",e=>{if(e.key==="Escape"){if(!$("#ctxModal").hidden)closeContext();if(!$("#catModal").hidden)$("#catModal").hidden=true;if(!$("#edModal").hidden)$("#edModal").hidden=true;}});
