@@ -1,0 +1,86 @@
+[
+  {
+    "file": "Peloquin_1997_-_600_mg_-_Rifampicin_-_PO_-_600_mg_-_Plasma_-_agg._n_24.csv",
+    "study": "Peloquin 1997",
+    "route": "PO",
+    "dose": "600 mg"
+  },
+  {
+    "file": "Eon_Labs_Manufacturing_Inc._1997_-_2X300mg_Rifadine_Tab_-_Rifampicin_-_PO_-_600_.csv",
+    "study": "Eon Labs Manufacturing, Inc. 1997",
+    "route": "PO",
+    "dose": "300mg"
+  },
+  {
+    "file": "Eon_Labs_Manufacturing_Inc._1997_-_2X300mg_Tab_Eon_-_Rifampicin_-_PO_-_600_mg_-_.csv",
+    "study": "Eon Labs Manufacturing, Inc. 1997",
+    "route": "PO",
+    "dose": "300mg"
+  },
+  {
+    "file": "Chouchane_1995_-_Rifampicin_Generic_-_Rifampicin_-_PO_-_300_mg_-_Plasma_-_agg._n.csv",
+    "study": "Chouchane 1995",
+    "route": "PO",
+    "dose": "300 mg"
+  },
+  {
+    "file": "Chouchane_1995_-_Rimactan_-_Rifampicin_-_PO_-_300_mg_-_Plasma_-_agg._n_12.csv",
+    "study": "Chouchane 1995",
+    "route": "PO",
+    "dose": "300 mg"
+  },
+  {
+    "file": "Blume_1989_-_600_mg_REFERENZ_-_Rifampicin_-_PO_-_600_mg_-_Plasma_-_agg._n_12.csv",
+    "study": "Blume 1989",
+    "route": "PO",
+    "dose": "600 mg"
+  },
+  {
+    "file": "Blume_1989_-_450_mg_REFERENZ_-_Rifampicin_-_PO_-_450_mg_-_Plasma_-_agg._n_8.csv",
+    "study": "Blume 1989",
+    "route": "PO",
+    "dose": "450 mg"
+  },
+  {
+    "file": "Acocella_1977_-_mean_600_mg_MD_-_Rifampicin_-_IV_-_600_mg_-_Serum_-_agg._n_5.csv",
+    "study": "Acocella 1977",
+    "route": "IV",
+    "dose": "600 mg"
+  },
+  {
+    "file": "Acocella_1972b_-_normal_subjects_-_Rifampicin_-_PO_-_600_mg_-_Serum_-_agg._n_6.csv",
+    "study": "Acocella 1972b",
+    "route": "PO",
+    "dose": "600 mg"
+  },
+  {
+    "file": "sanofi-aventis_U.S._LLC._2013_-_300_mg_-_Rifampicin_-_IV_-_300_mg_-_Plasma_-_agg.csv",
+    "study": "sanofi-aventis U.S. LLC. 2013",
+    "route": "IV",
+    "dose": "300 mg"
+  },
+  {
+    "file": "sanofi-aventis_U.S._LLC._2013_-_600_mg_-_Rifampicin_-_IV_-_600_mg_-_Plasma_-_agg.csv",
+    "study": "sanofi-aventis U.S. LLC. 2013",
+    "route": "IV",
+    "dose": "600 mg"
+  },
+  {
+    "file": "Furesz_1970_-_300_mg_-_Rifampicin_-_PO_-_300_mg_-_Serum_-_agg._n_5.csv",
+    "study": "Furesz 1970",
+    "route": "PO",
+    "dose": "300 mg"
+  },
+  {
+    "file": "Furesz_1970_-_450_mg_-_Rifampicin_-_PO_-_450_mg_-_Serum_-_agg._n_13.csv",
+    "study": "Furesz 1970",
+    "route": "PO",
+    "dose": "450 mg"
+  },
+  {
+    "file": "Furesz_1970_-_600_mg_-_Rifampicin_-_PO_-_600_mg_-_Serum_-_agg._n_12.csv",
+    "study": "Furesz 1970",
+    "route": "PO",
+    "dose": "600 mg"
+  }
+]

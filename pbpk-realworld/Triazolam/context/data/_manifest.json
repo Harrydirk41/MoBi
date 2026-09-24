@@ -1,0 +1,170 @@
+[
+  {
+    "file": "Friedman_1986_-_Figure_1_-_Triazolam_-_PO_-_0.5_mg_-_Plasma_-_agg._n_54.csv",
+    "study": "Friedman 1986",
+    "route": "PO",
+    "dose": "0.5 mg"
+  },
+  {
+    "file": "Friedman_1988_-_Control_-_Triazolam_-_PO_-_0.5_mg_-_Plasma_-_agg._n_19.csv",
+    "study": "Friedman 1988",
+    "route": "PO",
+    "dose": "0.5 mg"
+  },
+  {
+    "file": "Greenblatt_1991_-_Young_subjects_0.125_mg_-_Triazolam_-_PO_-_0.125_mg_-_Plasma_-.csv",
+    "study": "Greenblatt 1991",
+    "route": "PO",
+    "dose": "0.125 mg"
+  },
+  {
+    "file": "Greenblatt_1991_-_Young_subjects_0.25_mg_-_Triazolam_-_PO_-_0.25_mg_-_Plasma_-_a.csv",
+    "study": "Greenblatt 1991",
+    "route": "PO",
+    "dose": "0.25 mg"
+  },
+  {
+    "file": "Greenblatt_1989_-_Triazolam_group_-_Triazolam_-_PO_-_0.25_mg_-_Plasma_-_agg._n_1.csv",
+    "study": "Greenblatt 1989",
+    "route": "PO",
+    "dose": "0.25 mg"
+  },
+  {
+    "file": "Greenblatt_2000_-_Triazolam_males_-_Triazolam_-_PO_-_0.25_mg_-_Plasma_-_agg._n_1.csv",
+    "study": "Greenblatt 2000",
+    "route": "PO",
+    "dose": "0.25 mg"
+  },
+  {
+    "file": "Greenblatt_2000_-_Triazolam_females_-_Triazolam_-_PO_-_0.25_mg_-_Plasma_-_agg._n.csv",
+    "study": "Greenblatt 2000",
+    "route": "PO",
+    "dose": "0.25 mg"
+  },
+  {
+    "file": "Greenblatt_2004_-_Young_males_-_Triazolam_-_PO_-_0.25_mg_-_Plasma_-_agg._n_10.csv",
+    "study": "Greenblatt 2004",
+    "route": "PO",
+    "dose": "0.25 mg"
+  },
+  {
+    "file": "Greenblatt_2004_-_Young_females_-_Triazolam_-_PO_-_0.25_mg_-_Plasma_-_agg._n_13.csv",
+    "study": "Greenblatt 2004",
+    "route": "PO",
+    "dose": "0.25 mg"
+  },
+  {
+    "file": "Hukkinen_1995_-_Triazolam_with_250_mL_water_-_Triazolam_-_PO_-_0.25_mg_-_Plasma_.csv",
+    "study": "Hukkinen 1995",
+    "route": "PO",
+    "dose": "0.25 mg"
+  },
+  {
+    "file": "Kroboth_1995_-_IV_administration_-_Triazolam_-_IV_-_0.25_mg_-_Plasma_-_agg._n_12.csv",
+    "study": "Kroboth 1995",
+    "route": "IV",
+    "dose": "0.25 mg"
+  },
+  {
+    "file": "Kroboth_1995_-_Oral_administration_-_Triazolam_-_PO_-_0.25_mg_-_Plasma_-_agg._n_.csv",
+    "study": "Kroboth 1995",
+    "route": "PO",
+    "dose": "0.25 mg"
+  },
+  {
+    "file": "Lilja_2000_-_Triazolam_with_200_mL_water_-_Triazolam_-_PO_-_0.25_mg_-_Plasma_-_a.csv",
+    "study": "Lilja 2000",
+    "route": "PO",
+    "dose": "0.25 mg"
+  },
+  {
+    "file": "Moltke_1996_-_Triazolam_Placebo_Trial_2_-_Triazolam_-_PO_-_0.125_mg_-_Plasma_-_a.csv",
+    "study": "Moltke 1996",
+    "route": "PO",
+    "dose": "0.125 mg"
+  },
+  {
+    "file": "O_Connor-Semmes_2001_-_Young_group_triazolam_alone_-_Triazolam_-_PO_-_0.25_mg_-_.csv",
+    "study": "O'Connor-Semmes 2001",
+    "route": "PO",
+    "dose": "0.25 mg"
+  },
+  {
+    "file": "Ochs_1984_-_Control_-_Triazolam_-_PO_-_0.5_mg_-_Plasma_-_agg._n_5.csv",
+    "study": "Ochs 1984",
+    "route": "PO",
+    "dose": "0.5 mg"
+  },
+  {
+    "file": "Phillips_1986_-_Triazolam_alone_-_Triazolam_-_PO_-_0.5_mg_-_Plasma_-_agg._n_16.csv",
+    "study": "Phillips 1986",
+    "route": "PO",
+    "dose": "0.5 mg"
+  },
+  {
+    "file": "Smith_1987_-_0.125_mg_-_Triazolam_-_IV_-_0.125_mg_-_Plasma_-_agg._n_5.csv",
+    "study": "Smith 1987",
+    "route": "IV",
+    "dose": "0.125 mg"
+  },
+  {
+    "file": "Smith_1987_-_0.25_mg_-_Triazolam_-_IV_-_0.25_mg_-_Plasma_-_agg._n_5.csv",
+    "study": "Smith 1987",
+    "route": "IV",
+    "dose": "0.25 mg"
+  },
+  {
+    "file": "Smith_1987_-_0.5_mg_-_Triazolam_-_IV_-_0.5_mg_-_Plasma_-_agg._n_5.csv",
+    "study": "Smith 1987",
+    "route": "IV",
+    "dose": "0.5 mg"
+  },
+  {
+    "file": "Smith_1987_-_0.75_mg_-_Triazolam_-_IV_-_0.75_mg_-_Plasma_-_agg._n_5.csv",
+    "study": "Smith 1987",
+    "route": "IV",
+    "dose": "0.75 mg"
+  },
+  {
+    "file": "Smith_1987_-_1.0_mg_-_Triazolam_-_IV_-_1_mg_-_Plasma_-_agg._n_5.csv",
+    "study": "Smith 1987",
+    "route": "IV",
+    "dose": "1.0 mg"
+  },
+  {
+    "file": "Varhe_1994_-_Triazolam_placebo_-_Triazolam_-_PO_-_0.25_mg_-_Plasma_-_agg._n_9.csv",
+    "study": "Varhe 1994",
+    "route": "PO",
+    "dose": "0.25 mg"
+  },
+  {
+    "file": "Varhe_1996a_-_Triazolam_placebo_-_Triazolam_-_PO_-_0.25_mg_-_Plasma_-_agg._n_12.csv",
+    "study": "Varhe 1996a",
+    "route": "PO",
+    "dose": "0.25 mg"
+  },
+  {
+    "file": "Varhe_1996b_-_Triazolam_placebo_-_Triazolam_-_PO_-_0.25_mg_-_Plasma_-_agg._n_10.csv",
+    "study": "Varhe 1996b",
+    "route": "PO",
+    "dose": "0.25 mg"
+  },
+  {
+    "file": "Varhe_1996c_-_Triazolam_placebo_-_Triazolam_-_PO_-_0.25_mg_-_Plasma_-_agg._n_8.csv",
+    "study": "Varhe 1996c",
+    "route": "PO",
+    "dose": "0.25 mg"
+  },
+  {
+    "file": "Villikka_1997_-_Triazolam_placebo_-_Triazolam_-_PO_-_0.5_mg_-_Plasma_-_agg._n_10.csv",
+    "study": "Villikka 1997",
+    "route": "PO",
+    "dose": "0.5 mg"
+  },
+  {
+    "file": "Villikka_1998_-_Triazolam_placebo_-_Triazolam_-_PO_-_0.5_mg_-_Plasma_-_agg._n_10.csv",
+    "study": "Villikka 1998",
+    "route": "PO",
+    "dose": "0.5 mg"
+  }
+]

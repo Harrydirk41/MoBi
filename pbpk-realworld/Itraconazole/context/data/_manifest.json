@@ -1,0 +1,620 @@
+[
+  {
+    "file": "Barone_1993_-_day_1_fasted_-_Itraconazole_-_PO_-_200_mg_-_Plasma_-_agg._n_28.csv",
+    "study": "Barone 1993",
+    "route": "PO",
+    "dose": "200 mg"
+  },
+  {
+    "file": "Barone_1993_-_day_1_fasted_-_Hydroxy-Itraconazole_-_PO_-_200_mg_-_Plasma_-_agg._.csv",
+    "study": "Barone 1993",
+    "route": "PO",
+    "dose": "200 mg"
+  },
+  {
+    "file": "Barone_1993_-_day_1_fed_-_Itraconazole_-_PO_-_200_mg_-_Plasma_-_agg._n_28.csv",
+    "study": "Barone 1993",
+    "route": "PO",
+    "dose": "200 mg"
+  },
+  {
+    "file": "Barone_1993_-_day_1_fed_-_Hydroxy-Itraconazole_-_PO_-_200_mg_-_Plasma_-_agg._n_2.csv",
+    "study": "Barone 1993",
+    "route": "PO",
+    "dose": "200 mg"
+  },
+  {
+    "file": "Barone_1993_-_day_15_fed_-_Itraconazole_-_PO_-_200_mg_-_Plasma_-_agg._n_28.csv",
+    "study": "Barone 1993",
+    "route": "PO",
+    "dose": "200 mg"
+  },
+  {
+    "file": "Barone_1993_-_day_15_fed_-_Hydroxy-Itraconazole_-_PO_-_200_mg_-_Plasma_-_agg._n_.csv",
+    "study": "Barone 1993",
+    "route": "PO",
+    "dose": "200 mg"
+  },
+  {
+    "file": "Barone_1998a_-_day_1_fasted_-_Itraconazole_-_PO_-_200_mg_-_Plasma_-_agg._n_27.csv",
+    "study": "Barone 1998a",
+    "route": "PO",
+    "dose": "200 mg"
+  },
+  {
+    "file": "Barone_1998a_-_day_1_fasted_-_Hydroxy-Itraconazole_-_PO_-_200_mg_-_Plasma_-_agg..csv",
+    "study": "Barone 1998a",
+    "route": "PO",
+    "dose": "200 mg"
+  },
+  {
+    "file": "Barone_1998a_-_day_15_fasted_-_Itraconazole_-_PO_-_200_mg_-_Plasma_-_agg._n_27.csv",
+    "study": "Barone 1998a",
+    "route": "PO",
+    "dose": "200 mg"
+  },
+  {
+    "file": "Barone_1998a_-_day_15_fasted_-_Hydroxy-Itraconazole_-_PO_-_200_mg_-_Plasma_-_agg.csv",
+    "study": "Barone 1998a",
+    "route": "PO",
+    "dose": "200 mg"
+  },
+  {
+    "file": "Barone_1998a_-_day_1_fed_-_Itraconazole_-_PO_-_200_mg_-_Plasma_-_agg._n_27.csv",
+    "study": "Barone 1998a",
+    "route": "PO",
+    "dose": "200 mg"
+  },
+  {
+    "file": "Barone_1998a_-_day_1_fed_-_Hydroxy-Itraconazole_-_PO_-_200_mg_-_Plasma_-_agg._n_.csv",
+    "study": "Barone 1998a",
+    "route": "PO",
+    "dose": "200 mg"
+  },
+  {
+    "file": "Barone_1998a_-_day_15_fed_-_Itraconazole_-_PO_-_200_mg_-_Plasma_-_agg._n_27.csv",
+    "study": "Barone 1998a",
+    "route": "PO",
+    "dose": "200 mg"
+  },
+  {
+    "file": "Barone_1998a_-_day_15_fed_-_Hydroxy-Itraconazole_-_PO_-_200_mg_-_Plasma_-_agg._n.csv",
+    "study": "Barone 1998a",
+    "route": "PO",
+    "dose": "200 mg"
+  },
+  {
+    "file": "Barone_1998b_-_Solution_-_Itraconazole_-_PO_-_200_mg_-_Plasma_-_agg._n_30.csv",
+    "study": "Barone 1998b",
+    "route": "PO",
+    "dose": "200 mg"
+  },
+  {
+    "file": "Barone_1998b_-_Solution_-_Hydroxy-Itraconazole_-_PO_-_200_mg_-_Plasma_-_agg._n_3.csv",
+    "study": "Barone 1998b",
+    "route": "PO",
+    "dose": "200 mg"
+  },
+  {
+    "file": "Barone_1998b_-_F05_Capsule_-_Itraconazole_-_PO_-_200_mg_-_Plasma_-_agg._n_30.csv",
+    "study": "Barone 1998b",
+    "route": "PO",
+    "dose": "200 mg"
+  },
+  {
+    "file": "Barone_1998b_-_F05_Capsule_-_Hydroxy-Itraconazole_-_PO_-_200_mg_-_Plasma_-_agg._.csv",
+    "study": "Barone 1998b",
+    "route": "PO",
+    "dose": "200 mg"
+  },
+  {
+    "file": "Hardin_1988_-_A_100_mg_OD_day_1_-_Itraconazole_-_PO_-_100_mg_-_Plasma_-_agg._n_5.csv",
+    "study": "Hardin 1988",
+    "route": "PO",
+    "dose": "100 mg"
+  },
+  {
+    "file": "Hardin_1988_-_A_100_mg_OD_day_7-15_-_Itraconazole_-_PO_-_100_mg_-_Plasma_-_agg._.csv",
+    "study": "Hardin 1988",
+    "route": "PO",
+    "dose": "100 mg"
+  },
+  {
+    "file": "Hardin_1988_-_A_100_mg_OD_day_15_-_Itraconazole_-_PO_-_100_mg_-_Plasma_-_agg._n_.csv",
+    "study": "Hardin 1988",
+    "route": "PO",
+    "dose": "100 mg"
+  },
+  {
+    "file": "Hardin_1988_-_B_200_mg_OD_day_1_-_Itraconazole_-_PO_-_200_mg_-_Plasma_-_agg._n_5.csv",
+    "study": "Hardin 1988",
+    "route": "PO",
+    "dose": "200 mg"
+  },
+  {
+    "file": "Hardin_1988_-_B_200_mg_OD_day_7-15_-_Itraconazole_-_PO_-_200_mg_-_Plasma_-_agg._.csv",
+    "study": "Hardin 1988",
+    "route": "PO",
+    "dose": "200 mg"
+  },
+  {
+    "file": "Hardin_1988_-_B_200_mg_OD_day_15_-_Itraconazole_-_PO_-_200_mg_-_Plasma_-_agg._n_.csv",
+    "study": "Hardin 1988",
+    "route": "PO",
+    "dose": "200 mg"
+  },
+  {
+    "file": "Hardin_1988_-_C_200_mg_BID_day_1_-_Itraconazole_-_PO_-_200_mg_-_Plasma_-_agg._n_.csv",
+    "study": "Hardin 1988",
+    "route": "PO",
+    "dose": "200 mg"
+  },
+  {
+    "file": "Hardin_1988_-_C_200_mg_BID_day_7-15_-_Itraconazole_-_PO_-_200_mg_-_Plasma_-_agg..csv",
+    "study": "Hardin 1988",
+    "route": "PO",
+    "dose": "200 mg"
+  },
+  {
+    "file": "Hardin_1988_-_C_200_mg_BID_day_15_-_Itraconazole_-_PO_-_200_mg_-_Plasma_-_agg._n.csv",
+    "study": "Hardin 1988",
+    "route": "PO",
+    "dose": "200 mg"
+  },
+  {
+    "file": "Kivist_1997_-_with_Perpetrator_Itraconazole_-_Itraconazole_-_PO_-_100_mg_-_Plasm.csv",
+    "study": "Kivist\u00f6 1997",
+    "route": "PO",
+    "dose": "100 mg"
+  },
+  {
+    "file": "Olkkola_1994_-_po_with_Perpetrator_Itraconazole_-_Itraconazole_-_PO_-_200_mg_-_P.csv",
+    "study": "Olkkola 1994",
+    "route": "PO",
+    "dose": "200 mg"
+  },
+  {
+    "file": "Templeton_2008_-_ITZ_day_1_-_Itraconazole_-_PO_-_100_mg_-_Plasma_-_agg._n_6.csv",
+    "study": "Templeton 2008",
+    "route": "PO",
+    "dose": "100 mg"
+  },
+  {
+    "file": "Templeton_2008_-_ITZ_day_7_-_Itraconazole_-_PO_-_100_mg_-_Plasma_-_agg._n_6.csv",
+    "study": "Templeton 2008",
+    "route": "PO",
+    "dose": "100 mg"
+  },
+  {
+    "file": "Templeton_2008_-_OH-ITZ_day_1_-_Hydroxy-Itraconazole_-_PO_-_100_mg_-_Plasma_-_ag.csv",
+    "study": "Templeton 2008",
+    "route": "PO",
+    "dose": "100 mg"
+  },
+  {
+    "file": "Templeton_2008_-_OH-ITZ_day_7_-_Hydroxy-Itraconazole_-_PO_-_100_mg_-_Plasma_-_ag.csv",
+    "study": "Templeton 2008",
+    "route": "PO",
+    "dose": "100 mg"
+  },
+  {
+    "file": "Templeton_2008_-_keto-ITZ_day_1_-_Keto-Itraconazole_-_PO_-_100_mg_-_Plasma_-_agg.csv",
+    "study": "Templeton 2008",
+    "route": "PO",
+    "dose": "100 mg"
+  },
+  {
+    "file": "Templeton_2008_-_keto-ITZ_day_7_-_Keto-Itraconazole_-_PO_-_100_mg_-_Plasma_-_agg.csv",
+    "study": "Templeton 2008",
+    "route": "PO",
+    "dose": "100 mg"
+  },
+  {
+    "file": "Templeton_2008_-_ND-OH-ITZ_day_1_-_N-desalkyl-Itraconazole_-_PO_-_100_mg_-_Plasm.csv",
+    "study": "Templeton 2008",
+    "route": "PO",
+    "dose": "100 mg"
+  },
+  {
+    "file": "Templeton_2008_-_ND-OH-ITZ_day_7_-_N-desalkyl-Itraconazole_-_PO_-_100_mg_-_Plasm.csv",
+    "study": "Templeton 2008",
+    "route": "PO",
+    "dose": "100 mg"
+  },
+  {
+    "file": "Van_de_Velde_1996_-_Fasting_ITZ_-_Itraconazole_-_PO_-_100_mg_-_Plasma_-_agg._n_1.csv",
+    "study": "Van de Velde 1996",
+    "route": "PO",
+    "dose": "100 mg"
+  },
+  {
+    "file": "Van_de_Velde_1996_-_Fasting_OH-ITZ_-_Hydroxy-Itraconazole_-_PO_-_100_mg_-_Plasma.csv",
+    "study": "Van de Velde 1996",
+    "route": "PO",
+    "dose": "100 mg"
+  },
+  {
+    "file": "Van_de_Velde_1996_-_Fed_ITZ_-_Itraconazole_-_PO_-_100_mg_-_Plasma_-_agg._n_12.csv",
+    "study": "Van de Velde 1996",
+    "route": "PO",
+    "dose": "100 mg"
+  },
+  {
+    "file": "Van_de_Velde_1996_-_Fed_OH-ITZ_-_Hydroxy-Itraconazole_-_PO_-_100_mg_-_Plasma_-_a.csv",
+    "study": "Van de Velde 1996",
+    "route": "PO",
+    "dose": "100 mg"
+  },
+  {
+    "file": "Van_Peer_1989_-_100_mg_Solution_fasting_-_Itraconazole_-_PO_-_100_mg_-_Plasma_-_.csv",
+    "study": "Van Peer 1989",
+    "route": "PO",
+    "dose": "100 mg"
+  },
+  {
+    "file": "Van_Peer_1989_-_100_mg_Capsules_fasting_-_Itraconazole_-_PO_-_100_mg_-_Plasma_-_.csv",
+    "study": "Van Peer 1989",
+    "route": "PO",
+    "dose": "100 mg"
+  },
+  {
+    "file": "Van_Peer_1989_-_100_mg_Capsules_with_food_-_Itraconazole_-_PO_-_100_mg_-_Plasma_.csv",
+    "study": "Van Peer 1989",
+    "route": "PO",
+    "dose": "100 mg"
+  },
+  {
+    "file": "Van_Peer_1989_-_100_mg_Capsules_with_food_15_days_MD_-_Itraconazole_-_PO_-_100_m.csv",
+    "study": "Van Peer 1989",
+    "route": "PO",
+    "dose": "100 mg"
+  },
+  {
+    "file": "Heykants_1989_-_iv_100_mg_SD_-_Itraconazole_-_IV_-_100_mg_-_Plasma_-_agg._n_6.csv",
+    "study": "Heykants 1989",
+    "route": "IV",
+    "dose": "100 mg"
+  },
+  {
+    "file": "Heykants_1989_-_po_100_mg_SD_fed_-_Itraconazole_-_PO_-_100_mg_-_Plasma_-_agg._n_.csv",
+    "study": "Heykants 1989",
+    "route": "PO",
+    "dose": "100 mg"
+  },
+  {
+    "file": "Heykants_1989_-_po_100_mg_SD_metabolite_screening_-_Itraconazole_-_PO_-_100_mg_-.csv",
+    "study": "Heykants 1989",
+    "route": "PO",
+    "dose": "100 mg"
+  },
+  {
+    "file": "Heykants_1989_-_po_100_mg_SD_metabolite_screening_-_Hydroxy-Itraconazole_-_PO_-_.csv",
+    "study": "Heykants 1989",
+    "route": "PO",
+    "dose": "100 mg"
+  },
+  {
+    "file": "Heykants_1989_-_po_100_mg_MD_OD_-_Itraconazole_-_PO_-_100_mg_-_Plasma_-_agg._n_1.csv",
+    "study": "Heykants 1989",
+    "route": "PO",
+    "dose": "100 mg"
+  },
+  {
+    "file": "Heykants_1989_-_po_100_mg_MD_OD_-_Hydroxy-Itraconazole_-_PO_-_100_mg_-_Plasma_-_.csv",
+    "study": "Heykants 1989",
+    "route": "PO",
+    "dose": "100 mg"
+  },
+  {
+    "file": "Miura_2010_-_po_100_mg_MD_Japanese_-_Itraconazole_-_PO_-_200_mg_-_Plasma_-_agg._.csv",
+    "study": "Miura 2010",
+    "route": "PO",
+    "dose": "100 mg"
+  },
+  {
+    "file": "Miura_2010_-_po_100_mg_MD_Japanese_-_Hydroxy-Itraconazole_-_PO_-_200_mg_-_Plasma.csv",
+    "study": "Miura 2010",
+    "route": "PO",
+    "dose": "100 mg"
+  },
+  {
+    "file": "Gubbins_2004_-_po_200_mg_solution_with_water_-_Itraconazole_-_PO_-_200_mg_-_Plas.csv",
+    "study": "Gubbins 2004",
+    "route": "PO",
+    "dose": "200 mg"
+  },
+  {
+    "file": "Gubbins_2004_-_po_200_mg_solution_with_water_-_Hydroxy-Itraconazole_-_PO_-_200_m.csv",
+    "study": "Gubbins 2004",
+    "route": "PO",
+    "dose": "200 mg"
+  },
+  {
+    "file": "Gubbins_2007_-_po_200_mg_solution_female_with_water_-_Itraconazole_-_PO_-_200_mg.csv",
+    "study": "Gubbins 2007",
+    "route": "PO",
+    "dose": "200 mg"
+  },
+  {
+    "file": "Gubbins_2007_-_po_200_mg_solution_female_with_water_-_Hydroxy-Itraconazole_-_PO_.csv",
+    "study": "Gubbins 2007",
+    "route": "PO",
+    "dose": "200 mg"
+  },
+  {
+    "file": "Gubbins_2007_-_po_200_mg_solution_male_with_water_-_Itraconazole_-_PO_-_200_mg_-.csv",
+    "study": "Gubbins 2007",
+    "route": "PO",
+    "dose": "200 mg"
+  },
+  {
+    "file": "Gubbins_2007_-_po_200_mg_solution_male_with_water_-_Hydroxy-Itraconazole_-_PO_-_.csv",
+    "study": "Gubbins 2007",
+    "route": "PO",
+    "dose": "200 mg"
+  },
+  {
+    "file": "Uno_2006_-_day_1_Japanese_-_Itraconazole_-_PO_-_200_mg_-_Plasma_-_agg._n_8.csv",
+    "study": "Uno 2006",
+    "route": "PO",
+    "dose": "200 mg"
+  },
+  {
+    "file": "Uno_2006_-_day_1_Japanese_-_Hydroxy-Itraconazole_-_PO_-_200_mg_-_Plasma_-_agg._n.csv",
+    "study": "Uno 2006",
+    "route": "PO",
+    "dose": "200 mg"
+  },
+  {
+    "file": "Uno_2006_-_day_6_Japanese_-_Itraconazole_-_PO_-_200_mg_-_Plasma_-_agg._n_8.csv",
+    "study": "Uno 2006",
+    "route": "PO",
+    "dose": "200 mg"
+  },
+  {
+    "file": "Uno_2006_-_day_6_Japanese_-_Hydroxy-Itraconazole_-_PO_-_200_mg_-_Plasma_-_agg._n.csv",
+    "study": "Uno 2006",
+    "route": "PO",
+    "dose": "200 mg"
+  },
+  {
+    "file": "Bae_2011_-_po_200_mg_capsule_with_water_Korean_-_Itraconazole_-_PO_-_200_mg_-_Pl.csv",
+    "study": "Bae 2011",
+    "route": "PO",
+    "dose": "200 mg"
+  },
+  {
+    "file": "Bae_2011_-_po_200_mg_capsule_with_water_Korean_-_Hydroxy-Itraconazole_-_PO_-_200.csv",
+    "study": "Bae 2011",
+    "route": "PO",
+    "dose": "200 mg"
+  },
+  {
+    "file": "Bae_2011_-_po_200_mg_capsule_with_cola_Korean_-_Itraconazole_-_PO_-_200_mg_-_Pla.csv",
+    "study": "Bae 2011",
+    "route": "PO",
+    "dose": "200 mg"
+  },
+  {
+    "file": "Bae_2011_-_po_200_mg_capsule_with_cola_Korean_-_Hydroxy-Itraconazole_-_PO_-_200_.csv",
+    "study": "Bae 2011",
+    "route": "PO",
+    "dose": "200 mg"
+  },
+  {
+    "file": "Bae_2011_-_po_200_mg_capsule_with_vit._C_Korean_-_Itraconazole_-_PO_-_200_mg_-_P.csv",
+    "study": "Bae 2011",
+    "route": "PO",
+    "dose": "200 mg"
+  },
+  {
+    "file": "Bae_2011_-_po_200_mg_capsule_with_vit._C_Korean_-_Hydroxy-Itraconazole_-_PO_-_20.csv",
+    "study": "Bae 2011",
+    "route": "PO",
+    "dose": "200 mg"
+  },
+  {
+    "file": "Mouton_2006_-_SAD_A_50_mg_-_Itraconazole_-_IV_-_50_mg_-_Plasma_-_agg._n_6.csv",
+    "study": "Mouton 2006",
+    "route": "IV",
+    "dose": "50 mg"
+  },
+  {
+    "file": "Mouton_2006_-_SAD_B_100_mg_-_Itraconazole_-_IV_-_100_mg_-_Plasma_-_agg._n_6.csv",
+    "study": "Mouton 2006",
+    "route": "IV",
+    "dose": "100 mg"
+  },
+  {
+    "file": "Mouton_2006_-_SAD_A_200_mg_-_Itraconazole_-_IV_-_200_mg_-_Plasma_-_agg._n_6.csv",
+    "study": "Mouton 2006",
+    "route": "IV",
+    "dose": "200 mg"
+  },
+  {
+    "file": "Mouton_2006_-_SAD_B_300_mg_-_Itraconazole_-_IV_-_300_mg_-_Plasma_-_agg._n_2.csv",
+    "study": "Mouton 2006",
+    "route": "IV",
+    "dose": "300 mg"
+  },
+  {
+    "file": "Mouton_2006_-_MAD_m_A_100_mg_-_Itraconazole_-_IV_-_100_mg_-_Plasma_-_agg._n_4.csv",
+    "study": "Mouton 2006",
+    "route": "IV",
+    "dose": "100 mg"
+  },
+  {
+    "file": "Mouton_2006_-_MAD_m_B_200_mg_-_Itraconazole_-_IV_-_200_mg_-_Plasma_-_agg._n_4.csv",
+    "study": "Mouton 2006",
+    "route": "IV",
+    "dose": "200 mg"
+  },
+  {
+    "file": "Mouton_2006_-_MAD_m_C_300_mg_-_Itraconazole_-_IV_-_300_mg_-_Plasma_-_agg._n_4.csv",
+    "study": "Mouton 2006",
+    "route": "IV",
+    "dose": "300 mg"
+  },
+  {
+    "file": "Mouton_2006_-_MAD_m_D_200_mg_HPBCD_-_Itraconazole_-_IV_-_200_mg_-_Plasma_-_agg._.csv",
+    "study": "Mouton 2006",
+    "route": "IV",
+    "dose": "200 mg"
+  },
+  {
+    "file": "Mouton_2006_-_SAD_A_50_mg_-_Hydroxy-Itraconazole_-_IV_-_50_mg_-_Plasma_-_agg._n_.csv",
+    "study": "Mouton 2006",
+    "route": "IV",
+    "dose": "50 mg"
+  },
+  {
+    "file": "Mouton_2006_-_SAD_B_100_mg_-_Hydroxy-Itraconazole_-_IV_-_100_mg_-_Plasma_-_agg._.csv",
+    "study": "Mouton 2006",
+    "route": "IV",
+    "dose": "100 mg"
+  },
+  {
+    "file": "Mouton_2006_-_SAD_A_200_mg_-_Hydroxy-Itraconazole_-_IV_-_200_mg_-_Plasma_-_agg._.csv",
+    "study": "Mouton 2006",
+    "route": "IV",
+    "dose": "200 mg"
+  },
+  {
+    "file": "Mouton_2006_-_SAD_B_300_mg_-_Hydroxy-Itraconazole_-_IV_-_300_mg_-_Plasma_-_agg._.csv",
+    "study": "Mouton 2006",
+    "route": "IV",
+    "dose": "300 mg"
+  },
+  {
+    "file": "Mouton_2006_-_MAD_m_A_100_mg_-_Hydroxy-Itraconazole_-_IV_-_100_mg_-_Plasma_-_agg.csv",
+    "study": "Mouton 2006",
+    "route": "IV",
+    "dose": "100 mg"
+  },
+  {
+    "file": "Mouton_2006_-_MAD_m_B_200_mg_-_Hydroxy-Itraconazole_-_IV_-_200_mg_-_Plasma_-_agg.csv",
+    "study": "Mouton 2006",
+    "route": "IV",
+    "dose": "200 mg"
+  },
+  {
+    "file": "Mouton_2006_-_MAD_m_C_300_mg_-_Hydroxy-Itraconazole_-_IV_-_300_mg_-_Plasma_-_agg.csv",
+    "study": "Mouton 2006",
+    "route": "IV",
+    "dose": "300 mg"
+  },
+  {
+    "file": "Mouton_2006_-_MAD_m_D_200_mg_HPBCD_-_Hydroxy-Itraconazole_-_IV_-_200_mg_-_Plasma.csv",
+    "study": "Mouton 2006",
+    "route": "IV",
+    "dose": "200 mg"
+  },
+  {
+    "file": "Mouton_2006_-_MAD_m_A_100_mg_terminal_phase_only_-_Itraconazole_-_IV_-_100_mg_-_.csv",
+    "study": "Mouton 2006",
+    "route": "IV",
+    "dose": "100 mg"
+  },
+  {
+    "file": "Mouton_2006_-_MAD_m_B_200_mg_terminal_phase_only_-_Itraconazole_-_IV_-_200_mg_-_.csv",
+    "study": "Mouton 2006",
+    "route": "IV",
+    "dose": "200 mg"
+  },
+  {
+    "file": "Mouton_2006_-_MAD_m_C_300_mg_terminal_phase_only_-_Itraconazole_-_IV_-_300_mg_-_.csv",
+    "study": "Mouton 2006",
+    "route": "IV",
+    "dose": "300 mg"
+  },
+  {
+    "file": "Mouton_2006_-_MAD_m_A_100_mg_terminal_phase_only_-_Hydroxy-Itraconazole_-_IV_-_1.csv",
+    "study": "Mouton 2006",
+    "route": "IV",
+    "dose": "100 mg"
+  },
+  {
+    "file": "Mouton_2006_-_MAD_m_B_200_mg_terminal_phase_only_-_Hydroxy-Itraconazole_-_IV_-_2.csv",
+    "study": "Mouton 2006",
+    "route": "IV",
+    "dose": "200 mg"
+  },
+  {
+    "file": "Mouton_2006_-_MAD_m_C_300_mg_terminal_phase_only_-_Hydroxy-Itraconazole_-_IV_-_3.csv",
+    "study": "Mouton 2006",
+    "route": "IV",
+    "dose": "300 mg"
+  },
+  {
+    "file": "Zhou_1998_-_IV_200_mg_OD_-_Itraconazole_-_IV_-_200_mg_-_Plasma_-_agg._n_29.csv",
+    "study": "Zhou 1998",
+    "route": "IV",
+    "dose": "200 mg"
+  },
+  {
+    "file": "Zhou_1998_-_IV_200_mg_OD_-_Hydroxy-Itraconazole_-_IV_-_200_mg_-_Plasma_-_agg._n_.csv",
+    "study": "Zhou 1998",
+    "route": "IV",
+    "dose": "200 mg"
+  },
+  {
+    "file": "Abdel-Rahman_2007_-_2-6y_-_Itraconazole_-_IV_-_2.5_mg_kg_-_Plasma_-_agg._n_9.csv",
+    "study": "Abdel-Rahman 2007",
+    "route": "IV",
+    "dose": "2.5 mg"
+  },
+  {
+    "file": "Abdel-Rahman_2007_-_6-12y_-_Itraconazole_-_IV_-_2.5_mg_kg_-_Plasma_-_agg._n_7.csv",
+    "study": "Abdel-Rahman 2007",
+    "route": "IV",
+    "dose": "2.5 mg"
+  },
+  {
+    "file": "Abdel-Rahman_2007_-_6m-2y_-_Itraconazole_-_IV_-_2.5_mg_kg_-_Plasma_-_agg._n_6.csv",
+    "study": "Abdel-Rahman 2007",
+    "route": "IV",
+    "dose": "2.5 mg"
+  },
+  {
+    "file": "Abdel-Rahman_2007_-_12-16y_-_Itraconazole_-_IV_-_2.5_mg_kg_-_Plasma_-_agg._n_11.csv",
+    "study": "Abdel-Rahman 2007",
+    "route": "IV",
+    "dose": "2.5 mg"
+  },
+  {
+    "file": "Jalava_1997_-_po_with_Perpetrator_Itraconazole_-_Itraconazole_-_PO_-_200_mg_-_Pl.csv",
+    "study": "Jalava 1997",
+    "route": "PO",
+    "dose": "200 mg"
+  },
+  {
+    "file": "Varhe_1994_-_Itraconazole_on_day_4_-_Itraconazole_-_PO_-_200_mg_-_Plasma_-_agg._.csv",
+    "study": "Varhe 1994",
+    "route": "PO",
+    "dose": "200 mg"
+  },
+  {
+    "file": "Neuvonen_1996_-_ITZ_simultaneously_with_triazolam_-_Itraconazole_-_PO_-_200_mg_-.csv",
+    "study": "Neuvonen 1996",
+    "route": "PO",
+    "dose": "200 mg"
+  },
+  {
+    "file": "Neuvonen_1996_-_ITZ_3_hr_before_triazolam_-_Itraconazole_-_PO_-_200_mg_-_Plasma_.csv",
+    "study": "Neuvonen 1996",
+    "route": "PO",
+    "dose": "200 mg"
+  },
+  {
+    "file": "Neuvonen_1996_-_ITZ_12_hr_before_triazolam_-_Itraconazole_-_PO_-_200_mg_-_Plasma.csv",
+    "study": "Neuvonen 1996",
+    "route": "PO",
+    "dose": "200 mg"
+  },
+  {
+    "file": "Neuvonen_1996_-_ITZ_24_hr_before_triazolam_-_Itraconazole_-_PO_-_200_mg_-_Plasma.csv",
+    "study": "Neuvonen 1996",
+    "route": "PO",
+    "dose": "200 mg"
+  }
+]

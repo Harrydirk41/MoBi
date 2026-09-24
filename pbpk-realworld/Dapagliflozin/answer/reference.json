@@ -1,0 +1,59 @@
+{
+  "schema": "osp-answer-key/v1",
+  "warning": "REFERENCE ANSWERS - grading only, never shown to the agent.",
+  "compound": "Dapagliflozin",
+  "structural_choices": {
+    "calculation_methods": [
+      "Cellular partition coefficient method - Rodgers and Rowland",
+      "Cellular permeability - PK-Sim Standard"
+    ],
+    "metabolizing_processes": [
+      {
+        "molecule": "UGT1A9",
+        "type": "MetabolizationSpecific_FirstOrder"
+      },
+      {
+        "molecule": "UGT2B7",
+        "type": "MetabolizationSpecific_FirstOrder"
+      },
+      {
+        "molecule": "Hepatic-CYP",
+        "type": "MetabolizationSpecific_FirstOrder"
+      }
+    ]
+  },
+  "estimated_parameters": [
+    {
+      "parameter": "Lipophilicity",
+      "value": 2.6719093089
+    },
+    {
+      "parameter": "Solubility at reference pH",
+      "value": 0.2210041453
+    },
+    {
+      "parameter": "Specific intestinal permeability (transcellular)",
+      "value": 3.9684694792e-05
+    },
+    {
+      "parameter": "Permeability",
+      "value": 0.00037527645658
+    },
+    {
+      "parameter": "CLspec/[Enzyme]@UGT1A9",
+      "value": 0.399443557
+    },
+    {
+      "parameter": "CLspec/[Enzyme]@UGT2B7",
+      "value": 0.0066043366201
+    },
+    {
+      "parameter": "CLspec/[Enzyme]@Hepatic-CYP",
+      "value": 0.1432967727
+    },
+    {
+      "parameter": "GFR fraction",
+      "value": 0.7899801465
+    }
+  ]
+}

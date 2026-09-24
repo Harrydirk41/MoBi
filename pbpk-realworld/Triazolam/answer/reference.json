@@ -1,0 +1,35 @@
+{
+  "schema": "osp-answer-key/v1",
+  "warning": "REFERENCE ANSWERS - grading only, never shown to the agent.",
+  "compound": "Triazolam",
+  "structural_choices": {
+    "calculation_methods": [
+      "Cellular partition coefficient method - Rodgers and Rowland",
+      "Cellular permeability - PK-Sim Standard"
+    ],
+    "metabolizing_processes": [
+      {
+        "molecule": "CYP3A4",
+        "type": "MetabolizationLiverMicrosomes_MM"
+      },
+      {
+        "molecule": "CYP3A4",
+        "type": "MetabolizationLiverMicrosomes_MM"
+      }
+    ]
+  },
+  "estimated_parameters": [
+    {
+      "parameter": "Lipophilicity",
+      "value": 1.897007419
+    },
+    {
+      "parameter": "Specific intestinal permeability (transcellular)",
+      "value": 7.0220146601e-05
+    },
+    {
+      "parameter": "kcat@CYP3A4",
+      "value": 17.5448180963
+    }
+  ]
+}

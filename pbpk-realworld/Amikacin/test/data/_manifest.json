@@ -1,0 +1,20 @@
+[
+  {
+    "file": "Walker_1979_-_Volunteer_9_-_Amikacin_-_iv_-_500_mg_-_Plasma_-_indiv..csv",
+    "study": "Walker 1979",
+    "route": "",
+    "dose": "500 mg"
+  },
+  {
+    "file": "Walker_1979_-_population_-_Amikacin_-_iv_-_500_mg_-_Plasma_-_agg._n_10.csv",
+    "study": "Walker 1979",
+    "route": "",
+    "dose": "500 mg"
+  },
+  {
+    "file": "Walker_1979_-_Volunteer_6_-_Amikacin_-_iv_-_500_mg_-_Plasma_-_indiv..csv",
+    "study": "Walker 1979",
+    "route": "",
+    "dose": "500 mg"
+  }
+]

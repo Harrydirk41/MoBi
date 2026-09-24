@@ -1,0 +1,26 @@
+[
+  {
+    "file": "Boekh_1988_-_mean_0.5g_-_Vancomycin_-_IV_-_0.5_g_-_Plasma_-_agg._n_10.csv",
+    "study": "Boekh 1988",
+    "route": "IV",
+    "dose": ""
+  },
+  {
+    "file": "Boekh_1988_-_mean_1g_-_Vancomycin_-_IV_-_1_g_-_Plasma_-_agg._n_10.csv",
+    "study": "Boekh 1988",
+    "route": "IV",
+    "dose": ""
+  },
+  {
+    "file": "Healy_1987_-_mean_0.5g_-_Vancomycin_-_IV_-_0.5_g_-_Plasma_-_agg._n_11.csv",
+    "study": "Healy 1987",
+    "route": "IV",
+    "dose": ""
+  },
+  {
+    "file": "Healy_1987_-_mean_1g_-_Vancomycin_-_IV_-_1_g_-_Plasma_-_agg._n_11.csv",
+    "study": "Healy 1987",
+    "route": "IV",
+    "dose": ""
+  }
+]

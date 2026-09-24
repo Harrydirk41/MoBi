@@ -1,0 +1,110 @@
+[
+  {
+    "file": "Brammer_1991_-_Fluconazole_50_mg_oral_-_Fluconazole_-_PO_-_50_mg_-_Plasma_-_agg..csv",
+    "study": "Brammer 1991",
+    "route": "PO",
+    "dose": "50 mg"
+  },
+  {
+    "file": "Sobue_2004_-_Fluconazole_i.v._-_Fluconazole_-_IV_-_800_mg_-_Plasma_-_agg._n_18.csv",
+    "study": "Sobue 2004",
+    "route": "IV",
+    "dose": "800 mg"
+  },
+  {
+    "file": "Yeates_1994_-_Fluconazole_i.v._healthy_-_Fluconazole_-_IV_-_100_mg_-_Plasma_-_ag.csv",
+    "study": "Yeates 1994",
+    "route": "IV",
+    "dose": "100 mg"
+  },
+  {
+    "file": "Thorpe_1990_-_Fluconazole_oral_without_antacida_-_Fluconazole_-_PO_-_100_mg_-_Pl.csv",
+    "study": "Thorpe 1990",
+    "route": "PO",
+    "dose": "100 mg"
+  },
+  {
+    "file": "Shiba_1990_-_Fluconazole_oral_25_mg_urine_-_Fluconazole_-_PO_-_25_mg_-_Urine_-_a.csv",
+    "study": "Shiba 1990",
+    "route": "PO",
+    "dose": "25 mg"
+  },
+  {
+    "file": "Shiba_1990_-_Fluconazole_oral_50_mg_urine_-_Fluconazole_-_PO_-_50_mg_-_Urine_-_a.csv",
+    "study": "Shiba 1990",
+    "route": "PO",
+    "dose": "50 mg"
+  },
+  {
+    "file": "Shiba_1990_-_Fluconazole_oral_50_mg_-_Fluconazole_-_PO_-_50_mg_-_Plasma_-_agg._n.csv",
+    "study": "Shiba 1990",
+    "route": "PO",
+    "dose": "50 mg"
+  },
+  {
+    "file": "Shiba_1990_-_Fluconazole_oral_100_mg_-_Fluconazole_-_PO_-_100_mg_-_Plasma_-_agg..csv",
+    "study": "Shiba 1990",
+    "route": "PO",
+    "dose": "100 mg"
+  },
+  {
+    "file": "Shiba_1990_-_Fluconazole_oral_25_mg_-_Fluconazole_-_PO_-_25_mg_-_Plasma_-_agg._n.csv",
+    "study": "Shiba 1990",
+    "route": "PO",
+    "dose": "25 mg"
+  },
+  {
+    "file": "Shiba_1990_-_Fluconazole_i.v._50_mg_urine_-_Fluconazole_-_IV_-_50_mg_-_Urine_-_a.csv",
+    "study": "Shiba 1990",
+    "route": "IV",
+    "dose": "50 mg"
+  },
+  {
+    "file": "Shiba_1990_-_Fluconazole_i.v._25_mg_urine_-_Fluconazole_-_IV_-_25_mg_-_Urine_-_a.csv",
+    "study": "Shiba 1990",
+    "route": "IV",
+    "dose": "25 mg"
+  },
+  {
+    "file": "Shiba_1990_-_Fluconazole_i.v._50_mg_-_Fluconazole_-_IV_-_50_mg_-_Plasma_-_agg._n.csv",
+    "study": "Shiba 1990",
+    "route": "IV",
+    "dose": "50 mg"
+  },
+  {
+    "file": "Shiba_1990_-_Fluconazole_i.v._25_mg_-_Fluconazole_-_IV_-_25_mg_-_Plasma_-_agg._n.csv",
+    "study": "Shiba 1990",
+    "route": "IV",
+    "dose": "25 mg"
+  },
+  {
+    "file": "Ripa_1993_-_Fluconazole_i.v._-_Fluconazole_-_IV_-_100_mg_-_Plasma_-_agg._n_6.csv",
+    "study": "Ripa 1993",
+    "route": "IV",
+    "dose": "100 mg"
+  },
+  {
+    "file": "Palkama_1998_-_Fluconazole_oral_-_Fluconazole_-_PO_-_400_mg_-_Plasma_-_agg._n_9.csv",
+    "study": "Palkama 1998",
+    "route": "PO",
+    "dose": "400 mg"
+  },
+  {
+    "file": "Palkama_1998_-_Fluconazole_i.v_-_Fluconazole_-_IV_-_400_mg_-_Plasma_-_agg._n_9.csv",
+    "study": "Palkama 1998",
+    "route": "IV",
+    "dose": "400 mg"
+  },
+  {
+    "file": "Ahonen_1997_-_Fluconazole_oral_-_Fluconazole_-_PO_-_400_mg_-_Plasma_-_agg._n_9.csv",
+    "study": "Ahonen 1997",
+    "route": "PO",
+    "dose": "400 mg"
+  },
+  {
+    "file": "Ahonen_1997_-_Fluconazole_i.v._-_Fluconazole_-_IV_-_400_mg_-_Plasma_-_agg._n_9.csv",
+    "study": "Ahonen 1997",
+    "route": "IV",
+    "dose": "400 mg"
+  }
+]

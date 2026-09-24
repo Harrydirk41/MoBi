@@ -1,0 +1,848 @@
+[
+  {
+    "file": "Greiner_1999_-_po_Control_Perpetrator_Placebo_-_Digoxin_-_PO_-_1_mg_-_Plasma_-_a.csv",
+    "study": "Greiner 1999",
+    "route": "PO",
+    "dose": "1 mg"
+  },
+  {
+    "file": "Greiner_1999_-_iv_Control_Perpetrator_Placebo_-_Digoxin_-_IV_-_1_mg_-_Plasma_-_a.csv",
+    "study": "Greiner 1999",
+    "route": "IV",
+    "dose": "1 mg"
+  },
+  {
+    "file": "Jalava_1997_-_po_Control_Perpetrator_Placebo_-_Digoxin_-_PO_-_0.5_mg_-_Serum_-_a.csv",
+    "study": "Jalava 1997",
+    "route": "PO",
+    "dose": "0.5 mg"
+  },
+  {
+    "file": "Kirby_2012_-_Study_1_-_Staggered_Administration_Control_-_Digoxin_-_PO_-_0.5_mg_.csv",
+    "study": "Kirby 2012",
+    "route": "PO",
+    "dose": "0.5 mg"
+  },
+  {
+    "file": "Kirby_2012_-_Study_2_-_Simultaneous_Administration_Control_-_Digoxin_-_PO_-_0.5_.csv",
+    "study": "Kirby 2012",
+    "route": "PO",
+    "dose": "0.5 mg"
+  },
+  {
+    "file": "Larsen_2007_-_Control_Perpetrator_Placebo_-_Digoxin_-_PO_-_0.5_mg_-_Serum_-_typi.csv",
+    "study": "Larsen 2007",
+    "route": "PO",
+    "dose": "0.5 mg"
+  },
+  {
+    "file": "Reitman_2011_-_Week_4_after_Perpetrator_Rifampicin_-_Digoxin_-_PO_-_0.5_mg_-_Pla.csv",
+    "study": "Reitman 2011",
+    "route": "PO",
+    "dose": "0.5 mg"
+  },
+  {
+    "file": "Ochs_1975_-_0.5mg_Patient_1_with_normal_colon_mucosa_-_Digoxin_-_Intracolonic_-_.csv",
+    "study": "Ochs 1975",
+    "route": "",
+    "dose": "0.5mg"
+  },
+  {
+    "file": "Ochs_1978_-_0.5mg_-_Digoxin_-_IV_-_0.5_mg_-_Plasma_-_agg._n_9.csv",
+    "study": "Ochs 1978",
+    "route": "IV",
+    "dose": "0.5mg"
+  },
+  {
+    "file": "Verstuyft_2003_-_0.5mg_with_Placebo_-_Digoxin_-_PO_-_0.5_mg_-_Plasma_-_agg._n_12.csv",
+    "study": "Verstuyft 2003",
+    "route": "PO",
+    "dose": "0.5mg"
+  },
+  {
+    "file": "Wagner_1981_-_0.5mg_iv_1h_-_Digoxin_-_IV_-_0.5_mg_-_Urine_-_agg._n_6.csv",
+    "study": "Wagner 1981",
+    "route": "IV",
+    "dose": "0.5mg"
+  },
+  {
+    "file": "Wagner_1981_-_0.5mg_iv_3h_-_Digoxin_-_IV_-_0.5_mg_-_Urine_-_agg._n_6.csv",
+    "study": "Wagner 1981",
+    "route": "IV",
+    "dose": "0.5mg"
+  },
+  {
+    "file": "Wagner_1981_-_0.5mg_iv_bolus_-_Digoxin_-_IV_-_0.5_mg_-_Urine_-_agg._n_6.csv",
+    "study": "Wagner 1981",
+    "route": "IV",
+    "dose": "0.5mg"
+  },
+  {
+    "file": "Wagner_1981_-_0.5mg_po_-_Digoxin_-_PO_-_0.5_mg_-_Urine_-_agg._n_6.csv",
+    "study": "Wagner 1981",
+    "route": "PO",
+    "dose": "0.5mg"
+  },
+  {
+    "file": "Wagner_1981_-_0.5mg_iv_1h_-_Digoxin_-_IV_-_0.5_mg_-_Plasma_-_agg._n_6.csv",
+    "study": "Wagner 1981",
+    "route": "IV",
+    "dose": "0.5mg"
+  },
+  {
+    "file": "Wagner_1981_-_0.5mg_iv_3h_-_Digoxin_-_IV_-_0.5_mg_-_Plasma_-_agg._n_6.csv",
+    "study": "Wagner 1981",
+    "route": "IV",
+    "dose": "0.5mg"
+  },
+  {
+    "file": "Wagner_1981_-_0.5mg_iv_bolus_-_Digoxin_-_IV_-_0.5_mg_-_Plasma_-_agg._n_6.csv",
+    "study": "Wagner 1981",
+    "route": "IV",
+    "dose": "0.5mg"
+  },
+  {
+    "file": "Wagner_1981_-_0.5mg_po_-_Digoxin_-_PO_-_0.5_mg_-_Plasma_-_agg._n_6.csv",
+    "study": "Wagner 1981",
+    "route": "PO",
+    "dose": "0.5mg"
+  },
+  {
+    "file": "Ding_2004_-_0.5mg_iv_placebo_-_Digoxin_-_IV_-_0.5_mg_-_Plasma_-_agg._n_12.csv",
+    "study": "Ding 2004",
+    "route": "IV",
+    "dose": "0.5mg"
+  },
+  {
+    "file": "Koup_1975_-_0.75mg_iv_h_-_Digoxin_-_IV_-_0.75_mg_-_Plasma_-_indiv..csv",
+    "study": "Koup 1975",
+    "route": "IV",
+    "dose": "0.75mg"
+  },
+  {
+    "file": "Kramer_1979_-_1mg_iv_bolus_-_Digoxin_-_IV_-_1_mg_-_Plasma_-_agg._n_12.csv",
+    "study": "Kramer 1979",
+    "route": "IV",
+    "dose": "1mg"
+  },
+  {
+    "file": "Lalonde_1985_-_0.01mg_kg_iv_control_-_Digoxin_-_IV_-_10_250_g_ml_g_kg_-_Plasma_-.csv",
+    "study": "Lalonde 1985",
+    "route": "IV",
+    "dose": "0.01mg"
+  },
+  {
+    "file": "Lalonde_1985_-_0.01mg_kg_charcoal_-_Digoxin_-_IV_-_10_250_g_ml_g_kg_-_Plasma_-_a.csv",
+    "study": "Lalonde 1985",
+    "route": "IV",
+    "dose": "0.01mg"
+  },
+  {
+    "file": "Tsutsumi_2002_-_0.5mg_iv_-_Digoxin_-_IV_-_0.5_mg_-_Plasma_-_agg._n_9.csv",
+    "study": "Tsutsumi 2002",
+    "route": "IV",
+    "dose": "0.5mg"
+  },
+  {
+    "file": "Tsutsumi_2002_-_0.5mg_iv_with_erythromycin_-_Digoxin_-_IV_-_0.5_mg_-_Plasma_-_ag.csv",
+    "study": "Tsutsumi 2002",
+    "route": "IV",
+    "dose": "0.5mg"
+  },
+  {
+    "file": "Tsutsumi_2002_-_0.5mg_iv_with_clarithromycin_-_Digoxin_-_IV_-_0.5_mg_-_Plasma_-_.csv",
+    "study": "Tsutsumi 2002",
+    "route": "IV",
+    "dose": "0.5mg"
+  },
+  {
+    "file": "Tsutsumi_2002_-_0.5mg_iv_-_Digoxin_-_IV_-_0.5_mg_-_Urine_-_agg._n_9.csv",
+    "study": "Tsutsumi 2002",
+    "route": "IV",
+    "dose": "0.5mg"
+  },
+  {
+    "file": "Tsutsumi_2002_-_0.5mg_iv_with_erythromycin_-_Digoxin_-_IV_-_0.5_mg_-_Urine_-_agg.csv",
+    "study": "Tsutsumi 2002",
+    "route": "IV",
+    "dose": "0.5mg"
+  },
+  {
+    "file": "Tsutsumi_2002_-_0.5mg_iv_with_clarithromycin_-_Digoxin_-_IV_-_0.5_mg_-_Urine_-_a.csv",
+    "study": "Tsutsumi 2002",
+    "route": "IV",
+    "dose": "0.5mg"
+  },
+  {
+    "file": "Becquemont_2001_-_0.5mg_po_-_Digoxin_-_PO_-_0.5_mg_-_Plasma_-_agg._n_12.csv",
+    "study": "Becquemont 2001",
+    "route": "PO",
+    "dose": "0.5mg"
+  },
+  {
+    "file": "Eckermann_2012_-_0.25mg_po_-_Digoxin_-_PO_-_250_g_-_Plasma_-_agg._n_16.csv",
+    "study": "Eckermann 2012",
+    "route": "PO",
+    "dose": "0.25mg"
+  },
+  {
+    "file": "Hawyard_1978_-_1mg_po_-_Digoxin_-_PO_-_1_mg_-_Plasma_-_agg._n_5.csv",
+    "study": "Hawyard 1978",
+    "route": "PO",
+    "dose": "1mg"
+  },
+  {
+    "file": "Martin_1997_-_0.6mg_po_-_Digoxin_-_PO_-_0.6_mg_-_Plasma_-_agg._n_12.csv",
+    "study": "Martin 1997",
+    "route": "PO",
+    "dose": "0.6mg"
+  },
+  {
+    "file": "Oosterhuis_1991_-_1mg_po_-_Digoxin_-_PO_-_1_mg_-_Plasma_-_agg._n_10.csv",
+    "study": "Oosterhuis 1991",
+    "route": "PO",
+    "dose": "1mg"
+  },
+  {
+    "file": "Ragueneau_1999_-_0.5mg_po_with_placebo_-_Digoxin_-_PO_-_0.5_mg_-_Plasma_-_agg._n.csv",
+    "study": "Ragueneau 1999",
+    "route": "PO",
+    "dose": "0.5mg"
+  },
+  {
+    "file": "Tayrouz_2003_-_0.5mg_po_with_placebo_-_Digoxin_-_PO_-_0.5_mg_-_Plasma_-_agg._n_1.csv",
+    "study": "Tayrouz 2003",
+    "route": "PO",
+    "dose": "0.5mg"
+  },
+  {
+    "file": "Westphal_2000_-_0.5mg_po_-_Digoxin_-_PO_-_0.5_mg_-_Plasma_-_agg._n_10.csv",
+    "study": "Westphal 2000",
+    "route": "PO",
+    "dose": "0.5mg"
+  },
+  {
+    "file": "Sanofi-Aventis_2009_-_0.25mg_md_QD_-_Digoxin_-_PO_-_0_25_0_5_mg_-_Plasma_-_agg._.csv",
+    "study": "Sanofi-Aventis 2009",
+    "route": "PO",
+    "dose": "0.25mg"
+  },
+  {
+    "file": "Friedrich_2011_-_0.25mg_po_md_-_Digoxin_-_PO_-_0.25_mg_-_Plasma_-_agg._n_20.csv",
+    "study": "Friedrich 2011",
+    "route": "PO",
+    "dose": "0.25mg"
+  },
+  {
+    "file": "Johne_1999_-_0.25mg_po_md_with_placebo_day_6_-_Digoxin_-_PO_-_0.25_mg_-_Plasma_-.csv",
+    "study": "Johne 1999",
+    "route": "PO",
+    "dose": "0.25mg"
+  },
+  {
+    "file": "Johne_1999_-_0.25mg_po_md_with_placebo_day_15_-_Digoxin_-_PO_-_0.25_mg_-_Plasma_.csv",
+    "study": "Johne 1999",
+    "route": "PO",
+    "dose": "0.25mg"
+  },
+  {
+    "file": "Kirch_1986_-_2x0.25mg_po_md_-_Digoxin_-_PO_-_0.25_mg_-_Plasma_-_agg._n_7.csv",
+    "study": "Kirch 1986",
+    "route": "PO",
+    "dose": "0.25mg"
+  },
+  {
+    "file": "Qiu_2010_-_0.125mg_md_QD_placebo_-_Digoxin_-_PO_-_0.125_mg_-_Plasma_-_agg._n_12.csv",
+    "study": "Qiu 2010",
+    "route": "PO",
+    "dose": "0.125mg"
+  },
+  {
+    "file": "Rodin_1988_-_2x0.25mg_po_md_-_Digoxin_-_PO_-_0.25_mg_-_Plasma_-_agg._n_10.csv",
+    "study": "Rodin 1988",
+    "route": "PO",
+    "dose": "0.25mg"
+  },
+  {
+    "file": "Rodin_1988_-_2x0.25mg_po_md_-_Digoxin_-_PO_-_0.25_mg_-_Plasma_-_agg._n_9.csv",
+    "study": "Rodin 1988",
+    "route": "PO",
+    "dose": "0.25mg"
+  },
+  {
+    "file": "Vaidyanathan_2008_-_0.25mg_po_pd_-_Digoxin_-_PO_-_0.25_mg_-_Plasma_-_agg._n_22.csv",
+    "study": "Vaidyanathan 2008",
+    "route": "PO",
+    "dose": "0.25mg"
+  },
+  {
+    "file": "Ochs_1978_-_0.5mg_-_Digoxin_-_IV_-_0.5_mg_-_Urine_-_agg._n_9.csv",
+    "study": "Ochs 1978",
+    "route": "IV",
+    "dose": "0.5mg"
+  },
+  {
+    "file": "Ochs_1978_-_1mg_-_Digoxin_-_IV_-_1_mg_-_Plasma_-_agg._n_9.csv",
+    "study": "Ochs 1978",
+    "route": "IV",
+    "dose": "1mg"
+  },
+  {
+    "file": "Ochs_1978_-_1mg_-_Digoxin_-_IV_-_1_mg_-_Urine_-_agg._n_9.csv",
+    "study": "Ochs 1978",
+    "route": "IV",
+    "dose": "1mg"
+  },
+  {
+    "file": "Ochs_1978_-_1.5mg_-_Digoxin_-_IV_-_1.5_mg_-_Plasma_-_agg._n_9.csv",
+    "study": "Ochs 1978",
+    "route": "IV",
+    "dose": "1.5mg"
+  },
+  {
+    "file": "Ochs_1978_-_1.5mg_-_Digoxin_-_IV_-_1.5_mg_-_Urine_-_agg._n_9.csv",
+    "study": "Ochs 1978",
+    "route": "IV",
+    "dose": "1.5mg"
+  },
+  {
+    "file": "Ochs_1975_-_0.5mg_Patient_2_with_normal_colon_mucosa_-_Digoxin_-_Intracolonic_-_.csv",
+    "study": "Ochs 1975",
+    "route": "",
+    "dose": "0.5mg"
+  },
+  {
+    "file": "Ochs_1975_-_0.5mg_Patient_3_with_normal_colon_mucosa_-_Digoxin_-_Intracolonic_-_.csv",
+    "study": "Ochs 1975",
+    "route": "",
+    "dose": "0.5mg"
+  },
+  {
+    "file": "Ochs_1975_-_0.5mg_Patient_4_with_normal_colon_mucosa_-_Digoxin_-_Intracolonic_-_.csv",
+    "study": "Ochs 1975",
+    "route": "",
+    "dose": "0.5mg"
+  },
+  {
+    "file": "Ochs_1975_-_0.5mg_Patient_5_with_normal_colon_mucosa_-_Digoxin_-_Intracolonic_-_.csv",
+    "study": "Ochs 1975",
+    "route": "",
+    "dose": "0.5mg"
+  },
+  {
+    "file": "Ochs_1975_-_0.5mg_Patient_6_with_normal_colon_mucosa_-_Digoxin_-_Intracolonic_-_.csv",
+    "study": "Ochs 1975",
+    "route": "",
+    "dose": "0.5mg"
+  },
+  {
+    "file": "Ochs_1975_-_0.5mg_Patient_7_with_normal_colon_mucosa_-_Digoxin_-_Intracolonic_-_.csv",
+    "study": "Ochs 1975",
+    "route": "",
+    "dose": "0.5mg"
+  },
+  {
+    "file": "Ochs_1975_-_0.5mg_Patient_8_with_normal_colon_mucosa_-_Digoxin_-_Intracolonic_-_.csv",
+    "study": "Ochs 1975",
+    "route": "",
+    "dose": "0.5mg"
+  },
+  {
+    "file": "Johnson_et_al._1987_-_Digoxin_IV_control_-_Digoxin_-_IV_-_1_mg_-_Serum_-_agg._n_.csv",
+    "study": "Johnson et al. 1987",
+    "route": "IV",
+    "dose": "1 mg"
+  },
+  {
+    "file": "Johnson_et_al._1987_-_Digoxin_IV_control_-_Digoxin_-_IV_-_1_mg_-_Urine_-_agg._n_.csv",
+    "study": "Johnson et al. 1987",
+    "route": "IV",
+    "dose": "1 mg"
+  },
+  {
+    "file": "Johnson_et_al._1987_-_Digoxin_IV_Verapamil_-_Digoxin_-_IV_-_1_mg_-_Serum_-_agg._.csv",
+    "study": "Johnson et al. 1987",
+    "route": "IV",
+    "dose": "1 mg"
+  },
+  {
+    "file": "Johnson_et_al._1987_-_Digoxin_IV_Verapamil_-_Digoxin_-_IV_-_1_mg_-_Urine_-_agg._.csv",
+    "study": "Johnson et al. 1987",
+    "route": "IV",
+    "dose": "1 mg"
+  },
+  {
+    "file": "Pedersen_et_al._1983_-_Digoxin_IV_control_-_Digoxin_-_IV_-_1_mg_-_Plasma_-_indiv.csv",
+    "study": "Pedersen et al. 1983",
+    "route": "IV",
+    "dose": "1 mg"
+  },
+  {
+    "file": "Pedersen_et_al._1983_-_Digoxin_IV_Verapamil_-_Digoxin_-_IV_-_1_mg_-_Plasma_-_ind.csv",
+    "study": "Pedersen et al. 1983",
+    "route": "IV",
+    "dose": "1 mg"
+  },
+  {
+    "file": "Pedersen_et_al._1982_-_Digoxin_and_Verapamil_in_MD_setting_-_Digoxin_-_PO_-_1_0..csv",
+    "study": "Pedersen et al. 1982",
+    "route": "PO",
+    "dose": "0.125 mg"
+  },
+  {
+    "file": "Doering_et_al._1983_-_Digoxin_control_-_Digoxin_-_PO_-_0.125_mg_-_Serum_-_agg._n.csv",
+    "study": "Doering et al. 1983",
+    "route": "PO",
+    "dose": "0.125 mg"
+  },
+  {
+    "file": "Doering_et_al._1983_-_Digoxin_80mg_Verapamil_-_Digoxin_-_PO_-_0.125_mg_-_Serum_-.csv",
+    "study": "Doering et al. 1983",
+    "route": "PO",
+    "dose": "80mg"
+  },
+  {
+    "file": "Wiebe_2020_-_Control_digoxin_-_plasma_-_Digoxin_-_PO_-_0.25_mg_-_Plasma_-_agg._n.csv",
+    "study": "Wiebe 2020",
+    "route": "PO",
+    "dose": "0.25 mg"
+  },
+  {
+    "file": "Wiebe_2020_-_Control_digoxin_-_urine_-_Digoxin_-_PO_-_0.25_mg_-_Urine_-_agg._n_1.csv",
+    "study": "Wiebe 2020",
+    "route": "PO",
+    "dose": "0.25 mg"
+  },
+  {
+    "file": "Wiebe_2020_-_DDI_digoxin_verapamil_-_plasma_-_Digoxin_-_PO_-_0.25_mg_-_Plasma_-_.csv",
+    "study": "Wiebe 2020",
+    "route": "PO",
+    "dose": "0.25 mg"
+  },
+  {
+    "file": "Wiebe_2020_-_DDI_digoxin_verapamil_-_urine_-_Digoxin_-_PO_-_0.25_mg_-_Urine_-_ag.csv",
+    "study": "Wiebe 2020",
+    "route": "PO",
+    "dose": "0.25 mg"
+  },
+  {
+    "file": "Klein_et_al._1982_-_Digoxin_and_Verapamil_in_MD_setting_-_Digoxin_-_PO_-_0.25_mg.csv",
+    "study": "Klein et al. 1982",
+    "route": "PO",
+    "dose": "0.25 mg"
+  },
+  {
+    "file": "Schwartz_et_al._1982_-_Digoxin_and_Verapamil_in_MD_setting_-_Digoxin_-_PO_-_0.46.csv",
+    "study": "Schwartz et al. 1982",
+    "route": "PO",
+    "dose": "0.46 mg"
+  },
+  {
+    "file": "Wiebe_2020_-_Digoxin_Cocktail_Rifampin_-_Digoxin_-_PO_-_0.25_mg_-_Plasma_-_agg._.csv",
+    "study": "Wiebe 2020",
+    "route": "PO",
+    "dose": "0.25 mg"
+  },
+  {
+    "file": "Wiebe_2020_-_Digoxin_Placebo_-_Digoxin_-_PO_-_0.25_mg_-_Plasma_-_agg._n_12.csv",
+    "study": "Wiebe 2020",
+    "route": "PO",
+    "dose": "0.25 mg"
+  },
+  {
+    "file": "Kurata_2002_-_G_G2677C_C3435_Digoxin_day_16_Clarithromycin_-_Digoxin_-_PO_-_0.25.csv",
+    "study": "Kurata 2002",
+    "route": "PO",
+    "dose": "0.25 mg"
+  },
+  {
+    "file": "Kurata_2002_-_G_G2677C_C3435_Digoxin_day_1_-_Digoxin_-_PO_-_0.5_mg_-_Serum_-_agg.csv",
+    "study": "Kurata 2002",
+    "route": "PO",
+    "dose": "0.5 mg"
+  },
+  {
+    "file": "Kurata_2002_-_G_G2677C_C3435_Digoxin_day_16_Clarithromycin_-_Digoxin_-_IV_-_0.25.csv",
+    "study": "Kurata 2002",
+    "route": "IV",
+    "dose": "0.25 mg"
+  },
+  {
+    "file": "Kurata_2002_-_G_G2677C_C3435_Digoxin_day_1_-_Digoxin_-_IV_-_0.5_mg_-_serum_-_agg.csv",
+    "study": "Kurata 2002",
+    "route": "IV",
+    "dose": "0.5 mg"
+  },
+  {
+    "file": "Kurata_2002_-_T_T2677T_T3435_Digoxin_day_16_Clarithromycin_-_Digoxin_-_PO_-_0.25.csv",
+    "study": "Kurata 2002",
+    "route": "PO",
+    "dose": "0.25 mg"
+  },
+  {
+    "file": "Kurata_2002_-_T_T2677T_T3435_Digoxin_day_1_-_Digoxin_-_PO_-_0.5_mg_-_serum_-_agg.csv",
+    "study": "Kurata 2002",
+    "route": "PO",
+    "dose": "0.5 mg"
+  },
+  {
+    "file": "Kurata_2002_-_T_T2677T_T3435_Digoxin_day_16_Clarithromycin_-_Digoxin_-_IV_-_0.25.csv",
+    "study": "Kurata 2002",
+    "route": "IV",
+    "dose": "0.25 mg"
+  },
+  {
+    "file": "Kurata_2002_-_T_T2677T_T3435_Digoxin_day_1_-_Digoxin_-_IV_-_0.5_mg_-_serum_-_agg.csv",
+    "study": "Kurata 2002",
+    "route": "IV",
+    "dose": "0.5 mg"
+  },
+  {
+    "file": "Kurata_2002_-_G_T2677C_T3435_Digoxin_day_16_Clarithromycin_-_Digoxin_-_PO_-_0.25.csv",
+    "study": "Kurata 2002",
+    "route": "PO",
+    "dose": "0.25 mg"
+  },
+  {
+    "file": "Kurata_2002_-_G_T2677C_T3435_Digoxin_day_1_-_Digoxin_-_PO_-_0.5_mg_-_serum_-_agg.csv",
+    "study": "Kurata 2002",
+    "route": "PO",
+    "dose": "0.5 mg"
+  },
+  {
+    "file": "Kurata_2002_-_G_T2677C_T3435_Digoxin_day_16_Clarithromycin_-_Digoxin_-_IV_-_0.25.csv",
+    "study": "Kurata 2002",
+    "route": "IV",
+    "dose": "0.25 mg"
+  },
+  {
+    "file": "Kurata_2002_-_G_T2677C_T3435_Digoxin_day_1_-_Digoxin_-_IV_-_0.5_mg_-_serum_-_agg.csv",
+    "study": "Kurata 2002",
+    "route": "IV",
+    "dose": "0.5 mg"
+  },
+  {
+    "file": "Gurley_2006_-_day_7_plasma_Rifampin_-_Digoxin_-_PO_-_0.4_mg_-_serum_-_agg._n_16.csv",
+    "study": "Gurley 2006",
+    "route": "PO",
+    "dose": "0.4 mg"
+  },
+  {
+    "file": "Gurley_2006_-_day_7_plasma_Clarithromycin_-_Digoxin_-_PO_-_0.4_mg_-_serum_-_agg..csv",
+    "study": "Gurley 2006",
+    "route": "PO",
+    "dose": "0.4 mg"
+  },
+  {
+    "file": "Gurley_2007_-_Digoxin_Rifampicin_-_Digoxin_-_PO_-_0.5_mg_-_serum_-_agg._n_20.csv",
+    "study": "Gurley 2007",
+    "route": "PO",
+    "dose": "0.5 mg"
+  },
+  {
+    "file": "Gurley_2007_-_Digoxin_Clarithromycin_-_Digoxin_-_PO_-_0.5_mg_-_serum_-_agg._n_20.csv",
+    "study": "Gurley 2007",
+    "route": "PO",
+    "dose": "0.5 mg"
+  },
+  {
+    "file": "Partanen_1995_-_Digoxin_Itraconazol_in_Part_1_-_Digoxin_-_PO_-_0.25_mg_-_serum_-.csv",
+    "study": "Partanen 1995",
+    "route": "PO",
+    "dose": "0.25 mg"
+  },
+  {
+    "file": "Partanen_1995_-_Digoxin_Itraconazol_in_Part_2_-_Digoxin_-_PO_-_0.25_mg_-_serum_-.csv",
+    "study": "Partanen 1995",
+    "route": "PO",
+    "dose": "0.25 mg"
+  },
+  {
+    "file": "Rengelshausen_2003_-_0.01mg_kg_iv_with_placebo_-_Digoxin_-_IV_-_0.01_mg_kg_-_Pla.csv",
+    "study": "Rengelshausen 2003",
+    "route": "IV",
+    "dose": "0.01mg"
+  },
+  {
+    "file": "Rengelshausen_2003_-_0.75mg_kg_po_with_placebo_-_Digoxin_-_PO_-_0.75_mg_-_Plasma.csv",
+    "study": "Rengelshausen 2003",
+    "route": "PO",
+    "dose": "0.75mg"
+  },
+  {
+    "file": "Gurley_2008b_-_Digoxin_without_Hyperforin_-_Digoxin_-_PO_-_0.25_mg_-_Serum_-_agg.csv",
+    "study": "Gurley 2008b",
+    "route": "PO",
+    "dose": "0.25 mg"
+  },
+  {
+    "file": "Gurley_2008b_-_Digoxin_with_Hyperforin_-_Digoxin_-_PO_-_0.25_mg_-_Serum_-_agg._n.csv",
+    "study": "Gurley 2008b",
+    "route": "PO",
+    "dose": "0.25 mg"
+  },
+  {
+    "file": "Arold_2005_-_Study_B_-_Digoxin_without_Hyperforin_Day_1_-_Digoxin_-_PO_-_0.75_da.csv",
+    "study": "Arold 2005",
+    "route": "PO",
+    "dose": ""
+  },
+  {
+    "file": "Arold_2005_-_Study_B_-_Digoxin_with_Hyperforin_-_Digoxin_-_PO_-_0.75_day_1_and_2.csv",
+    "study": "Arold 2005",
+    "route": "PO",
+    "dose": "13 mg"
+  },
+  {
+    "file": "Arold_2005_-_Study_B_-_Digoxin_with_Placebo_-_Digoxin_-_PO_-_0.75_day_1_and_2_0..csv",
+    "study": "Arold 2005",
+    "route": "PO",
+    "dose": "13 mg"
+  },
+  {
+    "file": "Mueller_2004_-_study_part_1_-_Placebo_-_before_-_Digoxin_-_PO_-_unknown_see_comm.csv",
+    "study": "Mueller 2004",
+    "route": "PO",
+    "dose": ""
+  },
+  {
+    "file": "Mueller_2004_-_study_part_1_-_Placebo_-_after_-_Digoxin_-_PO_-_unknown_see_comme.csv",
+    "study": "Mueller 2004",
+    "route": "PO",
+    "dose": ""
+  },
+  {
+    "file": "Mueller_2004_-_study_part_1_-_LI160_28.9mg_d_hyperforin_-_without_hyperforin_-_D.csv",
+    "study": "Mueller 2004",
+    "route": "PO",
+    "dose": "28.9mg"
+  },
+  {
+    "file": "Mueller_2004_-_study_part_1_-_LI160_28.9mg_d_hyperforin_-_with_hyperforin_-_Digo.csv",
+    "study": "Mueller 2004",
+    "route": "PO",
+    "dose": "28.9mg"
+  },
+  {
+    "file": "Mueller_2004_-_study_part_1_-_Hypericum_powder_type_A_4_g_d_21.1mg_d_hyperforin_.csv",
+    "study": "Mueller 2004",
+    "route": "PO",
+    "dose": "21.1mg"
+  },
+  {
+    "file": "Mueller_2004_-_study_part_1_-_Hypericum_powder_type_A_4_g_d_21.1mg_d_hyperforin_.csv",
+    "study": "Mueller 2004",
+    "route": "PO",
+    "dose": "21.1mg"
+  },
+  {
+    "file": "Mueller_2004_-_study_part_1_-_Hypericum_powder_type_A_2_g_d_10.6mg_d_hyperforin_.csv",
+    "study": "Mueller 2004",
+    "route": "PO",
+    "dose": "10.6mg"
+  },
+  {
+    "file": "Mueller_2004_-_study_part_1_-_Hypericum_powder_type_A_2_g_d_10.6mg_d_hyperforin_.csv",
+    "study": "Mueller 2004",
+    "route": "PO",
+    "dose": "10.6mg"
+  },
+  {
+    "file": "Mueller_2004_-_study_part_2_-_Placebo_-_before_-_Digoxin_-_PO_-_unknown_see_comm.csv",
+    "study": "Mueller 2004",
+    "route": "PO",
+    "dose": ""
+  },
+  {
+    "file": "Mueller_2004_-_study_part_2_-_Placebo_-_after_-_Digoxin_-_PO_-_unknown_see_comme.csv",
+    "study": "Mueller 2004",
+    "route": "PO",
+    "dose": ""
+  },
+  {
+    "file": "Mueller_2004_-_Hypericum_powder_type_A_1_g_d_5.3mg_d_hyperforin_-_without_hyperf.csv",
+    "study": "Mueller 2004",
+    "route": "PO",
+    "dose": "5.3mg"
+  },
+  {
+    "file": "Mueller_2004_-_Hypericum_powder_type_A_1_g_d_5.3mg_d_hyperforin_-_with_hyperfori.csv",
+    "study": "Mueller 2004",
+    "route": "PO",
+    "dose": "5.3mg"
+  },
+  {
+    "file": "Mueller_2004_-_Hypericum_powder_type_A_0.5_g_d_2.6mg_d_hyperforin_-_without_hype.csv",
+    "study": "Mueller 2004",
+    "route": "PO",
+    "dose": "2.6mg"
+  },
+  {
+    "file": "Mueller_2004_-_Hypericum_powder_type_A_0.5_g_d_2.6mg_d_hyperforin_-_with_hyperfo.csv",
+    "study": "Mueller 2004",
+    "route": "PO",
+    "dose": "2.6mg"
+  },
+  {
+    "file": "Mueller_2004_-_Hypericum_oil_extract_0.13mg_d_hyperforin_-_without_hyperforin_-_.csv",
+    "study": "Mueller 2004",
+    "route": "PO",
+    "dose": "0.13mg"
+  },
+  {
+    "file": "Mueller_2004_-_Hypericum_oil_extract_0.13mg_d_hyperforin_-_with_hyperforin_-_Dig.csv",
+    "study": "Mueller 2004",
+    "route": "PO",
+    "dose": "0.13mg"
+  },
+  {
+    "file": "Mueller_2004_-_Tea_0.04mg_d_hyperforin_-_without_hyperforin_-_Digoxin_-_PO_-_unk.csv",
+    "study": "Mueller 2004",
+    "route": "PO",
+    "dose": "0.04mg"
+  },
+  {
+    "file": "Mueller_2004_-_Tea_0.04mg_d_hyperforin_-_with_hyperforin_-_Digoxin_-_PO_-_unknow.csv",
+    "study": "Mueller 2004",
+    "route": "PO",
+    "dose": "0.04mg"
+  },
+  {
+    "file": "Mueller_2004_-_study_part_3_-_Placebo_-_before_-_Digoxin_-_PO_-_unknown_see_comm.csv",
+    "study": "Mueller 2004",
+    "route": "PO",
+    "dose": ""
+  },
+  {
+    "file": "Mueller_2004_-_study_part_3_-_Placebo_-_after_-_Digoxin_-_PO_-_unknown_see_comme.csv",
+    "study": "Mueller 2004",
+    "route": "PO",
+    "dose": ""
+  },
+  {
+    "file": "Mueller_2004_-_Hypericum_powder_type_B_2_g_d_0.3mg_d_hyperforin_-_without_hyperf.csv",
+    "study": "Mueller 2004",
+    "route": "PO",
+    "dose": "0.3mg"
+  },
+  {
+    "file": "Mueller_2004_-_Hypericum_powder_type_B_2_g_d_0.3mg_d_hyperforin_-_with_hyperfori.csv",
+    "study": "Mueller 2004",
+    "route": "PO",
+    "dose": "0.3mg"
+  },
+  {
+    "file": "Mueller_2004_-_Fresh_plant_juice_3.56mg_d_hyperforin_-_without_hyperforin_-_Digo.csv",
+    "study": "Mueller 2004",
+    "route": "PO",
+    "dose": "3.56mg"
+  },
+  {
+    "file": "Mueller_2004_-_Fresh_plant_juice_3.56mg_d_hyperforin_-_with_hyperforin_-_Digoxin.csv",
+    "study": "Mueller 2004",
+    "route": "PO",
+    "dose": "3.56mg"
+  },
+  {
+    "file": "Mueller_2004_-_ZE_117_ca-0.38mg_d_hyperforin_-_without_hyperforin_-_Digoxin_-_PO.csv",
+    "study": "Mueller 2004",
+    "route": "PO",
+    "dose": "0.38mg"
+  },
+  {
+    "file": "Mueller_2004_-_ZE_117_ca-0.38mg_d_hyperforin_-_with_hyperforin_-_Digoxin_-_PO_-_.csv",
+    "study": "Mueller 2004",
+    "route": "PO",
+    "dose": "0.38mg"
+  },
+  {
+    "file": "Johne_1999_-_Digoxin_MD_with_placebo_-_Digoxin_-_PO_-_0.25_mg_-_Plasma_-_agg._n_.csv",
+    "study": "Johne 1999",
+    "route": "PO",
+    "dose": "0.25 mg"
+  },
+  {
+    "file": "Johne_1999_-_Digoxin_after_SD_St_John_s_Wort_-_Digoxin_-_PO_-_0.25_mg_-_Plasma_-.csv",
+    "study": "Johne 1999",
+    "route": "PO",
+    "dose": "0.25 mg"
+  },
+  {
+    "file": "Johne_1999_-_Digoxin_after_MD_St_John_s_Wort_-_Digoxin_-_PO_-_0.25_mg_-_Plasma_-.csv",
+    "study": "Johne 1999",
+    "route": "PO",
+    "dose": "0.25 mg"
+  },
+  {
+    "file": "Rodin_1988_-_2x0.25mg_po_md_-_Digoxin_-_PO_-_0.25_mg_-_Urine_-_agg._n_10.csv",
+    "study": "Rodin 1988",
+    "route": "PO",
+    "dose": "0.25mg"
+  },
+  {
+    "file": "Rodin_1988_-_2x0.25mg_po_md_with_verapamil_-_Digoxin_-_PO_-_0.25_mg_-_Urine_-_ag.csv",
+    "study": "Rodin 1988",
+    "route": "PO",
+    "dose": "0.25mg"
+  },
+  {
+    "file": "Rodin_1988_-_2x0.25mg_po_md_-_Digoxin_-_PO_-_0.25_mg_-_Urine_-_agg._n_9.csv",
+    "study": "Rodin 1988",
+    "route": "PO",
+    "dose": "0.25mg"
+  },
+  {
+    "file": "Rodin_1988_-_2x0.25mg_po_md_with_isradipine_-_Digoxin_-_PO_-_0.25_mg_-_Urine_-_a.csv",
+    "study": "Rodin 1988",
+    "route": "PO",
+    "dose": "0.25mg"
+  },
+  {
+    "file": "Gurley_2008b_-_with_Perpetrator_Echinacea_-_Digoxin_-_PO_-_0.25_mg_-_Serum_-_agg.csv",
+    "study": "Gurley 2008b",
+    "route": "PO",
+    "dose": "0.25 mg"
+  },
+  {
+    "file": "Gurley_2008b_-_Control_to_Perpetrator_Rifampicin_-_Digoxin_-_PO_-_0.25_mg_-_Seru.csv",
+    "study": "Gurley 2008b",
+    "route": "PO",
+    "dose": "0.25 mg"
+  },
+  {
+    "file": "Gurley_2008b_-_Control_to_Perpetrator_Clarithromycin_-_Digoxin_-_PO_-_0.25_mg_-_.csv",
+    "study": "Gurley 2008b",
+    "route": "PO",
+    "dose": "0.25 mg"
+  },
+  {
+    "file": "Gurley_2008b_-_Control_to_Perpetrator_Echinacea_-_Digoxin_-_PO_-_0.25_mg_-_Serum.csv",
+    "study": "Gurley 2008b",
+    "route": "PO",
+    "dose": "0.25 mg"
+  },
+  {
+    "file": "Gurley_2006_-_day_1_plasma_before_Rifampicin_-_Digoxin_-_PO_-_0.4_mg_-_serum_-_a.csv",
+    "study": "Gurley 2006",
+    "route": "PO",
+    "dose": "0.4 mg"
+  },
+  {
+    "file": "Gurley_2006_-_day_1_plasma_before_Clarithromycin_-_Digoxin_-_PO_-_0.4_mg_-_serum.csv",
+    "study": "Gurley 2006",
+    "route": "PO",
+    "dose": "0.4 mg"
+  },
+  {
+    "file": "Gurley_2007_-_control_to_Rifampicin_-_Digoxin_-_PO_-_0.5_mg_-_serum_-_agg._n_20.csv",
+    "study": "Gurley 2007",
+    "route": "PO",
+    "dose": "0.5 mg"
+  },
+  {
+    "file": "Gurley_2007_-_control_to_Clarithromycin_-_Digoxin_-_PO_-_0.5_mg_-_serum_-_agg._n.csv",
+    "study": "Gurley 2007",
+    "route": "PO",
+    "dose": "0.5 mg"
+  }
+]

@@ -1,0 +1,56 @@
+[
+  {
+    "file": "Schellenberger1999.Tizanidine.4mg.po.tid.Day3.csv",
+    "study": "Schellenberger1999",
+    "route": "",
+    "dose": ".4mg"
+  },
+  {
+    "file": "Henney2007.Tizanidine.4mg.po.sd.Tab_fed.csv",
+    "study": "Henney2007",
+    "route": "",
+    "dose": ".4mg"
+  },
+  {
+    "file": "Henney2007.Tizanidine.4mg.po.sd.Cap_fed.csv",
+    "study": "Henney2007",
+    "route": "",
+    "dose": ".4mg"
+  },
+  {
+    "file": "Backman2006.Tizanidine.4mg.po.Tab_fasted.Control.csv",
+    "study": "Beckman2006",
+    "route": "",
+    "dose": ".4mg"
+  },
+  {
+    "file": "Tse1987.Tizanidine.4mg.po.tid.TAB_fasted.csv",
+    "study": "Tse1987",
+    "route": "",
+    "dose": ".4mg"
+  },
+  {
+    "file": "Al-Ghazawi2013.Tizanidine.4mg.po.sd.Tab_fasted.csv",
+    "study": "Al-Ghazawi2013",
+    "route": "",
+    "dose": ".4mg"
+  },
+  {
+    "file": "Granfors2004.Tizanidine.4mg.po.sd.Tab_fasted.control.csv",
+    "study": "Granfors2004",
+    "route": "",
+    "dose": ".4mg"
+  },
+  {
+    "file": "Momo2010.Tizanedine.2mg.po.sd.Tab_fed.control.csv",
+    "study": "Momo2010",
+    "route": "",
+    "dose": ".2mg"
+  },
+  {
+    "file": "Granfors2004.Tizanidine.4mg.po.sd.Tab_fasted.control.DAY4.csv",
+    "study": "study",
+    "route": "",
+    "dose": ".4mg"
+  }
+]

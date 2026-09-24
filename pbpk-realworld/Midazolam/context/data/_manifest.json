@@ -1,0 +1,656 @@
+[
+  {
+    "file": "Bornemann_1986_-_1_h_after_a_meal_-_Midazolam_-_PO_-_15_mg_-_Plasma_-_agg._n_18.csv",
+    "study": "Bornemann 1986",
+    "route": "PO",
+    "dose": "15 mg"
+  },
+  {
+    "file": "Olkkola_1993_-_po_Control_Perpetrator_Placebo_-_Midazolam_-_PO_-_15_mg_-_Plasma_.csv",
+    "study": "Olkkola 1993",
+    "route": "PO",
+    "dose": "15 mg"
+  },
+  {
+    "file": "Allonen_1981_-_oral_-_Midazolam_-_PO_-_15_mg_-_Plasma_-_agg._n_6.csv",
+    "study": "Allonen 1981",
+    "route": "PO",
+    "dose": "15 mg"
+  },
+  {
+    "file": "Allonen_1981_-_iv_-_Midazolam_-_IV_-_0.075_mg_kg_-_Plasma_-_agg._n_6.csv",
+    "study": "Allonen 1981",
+    "route": "IV",
+    "dose": "0.075 mg"
+  },
+  {
+    "file": "Backman_1996_-_Control_Perpetrator_Placebo_-_Midazolam_-_PO_-_15_mg_-_Plasma_-_a.csv",
+    "study": "Backman 1996",
+    "route": "PO",
+    "dose": "15 mg"
+  },
+  {
+    "file": "Backman_1998_-_Phase_I_Control_Perpetrator_Placebo_-_Midazolam_-_PO_-_15_mg_-_Pl.csv",
+    "study": "Backman 1998",
+    "route": "PO",
+    "dose": "15 mg"
+  },
+  {
+    "file": "Chung_2006_-_Control_Perpetrator_Placebo_-_Midazolam_-_PO_-_0.075_mg_kg_-_Plasma.csv",
+    "study": "Chung 2006",
+    "route": "PO",
+    "dose": "0.075 mg"
+  },
+  {
+    "file": "Gorski_1998_-_po_Control_Perpetrator_Placebo_-_Midazolam_-_PO_-_4_mg_-_Whole_Blo.csv",
+    "study": "Gorski 1998",
+    "route": "PO",
+    "dose": "4 mg"
+  },
+  {
+    "file": "Gorski_1998_-_iv_Control_Perpetrator_Placebo_-_Midazolam_-_IV_-_0.05_mg_kg_-_Who.csv",
+    "study": "Gorski 1998",
+    "route": "IV",
+    "dose": "0.05 mg"
+  },
+  {
+    "file": "Gorski_2003_-_po_Control_Perpetrator_Placebo_-_Midazolam_-_PO_-_4_mg_-_Whole_Blo.csv",
+    "study": "Gorski 2003",
+    "route": "PO",
+    "dose": "4 mg"
+  },
+  {
+    "file": "Gorski_2003_-_iv_Control_Perpetrator_Placebo_-_Midazolam_-_IV_-_0.05_mg_kg_-_Who.csv",
+    "study": "Gorski 2003",
+    "route": "IV",
+    "dose": "0.05 mg"
+  },
+  {
+    "file": "Greenblat_1984_-_iv_-_f_136kg_36y_obese_female_-_Midazolam_-_IV_-_5_mg_-_Plasma_.csv",
+    "study": "Greenblat 1984",
+    "route": "IV",
+    "dose": "5 mg"
+  },
+  {
+    "file": "Greenblat_1984_-_iv_-_f_61kg_37y_normal_female_-_Midazolam_-_IV_-_5_mg_-_Plasma_.csv",
+    "study": "Greenblat 1984",
+    "route": "IV",
+    "dose": "5 mg"
+  },
+  {
+    "file": "Greenblat_1984_-_iv_-_m_70kg_32y_young_male_-_Midazolam_-_IV_-_5_mg_-_Plasma_-_t.csv",
+    "study": "Greenblat 1984",
+    "route": "IV",
+    "dose": "5 mg"
+  },
+  {
+    "file": "Greenblat_1984_-_iv_-_m_80kg_70y_elderly_male_-_Midazolam_-_IV_-_5_mg_-_Plasma_-.csv",
+    "study": "Greenblat 1984",
+    "route": "IV",
+    "dose": "5 mg"
+  },
+  {
+    "file": "Greenblat_1984_-_po_-_f_136kg_36y_obese_female_-_Midazolam_-_PO_-_10_mg_-_Plasma.csv",
+    "study": "Greenblat 1984",
+    "route": "PO",
+    "dose": "10 mg"
+  },
+  {
+    "file": "Greenblat_1984_-_po_-_f_61kg_37y_normal_female_-_Midazolam_-_PO_-_10_mg_-_Plasma.csv",
+    "study": "Greenblat 1984",
+    "route": "PO",
+    "dose": "10 mg"
+  },
+  {
+    "file": "Greenblat_1984_-_po_-_m_70kg_32y_young_male_-_Midazolam_-_PO_-_10_mg_-_Plasma_-_.csv",
+    "study": "Greenblat 1984",
+    "route": "PO",
+    "dose": "10 mg"
+  },
+  {
+    "file": "Greenblat_1984_-_po_-_m_80kg_70y_elderly_male_-_Midazolam_-_PO_-_10_mg_-_Plasma_.csv",
+    "study": "Greenblat 1984",
+    "route": "PO",
+    "dose": "10 mg"
+  },
+  {
+    "file": "Greenblat_2003_-_Control_Perpetrator_Placebo_-_Midazolam_-_PO_-_6_mg_-_Plasma_-_.csv",
+    "study": "Greenblat 2003",
+    "route": "PO",
+    "dose": "6 mg"
+  },
+  {
+    "file": "Greenblat_2003_-_with_Perpetrator_GFJ_-_Midazolam_-_PO_-_6_mg_-_Plasma_-_agg._n_.csv",
+    "study": "Greenblat 2003",
+    "route": "PO",
+    "dose": "6 mg"
+  },
+  {
+    "file": "Gurley_2006_-_Control_pre-Rifampicin_Perpetrator_Placebo_-_Midazolam_-_PO_-_8_mg.csv",
+    "study": "Gurley 2006",
+    "route": "PO",
+    "dose": "8 mg"
+  },
+  {
+    "file": "Gurley_2006_-_Control_pre-Clarithromycin_Perpetrator_Placebo_-_Midazolam_-_PO_-_.csv",
+    "study": "Gurley 2006",
+    "route": "PO",
+    "dose": "8 mg"
+  },
+  {
+    "file": "Gurley_2006_-_Control_pre-Black_cohosh_Perpetrator_Placebo_-_Midazolam_-_PO_-_8_.csv",
+    "study": "Gurley 2006",
+    "route": "PO",
+    "dose": "8 mg"
+  },
+  {
+    "file": "Gurley_2006_-_Control_pre-Milk_thistle_Perpetrator_Placebo_-_Midazolam_-_PO_-_8_.csv",
+    "study": "Gurley 2006",
+    "route": "PO",
+    "dose": "8 mg"
+  },
+  {
+    "file": "Gurley_2008a_-_Control_pre-Rifampicin_Perpetrator_Placebo_-_Midazolam_-_PO_-_8_m.csv",
+    "study": "Gurley 2008a",
+    "route": "PO",
+    "dose": "8 mg"
+  },
+  {
+    "file": "Gurley_2008a_-_Control_pre-Clarithromycin_Perpetrator_Placebo_-_Midazolam_-_PO_-.csv",
+    "study": "Gurley 2008a",
+    "route": "PO",
+    "dose": "8 mg"
+  },
+  {
+    "file": "Gurley_2008a_-_Control_pre-Goldenseal_Perpetrator_Placebo_-_Midazolam_-_PO_-_8_m.csv",
+    "study": "Gurley 2008a",
+    "route": "PO",
+    "dose": "8 mg"
+  },
+  {
+    "file": "Gurley_2008a_-_Control_pre-Kava_kava_Perpetrator_Placebo_-_Midazolam_-_PO_-_8_mg.csv",
+    "study": "Gurley 2008a",
+    "route": "PO",
+    "dose": "8 mg"
+  },
+  {
+    "file": "Heizmann_1983_-_iv_0.15_mg_kg_-_Indiv._CH.B._-_Midazolam_-_IV_-_0.15_mg_kg_-_Pla.csv",
+    "study": "Heizmann 1983",
+    "route": "IV",
+    "dose": "0.15 mg"
+  },
+  {
+    "file": "Heizmann_1983_-_iv_0.15_mg_kg_-_Indiv._K.M._-_Midazolam_-_IV_-_0.15_mg_kg_-_Plas.csv",
+    "study": "Heizmann 1983",
+    "route": "IV",
+    "dose": "0.15 mg"
+  },
+  {
+    "file": "Heizmann_1983_-_iv_0.15_mg_kg_-_Indiv._E.Sch._-_Midazolam_-_IV_-_0.15_mg_kg_-_Pl.csv",
+    "study": "Heizmann 1983",
+    "route": "IV",
+    "dose": "0.15 mg"
+  },
+  {
+    "file": "Heizmann_1983_-_iv_0.15_mg_kg_-_Indiv._R.H._-_Midazolam_-_IV_-_0.15_mg_kg_-_Plas.csv",
+    "study": "Heizmann 1983",
+    "route": "IV",
+    "dose": "0.15 mg"
+  },
+  {
+    "file": "Heizmann_1983_-_iv_0.15_mg_kg_-_Indiv._A.St._-_Midazolam_-_IV_-_0.15_mg_kg_-_Pla.csv",
+    "study": "Heizmann 1983",
+    "route": "IV",
+    "dose": "0.15 mg"
+  },
+  {
+    "file": "Heizmann_1983_-_iv_0.15_mg_kg_-_Indiv._O.A._-_Midazolam_-_IV_-_0.15_mg_kg_-_Plas.csv",
+    "study": "Heizmann 1983",
+    "route": "IV",
+    "dose": "0.15 mg"
+  },
+  {
+    "file": "Heizmann_1983_-_po_10_mg_-_Indiv._K.M._-_Midazolam_-_PO_-_10_mg_-_Plasma_-_indiv.csv",
+    "study": "Heizmann 1983",
+    "route": "PO",
+    "dose": "10 mg"
+  },
+  {
+    "file": "Heizmann_1983_-_po_10_mg_-_Indiv._O.A._-_Midazolam_-_PO_-_10_mg_-_Plasma_-_indiv.csv",
+    "study": "Heizmann 1983",
+    "route": "PO",
+    "dose": "10 mg"
+  },
+  {
+    "file": "Heizmann_1983_-_po_10_mg_-_Indiv._R.H._-_Midazolam_-_PO_-_10_mg_-_Plasma_-_indiv.csv",
+    "study": "Heizmann 1983",
+    "route": "PO",
+    "dose": "10 mg"
+  },
+  {
+    "file": "Heizmann_1983_-_po_20_mg_-_Indiv._A.St._-_Midazolam_-_PO_-_20_mg_-_Plasma_-_indi.csv",
+    "study": "Heizmann 1983",
+    "route": "PO",
+    "dose": "20 mg"
+  },
+  {
+    "file": "Heizmann_1983_-_po_20_mg_-_Indiv._CH.B._-_Midazolam_-_PO_-_20_mg_-_Plasma_-_indi.csv",
+    "study": "Heizmann 1983",
+    "route": "PO",
+    "dose": "20 mg"
+  },
+  {
+    "file": "Heizmann_1983_-_po_20_mg_-_Indiv._E.Sch._-_Midazolam_-_PO_-_20_mg_-_Plasma_-_ind.csv",
+    "study": "Heizmann 1983",
+    "route": "PO",
+    "dose": "20 mg"
+  },
+  {
+    "file": "Heizmann_1983_-_po_20_mg_-_Indiv._K.M._-_Midazolam_-_PO_-_20_mg_-_Plasma_-_indiv.csv",
+    "study": "Heizmann 1983",
+    "route": "PO",
+    "dose": "20 mg"
+  },
+  {
+    "file": "Heizmann_1983_-_po_20_mg_-_Indiv._O.A._-_Midazolam_-_PO_-_20_mg_-_Plasma_-_indiv.csv",
+    "study": "Heizmann 1983",
+    "route": "PO",
+    "dose": "20 mg"
+  },
+  {
+    "file": "Heizmann_1983_-_po_20_mg_-_Indiv._R.H._-_Midazolam_-_PO_-_20_mg_-_Plasma_-_indiv.csv",
+    "study": "Heizmann 1983",
+    "route": "PO",
+    "dose": "20 mg"
+  },
+  {
+    "file": "Heizmann_1983_-_po_40_mg_-_Indiv._A.St._-_Midazolam_-_PO_-_40_mg_-_Plasma_-_indi.csv",
+    "study": "Heizmann 1983",
+    "route": "PO",
+    "dose": "40 mg"
+  },
+  {
+    "file": "Heizmann_1983_-_po_40_mg_-_Indiv._CH.B._-_Midazolam_-_PO_-_40_mg_-_Plasma_-_indi.csv",
+    "study": "Heizmann 1983",
+    "route": "PO",
+    "dose": "40 mg"
+  },
+  {
+    "file": "Heizmann_1983_-_po_40_mg_-_Indiv._E.Sch._-_Midazolam_-_PO_-_40_mg_-_Plasma_-_ind.csv",
+    "study": "Heizmann 1983",
+    "route": "PO",
+    "dose": "40 mg"
+  },
+  {
+    "file": "Hohmann_2015_-_iv_0.001_mg_-_Midazolam_-_IV_-_0.001_mg_-_Plasma_-_agg._n_16.csv",
+    "study": "Hohmann 2015",
+    "route": "IV",
+    "dose": "0.001 mg"
+  },
+  {
+    "file": "Hohmann_2015_-_iv_1_mg_-_Midazolam_-_IV_-_1_mg_-_Plasma_-_agg._n_16.csv",
+    "study": "Hohmann 2015",
+    "route": "IV",
+    "dose": "1 mg"
+  },
+  {
+    "file": "Hohmann_2015_-_po_0.003_mg_-_Midazolam_-_PO_-_0.003_mg_-_Plasma_-_agg._n_16.csv",
+    "study": "Hohmann 2015",
+    "route": "PO",
+    "dose": "0.003 mg"
+  },
+  {
+    "file": "Hohmann_2015_-_po_3_mg_-_Midazolam_-_PO_-_3_mg_-_Plasma_-_agg._n_16.csv",
+    "study": "Hohmann 2015",
+    "route": "PO",
+    "dose": "3 mg"
+  },
+  {
+    "file": "Kharasch_1997_-_Control_Perpetrator_Placebo_-_Midazolam_-_IV_-_1_mg_-_Plasma_-_t.csv",
+    "study": "Kharasch 1997",
+    "route": "IV",
+    "dose": "1 mg"
+  },
+  {
+    "file": "Kharasch_2004_-_iv_Control_Perpetrator_Placebo_-_Midazolam_-_IV_-_1_mg_-_Plasma_.csv",
+    "study": "Kharasch 2004",
+    "route": "IV",
+    "dose": "1 mg"
+  },
+  {
+    "file": "Kharasch_2004_-_po_1_Control_Perpetrator_Placebo_-_Midazolam_-_PO_-_3_mg_-_Plasm.csv",
+    "study": "Kharasch 2004",
+    "route": "PO",
+    "dose": "3 mg"
+  },
+  {
+    "file": "Kharasch_2011_-_po_Control_Perpetrator_Placebo_-_Midazolam_-_PO_-_3_mg_-_Plasma_.csv",
+    "study": "Kharasch 2011",
+    "route": "PO",
+    "dose": "3 mg"
+  },
+  {
+    "file": "Kharasch_2011_-_iv_Control_Perpetrator_Placebo_-_Midazolam_-_IV_-_1_mg_-_Plasma_.csv",
+    "study": "Kharasch 2011",
+    "route": "IV",
+    "dose": "1 mg"
+  },
+  {
+    "file": "Link_2008_-_iv_Control_Perpetrator_Placebo_-_Midazolam_-_IV_-_2_mg_-_Plasma_-_ag.csv",
+    "study": "Link 2008",
+    "route": "IV",
+    "dose": "2 mg"
+  },
+  {
+    "file": "Link_2008_-_po_Control_Perpetrator_Placebo_-_Midazolam_-_PO_-_7.5_mg_-_Plasma_-_.csv",
+    "study": "Link 2008",
+    "route": "PO",
+    "dose": "7.5 mg"
+  },
+  {
+    "file": "Majumdar_2007_-_po_Control_Perpetrator_Placebo_-_Midazolam_-_IV_-_2_mg_-_Plasma_.csv",
+    "study": "Majumdar 2007",
+    "route": "IV",
+    "dose": "2 mg"
+  },
+  {
+    "file": "Majumdar_2007_-_po_with_Perpetrator_Aprepitant_-_Midazolam_-_IV_-_2_mg_-_Plasma_.csv",
+    "study": "Majumdar 2007",
+    "route": "IV",
+    "dose": "2 mg"
+  },
+  {
+    "file": "Olkkola_1993_-_iv_Control_Perpetrator_Placebo_-_Midazolam_-_IV_-_0.05_mg_kg_-_Pl.csv",
+    "study": "Olkkola 1993",
+    "route": "IV",
+    "dose": "0.05 mg"
+  },
+  {
+    "file": "Olkkola_1994_-_po_Control_Perpetrator_Placebo_-_Midazolam_-_PO_-_7.5_mg_-_Plasma.csv",
+    "study": "Olkkola 1994",
+    "route": "PO",
+    "dose": "7.5 mg"
+  },
+  {
+    "file": "Phimmasone_2001_-_Control_Perpetrator_Placebo_-_Midazolam_-_IV_-_1_mg_-_Plasma_-.csv",
+    "study": "Phimmasone 2001",
+    "route": "IV",
+    "dose": "1 mg"
+  },
+  {
+    "file": "Reitman_2011_-_Week_4_after_Perpetrator_Rifampicin_-_Midazolam_-_PO_-_2_mg_-_Pla.csv",
+    "study": "Reitman 2011",
+    "route": "PO",
+    "dose": "2 mg"
+  },
+  {
+    "file": "Saari_2006_-_po_Control_Perpetrator_Placebo_-_Midazolam_-_PO_-_7.5_mg_-_Plasma_-.csv",
+    "study": "Saari 2006",
+    "route": "PO",
+    "dose": "7.5 mg"
+  },
+  {
+    "file": "Saari_2006_-_iv_Control_Perpetrator_Placebo_-_Midazolam_-_IV_-_0.05_mg_kg_-_Plas.csv",
+    "study": "Saari 2006",
+    "route": "IV",
+    "dose": "0.05 mg"
+  },
+  {
+    "file": "Schwagmeier_1998_-_iv_administration_-_Midazolam_-_IV_-_5_mg_-_Plasma_-_agg._n_8.csv",
+    "study": "Schwagmeier 1998",
+    "route": "IV",
+    "dose": "5 mg"
+  },
+  {
+    "file": "Smith_1981_-_iv_5_mg_-_Midazolam_-_IV_-_5_mg_-_Plasma_-_agg._n_6.csv",
+    "study": "Smith 1981",
+    "route": "IV",
+    "dose": "5 mg"
+  },
+  {
+    "file": "Smith_1981_-_oral_solution_10_mg_-_Midazolam_-_PO_-_10_mg_-_Plasma_-_agg._n_6.csv",
+    "study": "Smith 1981",
+    "route": "PO",
+    "dose": "10 mg"
+  },
+  {
+    "file": "Smith_1981_-_oral_tablet_10_mg_-_Midazolam_-_PO_-_10_mg_-_Plasma_-_agg._n_6.csv",
+    "study": "Smith 1981",
+    "route": "PO",
+    "dose": "10 mg"
+  },
+  {
+    "file": "Szalat_2007_-_Control_Perpetrator_Placebo_-_Midazolam_-_IV_-_0.05_mg_kg_-_Plasma.csv",
+    "study": "Szalat 2007",
+    "route": "IV",
+    "dose": "0.05 mg"
+  },
+  {
+    "file": "Templeton_2010_-_Control_Perpetrator_Placebo_-_Midazolam_-_PO_-_2_mg_-_Plasma_-_.csv",
+    "study": "Templeton 2010",
+    "route": "PO",
+    "dose": "2 mg"
+  },
+  {
+    "file": "Tham_2006_-_Control_Perpetrator_Placebo_-_Midazolam_-_IV_-_1_mg_-_Plasma_-_agg._.csv",
+    "study": "Tham 2006",
+    "route": "IV",
+    "dose": "1 mg"
+  },
+  {
+    "file": "Yeates_1996_-_Control_Perpetrator_Placebo_-_Midazolam_-_PO_-_15_mg_-_Plasma_-_ag.csv",
+    "study": "Yeates 1996",
+    "route": "PO",
+    "dose": "15 mg"
+  },
+  {
+    "file": "Zimmermann_1996_-_Control_Perpetrator_Placebo_-_Midazolam_-_PO_-_15_mg_-_Plasma_.csv",
+    "study": "Zimmermann 1996",
+    "route": "PO",
+    "dose": "15 mg"
+  },
+  {
+    "file": "Olkkola_1996_-_day_6_po_Control_Perpetrator_Placebo_-_Midazolam_-_PO_-_7.5_mg_-_.csv",
+    "study": "Olkkola 1996",
+    "route": "PO",
+    "dose": "7.5 mg"
+  },
+  {
+    "file": "Olkkola_1996_-_day_4_iv_Control_Perpetrator_Placebo_-_Midazolam_-_IV_-_0.05_mg_k.csv",
+    "study": "Olkkola 1996",
+    "route": "IV",
+    "dose": "0.05 mg"
+  },
+  {
+    "file": "Olkkola_1996_-_day_1_po_Control_Perpetrator_Placebo_-_Midazolam_-_PO_-_7.5_mg_-_.csv",
+    "study": "Olkkola 1996",
+    "route": "PO",
+    "dose": "7.5 mg"
+  },
+  {
+    "file": "Ahonen_1995_-_Control_Perpetrator_Placebo_-_Midazolam_-_PO_-_7.5_mg_-_Plasma_-_a.csv",
+    "study": "Ahonen 1995",
+    "route": "PO",
+    "dose": "7.5 mg"
+  },
+  {
+    "file": "Eap_2004_-_7.5_mg_Control_Perpetrator_Placebo_-_Midazolam_-_PO_-_7.5_mg_-_Plasma.csv",
+    "study": "Eap 2004",
+    "route": "PO",
+    "dose": "7.5 mg"
+  },
+  {
+    "file": "Eap_2004_-_0.075_mg_Control_Perpetrator_Placebo_-_Midazolam_-_PO_-_0.075_mg_-_Pl.csv",
+    "study": "Eap 2004",
+    "route": "PO",
+    "dose": "0.075 mg"
+  },
+  {
+    "file": "Swart_2002_-_day_5_Control_Perpetrator_Placebo_-_Midazolam_-_IV_-_0.075_mg_kg_-_.csv",
+    "study": "Swart 2002",
+    "route": "IV",
+    "dose": "0.075 mg"
+  },
+  {
+    "file": "Bornemann_1986_-_1_h_before_a_meal_-_Midazolam_-_PO_-_15_mg_-_Plasma_-_agg._n_18.csv",
+    "study": "Bornemann 1986",
+    "route": "PO",
+    "dose": "15 mg"
+  },
+  {
+    "file": "Bornemann_1986_-_fasting_condition_-_Midazolam_-_PO_-_15_mg_-_Plasma_-_agg._n_18.csv",
+    "study": "Bornemann 1986",
+    "route": "PO",
+    "dose": "15 mg"
+  },
+  {
+    "file": "Bornemann_1986_-_with_a_meal_-_Midazolam_-_PO_-_15_mg_-_Plasma_-_agg._n_18.csv",
+    "study": "Bornemann 1986",
+    "route": "PO",
+    "dose": "15 mg"
+  },
+  {
+    "file": "Darwish_2008_-_iv_-_Midazolam_-_IV_-_2_mg_-_Plasma_-_agg._n_24.csv",
+    "study": "Darwish 2008",
+    "route": "IV",
+    "dose": "2 mg"
+  },
+  {
+    "file": "Darwish_2008_-_oral_-_Midazolam_-_PO_-_5_mg_-_Plasma_-_agg._n_24.csv",
+    "study": "Darwish 2008",
+    "route": "PO",
+    "dose": "5 mg"
+  },
+  {
+    "file": "Lam_2003_-_Midazolam_before_Fluvoxamine_-_Midazolam_-_PO_-_10_mg_-_Plasma_-_agg..csv",
+    "study": "Lam 2003",
+    "route": "PO",
+    "dose": "10 mg"
+  },
+  {
+    "file": "Lam_2003_-_Midazolam_before_Ketoconazole_-_Midazolam_-_PO_-_10_mg_-_Plasma_-_agg.csv",
+    "study": "Lam 2003",
+    "route": "PO",
+    "dose": "10 mg"
+  },
+  {
+    "file": "van_Dyk_2018_-_Midazolam_in_South_Asian_at_baseline_-_Midazolam_-_PO_-_1_mg_-_Pl.csv",
+    "study": "van Dyk 2018",
+    "route": "PO",
+    "dose": "1 mg"
+  },
+  {
+    "file": "van_Dyk_2018_-_Midazolam_in_Caucasian_at_baseline_-_Midazolam_-_PO_-_1_mg_-_Plas.csv",
+    "study": "van Dyk 2018",
+    "route": "PO",
+    "dose": "1 mg"
+  },
+  {
+    "file": "Markert_2013_-_Control_Perpetrator_Placebo_-_Midazolam_-_PO_-_3_mg_-_Plasma_-_ag.csv",
+    "study": "Markert 2013",
+    "route": "PO",
+    "dose": "3 mg"
+  },
+  {
+    "file": "Prueksaritanont_2017_-_Midazolam_in_microdosecocktail_alone_-_Midazolam_-_PO_-_1.csv",
+    "study": "Prueksaritanont 2017",
+    "route": "PO",
+    "dose": ""
+  },
+  {
+    "file": "Quinney_2008_-_Control_iv_Midazolam_All_-_Midazolam_-_IV_-_0.05_mg_kg_-_Whole_Bl.csv",
+    "study": "Quinney 2008",
+    "route": "IV",
+    "dose": "0.05 mg"
+  },
+  {
+    "file": "Quinney_2008_-_Control_po_Midazolam_All_-_Midazolam_-_PO_-_3.0_-_4.0_mg_-_Whole_.csv",
+    "study": "Quinney 2008",
+    "route": "PO",
+    "dose": "4.0 mg"
+  },
+  {
+    "file": "Okudaira_2007_-_EM_0_Control_Perpetrator_Placebo_-_Midazolam_-_PO_-_5_mg_-_Plasm.csv",
+    "study": "Okudaira 2007",
+    "route": "PO",
+    "dose": "5 mg"
+  },
+  {
+    "file": "Shin_2013_-_Control_phase_Midazolam_alone_-_Midazolam_-_IV_-_1_mg_-_Plasma_-_agg.csv",
+    "study": "Shin 2013",
+    "route": "IV",
+    "dose": "1 mg"
+  },
+  {
+    "file": "Shin_2016_-_Midazolam_alone_-_Midazolam_-_IV_-_1_mg_-_Plasma_-_agg._n_12.csv",
+    "study": "Shin 2016",
+    "route": "IV",
+    "dose": "1 mg"
+  },
+  {
+    "file": "Backman_1994_-_Midazolam_with_placebo_-_Midazolam_-_PO_-_15_mg_-_Plasma_-_agg._n.csv",
+    "study": "Backman 1994",
+    "route": "PO",
+    "dose": "15 mg"
+  },
+  {
+    "file": "Katzenmaier_2010_-_Midazolam_control_-_Midazolam_-_PO_-_3_mg_-_Plasma_-_agg._n_1.csv",
+    "study": "Katzenmaier 2010",
+    "route": "PO",
+    "dose": "3 mg"
+  },
+  {
+    "file": "Mikus_2017_-_Midazolam_control_PO_-_Midazolam_-_PO_-_4_mg_-_Plasma_-_agg._n_12.csv",
+    "study": "Mikus 2017",
+    "route": "PO",
+    "dose": "4 mg"
+  },
+  {
+    "file": "Mikus_2017_-_Midazolam_control_IV_-_Midazolam_-_IV_-_2_mg_-_Plasma_-_agg._n_12.csv",
+    "study": "Mikus 2017",
+    "route": "IV",
+    "dose": "2 mg"
+  },
+  {
+    "file": "Yu_2004_-_Control_CYP3A5_1_1_-_Midazolam_-_IV_-_1_mg_-_Plasma_-_agg._n_6.csv",
+    "study": "Yu 2004",
+    "route": "IV",
+    "dose": "1 mg"
+  },
+  {
+    "file": "Yu_2004_-_Control_CYP3A5_1_3_-_Midazolam_-_IV_-_1_mg_-_Plasma_-_agg._n_6.csv",
+    "study": "Yu 2004",
+    "route": "IV",
+    "dose": "1 mg"
+  },
+  {
+    "file": "Yu_2004_-_Control_CYP3A5_3_3_-_Midazolam_-_IV_-_1_mg_-_Plasma_-_agg._n_7.csv",
+    "study": "Yu 2004",
+    "route": "IV",
+    "dose": "1 mg"
+  },
+  {
+    "file": "Wiesinger_2020_-_Control_phase_no_RIF_-_Midazolam_-_PO_-_1_mg_-_Plasma_-_agg._n_.csv",
+    "study": "Wiesinger 2020",
+    "route": "PO",
+    "dose": "1 mg"
+  },
+  {
+    "file": "Chattopadhyay_2018_-_Control_without_Rifampicin_-_Midazolam_-_PO_-_1_mg_-_Plasma.csv",
+    "study": "Chattopadhyay 2018",
+    "route": "PO",
+    "dose": "1 mg"
+  },
+  {
+    "file": "Lutz_2018_-_Cohort_1_Control_-_Midazolam_-_PO_-_2_mg_-_Plasma_-_agg._n_20.csv",
+    "study": "Lutz 2018",
+    "route": "PO",
+    "dose": "2 mg"
+  },
+  {
+    "file": "Lutz_2018_-_Cohort_2_Control_-_Midazolam_-_PO_-_2_mg_-_Plasma_-_agg._n_20.csv",
+    "study": "Lutz 2018",
+    "route": "PO",
+    "dose": "2 mg"
+  }
+]

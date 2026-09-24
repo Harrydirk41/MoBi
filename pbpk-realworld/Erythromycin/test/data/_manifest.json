@@ -1,0 +1,206 @@
+[
+  {
+    "file": "Kivist_1997_-_with_Perpetrator_Erythromycin_-_Erythromycin_-_PO_-_500_mg_-_Plasm.csv",
+    "study": "Kivist\u00f6 1997",
+    "route": "PO",
+    "dose": "500 mg"
+  },
+  {
+    "file": "Barre_1987_-_500_mg_over_30_min_total_concentrations_-_Erythromycin_-_IV_-_500_m.csv",
+    "study": "Barre 1987",
+    "route": "IV",
+    "dose": "500 mg"
+  },
+  {
+    "file": "Barre_1987_-_500_mg_over_30_min_unbound_concentrations_-_Erythromycin_-_IV_-_500.csv",
+    "study": "Barre 1987",
+    "route": "IV",
+    "dose": "500 mg"
+  },
+  {
+    "file": "DiSanto_1981_-_Overnight_fast_enteric-coated_erythromycin_tablets_study_1_-_Eryt.csv",
+    "study": "DiSanto 1981",
+    "route": "PO",
+    "dose": "500 mg"
+  },
+  {
+    "file": "DiSanto_1981_-_2h_fast_enteric-coated_erythromycin_tablets_study_2_-_Erythromyci.csv",
+    "study": "DiSanto 1981",
+    "route": "PO",
+    "dose": "500 mg"
+  },
+  {
+    "file": "Huppertz_2011_-_Treatment_group_erythromycin_-_Erythromycin_-_IV_-_1000_mg_-_Pla.csv",
+    "study": "Huppertz 2011",
+    "route": "IV",
+    "dose": "1000 mg"
+  },
+  {
+    "file": "Iliopoulou_1982_-_fourth_day_before_theophylline_administration_-_Erythromycin_-.csv",
+    "study": "Iliopoulou 1982",
+    "route": "PO",
+    "dose": "500 mg"
+  },
+  {
+    "file": "Kavi_1988_-_Serum_levels_-_Erythromycin_-_PO_-_500_mg_-_Serum_-_agg._n_6.csv",
+    "study": "Kavi 1988",
+    "route": "PO",
+    "dose": "500 mg"
+  },
+  {
+    "file": "Kroboth_1982_-_Normal_subjects_-_Erythromycin_-_PO_-_500_mg_-_Serum_-_agg._n_6.csv",
+    "study": "Kroboth 1982",
+    "route": "PO",
+    "dose": "500 mg"
+  },
+  {
+    "file": "Malmborg_1978_-_Single_dose_after_overnight_fast_-_Erythromycin_-_PO_-_500_mg_-_.csv",
+    "study": "Malmborg 1978",
+    "route": "PO",
+    "dose": "500 mg"
+  },
+  {
+    "file": "Malmborg_1978_-_Single_dose_before_standardized_breakfast_-_Erythromycin_-_PO_-_.csv",
+    "study": "Malmborg 1978",
+    "route": "PO",
+    "dose": "500 mg"
+  },
+  {
+    "file": "Malmborg_1978_-_Day_7_every_8_h_-_Erythromycin_-_PO_-_500_mg_-_Plasma_-_agg._n_1.csv",
+    "study": "Malmborg 1978",
+    "route": "PO",
+    "dose": "500 mg"
+  },
+  {
+    "file": "Posti_1983_-_Formulation_A1_film-coated_tabet_ery_stearate_fasted_-_Erythromycin.csv",
+    "study": "Posti 1983",
+    "route": "PO",
+    "dose": "500 mg"
+  },
+  {
+    "file": "Posti_1983_-_Formulation_E_enteric-coated_tablets_ery_base_fasted_-_Erythromycin.csv",
+    "study": "Posti 1983",
+    "route": "PO",
+    "dose": "500 mg"
+  },
+  {
+    "file": "Posti_1983_-_Formulation_A2_film-coated_tabet_ery_stearate_study_2_-_Erythromyci.csv",
+    "study": "Posti 1983",
+    "route": "PO",
+    "dose": "500 mg"
+  },
+  {
+    "file": "Posti_1983_-_Formulation_RN_film-coated_tabet_ery_stearate_study_2_-_Erythromyci.csv",
+    "study": "Posti 1983",
+    "route": "PO",
+    "dose": "500 mg"
+  },
+  {
+    "file": "Schreiner_1984_-_Part_I_stearate_tablet_-_Erythromycin_-_PO_-_500_mg_-_Serum_-_a.csv",
+    "study": "Schreiner 1984",
+    "route": "PO",
+    "dose": "500 mg"
+  },
+  {
+    "file": "Schreiner_1984_-_Part_I_base_enteric-coated_pellets_-_Erythromycin_-_PO_-_500_mg.csv",
+    "study": "Schreiner 1984",
+    "route": "PO",
+    "dose": "500 mg"
+  },
+  {
+    "file": "Schreiner_1984_-_Part_II_stearate_tablet_-_Erythromycin_-_PO_-_500_mg_-_Serum_-_.csv",
+    "study": "Schreiner 1984",
+    "route": "PO",
+    "dose": "500 mg"
+  },
+  {
+    "file": "Schreiner_1984_-_Part_II_base_enteric-coated_pellets_-_Erythromycin_-_PO_-_500_m.csv",
+    "study": "Schreiner 1984",
+    "route": "PO",
+    "dose": "500 mg"
+  },
+  {
+    "file": "Sun_2010_-_Subjects_with_normal_renal_function_-_Erythromycin_-_IV_-_125_mg_-_Pl.csv",
+    "study": "Sun 2010",
+    "route": "IV",
+    "dose": "125 mg"
+  },
+  {
+    "file": "Yakatan_1980_-_Stearate_single_dose_-_Erythromycin_-_PO_-_250_mg_-_Serum_-_agg._.csv",
+    "study": "Yakatan 1980",
+    "route": "PO",
+    "dose": "250 mg"
+  },
+  {
+    "file": "Yakatan_1980_-_Stearate_five_doses_every_6_h_-_Erythromycin_-_PO_-_250_mg_-_Seru.csv",
+    "study": "Yakatan 1980",
+    "route": "PO",
+    "dose": "250 mg"
+  },
+  {
+    "file": "Yakatan_1980_-_Base_five_doses_every_6_h_-_Erythromycin_-_PO_-_250_mg_-_Serum_-_.csv",
+    "study": "Yakatan 1980",
+    "route": "PO",
+    "dose": "250 mg"
+  },
+  {
+    "file": "Olkkola_1993_-_iv_with_Perpetrator_Erythromycin_-_Midazolam_-_IV_-_0.05_mg_kg_-_.csv",
+    "study": "Olkkola 1993",
+    "route": "IV",
+    "dose": "0.05 mg"
+  },
+  {
+    "file": "Olkkola_1993_-_iv_Control_Perpetrator_Placebo_-_Midazolam_-_IV_-_0.05_mg_kg_-_Pl.csv",
+    "study": "Olkkola 1993",
+    "route": "IV",
+    "dose": "0.05 mg"
+  },
+  {
+    "file": "Olkkola_1993_-_po_Control_Perpetrator_Placebo_-_Midazolam_-_PO_-_15_mg_-_Plasma_.csv",
+    "study": "Olkkola 1993",
+    "route": "PO",
+    "dose": "15 mg"
+  },
+  {
+    "file": "Olkkola_1993_-_po_with_Perpetrator_Erythromycin_-_Midazolam_-_PO_-_15_mg_-_Plasm.csv",
+    "study": "Olkkola 1993",
+    "route": "PO",
+    "dose": "15 mg"
+  },
+  {
+    "file": "Parsons_1977_-_Erythromycin_stearate_supine_normal_subjects_-_Erythromycin_-_PO_.csv",
+    "study": "Parsons 1977",
+    "route": "PO",
+    "dose": "500 mg"
+  },
+  {
+    "file": "Parsons_1977_-_Erythromycin_stearate_walking_normal_subjects_-_Erythromycin_-_PO.csv",
+    "study": "Parsons 1977",
+    "route": "PO",
+    "dose": "500 mg"
+  },
+  {
+    "file": "Berend_1979_-_Erythromycin_stearate_-_Erythromycin_-_PO_-_500_mg_-_Plasma_-_agg..csv",
+    "study": "Berend 1979",
+    "route": "PO",
+    "dose": "500 mg"
+  },
+  {
+    "file": "Simon_1980_-_500_mg_IV_-_Erythromycin_-_IV_-_500_mg_-_Serum_-_agg._n_6.csv",
+    "study": "Simon 1980",
+    "route": "IV",
+    "dose": "500 mg"
+  },
+  {
+    "file": "Simon_1980_-_500_mg_stearate_PO_-_Erythromycin_-_PO_-_500_mg_-_Serum_-_agg._n_10.csv",
+    "study": "Simon 1980",
+    "route": "PO",
+    "dose": "500 mg"
+  },
+  {
+    "file": "Brannan_1995_-_Erythromycin_with_placebo_-_Erythromycin_-_PO_-_500_mg_-_Plasma_-.csv",
+    "study": "Brannan 1995",
+    "route": "PO",
+    "dose": "500 mg"
+  }
+]

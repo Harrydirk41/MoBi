@@ -1,0 +1,194 @@
+[
+  {
+    "file": "Ogburn_2010_600mg_SD.csv",
+    "study": "Ogburn 2010",
+    "route": "",
+    "dose": "600mg"
+  },
+  {
+    "file": "Dooley_2012_-_Extensive_metabolizer_-_Efavirenz_-_PO_-_600_mg_-_Plasma_-_agg._n_.csv",
+    "study": "Dooley 2012",
+    "route": "PO",
+    "dose": "600 mg"
+  },
+  {
+    "file": "Dooley_2012_-_Intermediate_metabolizer_-_Efavirenz_-_PO_-_600_mg_-_Plasma_-_agg..csv",
+    "study": "Dooley 2012",
+    "route": "PO",
+    "dose": "600 mg"
+  },
+  {
+    "file": "Dooley_2012_-_Slow_metabolizer_-_Efavirenz_-_PO_-_600_mg_-_Plasma_-_agg._n_34.csv",
+    "study": "Dooley 2012",
+    "route": "PO",
+    "dose": "600 mg"
+  },
+  {
+    "file": "Garg_2013_-_Efavirenz_without_telaprevir_-_Efavirenz_-_PO_-_600_mg_-_Plasma_-_ag.csv",
+    "study": "Garg 2013",
+    "route": "PO",
+    "dose": "600 mg"
+  },
+  {
+    "file": "Huang_2013_-_EFV_administration_alone_-_Efavirenz_-_PO_-_600_mg_-_Plasma_-_agg._.csv",
+    "study": "Huang 2013",
+    "route": "PO",
+    "dose": "600 mg"
+  },
+  {
+    "file": "Mouly_2002_-_200_mg_Day_1_-_Efavirenz_-_PO_-_200_mg_-_Plasma_-_agg._n_8.csv",
+    "study": "Mouly 2002",
+    "route": "PO",
+    "dose": "200 mg"
+  },
+  {
+    "file": "Mouly_2002_-_400_mg_Day_1_-_Efavirenz_-_PO_-_400_mg_-_Plasma_-_agg._n_8.csv",
+    "study": "Mouly 2002",
+    "route": "PO",
+    "dose": "400 mg"
+  },
+  {
+    "file": "Mouly_2002_-_200_mg_Day_10_-_Efavirenz_-_PO_-_200_mg_-_Plasma_-_agg._n_8.csv",
+    "study": "Mouly 2002",
+    "route": "PO",
+    "dose": "200 mg"
+  },
+  {
+    "file": "Mouly_2002_-_400_mg_Day_10_-_Efavirenz_-_PO_-_400_mg_-_Plasma_-_agg._n_8.csv",
+    "study": "Mouly 2002",
+    "route": "PO",
+    "dose": "400 mg"
+  },
+  {
+    "file": "Xu_2013_-_CYP2B6_1_1_genotype_-_Efavirenz_-_PO_-_600_mg_-_Plasma_-_indiv..csv",
+    "study": "Xu 2013",
+    "route": "PO",
+    "dose": "600 mg"
+  },
+  {
+    "file": "Xu_2013_-_CYP2B6_1_6_genotype_-_Efavirenz_-_PO_-_600_mg_-_Plasma_-_indiv..csv",
+    "study": "Xu 2013",
+    "route": "PO",
+    "dose": "600 mg"
+  },
+  {
+    "file": "Xu_2013_-_CYP2B6_6_6_genotype_-_Efavirenz_-_PO_-_600_mg_-_Plasma_-_indiv..csv",
+    "study": "Xu 2013",
+    "route": "PO",
+    "dose": "600 mg"
+  },
+  {
+    "file": "Damle_2008_-_Efavirenz_alone_-_Efavirenz_-_PO_-_600_mg_-_Plasma_-_agg._n_16.csv",
+    "study": "Damle 2008",
+    "route": "PO",
+    "dose": "600 mg"
+  },
+  {
+    "file": "Liu_2008_-_Group_1_efavirenz_alone_-_Efavirenz_-_PO_-_400_mg_-_Plasma_-_agg._n_1.csv",
+    "study": "Liu 2008",
+    "route": "PO",
+    "dose": "400 mg"
+  },
+  {
+    "file": "Liu_2008_-_Group_2_efavirenz_alone_-_Efavirenz_-_PO_-_400_mg_-_Plasma_-_agg._n_1.csv",
+    "study": "Liu 2008",
+    "route": "PO",
+    "dose": "400 mg"
+  },
+  {
+    "file": "Liu_2008_-_Group_2_efavirenz_placebo_-_Efavirenz_-_PO_-_400_mg_-_Plasma_-_agg._n.csv",
+    "study": "Liu 2008",
+    "route": "PO",
+    "dose": "400 mg"
+  },
+  {
+    "file": "Malvestutto_2014_-_Efavirenz_alone_-_Efavirenz_-_PO_-_600_mg_-_Plasma_-_agg._n_1.csv",
+    "study": "Malvestutto 2014",
+    "route": "PO",
+    "dose": "600 mg"
+  },
+  {
+    "file": "Soon_2010_-_Efavirenz_alone_-_Efavirenz_-_PO_-_600_mg_-_Plasma_-_agg._n_12.csv",
+    "study": "Soon 2010",
+    "route": "PO",
+    "dose": "600 mg"
+  },
+  {
+    "file": "Kharasch_2012_-_Day_1_-_Efavirenz_-_PO_-_600_mg_-_Plasma_-_agg._n_12.csv",
+    "study": "Kharasch 2012",
+    "route": "PO",
+    "dose": "600 mg"
+  },
+  {
+    "file": "Kharasch_2012_-_Day_14_-_Efavirenz_-_PO_-_600_mg_-_Plasma_-_agg._n_12.csv",
+    "study": "Kharasch 2012",
+    "route": "PO",
+    "dose": "600 mg"
+  },
+  {
+    "file": "Kharasch_2012_-_Alfenatil_PO_alone_-_Alfentanil_-_PO_-_43_g_kg_-_Plasma_-_agg._n.csv",
+    "study": "Kharasch 2012",
+    "route": "PO",
+    "dose": ""
+  },
+  {
+    "file": "Kharasch_2012_-_Alfenatil_PO_efavirenz_-_Alfentanil_-_PO_-_43_g_kg_-_Plasma_-_ag.csv",
+    "study": "Kharasch 2012",
+    "route": "PO",
+    "dose": ""
+  },
+  {
+    "file": "Kharasch_2012_-_Alfenatil_IV_alone_-_Alfentanil_-_IV_-_15_g_kg_-_Plasma_-_agg._n.csv",
+    "study": "Kharasch 2012",
+    "route": "IV",
+    "dose": ""
+  },
+  {
+    "file": "Kharasch_2012_-_Alfenatil_IV_efavirenz_-_Alfentanil_-_IV_-_15_g_kg_-_Plasma_-_ag.csv",
+    "study": "Kharasch 2012",
+    "route": "IV",
+    "dose": ""
+  },
+  {
+    "file": "Katzenmaier_2010_-_Midazolam_Efavirenz_-_Midazolam_-_PO_-_3_mg_-_Plasma_-_agg._n.csv",
+    "study": "Katzenmaier 2010",
+    "route": "PO",
+    "dose": "3 mg"
+  },
+  {
+    "file": "Katzenmaier_2010_-_Midazolam_control_-_Midazolam_-_PO_-_3_mg_-_Plasma_-_agg._n_1.csv",
+    "study": "Katzenmaier 2010",
+    "route": "PO",
+    "dose": "3 mg"
+  },
+  {
+    "file": "Mikus_2017_-_Efavirenz_Midazolam_PO_day_1_-_Midazolam_-_PO_-_4_mg_-_Plasma_-_agg.csv",
+    "study": "Mikus 2017",
+    "route": "PO",
+    "dose": "4 mg"
+  },
+  {
+    "file": "Mikus_2017_-_Efavirenz_Midazolam_IV_day_1_-_Midazolam_-_IV_-_2_mg_-_Plasma_-_agg.csv",
+    "study": "Mikus 2017",
+    "route": "IV",
+    "dose": "2 mg"
+  },
+  {
+    "file": "Mikus_2017_-_Midazolam_control_PO_-_Midazolam_-_PO_-_4_mg_-_Plasma_-_agg._n_12.csv",
+    "study": "Mikus 2017",
+    "route": "PO",
+    "dose": "4 mg"
+  },
+  {
+    "file": "Mikus_2017_-_Midazolam_control_IV_-_Midazolam_-_IV_-_2_mg_-_Plasma_-_agg._n_12.csv",
+    "study": "Mikus 2017",
+    "route": "IV",
+    "dose": "2 mg"
+  },
+  {
+    "file": "Mikus_2017_-_Midazolam_Efavirenz_-_Efavirenz_-_PO_-_400_mg_-_Plasma_-_agg._n_12.csv",
+    "study": "Mikus 2017",
+    "route": "PO",
+    "dose": "400 mg"
+  }
+]

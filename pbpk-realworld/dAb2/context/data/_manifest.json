@@ -1,0 +1,224 @@
+[
+  {
+    "file": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Skin.QWBA.3.csv",
+    "study": "study",
+    "route": "",
+    "dose": ""
+  },
+  {
+    "file": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Skin.QWBA.2.csv",
+    "study": "study",
+    "route": "",
+    "dose": ""
+  },
+  {
+    "file": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Skin.QWBA.1.csv",
+    "study": "study",
+    "route": "",
+    "dose": ""
+  },
+  {
+    "file": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Kidney.QWBA.3.csv",
+    "study": "study",
+    "route": "",
+    "dose": ""
+  },
+  {
+    "file": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Kidney.QWBA.2.csv",
+    "study": "study",
+    "route": "",
+    "dose": ""
+  },
+  {
+    "file": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Kidney.QWBA.1.csv",
+    "study": "study",
+    "route": "",
+    "dose": ""
+  },
+  {
+    "file": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Liver.QWBA.3.csv",
+    "study": "study",
+    "route": "",
+    "dose": ""
+  },
+  {
+    "file": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Liver.QWBA.2.csv",
+    "study": "study",
+    "route": "",
+    "dose": ""
+  },
+  {
+    "file": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Liver.QWBA.1.csv",
+    "study": "study",
+    "route": "",
+    "dose": ""
+  },
+  {
+    "file": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Lung.QWBA.3.csv",
+    "study": "study",
+    "route": "",
+    "dose": ""
+  },
+  {
+    "file": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Lung.QWBA.2.csv",
+    "study": "study",
+    "route": "",
+    "dose": ""
+  },
+  {
+    "file": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Lung.QWBA.1.csv",
+    "study": "study",
+    "route": "",
+    "dose": ""
+  },
+  {
+    "file": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Blood.QWBA.3.csv",
+    "study": "study",
+    "route": "",
+    "dose": ""
+  },
+  {
+    "file": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Blood.QWBA.2.csv",
+    "study": "study",
+    "route": "",
+    "dose": ""
+  },
+  {
+    "file": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Blood.QWBA.1.csv",
+    "study": "study",
+    "route": "",
+    "dose": ""
+  },
+  {
+    "file": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Bone.QWBA.3.csv",
+    "study": "study",
+    "route": "",
+    "dose": ""
+  },
+  {
+    "file": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Bone.QWBA.2.csv",
+    "study": "study",
+    "route": "",
+    "dose": ""
+  },
+  {
+    "file": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Bone.QWBA.1.csv",
+    "study": "study",
+    "route": "",
+    "dose": ""
+  },
+  {
+    "file": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Muscle.QWBA.3.csv",
+    "study": "study",
+    "route": "",
+    "dose": ""
+  },
+  {
+    "file": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Muscle.QWBA.2.csv",
+    "study": "study",
+    "route": "",
+    "dose": ""
+  },
+  {
+    "file": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Muscle.QWBA.1.csv",
+    "study": "study",
+    "route": "",
+    "dose": ""
+  },
+  {
+    "file": "Sepp2015_PBPK_dAb_PKSimImport.PKData.GIT.QWBA.3.csv",
+    "study": "study",
+    "route": "",
+    "dose": ""
+  },
+  {
+    "file": "Sepp2015_PBPK_dAb_PKSimImport.PKData.GIT.QWBA.2.csv",
+    "study": "study",
+    "route": "",
+    "dose": ""
+  },
+  {
+    "file": "Sepp2015_PBPK_dAb_PKSimImport.PKData.GIT.QWBA.1.csv",
+    "study": "study",
+    "route": "",
+    "dose": ""
+  },
+  {
+    "file": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Brain.QWBA.2.csv",
+    "study": "study",
+    "route": "",
+    "dose": ""
+  },
+  {
+    "file": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Brain.QWBA.1.csv",
+    "study": "study",
+    "route": "",
+    "dose": ""
+  },
+  {
+    "file": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Blood.LSC.5.csv",
+    "study": "study",
+    "route": "",
+    "dose": ""
+  },
+  {
+    "file": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Blood.LSC.4.csv",
+    "study": "study",
+    "route": "",
+    "dose": ""
+  },
+  {
+    "file": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Blood.LSC.3.csv",
+    "study": "study",
+    "route": "",
+    "dose": ""
+  },
+  {
+    "file": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Blood.LSC.2.csv",
+    "study": "study",
+    "route": "",
+    "dose": ""
+  },
+  {
+    "file": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Blood.LSC.1.csv",
+    "study": "study",
+    "route": "",
+    "dose": ""
+  },
+  {
+    "file": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Spleen.QWBA.3.csv",
+    "study": "study",
+    "route": "",
+    "dose": ""
+  },
+  {
+    "file": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Spleen.QWBA.2.csv",
+    "study": "study",
+    "route": "",
+    "dose": ""
+  },
+  {
+    "file": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Spleen.QWBA.1.csv",
+    "study": "study",
+    "route": "",
+    "dose": ""
+  },
+  {
+    "file": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Heart.QWBA.3.csv",
+    "study": "study",
+    "route": "",
+    "dose": ""
+  },
+  {
+    "file": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Heart.QWBA.2.csv",
+    "study": "study",
+    "route": "",
+    "dose": ""
+  },
+  {
+    "file": "Sepp2015_PBPK_dAb_PKSimImport.PKData.Heart.QWBA.1.csv",
+    "study": "study",
+    "route": "",
+    "dose": ""
+  }
+]

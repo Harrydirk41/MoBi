@@ -1,0 +1,230 @@
+[
+  {
+    "file": "deBree1983_100mgSD_Mean.csv",
+    "study": "study",
+    "route": "",
+    "dose": "100mg"
+  },
+  {
+    "file": "Bahrami_2007.100_mg_SD.non-smoker.csv",
+    "study": "Bahrami 2007",
+    "route": "",
+    "dose": "2007.100 mg"
+  },
+  {
+    "file": "de_Bree_1983.100_mg_SD.csv",
+    "study": "de Bree 1983",
+    "route": "",
+    "dose": "1983.100 mg"
+  },
+  {
+    "file": "de_Vries_1992_S3816.50_mg_BID.csv",
+    "study": "de Vries 1992 S3816",
+    "route": "",
+    "dose": "3816.50 mg"
+  },
+  {
+    "file": "de_Vries_1992.50_mg_BID.csv",
+    "study": "de Vries 1992",
+    "route": "",
+    "dose": "1992.50 mg"
+  },
+  {
+    "file": "de_Vries_1993.100_mg_SD.csv",
+    "study": "de Vries 1993",
+    "route": "",
+    "dose": "1993.100 mg"
+  },
+  {
+    "file": "de_Vries_1993.25_mg_SD.csv",
+    "study": "de Vries 1993",
+    "route": "",
+    "dose": "1993.25 mg"
+  },
+  {
+    "file": "de_Vries_1993.50_mg_SD.csv",
+    "study": "de Vries 1993",
+    "route": "",
+    "dose": "1993.50 mg"
+  },
+  {
+    "file": "deBree1983_100mgSD_S3100.csv",
+    "study": "study",
+    "route": "",
+    "dose": "100mg"
+  },
+  {
+    "file": "deBree1983_100mgSD_S3101.csv",
+    "study": "study",
+    "route": "",
+    "dose": "100mg"
+  },
+  {
+    "file": "deBree1983_100mgSD_S3102.csv",
+    "study": "study",
+    "route": "",
+    "dose": "100mg"
+  },
+  {
+    "file": "deBree1983_100mgSD_S3103.csv",
+    "study": "study",
+    "route": "",
+    "dose": "100mg"
+  },
+  {
+    "file": "deBree1983_100mgSD_S3104.csv",
+    "study": "study",
+    "route": "",
+    "dose": "100mg"
+  },
+  {
+    "file": "deBree1983_100mgSD_S3105.csv",
+    "study": "study",
+    "route": "",
+    "dose": "100mg"
+  },
+  {
+    "file": "deBree1983_100mgSD_S3106.csv",
+    "study": "study",
+    "route": "",
+    "dose": "100mg"
+  },
+  {
+    "file": "deBree1983_100mgSD_S3107.csv",
+    "study": "study",
+    "route": "",
+    "dose": "100mg"
+  },
+  {
+    "file": "deBree1983_100mgSD_S3108.csv",
+    "study": "study",
+    "route": "",
+    "dose": "100mg"
+  },
+  {
+    "file": "deBree1983_100mgSD_S3109.csv",
+    "study": "study",
+    "route": "",
+    "dose": "100mg"
+  },
+  {
+    "file": "deVries1992_50mgBID.csv",
+    "study": "study",
+    "route": "",
+    "dose": "50mg"
+  },
+  {
+    "file": "Fleishaker_1994.100_mg_QD.smoker_non-smoker.csv",
+    "study": "Fleishaker 1994",
+    "route": "",
+    "dose": "1994.100 mg"
+  },
+  {
+    "file": "Fukasawa_2006.50_mg_SD.EM_PM.smoker_non-smoker.csv",
+    "study": "Fukusawa 2006",
+    "route": "",
+    "dose": "2006.50 mg"
+  },
+  {
+    "file": "Japanese_Society_2015.100_mg_SD.csv",
+    "study": "Japanese Society 2015",
+    "route": "",
+    "dose": "2015.100 mg"
+  },
+  {
+    "file": "Japanese_Society_2015.200_mg_SD.csv",
+    "study": "Japanese Society 2015",
+    "route": "",
+    "dose": "2015.200 mg"
+  },
+  {
+    "file": "Japanese_Society_2015.25_mg_SD.csv",
+    "study": "Japanese Society 2015",
+    "route": "",
+    "dose": "2015.25 mg"
+  },
+  {
+    "file": "Japanese_Society_2015.30_mg_iv.csv",
+    "study": "Japanese Society 2015",
+    "route": "",
+    "dose": "2015.30 mg"
+  },
+  {
+    "file": "Japanese_Society_2015.50_mg_SD.csv",
+    "study": "Japanese Society 2015",
+    "route": "",
+    "dose": "2015.50 mg"
+  },
+  {
+    "file": "Kunii_2005.50_mg_SD.EM_PM.smoker_non-smoker.csv",
+    "study": "Kunii 2005",
+    "route": "",
+    "dose": "2005.50 mg"
+  },
+  {
+    "file": "Labellarte_2004.150_mg_BID.EM.csv",
+    "study": "Labellarte 2004",
+    "route": "",
+    "dose": "2004.150 mg"
+  },
+  {
+    "file": "Orlando_2010.50_mg_SD.csv",
+    "study": "Orlando 2010",
+    "route": "",
+    "dose": "2010.50 mg"
+  },
+  {
+    "file": "Spigset_1995.50_mg_SD.EM.non-smoker.csv",
+    "study": "Spigset 1995",
+    "route": "",
+    "dose": "1995.50 mg"
+  },
+  {
+    "file": "Spigset_1995.50_mg_SD.EM.smoker.csv",
+    "study": "Spigset 1995",
+    "route": "",
+    "dose": "1995.50 mg"
+  },
+  {
+    "file": "Spigset_1997.50_mg_SD.EM.non-smoker.csv",
+    "study": "Spigset 1997",
+    "route": "",
+    "dose": "1997.50 mg"
+  },
+  {
+    "file": "Spigset_1997.50_mg_SD.PM.non-smoker.csv",
+    "study": "Spigset 1997",
+    "route": "",
+    "dose": "1997.50 mg"
+  },
+  {
+    "file": "Spigset_1998.100_mg_BID.EM_PM.non-smoker.csv",
+    "study": "Spigset 1998",
+    "route": "",
+    "dose": "1998.100 mg"
+  },
+  {
+    "file": "Spigset_1998.12.5_mg_BID.EM_PM.non-smoker.csv",
+    "study": "Spigset 1998",
+    "route": "",
+    "dose": "1998.12.5 mg"
+  },
+  {
+    "file": "Spigset_1998.25_mg_BID.EM_PM.non-smoker.csv",
+    "study": "Spigset 1998",
+    "route": "",
+    "dose": "1998.25 mg"
+  },
+  {
+    "file": "Spigset_1998.50_mg_BID.EM_PM.non-smoker.csv",
+    "study": "Spigset 1998",
+    "route": "",
+    "dose": "1998.50 mg"
+  },
+  {
+    "file": "van_Harten_1991.50_mg_SD.csv",
+    "study": "van Harten 1991",
+    "route": "",
+    "dose": "1991.50 mg"
+  }
+]

@@ -1,0 +1,44 @@
+[
+  {
+    "file": "Rouini_2005_-_Reference_-_Mefenamic_acid_-_PO_-_250_mg_-_Plasma_-_agg._n_12.csv",
+    "study": "Rouini 2005",
+    "route": "PO",
+    "dose": "250 mg"
+  },
+  {
+    "file": "Mahadik_2012_-_Reference_-_Mefenamic_acid_-_PO_-_250_mg_-_Plasma_-_agg._n_12.csv",
+    "study": "Mahadik 2012",
+    "route": "PO",
+    "dose": "250 mg"
+  },
+  {
+    "file": "Hamaguchi_1987_-_Treatment_1_-_fasted_with_50_mL_of_water_-_Mefenamic_acid_-_PO_.csv",
+    "study": "Hamaguchi 1987",
+    "route": "PO",
+    "dose": "250 mg"
+  },
+  {
+    "file": "Hamaguchi_1987_-_Treatment_2_-_fasted_with_200_mL_of_water_-_Mefenamic_acid_-_PO.csv",
+    "study": "Hamaguchi 1987",
+    "route": "PO",
+    "dose": "250 mg"
+  },
+  {
+    "file": "Hamaguchi_1987_-_Treatment_3_-_fasted_with_500_mL_of_water_-_Mefenamic_acid_-_PO.csv",
+    "study": "Hamaguchi 1987",
+    "route": "PO",
+    "dose": "250 mg"
+  },
+  {
+    "file": "Hamaguchi_1987_-_Treatment_4_-_fed_with_50_mL_of_water_-_Mefenamic_acid_-_PO_-_2.csv",
+    "study": "Hamaguchi 1987",
+    "route": "PO",
+    "dose": "250 mg"
+  },
+  {
+    "file": "Goosen_2017_-_500_mg_SD_-_Mefenamic_acid_-_PO_-_500_mg_-_Plasma_-_agg..csv",
+    "study": "Goosen 2017",
+    "route": "PO",
+    "dose": "500 mg"
+  }
+]

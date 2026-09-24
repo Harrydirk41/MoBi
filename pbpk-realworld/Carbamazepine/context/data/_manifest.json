@@ -1,0 +1,488 @@
+[
+  {
+    "file": "Caraco_1995_-_Lean_subjects_-_Carbamazepine_-_PO_-_200_mg_-_Plasma_-_agg._n_13.csv",
+    "study": "Caraco 1995",
+    "route": "PO",
+    "dose": "200 mg"
+  },
+  {
+    "file": "Rawlins_1975_-_Volunteer_G_200_mg_solution_-_Carbamazepine_-_PO_-_200_mg_-_Plasm.csv",
+    "study": "Rawlins 1975",
+    "route": "PO",
+    "dose": "200 mg"
+  },
+  {
+    "file": "Rawlins_1975_-_Volunteer_G_200_mg_tablet_-_Carbamazepine_-_PO_-_200_mg_-_Plasma_.csv",
+    "study": "Rawlins 1975",
+    "route": "PO",
+    "dose": "200 mg"
+  },
+  {
+    "file": "Pynn_nen_1977_-_Single_400_mg_oral_dose_-_Carbamazepine_-_PO_-_400_mg_-_Plasma_-.csv",
+    "study": "Pynn\u00f6nen 1977",
+    "route": "PO",
+    "dose": "400 mg"
+  },
+  {
+    "file": "Pynn_nen_1977_-_Single_400_mg_oral_dose_-_Carbamazepine_-_PO_-_400_mg_-_Saliva_-.csv",
+    "study": "Pynn\u00f6nen 1977",
+    "route": "PO",
+    "dose": "400 mg"
+  },
+  {
+    "file": "Bedada_2015_-_Control_phase_-_Carbamazepine_-_PO_-_200_mg_-_Plasma_-_agg._n_12.csv",
+    "study": "Bedada 2015",
+    "route": "PO",
+    "dose": "200 mg"
+  },
+  {
+    "file": "Bedada_2016_-_Control_phase_-_Carbamazepine_-_PO_-_200_mg_-_Plasma_-_agg._n_12.csv",
+    "study": "Bedada 2016",
+    "route": "PO",
+    "dose": "200 mg"
+  },
+  {
+    "file": "Levy_1975_-_propylene_glycol_solution_-_Carbamazepine_-_PO_-_6_mg_kg_-_Serum_-_a.csv",
+    "study": "Levy 1975",
+    "route": "PO",
+    "dose": "6 mg"
+  },
+  {
+    "file": "Levy_1975_-_commercial_tablet_-_Carbamazepine_-_PO_-_6_mg_kg_-_Serum_-_agg._n_6.csv",
+    "study": "Levy 1975",
+    "route": "PO",
+    "dose": "6 mg"
+  },
+  {
+    "file": "Wada_1978_-_Syrup_-_Carbamazepine_-_PO_-_200_mg_-_Serum_-_agg._n_9.csv",
+    "study": "Wada 1978",
+    "route": "PO",
+    "dose": "200 mg"
+  },
+  {
+    "file": "Wada_1978_-_Tablet_-_Carbamazepine_-_PO_-_200_mg_-_Saliva_-_agg._n_9.csv",
+    "study": "Wada 1978",
+    "route": "PO",
+    "dose": "200 mg"
+  },
+  {
+    "file": "Sumi_1987_-_Solution_CBZ_-_Carbamazepine_-_PO_-_200_mg_-_Serum_-_agg._n_6.csv",
+    "study": "Sumi 1987",
+    "route": "PO",
+    "dose": "200 mg"
+  },
+  {
+    "file": "Dalton_1985a_-_Placebo_without_cimetidine_-_Carbamazepine_-_PO_-_600_mg_-_Plasma.csv",
+    "study": "Dalton 1985a",
+    "route": "PO",
+    "dose": "600 mg"
+  },
+  {
+    "file": "European_Patent_Application_2000_-_Tegretol_CR_400_mg_tablet_lot_A_-_Carbamazepi.csv",
+    "study": "European Patent Application 2000 - EP 1044681 A2, Application no. 00650026.8",
+    "route": "PO",
+    "dose": "400 mg"
+  },
+  {
+    "file": "European_Patent_Application_2000_-_Tegretol_CR_400_mg_tablet_lot_B_-_Carbamazepi.csv",
+    "study": "European Patent Application 2000 - EP 1044681 A2, Application no. 00650026.8",
+    "route": "PO",
+    "dose": "400 mg"
+  },
+  {
+    "file": "Strandjord_1975_-_Subject_no._2_-_Carbamazepine_-_PO_-_4.8_mg_kg_-_Serum_-_indiv.csv",
+    "study": "Strandjord 1975",
+    "route": "PO",
+    "dose": "4.8 mg"
+  },
+  {
+    "file": "Strandjord_1975_-_Subject_no._5_-_Carbamazepine_-_PO_-_5.9_mg_kg_-_Serum_-_indiv.csv",
+    "study": "Strandjord 1975",
+    "route": "PO",
+    "dose": "5.9 mg"
+  },
+  {
+    "file": "Strandjord_1975_-_Subject_no._6_-_Carbamazepine_-_PO_-_6_mg_kg_-_Serum_-_indiv..csv",
+    "study": "Strandjord 1975",
+    "route": "PO",
+    "dose": "6 mg"
+  },
+  {
+    "file": "Strandjord_1975_-_Subject_no._7_-_Carbamazepine_-_PO_-_6.9_mg_kg_-_Serum_-_indiv.csv",
+    "study": "Strandjord 1975",
+    "route": "PO",
+    "dose": "6.9 mg"
+  },
+  {
+    "file": "Strandjord_1975_-_Subject_no._8_-_Carbamazepine_-_PO_-_7.1_mg_kg_-_Serum_-_indiv.csv",
+    "study": "Strandjord 1975",
+    "route": "PO",
+    "dose": "7.1 mg"
+  },
+  {
+    "file": "Tomson_1983_-_Subject_GB_200_mg_CBZ_-_Carbamazepine_-_PO_-_200_mg_-_Plasma_-_ind.csv",
+    "study": "Tomson 1983",
+    "route": "PO",
+    "dose": "200 mg"
+  },
+  {
+    "file": "Burstein_2000_-_Before_St_John_s_Wort_-_Carbamazepine_-_PO_-_100_200_400_mg_-_Pl.csv",
+    "study": "Burstein 2000",
+    "route": "PO",
+    "dose": "400 mg"
+  },
+  {
+    "file": "G_rardin_1990_-_Subject_1_2_h_IV_infusion_-_Carbamazepine_-_IV_-_10_mg_-_Plasma_.csv",
+    "study": "G\u00e9rardin 1990",
+    "route": "IV",
+    "dose": "10 mg"
+  },
+  {
+    "file": "G_rardin_1990_-_Subject_1_100_mg_15N-CBZ_as_2_oral_suspension_-_Carbamazepine_-_.csv",
+    "study": "G\u00e9rardin 1990",
+    "route": "PO",
+    "dose": "100 mg"
+  },
+  {
+    "file": "G_rardin_1990_-_Subject_2_2_h_IV_infusion_-_Carbamazepine_-_IV_-_10_mg_-_Plasma_.csv",
+    "study": "G\u00e9rardin 1990",
+    "route": "IV",
+    "dose": "10 mg"
+  },
+  {
+    "file": "G_rardin_1990_-_Subject_2_100_mg_15N-CBZ_as_2_oral_suspension_-_Carbamazepine_-_.csv",
+    "study": "G\u00e9rardin 1990",
+    "route": "PO",
+    "dose": "100 mg"
+  },
+  {
+    "file": "Dalton_1985b_-_Placebo_without_ranitidine_-_Carbamazepine_-_PO_-_600_mg_-_Plasma.csv",
+    "study": "Dalton 1985b",
+    "route": "PO",
+    "dose": "600 mg"
+  },
+  {
+    "file": "Bianchetti_1987_-_CBZ_before_progabide_administration_-_Carbamazepine_-_PO_-_400.csv",
+    "study": "Bianchetti 1987",
+    "route": "PO",
+    "dose": "400 mg"
+  },
+  {
+    "file": "Barzaghi_1987_-_Without_erythromycin_-_Carbamazepine_-_PO_-_400_mg_-_Serum_-_agg.csv",
+    "study": "Barzaghi 1987",
+    "route": "PO",
+    "dose": "400 mg"
+  },
+  {
+    "file": "Cotter_1977_-_Single_oral_800_mg_dose_-_Carbamazepine_-_PO_-_800_mg_-_Plasma_-_i.csv",
+    "study": "Cotter 1977",
+    "route": "PO",
+    "dose": "800 mg"
+  },
+  {
+    "file": "Saint-Salvi_1987_-_Carbamazepine_alone_-_Carbamazepine_-_PO_-_200_mg_-_Plasma_-_.csv",
+    "study": "Saint-Salvi 1987",
+    "route": "PO",
+    "dose": "200 mg"
+  },
+  {
+    "file": "Wada_1978_-_Syrup_-_Carbamazepine_-_PO_-_200_mg_-_Saliva_-_agg._n_9.csv",
+    "study": "Wada 1978",
+    "route": "PO",
+    "dose": "200 mg"
+  },
+  {
+    "file": "Strandjord_1975_-_Subject_no._3_-_Carbamazepine_-_PO_-_5.1_mg_kg_-_Serum_-_indiv.csv",
+    "study": "Strandjord 1975",
+    "route": "PO",
+    "dose": "5.1 mg"
+  },
+  {
+    "file": "Strandjord_1975_-_Subject_no._4_-_Carbamazepine_-_PO_-_5.7_mg_kg_-_Serum_-_indiv.csv",
+    "study": "Strandjord 1975",
+    "route": "PO",
+    "dose": "5.7 mg"
+  },
+  {
+    "file": "Rawlins_1975_-_Volunteer_G_100_mg_solution_-_Carbamazepine_-_PO_-_100_mg_-_Plasm.csv",
+    "study": "Rawlins 1975",
+    "route": "PO",
+    "dose": "100 mg"
+  },
+  {
+    "file": "Rawlins_1975_-_Volunteer_G_50_mg_solution_-_Carbamazepine_-_PO_-_50_mg_-_Plasma_.csv",
+    "study": "Rawlins 1975",
+    "route": "PO",
+    "dose": "50 mg"
+  },
+  {
+    "file": "Bernus_1994_-_CBZ_conc_-_Carbamazepine_-_PO_-_600_mg_-_Plasma_-_agg._n_6.csv",
+    "study": "Bernus 1994",
+    "route": "PO",
+    "dose": "600 mg"
+  },
+  {
+    "file": "Elqidra_2009_-_Tegretol_-_Carbamazepine_-_PO_-_200_mg_-_Plasma_-_agg._n_6.csv",
+    "study": "Elqidra 2009",
+    "route": "PO",
+    "dose": "200 mg"
+  },
+  {
+    "file": "Sumi_1987_-_Tablet_B_CBZ_-_Carbamazepine_-_PO_-_200_mg_-_Serum_-_agg._n_6.csv",
+    "study": "Sumi 1987",
+    "route": "PO",
+    "dose": "200 mg"
+  },
+  {
+    "file": "Sumi_1987_-_Tablet_A_CBZ_-_Carbamazepine_-_PO_-_200_mg_-_Serum_-_agg._n_6.csv",
+    "study": "Sumi 1987",
+    "route": "PO",
+    "dose": "200 mg"
+  },
+  {
+    "file": "Strandjord_1975_-_Subject_no._1_-_Carbamazepine_-_PO_-_4.6_mg_kg_-_Serum_-_indiv.csv",
+    "study": "Strandjord 1975",
+    "route": "PO",
+    "dose": "4.6 mg"
+  },
+  {
+    "file": "US_Patent_Application_-_US_2009_0169619_A1_-_Reference_-_Carbamazepine_-_PO_-_30.csv",
+    "study": "US Patent Application - US 2009 0169619 A1",
+    "route": "PO",
+    "dose": "300 mg"
+  },
+  {
+    "file": "US_Patent_Application_-_US_2009_0169619_A1_-_Test_-_Carbamazepine_-_PO_-_300_mg_.csv",
+    "study": "US Patent Application - US 2009 0169619 A1",
+    "route": "PO",
+    "dose": "300 mg"
+  },
+  {
+    "file": "European_Patent_Application_2000_-_Tegretol_CR_600_mg_tablet_-_Carbamazepine_-_P.csv",
+    "study": "European Patent Application 2000 - EP 1044681 A2, Application no. 00650026.8",
+    "route": "PO",
+    "dose": "600 mg"
+  },
+  {
+    "file": "Kim_2005_-_Placebo_without_probenecid_-_Carbamazepine_-_PO_-_200_mg_-_Plasma_-_a.csv",
+    "study": "Kim 2005",
+    "route": "PO",
+    "dose": "200 mg"
+  },
+  {
+    "file": "Meyer_1998_-_Product_1_Tegretol_-_Carbamazepine_-_PO_-_200_mg_-_Plasma_-_agg._n_.csv",
+    "study": "Meyer 1998",
+    "route": "PO",
+    "dose": "200 mg"
+  },
+  {
+    "file": "Meyer_1992_-_Product_1_Tegretol_-_Carbamazepine_-_PO_-_200_mg_-_Plasma_-_agg._n_.csv",
+    "study": "Meyer 1992",
+    "route": "PO",
+    "dose": "200 mg"
+  },
+  {
+    "file": "Stevens_1998_-_Tegretol-XR_-_Carbamazepine_-_PO_-_400_mg_-_Plasma_-_agg._n_15.csv",
+    "study": "Stevens 1998",
+    "route": "PO",
+    "dose": "400 mg"
+  },
+  {
+    "file": "Stevens_1998_-_Carbatrol_-_Carbamazepine_-_PO_-_400_mg_-_Plasma_-_agg._n_15.csv",
+    "study": "Stevens 1998",
+    "route": "PO",
+    "dose": "400 mg"
+  },
+  {
+    "file": "Strandjord_1975_-_Subject_no._12_-_Carbamazepine_-_PO_-_7.7_mg_kg_-_Serum_-_indi.csv",
+    "study": "Strandjord 1975",
+    "route": "PO",
+    "dose": "7.7 mg"
+  },
+  {
+    "file": "Strandjord_1975_-_Subject_no._11_-_Carbamazepine_-_PO_-_7.5_mg_kg_-_Serum_-_indi.csv",
+    "study": "Strandjord 1975",
+    "route": "PO",
+    "dose": "7.5 mg"
+  },
+  {
+    "file": "Strandjord_1975_-_Subject_no._10_-_Carbamazepine_-_PO_-_7.3_mg_kg_-_Serum_-_indi.csv",
+    "study": "Strandjord 1975",
+    "route": "PO",
+    "dose": "7.3 mg"
+  },
+  {
+    "file": "Strandjord_1975_-_Subject_no._9_-_Carbamazepine_-_PO_-_7.3_mg_kg_-_Serum_-_indiv.csv",
+    "study": "Strandjord 1975",
+    "route": "PO",
+    "dose": "7.3 mg"
+  },
+  {
+    "file": "Kayali_1994_-_Tegretol_-_Carbamazepine_-_PO_-_200_mg_-_Plasma_-_agg._n_5.csv",
+    "study": "Kayali 1994",
+    "route": "PO",
+    "dose": "200 mg"
+  },
+  {
+    "file": "Morselli_1975_-_Subject_P.M.G._-_Carbamazepine_-_PO_-_400_mg_-_Urine_-_indiv..csv",
+    "study": "Morselli 1975",
+    "route": "PO",
+    "dose": "400 mg"
+  },
+  {
+    "file": "Morselli_1975_-_Subject_P.B._-_Carbamazepine_-_PO_-_400_mg_-_Urine_-_indiv..csv",
+    "study": "Morselli 1975",
+    "route": "PO",
+    "dose": "400 mg"
+  },
+  {
+    "file": "Morselli_1975_-_Subject_F.G._-_Carbamazepine_-_PO_-_400_mg_-_Urine_-_indiv..csv",
+    "study": "Morselli 1975",
+    "route": "PO",
+    "dose": "400 mg"
+  },
+  {
+    "file": "Morselli_1975_-_Healthy_volunteers_-_Carbamazepine_-_PO_-_400_mg_-_Plasma_-_agg..csv",
+    "study": "Morselli 1975",
+    "route": "PO",
+    "dose": "400 mg"
+  },
+  {
+    "file": "Strandjord_1975_-_Mean_concentrations_-_Carbamazepine_-_PO_-_400_mg_-_Serum_-_ag.csv",
+    "study": "Strandjord 1975",
+    "route": "PO",
+    "dose": "400 mg"
+  },
+  {
+    "file": "Wada_1978_-_Tablet_-_Carbamazepine_-_PO_-_200_mg_-_Serum_-_agg._n_9.csv",
+    "study": "Wada 1978",
+    "route": "PO",
+    "dose": "200 mg"
+  },
+  {
+    "file": "Sumi_1987_-_Tablet_C_CBZ_-_Carbamazepine_-_PO_-_200_mg_-_Serum_-_agg._n_6.csv",
+    "study": "Sumi 1987",
+    "route": "PO",
+    "dose": "200 mg"
+  },
+  {
+    "file": "Wong_1983_-_Treatment_B_without_erythromycin_-_Carbamazepine_-_PO_-_400_mg_-_Pla.csv",
+    "study": "Wong 1983",
+    "route": "PO",
+    "dose": "400 mg"
+  },
+  {
+    "file": "Cawello_2010_-_CBZ_alone_without_lacosamide_-_Carbamazepine_-_PO_-_100_200_mg_-_.csv",
+    "study": "Cawello 2010",
+    "route": "PO",
+    "dose": "200 mg"
+  },
+  {
+    "file": "G_rardin_1976_-_Repeated_dose_200_mg_Geomean_-_Carbamazepine_-_PO_-_200_mg_-_Pla.csv",
+    "study": "G\u00e9rardin 1976",
+    "route": "PO",
+    "dose": "200 mg"
+  },
+  {
+    "file": "Kovacevi_2009_-_CBZ_CR_tablet_test_-_Carbamazepine_-_PO_-_400_mg_-_Plasma_-_agg..csv",
+    "study": "Kovacevi\u00c4\u2021 2009",
+    "route": "PO",
+    "dose": "400 mg"
+  },
+  {
+    "file": "Kovacevi_2009_-_CBZ_IR_tablet_test_-_Carbamazepine_-_PO_-_400_mg_-_Plasma_-_agg..csv",
+    "study": "Kovacevi\u00c4\u2021 2009",
+    "route": "PO",
+    "dose": "400 mg"
+  },
+  {
+    "file": "Kovacevi_2009_-_CBZ_CR_tablet_reference_-_Carbamazepine_-_PO_-_400_mg_-_Plasma_-.csv",
+    "study": "Kovacevi\u00c4\u2021 2009",
+    "route": "PO",
+    "dose": "400 mg"
+  },
+  {
+    "file": "Kovacevi_2009_-_CBZ_IR_tablet_reference_-_Carbamazepine_-_PO_-_400_mg_-_Plasma_-.csv",
+    "study": "Kovacevi\u00c4\u2021 2009",
+    "route": "PO",
+    "dose": "400 mg"
+  },
+  {
+    "file": "Miles_1989_-_CBZ_before_ERY_-_Carbamazepine_-_PO_-_300-400_mean_dose_357.1_-_53..csv",
+    "study": "Miles 1989",
+    "route": "PO",
+    "dose": "53.5 mg"
+  },
+  {
+    "file": "G_rardin_1976_-_Repeated_dose_200_mg_Subject_1_-_Carbamazepine_-_PO_-_200_mg_-_P.csv",
+    "study": "G\u00e9rardin 1976",
+    "route": "PO",
+    "dose": "200 mg"
+  },
+  {
+    "file": "G_rardin_1976_-_Repeated_dose_200_mg_Subject_3_-_Carbamazepine_-_PO_-_200_mg_-_P.csv",
+    "study": "G\u00e9rardin 1976",
+    "route": "PO",
+    "dose": "200 mg"
+  },
+  {
+    "file": "G_rardin_1976_-_Repeated_dose_200_mg_Subject_4_-_Carbamazepine_-_PO_-_200_mg_-_P.csv",
+    "study": "G\u00e9rardin 1976",
+    "route": "PO",
+    "dose": "200 mg"
+  },
+  {
+    "file": "G_rardin_1976_-_Repeated_dose_200_mg_Subject_5_-_Carbamazepine_-_PO_-_200_mg_-_P.csv",
+    "study": "G\u00e9rardin 1976",
+    "route": "PO",
+    "dose": "200 mg"
+  },
+  {
+    "file": "G_rardin_1976_-_single_oral_dose_of_100_mg_-_Carbamazepine_-_PO_-_100_mg_-_Plasm.csv",
+    "study": "G\u00e9rardin 1976",
+    "route": "PO",
+    "dose": "100 mg"
+  },
+  {
+    "file": "G_rardin_1976_-_single_oral_dose_of_600_mg_-_Carbamazepine_-_PO_-_600_mg_-_Plasm.csv",
+    "study": "G\u00e9rardin 1976",
+    "route": "PO",
+    "dose": "600 mg"
+  },
+  {
+    "file": "G_rardin_1976_-_single_oral_dose_of_200_mg_-_Carbamazepine_-_PO_-_200_mg_-_Plasm.csv",
+    "study": "G\u00e9rardin 1976",
+    "route": "PO",
+    "dose": "200 mg"
+  },
+  {
+    "file": "G_rardin_1976_-_Repeated_dose_200_mg_Subject_2_-_Carbamazepine_-_PO_-_200_mg_-_P.csv",
+    "study": "G\u00e9rardin 1976",
+    "route": "PO",
+    "dose": "200 mg"
+  },
+  {
+    "file": "Eichelbaum_1985_-_Healthy_subject_EH_-_Carbamazepine_-_PO_-_200_mg_-_Plasma_-_in.csv",
+    "study": "Eichelbaum 1985",
+    "route": "PO",
+    "dose": "200 mg"
+  },
+  {
+    "file": "McLean_2001_-_CBZ_intact_capsule_fasting_state_-_Carbamazepine_-_PO_-_400_mg_-_P.csv",
+    "study": "McLean 2001",
+    "route": "PO",
+    "dose": "400 mg"
+  },
+  {
+    "file": "M_ller_2001_-_CBZ_alone_-_Carbamazepine_-_PO_-_100_200_400_mg_-_Plasma_-_agg._n_.csv",
+    "study": "M\u00f8ller 2001",
+    "route": "PO",
+    "dose": "400 mg"
+  },
+  {
+    "file": "Ji_2008_-_Carbamazepine_control_Arm_2_-_Carbamazepine_-_PO_-_200_400_mg_-_Plasma.csv",
+    "study": "Ji 2008",
+    "route": "PO",
+    "dose": "400 mg"
+  }
+]

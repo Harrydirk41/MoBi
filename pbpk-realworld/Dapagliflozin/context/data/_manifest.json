@@ -1,0 +1,242 @@
+[
+  {
+    "file": "Kasichayanula_2011c_-_Healthy_Volunteers_-_Dapagliflozin_-_PO_-_10_mg_-_Plasma_-.csv",
+    "study": "Kasichayanula 2011c",
+    "route": "PO",
+    "dose": "10 mg"
+  },
+  {
+    "file": "DeFronzo_2013_-_Healthy_Subjects_-_Dapagliflozin_-_PO_-_10_mg_-_Plasma_-_agg._n_.csv",
+    "study": "DeFronzo 2013",
+    "route": "PO",
+    "dose": "10 mg"
+  },
+  {
+    "file": "Vakkalagadda_2016_-_Dapagliflozin_-_Dapagliflozin_-_PO_-_10_mg_-_Plasma_-_agg._n.csv",
+    "study": "Vakkalagadda 2016",
+    "route": "PO",
+    "dose": "10 mg"
+  },
+  {
+    "file": "Kasichayanula_2013b_-_T2DM_with_severe_renal_impairment_-_Dapagliflozin_-_PO_-_5.csv",
+    "study": "Kasichayanula 2013b",
+    "route": "PO",
+    "dose": "50 mg"
+  },
+  {
+    "file": "Kasichayanula_2013b_-_T2DM_with_moderate_renal_impairment_-_Dapagliflozin_-_PO_-.csv",
+    "study": "Kasichayanula 2013b",
+    "route": "PO",
+    "dose": "50 mg"
+  },
+  {
+    "file": "Kasichayanula_2013b_-_T2DM_with_mild_renal_impairment_-_Dapagliflozin_-_PO_-_50_.csv",
+    "study": "Kasichayanula 2013b",
+    "route": "PO",
+    "dose": "50 mg"
+  },
+  {
+    "file": "Kasichayanula_2013b_-_T2DM_with_normal_kidney_function_-_Dapagliflozin_-_PO_-_50.csv",
+    "study": "Kasichayanula 2013b",
+    "route": "PO",
+    "dose": "50 mg"
+  },
+  {
+    "file": "Kasichayanula_2013b_-_Healthy_subjects_with_normal_kidney_function_-_Dapaglifloz.csv",
+    "study": "Kasichayanula 2013b",
+    "route": "PO",
+    "dose": "50 mg"
+  },
+  {
+    "file": "Kasichayanula_2013a_-_Study_2_Control_Perpetrator_Placebo_-_Dapagliflozin_-_PO_-.csv",
+    "study": "Kasichayanula 2013a",
+    "route": "PO",
+    "dose": "10 mg"
+  },
+  {
+    "file": "Kasichayanula_2013a_-_Study_1_Control_Perpetrator_Placebo_-_Dapagliflozin_-_PO_-.csv",
+    "study": "Kasichayanula 2013a",
+    "route": "PO",
+    "dose": "10 mg"
+  },
+  {
+    "file": "Kasichayanula_2012_-_Study_1_Control_Perpetrator_Placebo_-_Dapagliflozin_-_PO_-_.csv",
+    "study": "Kasichayanula 2012",
+    "route": "PO",
+    "dose": "20 mg"
+  },
+  {
+    "file": "Kasichayanula_2011b_-_Study_3_20_mg_Control_Perpetrator_Placebo_-_Dapagliflozin_.csv",
+    "study": "Kasichayanula 2011b",
+    "route": "PO",
+    "dose": "20 mg"
+  },
+  {
+    "file": "Kasichayanula_2011b_-_Study_2_20_mg_Control_Perpetrator_Placebo_-_Dapagliflozin_.csv",
+    "study": "Kasichayanula 2011b",
+    "route": "PO",
+    "dose": "20 mg"
+  },
+  {
+    "file": "Kasichayanula_2011b_-_Study_1_50_mg_Control_Perpetrator_Placebo_-_Dapagliflozin_.csv",
+    "study": "Kasichayanula 2011b",
+    "route": "PO",
+    "dose": "50 mg"
+  },
+  {
+    "file": "Kasichayanula_2011a_-_fed_-_Dapagliflozin_-_PO_-_10_mg_-_Plasma_-_agg._n_14.csv",
+    "study": "Kasichayanula 2011a",
+    "route": "PO",
+    "dose": "10 mg"
+  },
+  {
+    "file": "Kasichayanula_2011a_-_fasted_-_Dapagliflozin_-_PO_-_10_mg_-_Plasma_-_agg._n_14.csv",
+    "study": "Kasichayanula 2011a",
+    "route": "PO",
+    "dose": "10 mg"
+  },
+  {
+    "file": "Imamura_2013_-_Control_Perpetrator_Placebo_-_Dapagliflozin_-_PO_-_10_mg_-_Plasma.csv",
+    "study": "Imamura 2013",
+    "route": "PO",
+    "dose": "10 mg"
+  },
+  {
+    "file": "Chang_2015_-_Study_1_Treatment_A_single_oral_doses_-_Dapagliflozin_-_PO_-_5_mg_-.csv",
+    "study": "Chang 2015",
+    "route": "PO",
+    "dose": "5 mg"
+  },
+  {
+    "file": "Boulton_2013_-_Dapagliflozin_po_-_Dapagliflozin_-_PO_-_10_mg_-_Plasma_-_agg._n_7.csv",
+    "study": "Boulton 2013",
+    "route": "PO",
+    "dose": "10 mg"
+  },
+  {
+    "file": "Boulton_2013_-_14C-dapagliflozin_iv_-_Dapagliflozin_-_IV_-_0.08_mg_-_Plasma_-_ag.csv",
+    "study": "Boulton 2013",
+    "route": "IV",
+    "dose": "0.08 mg"
+  },
+  {
+    "file": "Komoroski_2009_-_SAD_2.5_mg_-_Dapagliflozin_-_PO_-_2.5_mg_-_Plasma_-_agg._n_6.csv",
+    "study": "Komoroski 2009",
+    "route": "PO",
+    "dose": "2.5 mg"
+  },
+  {
+    "file": "Komoroski_2009_-_SAD_5_mg_-_Dapagliflozin_-_PO_-_5_mg_-_Plasma_-_agg._n_6.csv",
+    "study": "Komoroski 2009",
+    "route": "PO",
+    "dose": "5 mg"
+  },
+  {
+    "file": "Komoroski_2009_-_SAD_10_mg_-_Dapagliflozin_-_PO_-_10_mg_-_Plasma_-_agg._n_6.csv",
+    "study": "Komoroski 2009",
+    "route": "PO",
+    "dose": "10 mg"
+  },
+  {
+    "file": "Komoroski_2009_-_SAD_20_mg_-_Dapagliflozin_-_PO_-_20_mg_-_Plasma_-_agg._n_6.csv",
+    "study": "Komoroski 2009",
+    "route": "PO",
+    "dose": "20 mg"
+  },
+  {
+    "file": "Komoroski_2009_-_SAD_50_mg_-_Dapagliflozin_-_PO_-_50_mg_-_Plasma_-_agg._n_6.csv",
+    "study": "Komoroski 2009",
+    "route": "PO",
+    "dose": "50 mg"
+  },
+  {
+    "file": "Komoroski_2009_-_SAD_100_mg_-_Dapagliflozin_-_PO_-_100_mg_-_Plasma_-_agg._n_6.csv",
+    "study": "Komoroski 2009",
+    "route": "PO",
+    "dose": "100 mg"
+  },
+  {
+    "file": "Komoroski_2009_-_SAD_250_mg_fasted_-_Dapagliflozin_-_PO_-_250_mg_-_Plasma_-_agg..csv",
+    "study": "Komoroski 2009",
+    "route": "PO",
+    "dose": "250 mg"
+  },
+  {
+    "file": "Komoroski_2009_-_SAD_500_mg_-_Dapagliflozin_-_PO_-_500_mg_-_Plasma_-_agg._n_6.csv",
+    "study": "Komoroski 2009",
+    "route": "PO",
+    "dose": "500 mg"
+  },
+  {
+    "file": "Komoroski_2009_-_SAD_250_mg_fed_-_Dapagliflozin_-_PO_-_250_mg_-_Plasma_-_agg._n_.csv",
+    "study": "Komoroski 2009",
+    "route": "PO",
+    "dose": "250 mg"
+  },
+  {
+    "file": "Komoroski_2009_-_MAD_2.5_mg_day_1_-_Dapagliflozin_-_PO_-_2.5_mg_-_Plasma_-_agg._.csv",
+    "study": "Komoroski 2009",
+    "route": "PO",
+    "dose": "2.5 mg"
+  },
+  {
+    "file": "Komoroski_2009_-_MAD_10_mg_day_1_-_Dapagliflozin_-_PO_-_10_mg_-_Plasma_-_agg._n_.csv",
+    "study": "Komoroski 2009",
+    "route": "PO",
+    "dose": "10 mg"
+  },
+  {
+    "file": "Komoroski_2009_-_MAD_20_mg_day_1_-_Dapagliflozin_-_PO_-_20_mg_-_Plasma_-_agg._n_.csv",
+    "study": "Komoroski 2009",
+    "route": "PO",
+    "dose": "20 mg"
+  },
+  {
+    "file": "Komoroski_2009_-_MAD_50_mg_day_1_-_Dapagliflozin_-_PO_-_50_mg_-_Plasma_-_agg._n_.csv",
+    "study": "Komoroski 2009",
+    "route": "PO",
+    "dose": "50 mg"
+  },
+  {
+    "file": "Komoroski_2009_-_MAD_100_mg_day_1_-_Dapagliflozin_-_PO_-_100_mg_-_Plasma_-_agg._.csv",
+    "study": "Komoroski 2009",
+    "route": "PO",
+    "dose": "100 mg"
+  },
+  {
+    "file": "Komoroski_2009_-_MAD_2.5_mg_day_7_and_day_14_-_Dapagliflozin_-_PO_-_2.5_mg_-_Pla.csv",
+    "study": "Komoroski 2009",
+    "route": "PO",
+    "dose": "2.5 mg"
+  },
+  {
+    "file": "Komoroski_2009_-_MAD_10_mg_day_7_and_day_14_-_Dapagliflozin_-_PO_-_10_mg_-_Plasm.csv",
+    "study": "Komoroski 2009",
+    "route": "PO",
+    "dose": "10 mg"
+  },
+  {
+    "file": "Komoroski_2009_-_MAD_20_mg_day_7_and_day_14_-_Dapagliflozin_-_PO_-_20_mg_-_Plasm.csv",
+    "study": "Komoroski 2009",
+    "route": "PO",
+    "dose": "20 mg"
+  },
+  {
+    "file": "Komoroski_2009_-_MAD_50_mg_day_7_and_day_14_-_Dapagliflozin_-_PO_-_50_mg_-_Plasm.csv",
+    "study": "Komoroski 2009",
+    "route": "PO",
+    "dose": "50 mg"
+  },
+  {
+    "file": "Komoroski_2009_-_MAD_100_mg_day_7_and_day_14_-_Dapagliflozin_-_PO_-_100_mg_-_Pla.csv",
+    "study": "Komoroski 2009",
+    "route": "PO",
+    "dose": "100 mg"
+  },
+  {
+    "file": "Chang_2015_-_Study_2_Treatment_A_single_oral_doses_-_Dapagliflozin_-_PO_-_10_mg_.csv",
+    "study": "Chang 2015",
+    "route": "PO",
+    "dose": "10 mg"
+  }
+]

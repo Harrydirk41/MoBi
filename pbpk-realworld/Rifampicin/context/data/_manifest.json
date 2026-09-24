@@ -1,0 +1,500 @@
+[
+  {
+    "file": "Peloquin_1997_-_600_mg_-_Rifampicin_-_PO_-_600_mg_-_Plasma_-_agg._n_24.csv",
+    "study": "Peloquin 1997",
+    "route": "PO",
+    "dose": "600 mg"
+  },
+  {
+    "file": "Nitti_1977_-_600_mg_-_Rifampicin_-_IV_-_600_mg_-_Urine_-_agg._n_6.csv",
+    "study": "Nitti 1977",
+    "route": "IV",
+    "dose": "600 mg"
+  },
+  {
+    "file": "Nitti_1977_-_450_mg_-_Rifampicin_-_IV_-_450_mg_-_Urine_-_agg._n_3.csv",
+    "study": "Nitti 1977",
+    "route": "IV",
+    "dose": "450 mg"
+  },
+  {
+    "file": "Nitti_1977_-_300_mg_-_Rifampicin_-_IV_-_300_mg_-_Urine_-_agg._n_2.csv",
+    "study": "Nitti 1977",
+    "route": "IV",
+    "dose": "300 mg"
+  },
+  {
+    "file": "Nitti_1977_-_600_mg_-_Rifampicin_-_IV_-_600_mg_-_Serum_-_agg._n_6.csv",
+    "study": "Nitti 1977",
+    "route": "IV",
+    "dose": "600 mg"
+  },
+  {
+    "file": "Nitti_1977_-_450_mg_-_Rifampicin_-_IV_-_450_mg_-_Serum_-_agg._n_3.csv",
+    "study": "Nitti 1977",
+    "route": "IV",
+    "dose": "450 mg"
+  },
+  {
+    "file": "Nitti_1977_-_300_mg_-_Rifampicin_-_IV_-_300_mg_-_Serum_-_agg._n_2.csv",
+    "study": "Nitti 1977",
+    "route": "IV",
+    "dose": "300 mg"
+  },
+  {
+    "file": "Loos_1985_-_iv_day_22_Patient_4_-_Rifampicin_-_IV_PO_-_600_mg_-_Serum_-_indiv..csv",
+    "study": "Loos 1985",
+    "route": "IV",
+    "dose": "600 mg"
+  },
+  {
+    "file": "Loos_1985_-_iv_day_8_Patient_4_-_Rifampicin_-_IV_PO_-_600_mg_-_Serum_-_indiv..csv",
+    "study": "Loos 1985",
+    "route": "IV",
+    "dose": "600 mg"
+  },
+  {
+    "file": "Loos_1985_-_iv_day_1_Patient_4_-_Rifampicin_-_IV_-_600_mg_-_Serum_-_indiv..csv",
+    "study": "Loos 1985",
+    "route": "IV",
+    "dose": "600 mg"
+  },
+  {
+    "file": "Loos_1985_-_oral_day_23_Patient_4_-_Rifampicin_-_IV_PO_-_600_mg_-_Serum_-_indiv..csv",
+    "study": "Loos 1985",
+    "route": "IV",
+    "dose": "600 mg"
+  },
+  {
+    "file": "Loos_1985_-_oral_day_9_Patient_4_-_Rifampicin_-_IV_PO_-_600_mg_-_Serum_-_indiv..csv",
+    "study": "Loos 1985",
+    "route": "IV",
+    "dose": "600 mg"
+  },
+  {
+    "file": "Loos_1985_-_oral_day_2_Patient_4_-_Rifampicin_-_IV_PO_-_600_mg_-_Serum_-_indiv..csv",
+    "study": "Loos 1985",
+    "route": "IV",
+    "dose": "600 mg"
+  },
+  {
+    "file": "Eon_Labs_Manufacturing_Inc._1997_-_2X300mg_Rifadine_Tab_-_Rifampicin_-_PO_-_600_.csv",
+    "study": "Eon Labs Manufacturing, Inc. 1997",
+    "route": "PO",
+    "dose": "300mg"
+  },
+  {
+    "file": "Eon_Labs_Manufacturing_Inc._1997_-_2X300mg_Tab_Eon_-_Rifampicin_-_PO_-_600_mg_-_.csv",
+    "study": "Eon Labs Manufacturing, Inc. 1997",
+    "route": "PO",
+    "dose": "300mg"
+  },
+  {
+    "file": "Chouchane_1995_-_Rifampicin_Generic_-_Rifampicin_-_PO_-_300_mg_-_Plasma_-_agg._n.csv",
+    "study": "Chouchane 1995",
+    "route": "PO",
+    "dose": "300 mg"
+  },
+  {
+    "file": "Chouchane_1995_-_Rimactan_-_Rifampicin_-_PO_-_300_mg_-_Plasma_-_agg._n_12.csv",
+    "study": "Chouchane 1995",
+    "route": "PO",
+    "dose": "300 mg"
+  },
+  {
+    "file": "Blume_1989_-_600_mg_REFERENZ_-_Rifampicin_-_PO_-_600_mg_-_Plasma_-_agg._n_12.csv",
+    "study": "Blume 1989",
+    "route": "PO",
+    "dose": "600 mg"
+  },
+  {
+    "file": "Blume_1989_-_450_mg_REFERENZ_-_Rifampicin_-_PO_-_450_mg_-_Plasma_-_agg._n_8.csv",
+    "study": "Blume 1989",
+    "route": "PO",
+    "dose": "450 mg"
+  },
+  {
+    "file": "Baneyx_2014_-_Day_4_-_600_mg_po_MD_-_Rifampicin_-_PO_-_600_mg_-_Plasma_-_agg._n_.csv",
+    "study": "Baneyx 2014",
+    "route": "PO",
+    "dose": "600 mg"
+  },
+  {
+    "file": "Acocella_1984_-_Individual_18_1200_mg_1_h_infusion_-_Rifampicin_-_IV_-_1200_mg_-.csv",
+    "study": "Acocella 1984",
+    "route": "IV",
+    "dose": "1200 mg"
+  },
+  {
+    "file": "Acocella_1984_-_Individual_17_1200_mg_1_h_infusion_-_Rifampicin_-_IV_-_1200_mg_-.csv",
+    "study": "Acocella 1984",
+    "route": "IV",
+    "dose": "1200 mg"
+  },
+  {
+    "file": "Acocella_1984_-_Individual_16_1200_mg_2_h_infusion_-_Rifampicin_-_IV_-_1200_mg_-.csv",
+    "study": "Acocella 1984",
+    "route": "IV",
+    "dose": "1200 mg"
+  },
+  {
+    "file": "Acocella_1984_-_Individual_15_1200_mg_2_h_infusion_-_Rifampicin_-_IV_-_1200_mg_-.csv",
+    "study": "Acocella 1984",
+    "route": "IV",
+    "dose": "1200 mg"
+  },
+  {
+    "file": "Acocella_1984_-_Individual_14_1200_mg_3_h_infusion_-_Rifampicin_-_IV_-_1200_mg_-.csv",
+    "study": "Acocella 1984",
+    "route": "IV",
+    "dose": "1200 mg"
+  },
+  {
+    "file": "Acocella_1984_-_Individual_13_1200_mg_3_h_infusion_-_Rifampicin_-_IV_-_1200_mg_-.csv",
+    "study": "Acocella 1984",
+    "route": "IV",
+    "dose": "1200 mg"
+  },
+  {
+    "file": "Acocella_1984_-_Individual_12_900_mg_1_h_infusion_-_Rifampicin_-_IV_-_900_mg_-_S.csv",
+    "study": "Acocella 1984",
+    "route": "IV",
+    "dose": "900 mg"
+  },
+  {
+    "file": "Acocella_1984_-_Individual_11_900_mg_1_h_infusion_-_Rifampicin_-_IV_-_900_mg_-_S.csv",
+    "study": "Acocella 1984",
+    "route": "IV",
+    "dose": "900 mg"
+  },
+  {
+    "file": "Acocella_1984_-_Individual_10_900_mg_2_h_infusion_-_Rifampicin_-_IV_-_900_mg_-_S.csv",
+    "study": "Acocella 1984",
+    "route": "IV",
+    "dose": "900 mg"
+  },
+  {
+    "file": "Acocella_1984_-_Individual_9_900_mg_2_h_infusion_-_Rifampicin_-_IV_-_900_mg_-_Se.csv",
+    "study": "Acocella 1984",
+    "route": "IV",
+    "dose": "900 mg"
+  },
+  {
+    "file": "Acocella_1984_-_Individual_8_900_mg_3_h_infusion_-_Rifampicin_-_IV_-_900_mg_-_Se.csv",
+    "study": "Acocella 1984",
+    "route": "IV",
+    "dose": "900 mg"
+  },
+  {
+    "file": "Acocella_1984_-_Individual_7_900_mg_3_h_infusion_-_Rifampicin_-_IV_-_900_mg_-_Se.csv",
+    "study": "Acocella 1984",
+    "route": "IV",
+    "dose": "900 mg"
+  },
+  {
+    "file": "Acocella_1984_-_Individual_6_600_mg_1_h_infusion_-_Rifampicin_-_IV_-_600_mg_-_Se.csv",
+    "study": "Acocella 1984",
+    "route": "IV",
+    "dose": "600 mg"
+  },
+  {
+    "file": "Acocella_1984_-_Individual_5_600_mg_1_h_infusion_-_Rifampicin_-_IV_-_600_mg_-_Se.csv",
+    "study": "Acocella 1984",
+    "route": "IV",
+    "dose": "600 mg"
+  },
+  {
+    "file": "Acocella_1984_-_Individual_4_600_mg_2_h_infusion_-_Rifampicin_-_IV_-_600_mg_-_Se.csv",
+    "study": "Acocella 1984",
+    "route": "IV",
+    "dose": "600 mg"
+  },
+  {
+    "file": "Acocella_1984_-_Individual_3_600_mg_2_h_infusion_-_Rifampicin_-_IV_-_600_mg_-_Se.csv",
+    "study": "Acocella 1984",
+    "route": "IV",
+    "dose": "600 mg"
+  },
+  {
+    "file": "Acocella_1984_-_Individual_2_600_mg_3_h_infusion_-_Rifampicin_-_IV_-_600_mg_-_Se.csv",
+    "study": "Acocella 1984",
+    "route": "IV",
+    "dose": "600 mg"
+  },
+  {
+    "file": "Acocella_1984_-_Individual_1_600_mg_3_h_infusion_-_Rifampicin_-_IV_-_600_mg_-_Se.csv",
+    "study": "Acocella 1984",
+    "route": "IV",
+    "dose": "600 mg"
+  },
+  {
+    "file": "Acocella_1977_-_Subject_14_600_mg_MD_-_Rifampicin_-_IV_-_600_mg_-_Urine_-_indiv..csv",
+    "study": "Acocella 1977",
+    "route": "IV",
+    "dose": "600 mg"
+  },
+  {
+    "file": "Acocella_1977_-_Subject_13_600_mg_MD_-_Rifampicin_-_IV_-_600_mg_-_Urine_-_indiv..csv",
+    "study": "Acocella 1977",
+    "route": "IV",
+    "dose": "600 mg"
+  },
+  {
+    "file": "Acocella_1977_-_Subject_12_600_mg_MD_-_Rifampicin_-_IV_-_600_mg_-_Urine_-_indiv..csv",
+    "study": "Acocella 1977",
+    "route": "IV",
+    "dose": "600 mg"
+  },
+  {
+    "file": "Acocella_1977_-_Subject_11_600_mg_MD_-_Rifampicin_-_IV_-_600_mg_-_Urine_-_indiv..csv",
+    "study": "Acocella 1977",
+    "route": "IV",
+    "dose": "600 mg"
+  },
+  {
+    "file": "Acocella_1977_-_Subject_10_600_mg_MD_-_Rifampicin_-_IV_-_600_mg_-_Urine_-_indiv..csv",
+    "study": "Acocella 1977",
+    "route": "IV",
+    "dose": "600 mg"
+  },
+  {
+    "file": "Acocella_1977_-_mean_600_mg_MD_-_Rifampicin_-_IV_-_600_mg_-_Serum_-_agg._n_5.csv",
+    "study": "Acocella 1977",
+    "route": "IV",
+    "dose": "600 mg"
+  },
+  {
+    "file": "Acocella_1977_-_Subject_14_600_mg_MD_-_Rifampicin_-_IV_-_600_mg_-_Serum_-_indiv..csv",
+    "study": "Acocella 1977",
+    "route": "IV",
+    "dose": "600 mg"
+  },
+  {
+    "file": "Acocella_1977_-_Subject_13_600_mg_MD_-_Rifampicin_-_IV_-_600_mg_-_Serum_-_indiv..csv",
+    "study": "Acocella 1977",
+    "route": "IV",
+    "dose": "600 mg"
+  },
+  {
+    "file": "Acocella_1977_-_Subject_11_600_mg_MD_-_Rifampicin_-_IV_-_600_mg_-_Serum_-_indiv..csv",
+    "study": "Acocella 1977",
+    "route": "IV",
+    "dose": "600 mg"
+  },
+  {
+    "file": "Acocella_1977_-_Subject_10_600_mg_MD_-_Rifampicin_-_IV_-_600_mg_-_Serum_-_indiv..csv",
+    "study": "Acocella 1977",
+    "route": "IV",
+    "dose": "600 mg"
+  },
+  {
+    "file": "Acocella_1977_-_Subject_9_600_mg_-_Rifampicin_-_IV_-_600_mg_-_Serum_-_indiv..csv",
+    "study": "Acocella 1977",
+    "route": "IV",
+    "dose": "600 mg"
+  },
+  {
+    "file": "Acocella_1977_-_Subject_8_600_mg_-_Rifampicin_-_IV_-_600_mg_-_Serum_-_indiv..csv",
+    "study": "Acocella 1977",
+    "route": "IV",
+    "dose": "600 mg"
+  },
+  {
+    "file": "Acocella_1977_-_Subject_7_600_mg_-_Rifampicin_-_IV_-_600_mg_-_Serum_-_indiv..csv",
+    "study": "Acocella 1977",
+    "route": "IV",
+    "dose": "600 mg"
+  },
+  {
+    "file": "Acocella_1977_-_Subject_6_450_mg_-_Rifampicin_-_IV_-_450_mg_-_Serum_-_indiv..csv",
+    "study": "Acocella 1977",
+    "route": "IV",
+    "dose": "450 mg"
+  },
+  {
+    "file": "Acocella_1977_-_Subject_5_450_mg_-_Rifampicin_-_IV_-_450_mg_-_Serum_-_indiv..csv",
+    "study": "Acocella 1977",
+    "route": "IV",
+    "dose": "450 mg"
+  },
+  {
+    "file": "Acocella_1977_-_Subject_4_300_mg_-_Rifampicin_-_IV_-_300_mg_-_Serum_-_indiv..csv",
+    "study": "Acocella 1977",
+    "route": "IV",
+    "dose": "300 mg"
+  },
+  {
+    "file": "Acocella_1977_-_Subject_3_300_mg_-_Rifampicin_-_IV_-_300_mg_-_Serum_-_indiv..csv",
+    "study": "Acocella 1977",
+    "route": "IV",
+    "dose": "300 mg"
+  },
+  {
+    "file": "Acocella_1977_-_Subject_2_150_mg_-_Rifampicin_-_IV_-_150_mg_-_Serum_-_indiv..csv",
+    "study": "Acocella 1977",
+    "route": "IV",
+    "dose": "150 mg"
+  },
+  {
+    "file": "Acocella_1977_-_Subject_1_150_mg_-_Rifampicin_-_IV_-_150_mg_-_Serum_-_indiv..csv",
+    "study": "Acocella 1977",
+    "route": "IV",
+    "dose": "150 mg"
+  },
+  {
+    "file": "Acocella_1972b_-_patients_with_liver_disease_-_Rifampicin_-_PO_-_600_mg_-_Serum_.csv",
+    "study": "Acocella 1972b",
+    "route": "PO",
+    "dose": "600 mg"
+  },
+  {
+    "file": "Acocella_1972b_-_normal_subjects_-_Rifampicin_-_PO_-_600_mg_-_Serum_-_agg._n_6.csv",
+    "study": "Acocella 1972b",
+    "route": "PO",
+    "dose": "600 mg"
+  },
+  {
+    "file": "Acocella_1972a_-_day_1_-_Rifampicin_-_PO_-_450_mg_-_Urine_-_agg._n_5.csv",
+    "study": "Acocella 1972a",
+    "route": "PO",
+    "dose": "450 mg"
+  },
+  {
+    "file": "Acocella_1972a_-_day_1_-_Rifampicin_-_PO_-_450_mg_-_Bile_-_agg._n_5.csv",
+    "study": "Acocella 1972a",
+    "route": "PO",
+    "dose": "450 mg"
+  },
+  {
+    "file": "Acocella_1972a_-_day_7_-_Rifampicin_-_PO_-_450_mg_-_Serum_-_agg._n_5.csv",
+    "study": "Acocella 1972a",
+    "route": "PO",
+    "dose": "450 mg"
+  },
+  {
+    "file": "Acocella_1972a_-_day_1_-_Rifampicin_-_PO_-_450_mg_-_Serum_-_agg._n_5.csv",
+    "study": "Acocella 1972a",
+    "route": "PO",
+    "dose": "450 mg"
+  },
+  {
+    "file": "Acocella_1977_-_Subject_12_600_mg_MD_-_Rifampicin_-_IV_-_600_mg_-_Serum_-_indiv..csv",
+    "study": "Acocella 1977",
+    "route": "IV",
+    "dose": "600 mg"
+  },
+  {
+    "file": "Peloquin_1999_-_fast1_-_Rifampicin_-_PO_-_600_mg_-_Serum_-_agg._n_14.csv",
+    "study": "Peloquin 1999",
+    "route": "PO",
+    "dose": "600 mg"
+  },
+  {
+    "file": "Peloquin_1999_-_fast2_-_Rifampicin_-_PO_-_600_mg_-_Serum_-_agg._n_14.csv",
+    "study": "Peloquin 1999",
+    "route": "PO",
+    "dose": "600 mg"
+  },
+  {
+    "file": "Peloquin_1999_-_antacid_-_Rifampicin_-_PO_-_600_mg_-_Serum_-_agg._n_14.csv",
+    "study": "Peloquin 1999",
+    "route": "PO",
+    "dose": "600 mg"
+  },
+  {
+    "file": "Peloquin_1999_-_fed_-_Rifampicin_-_PO_-_600_mg_-_Serum_-_agg._n_14.csv",
+    "study": "Peloquin 1999",
+    "route": "PO",
+    "dose": "600 mg"
+  },
+  {
+    "file": "sanofi-aventis_U.S._LLC._2013_-_300_mg_-_Rifampicin_-_IV_-_300_mg_-_Plasma_-_agg.csv",
+    "study": "sanofi-aventis U.S. LLC. 2013",
+    "route": "IV",
+    "dose": "300 mg"
+  },
+  {
+    "file": "sanofi-aventis_U.S._LLC._2013_-_600_mg_-_Rifampicin_-_IV_-_600_mg_-_Plasma_-_agg.csv",
+    "study": "sanofi-aventis U.S. LLC. 2013",
+    "route": "IV",
+    "dose": "600 mg"
+  },
+  {
+    "file": "Stone_2004_-_Day_14_of_Rifampin_alone_-_Rifampicin_-_PO_-_600_mg_-_Plasma_-_agg..csv",
+    "study": "Stone 2004",
+    "route": "PO",
+    "dose": "600 mg"
+  },
+  {
+    "file": "Baneyx_2014_-_Day_7_-_600_mg_po_MD_-_Rifampicin_-_PO_-_600_mg_-_Plasma_-_agg._n_.csv",
+    "study": "Baneyx 2014",
+    "route": "PO",
+    "dose": "600 mg"
+  },
+  {
+    "file": "Acocella_1985_-_R_alone_-_Rifampicin_-_PO_-_10_mg_kg_-_Plasma_-_agg._n_4.csv",
+    "study": "Acocella 1985",
+    "route": "PO",
+    "dose": "10 mg"
+  },
+  {
+    "file": "Furesz_1970_-_100_mg_-_Rifampicin_-_PO_-_100_mg_-_Serum_-_agg._n_6.csv",
+    "study": "Furesz 1970",
+    "route": "PO",
+    "dose": "100 mg"
+  },
+  {
+    "file": "Furesz_1970_-_150_mg_-_Rifampicin_-_PO_-_150_mg_-_Serum_-_agg._n_27.csv",
+    "study": "Furesz 1970",
+    "route": "PO",
+    "dose": "150 mg"
+  },
+  {
+    "file": "Furesz_1970_-_250_mg_-_Rifampicin_-_PO_-_250_mg_-_Serum_-_agg._n_10.csv",
+    "study": "Furesz 1970",
+    "route": "PO",
+    "dose": "250 mg"
+  },
+  {
+    "file": "Furesz_1970_-_300_mg_-_Rifampicin_-_PO_-_300_mg_-_Serum_-_agg._n_5.csv",
+    "study": "Furesz 1970",
+    "route": "PO",
+    "dose": "300 mg"
+  },
+  {
+    "file": "Furesz_1970_-_450_mg_-_Rifampicin_-_PO_-_450_mg_-_Serum_-_agg._n_13.csv",
+    "study": "Furesz 1970",
+    "route": "PO",
+    "dose": "450 mg"
+  },
+  {
+    "file": "Furesz_1970_-_600_mg_-_Rifampicin_-_PO_-_600_mg_-_Serum_-_agg._n_12.csv",
+    "study": "Furesz 1970",
+    "route": "PO",
+    "dose": "600 mg"
+  },
+  {
+    "file": "Furesz_1970_-_750_mg_-_Rifampicin_-_PO_-_750_mg_-_Serum_-_agg._n_10.csv",
+    "study": "Furesz 1970",
+    "route": "PO",
+    "dose": "750 mg"
+  },
+  {
+    "file": "Furesz_1970_-_900_mg_-_Rifampicin_-_PO_-_900_mg_-_Serum_-_agg._n_9.csv",
+    "study": "Furesz 1970",
+    "route": "PO",
+    "dose": "900 mg"
+  },
+  {
+    "file": "Burger_2006_-_Rifampin_alone_-_Rifampicin_-_PO_-_600_mg_-_Plasma_-_agg._n_14.csv",
+    "study": "Burger 2006",
+    "route": "PO",
+    "dose": "600 mg"
+  },
+  {
+    "file": "Chattopadhyay_2018_-_Rifampicin_-_Rifampicin_-_PO_-_600_mg_-_Plasma_-_agg._n_11.csv",
+    "study": "Chattopadhyay 2018",
+    "route": "PO",
+    "dose": "600 mg"
+  }
+]

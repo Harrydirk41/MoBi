@@ -1,0 +1,482 @@
+[
+  {
+    "file": "Grahnen_1979_-_IV_100_mg_Individual_LH_-_Cimetidine_-_IV_-_100_mg_-_Plasma_-_ind.csv",
+    "study": "Grahnen 1979",
+    "route": "IV",
+    "dose": "100 mg"
+  },
+  {
+    "file": "Grahnen_1979_-_IV_100_mg_Individual_KN_-_Cimetidine_-_IV_-_100_mg_-_Plasma_-_ind.csv",
+    "study": "Grahnen 1979",
+    "route": "IV",
+    "dose": "100 mg"
+  },
+  {
+    "file": "Grahnen_1979_-_IV_100_mg_Individual_LOE_-_Cimetidine_-_IV_-_100_mg_-_Plasma_-_in.csv",
+    "study": "Grahnen 1979",
+    "route": "IV",
+    "dose": "100 mg"
+  },
+  {
+    "file": "Grahnen_1979_-_PO_400_mg_Individual_LH_-_Cimetidine_-_PO_-_400_mg_-_Plasma_-_ind.csv",
+    "study": "Grahnen 1979",
+    "route": "PO",
+    "dose": "400 mg"
+  },
+  {
+    "file": "Grahnen_1979_-_PO_400_mg_Individual_LOE_-_Cimetidine_-_PO_-_400_mg_-_Plasma_-_in.csv",
+    "study": "Grahnen 1979",
+    "route": "PO",
+    "dose": "400 mg"
+  },
+  {
+    "file": "Grahnen_1979_-_PO_400_mg_Individual_UB_-_Cimetidine_-_PO_-_400_mg_-_Plasma_-_ind.csv",
+    "study": "Grahnen 1979",
+    "route": "PO",
+    "dose": "400 mg"
+  },
+  {
+    "file": "Larsson_1982_-_IV_200_mg_in_normal_renal_function_group_-_Cimetidine_-_IV_-_200_.csv",
+    "study": "Larsson 1982",
+    "route": "IV",
+    "dose": "200 mg"
+  },
+  {
+    "file": "Bodemar_1981_-_IV_200_mg_-_Cimetidine_-_IV_-_200_mg_-_Plasma_-_agg._n_10.csv",
+    "study": "Bodemar 1981",
+    "route": "IV",
+    "dose": "200 mg"
+  },
+  {
+    "file": "Bodemar_1981_-_PO_200_mg_-_Cimetidine_-_PO_-_200_mg_-_Plasma_-_agg._n_10.csv",
+    "study": "Bodemar 1981",
+    "route": "PO",
+    "dose": "200 mg"
+  },
+  {
+    "file": "Bodemar_1981_-_PO_400_mg_-_Cimetidine_-_PO_-_400_mg_-_Plasma_-_agg._n_9.csv",
+    "study": "Bodemar 1981",
+    "route": "PO",
+    "dose": "400 mg"
+  },
+  {
+    "file": "Bodemar_1981_-_PO_800_mg_-_Cimetidine_-_PO_-_800_mg_-_Plasma_-_agg._n_9.csv",
+    "study": "Bodemar 1981",
+    "route": "PO",
+    "dose": "800 mg"
+  },
+  {
+    "file": "Bodemar_1981_-_IV_200_mg_Urine_-_Cimetidine_-_IV_-_200_mg_-_Urine_-_agg._n_10.csv",
+    "study": "Bodemar 1981",
+    "route": "IV",
+    "dose": "200 mg"
+  },
+  {
+    "file": "Bodemar_1981_-_PO_200_mg_Urine_-_Cimetidine_-_PO_-_200_mg_-_Urine_-_agg._n_10.csv",
+    "study": "Bodemar 1981",
+    "route": "PO",
+    "dose": "200 mg"
+  },
+  {
+    "file": "Bodemar_1981_-_PO_400_mg_Urine_-_Cimetidine_-_PO_-_400_mg_-_Urine_-_agg._n_9.csv",
+    "study": "Bodemar 1981",
+    "route": "PO",
+    "dose": "400 mg"
+  },
+  {
+    "file": "Bodemar_1981_-_PO_800_mg_Urine_-_Cimetidine_-_PO_-_800_mg_-_Urine_-_agg._n_9.csv",
+    "study": "Bodemar 1981",
+    "route": "PO",
+    "dose": "800 mg"
+  },
+  {
+    "file": "Bodemar_1979_-_PO_200_mg_-_Cimetidine_-_PO_-_200_mg_-_Whole_Blood_-_agg._n_10.csv",
+    "study": "Bodemar 1979",
+    "route": "PO",
+    "dose": "200 mg"
+  },
+  {
+    "file": "Bodemar_1979_-_PO_400_mg_-_Cimetidine_-_PO_-_400_mg_-_Whole_Blood_-_agg._n_10.csv",
+    "study": "Bodemar 1979",
+    "route": "PO",
+    "dose": "400 mg"
+  },
+  {
+    "file": "Bodemar_1979_-_PO_200_mg_fasted_-_Cimetidine_-_PO_-_200_mg_-_Whole_Blood_-_agg._.csv",
+    "study": "Bodemar 1979",
+    "route": "PO",
+    "dose": "200 mg"
+  },
+  {
+    "file": "Bodemar_1979_-_PO_200_mg_fed_-_Cimetidine_-_PO_-_200_mg_-_Whole_Blood_-_agg._n_1.csv",
+    "study": "Bodemar 1979",
+    "route": "PO",
+    "dose": "200 mg"
+  },
+  {
+    "file": "Morgan_1983_-_IV_200_mg_5_min_-_Cimetidine_-_IV_-_200_mg_-_Plasma_-_agg._n_6.csv",
+    "study": "Morgan 1983",
+    "route": "IV",
+    "dose": "200 mg"
+  },
+  {
+    "file": "Morgan_1983_-_IV_200_mg_30_min_-_Cimetidine_-_IV_-_200_mg_-_Plasma_-_agg._n_4.csv",
+    "study": "Morgan 1983",
+    "route": "IV",
+    "dose": "200 mg"
+  },
+  {
+    "file": "Lebert_1981_-_IV_300_mg_-_Cimetidine_-_IV_-_300_mg_-_Plasma_-_agg._n_8.csv",
+    "study": "Lebert 1981",
+    "route": "IV",
+    "dose": "300 mg"
+  },
+  {
+    "file": "Walkenstein_1978_-_IV_300_mg_Subject_1_-_Cimetidine_-_IV_-_300_mg_-_Whole_Blood_.csv",
+    "study": "Walkenstein 1978",
+    "route": "IV",
+    "dose": "300 mg"
+  },
+  {
+    "file": "Walkenstein_1978_-_IV_300_mg_Subject_2_-_Cimetidine_-_IV_-_300_mg_-_Whole_Blood_.csv",
+    "study": "Walkenstein 1978",
+    "route": "IV",
+    "dose": "300 mg"
+  },
+  {
+    "file": "Walkenstein_1978_-_IV_300_mg_Subject_3_-_Cimetidine_-_IV_-_300_mg_-_Whole_Blood_.csv",
+    "study": "Walkenstein 1978",
+    "route": "IV",
+    "dose": "300 mg"
+  },
+  {
+    "file": "Walkenstein_1978_-_IV_300_mg_Subject_4_-_Cimetidine_-_IV_-_300_mg_-_Whole_Blood_.csv",
+    "study": "Walkenstein 1978",
+    "route": "IV",
+    "dose": "300 mg"
+  },
+  {
+    "file": "Walkenstein_1978_-_IV_300_mg_Subject_5_-_Cimetidine_-_IV_-_300_mg_-_Whole_Blood_.csv",
+    "study": "Walkenstein 1978",
+    "route": "IV",
+    "dose": "300 mg"
+  },
+  {
+    "file": "Walkenstein_1978_-_IV_300_mg_Subject_6_-_Cimetidine_-_IV_-_300_mg_-_Whole_Blood_.csv",
+    "study": "Walkenstein 1978",
+    "route": "IV",
+    "dose": "300 mg"
+  },
+  {
+    "file": "Walkenstein_1978_-_IV_300_mg_Subject_7_-_Cimetidine_-_IV_-_300_mg_-_Whole_Blood_.csv",
+    "study": "Walkenstein 1978",
+    "route": "IV",
+    "dose": "300 mg"
+  },
+  {
+    "file": "Walkenstein_1978_-_IV_300_mg_Subject_8_-_Cimetidine_-_IV_-_300_mg_-_Whole_Blood_.csv",
+    "study": "Walkenstein 1978",
+    "route": "IV",
+    "dose": "300 mg"
+  },
+  {
+    "file": "Walkenstein_1978_-_IV_300_mg_Subject_9_-_Cimetidine_-_IV_-_300_mg_-_Whole_Blood_.csv",
+    "study": "Walkenstein 1978",
+    "route": "IV",
+    "dose": "300 mg"
+  },
+  {
+    "file": "Walkenstein_1978_-_IV_300_mg_Subject_10_-_Cimetidine_-_IV_-_300_mg_-_Whole_Blood.csv",
+    "study": "Walkenstein 1978",
+    "route": "IV",
+    "dose": "300 mg"
+  },
+  {
+    "file": "Walkenstein_1978_-_IV_300_mg_Subject_11_-_Cimetidine_-_IV_-_300_mg_-_Whole_Blood.csv",
+    "study": "Walkenstein 1978",
+    "route": "IV",
+    "dose": "300 mg"
+  },
+  {
+    "file": "Walkenstein_1978_-_IV_300_mg_Subject_12_-_Cimetidine_-_IV_-_300_mg_-_Whole_Blood.csv",
+    "study": "Walkenstein 1978",
+    "route": "IV",
+    "dose": "300 mg"
+  },
+  {
+    "file": "Walkenstein_1978_-_PO_300_mg_sol_Subject_1_-_Cimetidine_-_PO_-_300_mg_-_Whole_Bl.csv",
+    "study": "Walkenstein 1978",
+    "route": "PO",
+    "dose": "300 mg"
+  },
+  {
+    "file": "Walkenstein_1978_-_PO_300_mg_sol_Subject_2_-_Cimetidine_-_PO_-_300_mg_-_Whole_Bl.csv",
+    "study": "Walkenstein 1978",
+    "route": "PO",
+    "dose": "300 mg"
+  },
+  {
+    "file": "Walkenstein_1978_-_PO_300_mg_sol_Subject_3_-_Cimetidine_-_PO_-_300_mg_-_Whole_Bl.csv",
+    "study": "Walkenstein 1978",
+    "route": "PO",
+    "dose": "300 mg"
+  },
+  {
+    "file": "Walkenstein_1978_-_PO_300_mg_sol_Subject_4_-_Cimetidine_-_PO_-_300_mg_-_Whole_Bl.csv",
+    "study": "Walkenstein 1978",
+    "route": "PO",
+    "dose": "300 mg"
+  },
+  {
+    "file": "Walkenstein_1978_-_PO_300_mg_sol_Subject_5_-_Cimetidine_-_PO_-_300_mg_-_Whole_Bl.csv",
+    "study": "Walkenstein 1978",
+    "route": "PO",
+    "dose": "300 mg"
+  },
+  {
+    "file": "Walkenstein_1978_-_PO_300_mg_sol_Subject_6_-_Cimetidine_-_PO_-_300_mg_-_Whole_Bl.csv",
+    "study": "Walkenstein 1978",
+    "route": "PO",
+    "dose": "300 mg"
+  },
+  {
+    "file": "Walkenstein_1978_-_PO_300_mg_sol_Subject_7_-_Cimetidine_-_PO_-_300_mg_-_Whole_Bl.csv",
+    "study": "Walkenstein 1978",
+    "route": "PO",
+    "dose": "300 mg"
+  },
+  {
+    "file": "Walkenstein_1978_-_PO_300_mg_sol_Subject_8_-_Cimetidine_-_PO_-_300_mg_-_Whole_Bl.csv",
+    "study": "Walkenstein 1978",
+    "route": "PO",
+    "dose": "300 mg"
+  },
+  {
+    "file": "Walkenstein_1978_-_PO_300_mg_sol_Subject_9_-_Cimetidine_-_PO_-_300_mg_-_Whole_Bl.csv",
+    "study": "Walkenstein 1978",
+    "route": "PO",
+    "dose": "300 mg"
+  },
+  {
+    "file": "Walkenstein_1978_-_PO_300_mg_sol_Subject_10_-_Cimetidine_-_PO_-_300_mg_-_Whole_B.csv",
+    "study": "Walkenstein 1978",
+    "route": "PO",
+    "dose": "300 mg"
+  },
+  {
+    "file": "Walkenstein_1978_-_PO_300_mg_sol_Subject_11_-_Cimetidine_-_PO_-_300_mg_-_Whole_B.csv",
+    "study": "Walkenstein 1978",
+    "route": "PO",
+    "dose": "300 mg"
+  },
+  {
+    "file": "Walkenstein_1978_-_PO_300_mg_sol_Subject_12_-_Cimetidine_-_PO_-_300_mg_-_Whole_B.csv",
+    "study": "Walkenstein 1978",
+    "route": "PO",
+    "dose": "300 mg"
+  },
+  {
+    "file": "Walkenstein_1978_-_PO_300_mg_sol_Subject_13_-_Cimetidine_-_PO_-_300_mg_-_Whole_B.csv",
+    "study": "Walkenstein 1978",
+    "route": "PO",
+    "dose": "300 mg"
+  },
+  {
+    "file": "Walkenstein_1978_-_PO_300_mg_sol_Subject_14_-_Cimetidine_-_PO_-_300_mg_-_Whole_B.csv",
+    "study": "Walkenstein 1978",
+    "route": "PO",
+    "dose": "300 mg"
+  },
+  {
+    "file": "Walkenstein_1978_-_PO_300_mg_sol_Subject_15_-_Cimetidine_-_PO_-_300_mg_-_Whole_B.csv",
+    "study": "Walkenstein 1978",
+    "route": "PO",
+    "dose": "300 mg"
+  },
+  {
+    "file": "Walkenstein_1978_-_PO_300_mg_sol_Subject_16_-_Cimetidine_-_PO_-_300_mg_-_Whole_B.csv",
+    "study": "Walkenstein 1978",
+    "route": "PO",
+    "dose": "300 mg"
+  },
+  {
+    "file": "Walkenstein_1978_-_PO_300_mg_sol_Subject_17_-_Cimetidine_-_PO_-_300_mg_-_Whole_B.csv",
+    "study": "Walkenstein 1978",
+    "route": "PO",
+    "dose": "300 mg"
+  },
+  {
+    "file": "Walkenstein_1978_-_PO_300_mg_sol_Subject_18_-_Cimetidine_-_PO_-_300_mg_-_Whole_B.csv",
+    "study": "Walkenstein 1978",
+    "route": "PO",
+    "dose": "300 mg"
+  },
+  {
+    "file": "Walkenstein_1978_-_PO_300_mg_sol_Subject_19_-_Cimetidine_-_PO_-_300_mg_-_Whole_B.csv",
+    "study": "Walkenstein 1978",
+    "route": "PO",
+    "dose": "300 mg"
+  },
+  {
+    "file": "Walkenstein_1978_-_PO_300_mg_sol_Subject_20_-_Cimetidine_-_PO_-_300_mg_-_Whole_B.csv",
+    "study": "Walkenstein 1978",
+    "route": "PO",
+    "dose": "300 mg"
+  },
+  {
+    "file": "Walkenstein_1978_-_PO_300_mg_sol_Subject_21_-_Cimetidine_-_PO_-_300_mg_-_Whole_B.csv",
+    "study": "Walkenstein 1978",
+    "route": "PO",
+    "dose": "300 mg"
+  },
+  {
+    "file": "Walkenstein_1978_-_PO_300_mg_sol_Subject_22_-_Cimetidine_-_PO_-_300_mg_-_Whole_B.csv",
+    "study": "Walkenstein 1978",
+    "route": "PO",
+    "dose": "300 mg"
+  },
+  {
+    "file": "Walkenstein_1978_-_PO_300_mg_sol_Subject_23_-_Cimetidine_-_PO_-_300_mg_-_Whole_B.csv",
+    "study": "Walkenstein 1978",
+    "route": "PO",
+    "dose": "300 mg"
+  },
+  {
+    "file": "Walkenstein_1978_-_PO_300_mg_sol_Subject_24_-_Cimetidine_-_PO_-_300_mg_-_Whole_B.csv",
+    "study": "Walkenstein 1978",
+    "route": "PO",
+    "dose": "300 mg"
+  },
+  {
+    "file": "Walkenstein_1978_-_PO_300_mg_tab_Subject_13_-_Cimetidine_-_PO_-_300_mg_-_Whole_B.csv",
+    "study": "Walkenstein 1978",
+    "route": "PO",
+    "dose": "300 mg"
+  },
+  {
+    "file": "Walkenstein_1978_-_PO_300_mg_tab_Subject_14_-_Cimetidine_-_PO_-_300_mg_-_Whole_B.csv",
+    "study": "Walkenstein 1978",
+    "route": "PO",
+    "dose": "300 mg"
+  },
+  {
+    "file": "Walkenstein_1978_-_PO_300_mg_tab_Subject_15_-_Cimetidine_-_PO_-_300_mg_-_Whole_B.csv",
+    "study": "Walkenstein 1978",
+    "route": "PO",
+    "dose": "300 mg"
+  },
+  {
+    "file": "Walkenstein_1978_-_PO_300_mg_tab_Subject_16_-_Cimetidine_-_PO_-_300_mg_-_Whole_B.csv",
+    "study": "Walkenstein 1978",
+    "route": "PO",
+    "dose": "300 mg"
+  },
+  {
+    "file": "Walkenstein_1978_-_PO_300_mg_tab_Subject_17_-_Cimetidine_-_PO_-_300_mg_-_Whole_B.csv",
+    "study": "Walkenstein 1978",
+    "route": "PO",
+    "dose": "300 mg"
+  },
+  {
+    "file": "Walkenstein_1978_-_PO_300_mg_tab_Subject_18_-_Cimetidine_-_PO_-_300_mg_-_Whole_B.csv",
+    "study": "Walkenstein 1978",
+    "route": "PO",
+    "dose": "300 mg"
+  },
+  {
+    "file": "Walkenstein_1978_-_PO_300_mg_tab_Subject_19_-_Cimetidine_-_PO_-_300_mg_-_Whole_B.csv",
+    "study": "Walkenstein 1978",
+    "route": "PO",
+    "dose": "300 mg"
+  },
+  {
+    "file": "Walkenstein_1978_-_PO_300_mg_tab_Subject_20_-_Cimetidine_-_PO_-_300_mg_-_Whole_B.csv",
+    "study": "Walkenstein 1978",
+    "route": "PO",
+    "dose": "300 mg"
+  },
+  {
+    "file": "Walkenstein_1978_-_PO_300_mg_tab_Subject_21_-_Cimetidine_-_PO_-_300_mg_-_Whole_B.csv",
+    "study": "Walkenstein 1978",
+    "route": "PO",
+    "dose": "300 mg"
+  },
+  {
+    "file": "Walkenstein_1978_-_PO_300_mg_tab_Subject_22_-_Cimetidine_-_PO_-_300_mg_-_Whole_B.csv",
+    "study": "Walkenstein 1978",
+    "route": "PO",
+    "dose": "300 mg"
+  },
+  {
+    "file": "Walkenstein_1978_-_PO_300_mg_tab_Subject_23_-_Cimetidine_-_PO_-_300_mg_-_Whole_B.csv",
+    "study": "Walkenstein 1978",
+    "route": "PO",
+    "dose": "300 mg"
+  },
+  {
+    "file": "Walkenstein_1978_-_PO_300_mg_tab_Subject_24_-_Cimetidine_-_PO_-_300_mg_-_Whole_B.csv",
+    "study": "Walkenstein 1978",
+    "route": "PO",
+    "dose": "300 mg"
+  },
+  {
+    "file": "D_Angio_1986_-_PO_300_mg_tab_subject_1_-_Cimetidine_-_PO_-_300_mg_-_Serum_-_indi.csv",
+    "study": "D'Angio 1986",
+    "route": "PO",
+    "dose": "300 mg"
+  },
+  {
+    "file": "D_Angio_1986_-_PO_300_mg_tab_subject_2_-_Cimetidine_-_PO_-_300_mg_-_Serum_-_indi.csv",
+    "study": "D'Angio 1986",
+    "route": "PO",
+    "dose": "300 mg"
+  },
+  {
+    "file": "D_Angio_1986_-_PO_300_mg_tab_subject_3_-_Cimetidine_-_PO_-_300_mg_-_Serum_-_indi.csv",
+    "study": "D'Angio 1986",
+    "route": "PO",
+    "dose": "300 mg"
+  },
+  {
+    "file": "D_Angio_1986_-_PO_300_mg_tab_subject_4_-_Cimetidine_-_PO_-_300_mg_-_Serum_-_indi.csv",
+    "study": "D'Angio 1986",
+    "route": "PO",
+    "dose": "300 mg"
+  },
+  {
+    "file": "D_Angio_1986_-_PO_300_mg_tab_subject_5_-_Cimetidine_-_PO_-_300_mg_-_Serum_-_indi.csv",
+    "study": "D'Angio 1986",
+    "route": "PO",
+    "dose": "300 mg"
+  },
+  {
+    "file": "D_Angio_1986_-_PO_300_mg_tab_subject_6_-_Cimetidine_-_PO_-_300_mg_-_Serum_-_indi.csv",
+    "study": "D'Angio 1986",
+    "route": "PO",
+    "dose": "300 mg"
+  },
+  {
+    "file": "Somogyi_1981_-_PO_400_mg_tab_-_Cimetidine_-_PO_-_400_mg_-_Plasma_-_agg._n_8.csv",
+    "study": "Somogyi 1981",
+    "route": "PO",
+    "dose": "400 mg"
+  },
+  {
+    "file": "Bodemar_1981_-_200_400_mg_QID_-_Cimetidine_-_PO_-_200_400_mg_-_Plasma_-_agg._n_1.csv",
+    "study": "Bodemar 1981",
+    "route": "PO",
+    "dose": "400 mg"
+  },
+  {
+    "file": "Elliott_1984_-_Midazolam_H2O_-_Midazolam_-_PO_-_15_mg_-_Plasma_-_agg._n_5.csv",
+    "study": "Elliott 1984",
+    "route": "PO",
+    "dose": "15 mg"
+  },
+  {
+    "file": "Elliott_1984_-_Midazolam_cimetidine_-_Midazolam_-_PO_-_15_mg_-_Plasma_-_agg._n_5.csv",
+    "study": "Elliott 1984",
+    "route": "PO",
+    "dose": "15 mg"
+  }
+]

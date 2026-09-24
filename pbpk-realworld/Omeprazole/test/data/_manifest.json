@@ -1,0 +1,230 @@
+[
+  {
+    "file": "FDA_Esomeprazole.40mg.po_EM.csv",
+    "study": "study",
+    "route": "",
+    "dose": ".40mg"
+  },
+  {
+    "file": "FDA_Esomeprazole.40mg.po_PM.csv",
+    "study": "study",
+    "route": "",
+    "dose": ".40mg"
+  },
+  {
+    "file": "Regardh1990.Omeprazole.10mg.IV_5min_infusion_2.csv",
+    "study": 2.0,
+    "route": "",
+    "dose": ".10mg"
+  },
+  {
+    "file": "Regardh1990.Omeprazole.10mg.IV_5min_infusion_7.csv",
+    "study": 7.0,
+    "route": "",
+    "dose": ".10mg"
+  },
+  {
+    "file": "Regardh1990.Omeprazole.10mg.IV_5min_infusion_Median.csv",
+    "study": "Median",
+    "route": "",
+    "dose": ".10mg"
+  },
+  {
+    "file": "Uno2007.Omeprazole.20mg.iv_bolus_hmEM.csv",
+    "study": "study",
+    "route": "",
+    "dose": ".20mg"
+  },
+  {
+    "file": "Uno2007.Omeprazole.20mg.iv_bolus_PM.csv",
+    "study": "study",
+    "route": "",
+    "dose": ".20mg"
+  },
+  {
+    "file": "Andersson1990.Omeprazole.40mg.iv.csv",
+    "study": "study",
+    "route": "",
+    "dose": ".40mg"
+  },
+  {
+    "file": "Andersson1990.Omeprazole.80mg.iv.csv",
+    "study": "study",
+    "route": "",
+    "dose": ".80mg"
+  },
+  {
+    "file": "Andersson1998.Omeprazole.20mg.po_EM.csv",
+    "study": "study",
+    "route": "",
+    "dose": ".20mg"
+  },
+  {
+    "file": "Andersson1998.Omeprazole.20mg.po_PM.csv",
+    "study": "study",
+    "route": "",
+    "dose": ".20mg"
+  },
+  {
+    "file": "Regardh1990.Omeprazole.20mg.po_7.csv",
+    "study": 7.0,
+    "route": "",
+    "dose": ".20mg"
+  },
+  {
+    "file": "Regardh1990.Omeprazole.20mg.po_Median.csv",
+    "study": "Median",
+    "route": "",
+    "dose": ".20mg"
+  },
+  {
+    "file": "Andersson1990.Omeprazole.40mg.po.csv",
+    "study": "study",
+    "route": "",
+    "dose": ".40mg"
+  },
+  {
+    "file": "Uno2007.Omeprazole.40mg.po_hmEM.csv",
+    "study": "study",
+    "route": "",
+    "dose": ".40mg"
+  },
+  {
+    "file": "Uno2007.Omeprazole.40mg.po_htEM.csv",
+    "study": "study",
+    "route": "",
+    "dose": ".40mg"
+  },
+  {
+    "file": "Uno2007.Omeprazole.40mg.po_PM.csv",
+    "study": "study",
+    "route": "",
+    "dose": ".40mg"
+  },
+  {
+    "file": "Andersson1990.Omeprazole.80mg.po.csv",
+    "study": "study",
+    "route": "",
+    "dose": ".80mg"
+  },
+  {
+    "file": "Rohss2007_Esomeprazole.120mg_30min_8mg_h.IV_bolus_cnt_infusion.csv",
+    "study": "study",
+    "route": "",
+    "dose": ".120mg"
+  },
+  {
+    "file": "Rohss2007_Esomeprazole.120mg_2h_8mg_h.IV_bolus_cnt_infusion.csv",
+    "study": "study",
+    "route": "",
+    "dose": ".120mg"
+  },
+  {
+    "file": "Rohss2007_Esomeprazole.80mg_30min_4mg_h.IV_bolus_cnt_infusion.csv",
+    "study": "study",
+    "route": "",
+    "dose": ".80mg"
+  },
+  {
+    "file": "Rohss2007_Esomeprazole.80mg_30min_8mg_h.IV_bolus_cnt_infusion.csv",
+    "study": "study",
+    "route": "",
+    "dose": ".80mg"
+  },
+  {
+    "file": "Rohss2007_Esomeprazole.40mg_30min_8mg_h.IV_bolus_cnt_infusion.csv",
+    "study": "study",
+    "route": "",
+    "dose": ".40mg"
+  },
+  {
+    "file": "Andersson2000.Esomeprazole.15mg.po.EM.csv",
+    "study": "study",
+    "route": "",
+    "dose": ".15mg"
+  },
+  {
+    "file": "Andersson2000.Esomeprazole.60mg.po.PM.csv",
+    "study": "study",
+    "route": "",
+    "dose": ".60mg"
+  },
+  {
+    "file": "Yasui-Furukori2004.omeprazole.40mg.po.japanese_hmEM_1.csv",
+    "study": "omeprazole",
+    "route": "",
+    "dose": ".40mg"
+  },
+  {
+    "file": "Hassan-Alin2005.Esomeprazole.20mg.po_1.csv",
+    "study": "Hassan-Alin2005",
+    "route": "",
+    "dose": ".20mg"
+  },
+  {
+    "file": "Hassan-Alin2005.Omeprazole.20mg.po.csv",
+    "study": "Hassan-Alin2005",
+    "route": "",
+    "dose": ".20mg"
+  },
+  {
+    "file": "Hassan-Alin2005.R-omeprazole.20mg.po.csv",
+    "study": "Hassan-Alin2005",
+    "route": "",
+    "dose": ".20mg"
+  },
+  {
+    "file": "Hassan-Alin2005.Esomeprazole.40mg.po_1.csv",
+    "study": "Hassan-Alin2005",
+    "route": "",
+    "dose": ".40mg"
+  },
+  {
+    "file": "Hassan-Alin2005.Omeprazole.40mg.po.csv",
+    "study": "Hassan-Alin2005",
+    "route": "",
+    "dose": ".40mg"
+  },
+  {
+    "file": "Hassan-Alin2005.R-omeprazole.40mg.po.csv",
+    "study": "Hassan-Alin2005",
+    "route": "",
+    "dose": ".40mg"
+  },
+  {
+    "file": "Hassan-Alin2005_from_Wu2014_-_R-omeprazole.20mg.po.csv",
+    "study": "study",
+    "route": "",
+    "dose": ".20mg"
+  },
+  {
+    "file": "Hassan-Alin2005_from_Wu2014_-_R-omeprazole.20mg.po.Day5.csv",
+    "study": "study",
+    "route": "",
+    "dose": ".20mg"
+  },
+  {
+    "file": "Andersson2000_from_Andersson2001-.Omeprazole.15.po.EM.csv",
+    "study": "Andersson2000 from Andersson2001-",
+    "route": "",
+    "dose": ""
+  },
+  {
+    "file": "Andersson2000_from_Andersson2001-.R-omeprazole.15.po.EM.csv",
+    "study": "Andersson2000 from Andersson2001-",
+    "route": "",
+    "dose": ""
+  },
+  {
+    "file": "Andersson2000_from_Andersson2001-.Omeprazole.60.po.PM.csv",
+    "study": "Andersson2000 from Andersson2001-",
+    "route": "",
+    "dose": ""
+  },
+  {
+    "file": "Andersson2000_from_Andersson2001-.R-omeprazole.60.po.PM.csv",
+    "study": "Andersson2000 from Andersson2001-",
+    "route": "",
+    "dose": ""
+  }
+]

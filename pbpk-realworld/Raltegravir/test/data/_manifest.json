@@ -1,0 +1,86 @@
+[
+  {
+    "file": "Markowitz_2006_-_100mg_FCT_MD_-_Raltegravir_-_PO_-_100_mg_-_Plasma_-_agg._n_7.csv",
+    "study": "Markowitz 2006",
+    "route": "PO",
+    "dose": "100mg"
+  },
+  {
+    "file": "Markowitz_2006_-_200mg_FCT_MD_-_Raltegravir_-_PO_-_200_mg_-_Plasma_-_agg._n_7.csv",
+    "study": "Markowitz 2006",
+    "route": "PO",
+    "dose": "200mg"
+  },
+  {
+    "file": "Markowitz_2006_-_400mg_FCT_MD_-_Raltegravir_-_PO_-_400_mg_-_Plasma_-_agg._n_6.csv",
+    "study": "Markowitz 2006",
+    "route": "PO",
+    "dose": "400mg"
+  },
+  {
+    "file": "Iwamoto_2008_-_10mg_-_Raltegravir_-_PO_-_10_mg_-_Plasma_-_agg._n_24.csv",
+    "study": "Iwamoto 2008",
+    "route": "PO",
+    "dose": "10mg"
+  },
+  {
+    "file": "Iwamoto_2008_-_25mg_-_Raltegravir_-_PO_-_25_mg_-_Plasma_-_agg._n_24.csv",
+    "study": "Iwamoto 2008",
+    "route": "PO",
+    "dose": "25mg"
+  },
+  {
+    "file": "Iwamoto_2008_-_50mg_-_Raltegravir_-_PO_-_50_mg_-_Plasma_-_agg._n_24.csv",
+    "study": "Iwamoto 2008",
+    "route": "PO",
+    "dose": "50mg"
+  },
+  {
+    "file": "Iwamoto_2008_-_100mg_-_Raltegravir_-_PO_-_100_mg_-_Plasma_-_agg._n_24.csv",
+    "study": "Iwamoto 2008",
+    "route": "PO",
+    "dose": "100mg"
+  },
+  {
+    "file": "Iwamoto_2008_-_200mg_-_Raltegravir_-_PO_-_200_mg_-_Plasma_-_agg._n_24.csv",
+    "study": "Iwamoto 2008",
+    "route": "PO",
+    "dose": "200mg"
+  },
+  {
+    "file": "Iwamoto_2008_-_400mg_-_Raltegravir_-_PO_-_400_mg_-_Plasma_-_agg._n_24.csv",
+    "study": "Iwamoto 2008",
+    "route": "PO",
+    "dose": "400mg"
+  },
+  {
+    "file": "Iwamoto_2008_-_800mg_-_Raltegravir_-_PO_-_800_mg_-_Plasma_-_agg._n_24.csv",
+    "study": "Iwamoto 2008",
+    "route": "PO",
+    "dose": "800mg"
+  },
+  {
+    "file": "Iwamoto_2008_-_1200mg_-_Raltegravir_-_PO_-_1200_mg_-_Plasma_-_agg._n_24.csv",
+    "study": "Iwamoto 2008",
+    "route": "PO",
+    "dose": "1200mg"
+  },
+  {
+    "file": "Iwamoto_2008_-_1600mg_-_Raltegravir_-_PO_-_1600_mg_-_Plasma_-_agg._n_24.csv",
+    "study": "Iwamoto 2008",
+    "route": "PO",
+    "dose": "1600mg"
+  },
+  {
+    "file": "Wenning_2009_-_400mg_-_Raltegravir_-_PO_-_400_mg_-_Plasma_-_agg._n_10.csv",
+    "study": "Wenning 2009",
+    "route": "PO",
+    "dose": "400mg"
+  },
+  {
+    "file": "Iwamoto_2008_-_400mg_FCT_-_Raltegravir_-_PO_-_400_mg_-_Plasma_-_agg._n_14.csv",
+    "study": "Iwamoto 2008",
+    "route": "PO",
+    "dose": "400mg"
+  }
+]

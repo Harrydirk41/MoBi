@@ -1,0 +1,50 @@
+[
+  {
+    "file": "Tsuji1983_PBPK_Antibiotics_PKSimImport.VenousBlood.Plasma.200.csv",
+    "study": "study",
+    "route": "",
+    "dose": ""
+  },
+  {
+    "file": "Tsuji1983_PBPK_Antibiotics_PKSimImport.Lung.20.csv",
+    "study": "study",
+    "route": "",
+    "dose": ""
+  },
+  {
+    "file": "Tsuji1983_PBPK_Antibiotics_PKSimImport.Bone.20.csv",
+    "study": "study",
+    "route": "",
+    "dose": ""
+  },
+  {
+    "file": "Tsuji1983_PBPK_Antibiotics_PKSimImport.Muscle.20.csv",
+    "study": "study",
+    "route": "",
+    "dose": ""
+  },
+  {
+    "file": "Tsuji1983_PBPK_Antibiotics_PKSimImport.Gut.20.csv",
+    "study": "study",
+    "route": "",
+    "dose": ""
+  },
+  {
+    "file": "Tsuji1983_PBPK_Antibiotics_PKSimImport.Heart.20.csv",
+    "study": "study",
+    "route": "",
+    "dose": ""
+  },
+  {
+    "file": "Tsuji1983_PBPK_Antibiotics_PKSimImport.VenousBlood.Plasma.20.csv",
+    "study": "study",
+    "route": "",
+    "dose": ""
+  },
+  {
+    "file": "Tsuji1983_PBPK_Antibiotics_PKSimImport.Skin.20.csv",
+    "study": "study",
+    "route": "",
+    "dose": ""
+  }
+]

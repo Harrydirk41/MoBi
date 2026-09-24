@@ -1,0 +1,80 @@
+[
+  {
+    "file": "Knorr_2000_-_2mg_PO_CT_-_Montelukast_-_PO_-_2_mg_-_Plasma_-_agg._n_16.csv",
+    "study": "Knorr 2000",
+    "route": "PO",
+    "dose": "2mg"
+  },
+  {
+    "file": "Knorr_2000_-_5mg_PO_CT_-_Montelukast_-_PO_-_5_mg_-_Plasma_-_agg._n_16.csv",
+    "study": "Knorr 2000",
+    "route": "PO",
+    "dose": "5mg"
+  },
+  {
+    "file": "Knorr_2000_-_10mg_FCT_-_Montelukast_-_PO_-_10_mg_-_Plasma_-_agg._n_16.csv",
+    "study": "Knorr 2000",
+    "route": "PO",
+    "dose": "10mg"
+  },
+  {
+    "file": "Knorr_2000_-_10mg_PO_CT_-_Montelukast_-_PO_-_10_mg_-_Plasma_-_agg._n_16.csv",
+    "study": "Knorr 2000",
+    "route": "PO",
+    "dose": "10mg"
+  },
+  {
+    "file": "Zhao_1997_-_MD_10mg_FCT_-_Montelukast_-_PO_-_10_mg_-_Plasma_-_agg._n_12.csv",
+    "study": "Zhao 1997",
+    "route": "PO",
+    "dose": "10mg"
+  },
+  {
+    "file": "Fey_2014_-_4mg_PO_granules_Sandoz_-_Montelukast_-_PO_-_4_mg_-_Plasma_-_agg._n_42.csv",
+    "study": "Fey 2014",
+    "route": "PO",
+    "dose": "4mg"
+  },
+  {
+    "file": "Fey_2014_-_4mg_PO_granules_Singular_-_Montelukast_-_PO_-_4_mg_-_Plasma_-_agg._n_.csv",
+    "study": "Fey 2014",
+    "route": "PO",
+    "dose": "4mg"
+  },
+  {
+    "file": "Cheng_1996_-_3mg_IV_male_-_Montelukast_-_IV_-_3_mg_-_Plasma_-_agg._n_9.csv",
+    "study": "Cheng 1996",
+    "route": "IV",
+    "dose": "3mg"
+  },
+  {
+    "file": "Cheng_1996_-_9mg_IV_male_-_Montelukast_-_iv_-_9_mg_-_Plasma_-_agg._n_9.csv",
+    "study": "Cheng 1996",
+    "route": "IV",
+    "dose": "9mg"
+  },
+  {
+    "file": "Cheng_1996_-_18mg_IV_male_-_Montelukast_-_iv_-_18_mg_-_Plasma_-_agg._n_9.csv",
+    "study": "Cheng 1996",
+    "route": "IV",
+    "dose": "18mg"
+  },
+  {
+    "file": "Cheng_1996_-_9mg_IV_Female_-_Montelukast_-_iv_-_9_mg_-_Plasma_-_agg._n_9.csv",
+    "study": "Cheng 1996",
+    "route": "IV",
+    "dose": "9mg"
+  },
+  {
+    "file": "Cheng_1996_-_10mg_PO_Female_-_Montelukast_-_po_-_10_mg_-_Plasma_-_agg._n_9.csv",
+    "study": "Cheng 1996",
+    "route": "PO",
+    "dose": "10mg"
+  },
+  {
+    "file": "Cheng_1996_-_10mg_PO_male_-_Montelukast_-_po_-_10_mg_-_Plasma_-_agg._n_9.csv",
+    "study": "Cheng 1996",
+    "route": "PO",
+    "dose": "10mg"
+  }
+]

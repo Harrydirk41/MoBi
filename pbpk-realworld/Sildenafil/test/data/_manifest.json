@@ -1,0 +1,104 @@
+[
+  {
+    "file": "Al-Ghazawi_2010_-_50mg-PO-Tablet_-_Sildenafil_-_PO_-_50_mg_-_Plasma_-_agg._n_6.csv",
+    "study": "Al-Ghazawi 2010",
+    "route": "PO",
+    "dose": "50mg"
+  },
+  {
+    "file": "Burgess_2008_-_MD_20mg_80mg-PO-Tablet_-_Sildenafil_-_PO_-_20_80_80_0_20_80_80_mg.csv",
+    "study": "Burgess 2008",
+    "route": "PO",
+    "dose": "20mg"
+  },
+  {
+    "file": "Gotzkowsky_2013_-_20mg-PO-Tablet_-_Sildenafil_-_PO_-_20_mg_-_Plasma_-_agg._n_18.csv",
+    "study": "Gotzkowsky 2013",
+    "route": "PO",
+    "dose": "20mg"
+  },
+  {
+    "file": "Hedaya_2006_-_Clarythromycin_DDI_control_group_-_Sildenafil_-_PO_-_50_mg_-_Plasm.csv",
+    "study": "Hedaya 2006",
+    "route": "PO",
+    "dose": "50 mg"
+  },
+  {
+    "file": "Lee_2021_-_Clarithromycin_DDI_control_group_-_Sildenafil_-_PO_-_25_mg_-_Plasma_-.csv",
+    "study": "Lee 2021",
+    "route": "PO",
+    "dose": "25 mg"
+  },
+  {
+    "file": "Lee_2021_-_Itraconazole_DDI_control_group_-_Sildenafil_-_PO_-_25_mg_-_Plasma_-_a.csv",
+    "study": "Lee 2021",
+    "route": "PO",
+    "dose": "25 mg"
+  },
+  {
+    "file": "Murtadha_2021_-_50mg-PO-Tablet-non_smoker_-_Sildenafil_-_PO_-_50_mg_-_Plasma_-_a.csv",
+    "study": "Murtadha 2021",
+    "route": "PO",
+    "dose": "50mg"
+  },
+  {
+    "file": "Sidharta_2014_-_20mg-PO-Tablet_-_Sildenafil_-_PO_-_20_mg_-_Plasma_-_agg._n_12.csv",
+    "study": "Sidharta 2014",
+    "route": "PO",
+    "dose": "20mg"
+  },
+  {
+    "file": "Spence_2008_-_20mg-PO-Tablet_-_Sildenafil_-_PO_-_20_mg_-_Plasma_-_agg._n_19.csv",
+    "study": "Spence 2008",
+    "route": "PO",
+    "dose": "20mg"
+  },
+  {
+    "file": "Wilner_2002_-_50mg-PO-Tablet-Study_II_-_Sildenafil_-_PO_-_50_mg_-_Plasma_-_agg._.csv",
+    "study": "Wilner 2002",
+    "route": "PO",
+    "dose": "50mg"
+  },
+  {
+    "file": "Muirhead_2002b_-_25mg-IV-Infusion-Subject_1_-_Sildenafil_-_IV_-_25_mg_-_Plasma_-.csv",
+    "study": "Muirhead 2002b",
+    "route": "IV",
+    "dose": "25mg"
+  },
+  {
+    "file": "Muirhead_2002b_-_25mg-IV-Infusion-Subject_2_-_Sildenafil_-_IV_-_25_mg_-_Plasma_-.csv",
+    "study": "Muirhead 2002b",
+    "route": "IV",
+    "dose": "25mg"
+  },
+  {
+    "file": "Muirhead_2002b_-_25mg-IV-Infusion-Subject_3_-_Sildenafil_-_IV_-_25_mg_-_Plasma_-.csv",
+    "study": "Muirhead 2002b",
+    "route": "IV",
+    "dose": "25mg"
+  },
+  {
+    "file": "FDA_review_Study_148-203_-_20mg-IV-Infusion_-_Sildenafil_-_IV_-_20_mg_-_Plasma_-.csv",
+    "study": "FDA review, Study 148-203",
+    "route": "IV",
+    "dose": "20mg"
+  },
+  {
+    "file": "FDA_review_Study_148-203_-_40mg-IV-Infusion_-_Sildenafil_-_IV_-_40_mg_-_Plasma_-.csv",
+    "study": "FDA review, Study 148-203",
+    "route": "IV",
+    "dose": "40mg"
+  },
+  {
+    "file": "FDA_review_Study_148-203_-_80mg-IV-Infusion_-_Sildenafil_-_IV_-_80_mg_-_Plasma_-.csv",
+    "study": "FDA review, Study 148-203",
+    "route": "IV",
+    "dose": "80mg"
+  },
+  {
+    "file": "Wilner_2002_-_50mg-PO-Tablet-Study_I_-_Sildenafil_-_PO_-_50_mg_-_Plasma_-_agg._n.csv",
+    "study": "Wilner 2002",
+    "route": "PO",
+    "dose": "50mg"
+  }
+]

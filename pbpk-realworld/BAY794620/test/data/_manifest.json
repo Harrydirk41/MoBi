@@ -1,0 +1,254 @@
+[
+  {
+    "file": "BAY794620_Autoradiography_PKSimImport.Blood.1.csv",
+    "study": "study",
+    "route": "",
+    "dose": ""
+  },
+  {
+    "file": "BAY794620_Autoradiography_PKSimImport.Blood.2.csv",
+    "study": "study",
+    "route": "",
+    "dose": ""
+  },
+  {
+    "file": "BAY794620_Autoradiography_PKSimImport.Fat.1.csv",
+    "study": "study",
+    "route": "",
+    "dose": ""
+  },
+  {
+    "file": "BAY794620_Autoradiography_PKSimImport.Fat.2.csv",
+    "study": "study",
+    "route": "",
+    "dose": ""
+  },
+  {
+    "file": "BAY794620_Autoradiography_PKSimImport.Brain.1.csv",
+    "study": "study",
+    "route": "",
+    "dose": ""
+  },
+  {
+    "file": "BAY794620_Autoradiography_PKSimImport.Brain.2.csv",
+    "study": "study",
+    "route": "",
+    "dose": ""
+  },
+  {
+    "file": "BAY794620_Autoradiography_PKSimImport.Heart.1.csv",
+    "study": "study",
+    "route": "",
+    "dose": ""
+  },
+  {
+    "file": "BAY794620_Autoradiography_PKSimImport.Heart.2.csv",
+    "study": "study",
+    "route": "",
+    "dose": ""
+  },
+  {
+    "file": "BAY794620_Autoradiography_PKSimImport.Kidney.1.csv",
+    "study": "study",
+    "route": "",
+    "dose": ""
+  },
+  {
+    "file": "BAY794620_Autoradiography_PKSimImport.Kidney.2.csv",
+    "study": "study",
+    "route": "",
+    "dose": ""
+  },
+  {
+    "file": "BAY794620_Autoradiography_PKSimImport.Liver.1.csv",
+    "study": "study",
+    "route": "",
+    "dose": ""
+  },
+  {
+    "file": "BAY794620_Autoradiography_PKSimImport.Liver.2.csv",
+    "study": "study",
+    "route": "",
+    "dose": ""
+  },
+  {
+    "file": "BAY794620_Autoradiography_PKSimImport.Lung.1.csv",
+    "study": "study",
+    "route": "",
+    "dose": ""
+  },
+  {
+    "file": "BAY794620_Autoradiography_PKSimImport.Lung.2.csv",
+    "study": "study",
+    "route": "",
+    "dose": ""
+  },
+  {
+    "file": "BAY794620_Autoradiography_PKSimImport.Ovaries.1.csv",
+    "study": "study",
+    "route": "",
+    "dose": ""
+  },
+  {
+    "file": "BAY794620_Autoradiography_PKSimImport.Ovaries.2.csv",
+    "study": "study",
+    "route": "",
+    "dose": ""
+  },
+  {
+    "file": "BAY794620_Autoradiography_PKSimImport.Pancreas.1.csv",
+    "study": "study",
+    "route": "",
+    "dose": ""
+  },
+  {
+    "file": "BAY794620_Autoradiography_PKSimImport.Pancreas.2.csv",
+    "study": "study",
+    "route": "",
+    "dose": ""
+  },
+  {
+    "file": "BAY794620_Autoradiography_PKSimImport.Muscle.1.csv",
+    "study": "study",
+    "route": "",
+    "dose": ""
+  },
+  {
+    "file": "BAY794620_Autoradiography_PKSimImport.Muscle.2.csv",
+    "study": "study",
+    "route": "",
+    "dose": ""
+  },
+  {
+    "file": "BAY794620_Autoradiography_PKSimImport.Skin.1.csv",
+    "study": "study",
+    "route": "",
+    "dose": ""
+  },
+  {
+    "file": "BAY794620_Autoradiography_PKSimImport.Skin.2.csv",
+    "study": "study",
+    "route": "",
+    "dose": ""
+  },
+  {
+    "file": "BAY794620_Autoradiography_PKSimImport.SmallIntestine.1.csv",
+    "study": "study",
+    "route": "",
+    "dose": ""
+  },
+  {
+    "file": "BAY794620_Autoradiography_PKSimImport.SmallIntestine.2.csv",
+    "study": "study",
+    "route": "",
+    "dose": ""
+  },
+  {
+    "file": "BAY794620_Autoradiography_PKSimImport.Spleen.1.csv",
+    "study": "study",
+    "route": "",
+    "dose": ""
+  },
+  {
+    "file": "BAY794620_Autoradiography_PKSimImport.Spleen.2.csv",
+    "study": "study",
+    "route": "",
+    "dose": ""
+  },
+  {
+    "file": "BAY794620_Autoradiography_PKSimImport.Stomach.1.csv",
+    "study": "study",
+    "route": "",
+    "dose": ""
+  },
+  {
+    "file": "BAY794620_Autoradiography_PKSimImport.Stomach.2.csv",
+    "study": "study",
+    "route": "",
+    "dose": ""
+  },
+  {
+    "file": "BAY794620_TissueDissection_PKSimImport.Spleen.csv",
+    "study": "study",
+    "route": "",
+    "dose": ""
+  },
+  {
+    "file": "BAY794620_TissueDissection_PKSimImport.Liver.csv",
+    "study": "study",
+    "route": "",
+    "dose": ""
+  },
+  {
+    "file": "BAY794620_TissueDissection_PKSimImport.Kidney.csv",
+    "study": "study",
+    "route": "",
+    "dose": ""
+  },
+  {
+    "file": "BAY794620_TissueDissection_PKSimImport.Lung.csv",
+    "study": "study",
+    "route": "",
+    "dose": ""
+  },
+  {
+    "file": "BAY794620_TissueDissection_PKSimImport.Bone.csv",
+    "study": "study",
+    "route": "",
+    "dose": ""
+  },
+  {
+    "file": "BAY794620_TissueDissection_PKSimImport.Heart.csv",
+    "study": "study",
+    "route": "",
+    "dose": ""
+  },
+  {
+    "file": "BAY794620_TissueDissection_PKSimImport.Brain.csv",
+    "study": "study",
+    "route": "",
+    "dose": ""
+  },
+  {
+    "file": "BAY794620_TissueDissection_PKSimImport.Fat.csv",
+    "study": "study",
+    "route": "",
+    "dose": ""
+  },
+  {
+    "file": "BAY794620_TissueDissection_PKSimImport.Muscle.csv",
+    "study": "study",
+    "route": "",
+    "dose": ""
+  },
+  {
+    "file": "BAY794620_TissueDissection_PKSimImport.Blood.csv",
+    "study": "study",
+    "route": "",
+    "dose": ""
+  },
+  {
+    "file": "BAY794620_TissueDissection_PKSimImport.Stomach.csv",
+    "study": "study",
+    "route": "",
+    "dose": ""
+  },
+  {
+    "file": "BAY794620_TissueDissection_PKSimImport.Ovaries.csv",
+    "study": "study",
+    "route": "",
+    "dose": ""
+  },
+  {
+    "file": "BAY794620_TissueDissection_PKSimImport.Intestine.csv",
+    "study": "study",
+    "route": "",
+    "dose": ""
+  },
+  {
+    "file": "BAY794620_TissueDissection_PKSimImport.Pancreas.csv",
+    "study": "study",
+    "route": "",
+    "dose": ""
+  }
+]

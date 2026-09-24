@@ -1,0 +1,146 @@
+[
+  {
+    "file": "Adams_1984_-_0.25_mg_Individual_1_-_Alprazolam_-_IV_-_0.25_mg_-_Plasma_-_indiv..csv",
+    "study": "Adams 1984",
+    "route": "IV",
+    "dose": "0.25 mg"
+  },
+  {
+    "file": "Adams_1984_-_0.25_mg_Individual_2_-_Alprazolam_-_IV_-_0.25_mg_-_Plasma_-_indiv..csv",
+    "study": "Adams 1984",
+    "route": "IV",
+    "dose": "0.25 mg"
+  },
+  {
+    "file": "Adams_1984_-_4_mg_Individual_1_-_Alprazolam_-_IV_-_4_mg_-_Plasma_-_indiv..csv",
+    "study": "Adams 1984",
+    "route": "IV",
+    "dose": "4 mg"
+  },
+  {
+    "file": "Adams_1984_-_4_mg_Individual_2_-_Alprazolam_-_IV_-_4_mg_-_Plasma_-_indiv..csv",
+    "study": "Adams 1984",
+    "route": "IV",
+    "dose": "4 mg"
+  },
+  {
+    "file": "Adams_1984_-_4_mg_Individual_3_-_Alprazolam_-_IV_-_4_mg_-_Plasma_-_indiv..csv",
+    "study": "Adams 1984",
+    "route": "IV",
+    "dose": "4 mg"
+  },
+  {
+    "file": "Eller_1990_-_Treatment_C_fasting_IR_-_Alprazolam_-_PO_-_1_mg_-_Plasma_-_agg._n_2.csv",
+    "study": "Eller 1990",
+    "route": "PO",
+    "dose": "1 mg"
+  },
+  {
+    "file": "Fleishaker_1989_-_Treatment_A_IV_administration_-_Alprazolam_-_IV_-_1_mg_-_Plasm.csv",
+    "study": "Fleishaker 1989",
+    "route": "IV",
+    "dose": "1 mg"
+  },
+  {
+    "file": "Friedman_1991_-_Alprazolam_group_-_Alprazolam_-_PO_-_1_mg_-_Plasma_-_agg._n_22.csv",
+    "study": "Friedman 1991",
+    "route": "PO",
+    "dose": "1 mg"
+  },
+  {
+    "file": "Greenblatt_1988_-_Alprazolam_group_-_Alprazolam_-_PO_-_1_mg_-_Plasma_-_agg._n_12.csv",
+    "study": "Greenblatt 1988",
+    "route": "PO",
+    "dose": "1 mg"
+  },
+  {
+    "file": "Greenblatt_1998b_-_Alprazolam_alone_Trial_A_-_Alprazolam_-_PO_-_1_mg_-_Plasma_-_.csv",
+    "study": "Greenblatt 1998b",
+    "route": "PO",
+    "dose": "1 mg"
+  },
+  {
+    "file": "Greenblatt_2000_-_Control_-_Alprazolam_-_PO_-_1_mg_-_Plasma_-_agg._n_8.csv",
+    "study": "Greenblatt 2000",
+    "route": "PO",
+    "dose": "1 mg"
+  },
+  {
+    "file": "Kaplan_1998_-_Young_-_Alprazolam_-_PO_-_1_mg_-_Plasma_-_agg._n_8.csv",
+    "study": "Kaplan 1998",
+    "route": "PO",
+    "dose": "1 mg"
+  },
+  {
+    "file": "Kroboth_1988_-_0.5_mg_2_min_-_Alprazolam_-_IV_-_0.5_mg_-_Plasma_-_agg._n_4.csv",
+    "study": "Kroboth 1988",
+    "route": "IV",
+    "dose": "0.5 mg"
+  },
+  {
+    "file": "Kroboth_1988_-_2.0_mg_2_min_-_Alprazolam_-_IV_-_2_mg_-_Plasma_-_agg._n_4.csv",
+    "study": "Kroboth 1988",
+    "route": "IV",
+    "dose": "2.0 mg"
+  },
+  {
+    "file": "Kroboth_1988_-_1.0_mg_2_min_then_72_g_hr_for_8_hours_-_Alprazolam_-_IV_-_1.576_m.csv",
+    "study": "Kroboth 1988",
+    "route": "IV",
+    "dose": "1.0 mg"
+  },
+  {
+    "file": "Lin_1988_-_IV_administration_Caucasian_subjects_-_Alprazolam_-_IV_-_0.5_mg_-_Pla.csv",
+    "study": "Lin 1988",
+    "route": "IV",
+    "dose": "0.5 mg"
+  },
+  {
+    "file": "Lin_1988_-_Oral_administration_Caucasian_subjects_-_Alprazolam_-_PO_-_0.5_mg_-_P.csv",
+    "study": "Lin 1988",
+    "route": "PO",
+    "dose": "0.5 mg"
+  },
+  {
+    "file": "Schmith_1991_-_Normal_subjects_0.5_mg_-_Alprazolam_-_PO_-_0.5_mg_-_Plasma_-_agg..csv",
+    "study": "Schmith 1991",
+    "route": "PO",
+    "dose": "0.5 mg"
+  },
+  {
+    "file": "Schmith_1991_-_Normal_subjects_2_mg_-_Alprazolam_-_PO_-_2_mg_-_Plasma_-_agg._n_1.csv",
+    "study": "Schmith 1991",
+    "route": "PO",
+    "dose": "2 mg"
+  },
+  {
+    "file": "Smith_1984_-_IV_administration_-_Alprazolam_-_IV_-_1_mg_-_Plasma_-_agg._n_6.csv",
+    "study": "Smith 1984",
+    "route": "IV",
+    "dose": "1 mg"
+  },
+  {
+    "file": "Smith_1984_-_Oral_administration_-_Alprazolam_-_PO_-_1_mg_-_Plasma_-_agg._n_6.csv",
+    "study": "Smith 1984",
+    "route": "PO",
+    "dose": "1 mg"
+  },
+  {
+    "file": "Wennerholm_2005_-_Figure_1_-_Alprazolam_-_PO_-_1_mg_-_Plasma_-_agg._n_12.csv",
+    "study": "Wennerholm 2005",
+    "route": "PO",
+    "dose": "1 mg"
+  },
+  {
+    "file": "Yasui_1996_-_Treatment_with_placebo_-_Alprazolam_-_PO_-_0.8_mg_-_Plasma_-_agg._n.csv",
+    "study": "Yasui 1996",
+    "route": "PO",
+    "dose": "0.8 mg"
+  },
+  {
+    "file": "Yasui_2000_-_Alprazolam_with_water_-_Alprazolam_-_PO_-_0.8_mg_-_Plasma_-_agg._n_.csv",
+    "study": "Yasui 2000",
+    "route": "PO",
+    "dose": "0.8 mg"
+  }
+]

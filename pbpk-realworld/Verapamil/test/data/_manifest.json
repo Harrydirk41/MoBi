@@ -1,0 +1,368 @@
+[
+  {
+    "file": "Barbarash_1988_-_Verapamil_IV_control_-_Verapamil_-_IV_-_10_mg_-_Serum_-_agg._n_.csv",
+    "study": "Barbarash 1988",
+    "route": "IV",
+    "dose": "10 mg"
+  },
+  {
+    "file": "Barbarash_1988_-_Verapamil_PO_control_-_Verapamil_-_PO_-_120_mg_-_Serum_-_agg._n.csv",
+    "study": "Barbarash 1988",
+    "route": "PO",
+    "dose": "120 mg"
+  },
+  {
+    "file": "Hla_1987_-_conventional_Verapamil_120mg_once_daily_day_1_-_Verapamil_-_PO_-_120_.csv",
+    "study": "Hla 1987",
+    "route": "PO",
+    "dose": "120mg"
+  },
+  {
+    "file": "Hla_1987_-_conventional_Verapamil_120mg_twice_daily_day_10_-_Verapamil_-_PO_-_12.csv",
+    "study": "Hla 1987",
+    "route": "PO",
+    "dose": "120mg"
+  },
+  {
+    "file": "Jorgensen_1988_-_Conventional_Verapamil_120_mg_BID_day_1_-_5_and_8_-_Verapamil_-.csv",
+    "study": "Jorgensen 1988",
+    "route": "PO",
+    "dose": "120 mg"
+  },
+  {
+    "file": "Jorgensen_1988_-_Conventional_Verapamil_120_mg_BID_day_8_-_Verapamil_-_PO_-_120_.csv",
+    "study": "Jorgensen 1988",
+    "route": "PO",
+    "dose": "120 mg"
+  },
+  {
+    "file": "Jorgensen_1988_-_Sustained_release_Verapamil_240_mg_OD_day_1_-_5_and_8_-_Verapam.csv",
+    "study": "Jorgensen 1988",
+    "route": "PO",
+    "dose": "240 mg"
+  },
+  {
+    "file": "Jorgensen_1988_-_Sustained_release_Verapamil_240_mg_OD_day_8_-_Verapamil_-_PO_-_.csv",
+    "study": "Jorgensen 1988",
+    "route": "PO",
+    "dose": "240 mg"
+  },
+  {
+    "file": "Shand_1981_-_Verapamil_day_1_-_Verapamil_-_PO_-_120_mg_-_Plasma_-_agg._n_6.csv",
+    "study": "Shand 1981",
+    "route": "PO",
+    "dose": "120 mg"
+  },
+  {
+    "file": "Shand_1981_-_Verapamil_day_3_after_7th_dose_-_Verapamil_-_PO_-_120_mg_-_Plasma_-.csv",
+    "study": "Shand 1981",
+    "route": "PO",
+    "dose": "120 mg"
+  },
+  {
+    "file": "Streit_2005_-_intravenous_verapamil_during_normoxia_5_mg_-_Verapamil_-_IV_-_5_mg.csv",
+    "study": "Streit 2005",
+    "route": "IV",
+    "dose": "5 mg"
+  },
+  {
+    "file": "Abernethy_et_al._1985_-_10mg_Verapamil_without_cimetidine_IV_-_Verapamil_-_IV_-_.csv",
+    "study": "Abernethy et al. 1985",
+    "route": "IV",
+    "dose": "10mg"
+  },
+  {
+    "file": "Abernethy_et_al._1985_-_120mg_Verapamil_without_cimetidine_PO_-_Verapamil_-_PO_-.csv",
+    "study": "Abernethy et al. 1985",
+    "route": "PO",
+    "dose": "120mg"
+  },
+  {
+    "file": "Wing_et_al._1985_-_80mg_Verapamil_without_cimetidine_PO_-_Verapamil_-_PO_-_80_mg.csv",
+    "study": "Wing et al. 1985",
+    "route": "PO",
+    "dose": "80mg"
+  },
+  {
+    "file": "Mikus_et_al._1990_-_160mg_verapamil_without_cimetidine_PO_-_R-Verapamil_-_PO_-_1.csv",
+    "study": "Mikus et al. 1990",
+    "route": "PO",
+    "dose": "160mg"
+  },
+  {
+    "file": "Freedman_et_al._1981_-_Control_Subject_Subject_number_4_-_Verapamil_-_IV_-_13.1_.csv",
+    "study": "Freedman et al. 1981",
+    "route": "IV",
+    "dose": "13.1 mg"
+  },
+  {
+    "file": "Abernethy_et_al._1993_-_Representative_younger_subject_-_Verapamil_-_IV_-_20_mg_.csv",
+    "study": "Abernethy et al. 1993",
+    "route": "IV",
+    "dose": "20 mg"
+  },
+  {
+    "file": "Abernethy_et_al._1993_-_Representative_younger_subject_-_R-Verapamil_-_IV_-_20_m.csv",
+    "study": "Abernethy et al. 1993",
+    "route": "IV",
+    "dose": "20 mg"
+  },
+  {
+    "file": "Abernethy_et_al._1993_-_Representative_younger_subject_-_S-Verapamil_-_IV_-_20_m.csv",
+    "study": "Abernethy et al. 1993",
+    "route": "IV",
+    "dose": "20 mg"
+  },
+  {
+    "file": "Vogelgesang_et_al._1984_-_Healthy_volunteers_-_R-Verapamil_-_PO_-_250_mg_-_Plasm.csv",
+    "study": "Vogelgesang et al. 1984",
+    "route": "PO",
+    "dose": "250 mg"
+  },
+  {
+    "file": "Choi_et_al._2008_-_60mg_Verapamil_in_absence_of_oral_atorvastatin_-_Verapamil_-_.csv",
+    "study": "Choi et al. 2008",
+    "route": "PO",
+    "dose": "60mg"
+  },
+  {
+    "file": "Choi_et_al._2008_-_60mg_Verapamil_in_absence_of_oral_atorvastatin_-_Norverapamil.csv",
+    "study": "Choi et al. 2008",
+    "route": "PO",
+    "dose": "60mg"
+  },
+  {
+    "file": "Ratiopharm_1989_-_Unknown_-_Verapamil_-_PO_-_80_mg_-_Plasma_-_agg._n_16.csv",
+    "study": "Ratiopharm 1989",
+    "route": "PO",
+    "dose": "80 mg"
+  },
+  {
+    "file": "Ratiopharm_1989_-_Unknown_-_Norverapamil_-_PO_-_80_mg_-_Plasma_-_agg._n_16.csv",
+    "study": "Ratiopharm 1989",
+    "route": "PO",
+    "dose": "80 mg"
+  },
+  {
+    "file": "Boehringer_2018_-_Unknown_-_R-Verapamil_-_PO_-_120_mg_-_Plasma_-_agg._n_12.csv",
+    "study": "Boehringer 2018",
+    "route": "PO",
+    "dose": "120 mg"
+  },
+  {
+    "file": "Boehringer_2018_-_Unknown_-_S-Verapamil_-_PO_-_120_mg_-_Plasma_-_agg._n_12.csv",
+    "study": "Boehringer 2018",
+    "route": "PO",
+    "dose": "120 mg"
+  },
+  {
+    "file": "Boehringer_2018_-_Unknown_-_R-Norverapamil_-_PO_-_120_mg_-_Plasma_-_agg._n_12.csv",
+    "study": "Boehringer 2018",
+    "route": "PO",
+    "dose": "120 mg"
+  },
+  {
+    "file": "Boehringer_2018_-_Unknown_-_S-Norverapamil_-_PO_-_120_mg_-_Plasma_-_agg._n_12.csv",
+    "study": "Boehringer 2018",
+    "route": "PO",
+    "dose": "120 mg"
+  },
+  {
+    "file": "H_rtter_et_al._2012_-_120mg_po_SD_-_R-Verapamil_-_PO_-_120_mg_-_Plasma_-_agg._n_.csv",
+    "study": "H\u00e4rtter et al. 2012",
+    "route": "PO",
+    "dose": "120mg"
+  },
+  {
+    "file": "H_rtter_et_al._2012_-_120mg_po_SD_-_S-Verapamil_-_PO_-_120_mg_-_Plasma_-_agg._n_.csv",
+    "study": "H\u00e4rtter et al. 2012",
+    "route": "PO",
+    "dose": "120mg"
+  },
+  {
+    "file": "H_rtter_et_al._2012_-_120mg_po_SD_-_R-Norverapamil_-_PO_-_120_mg_-_Plasma_-_agg..csv",
+    "study": "H\u00e4rtter et al. 2012",
+    "route": "PO",
+    "dose": "120mg"
+  },
+  {
+    "file": "H_rtter_et_al._2012_-_120mg_po_SD_-_S-Norverapamil_-_PO_-_120_mg_-_Plasma_-_agg..csv",
+    "study": "H\u00e4rtter et al. 2012",
+    "route": "PO",
+    "dose": "120mg"
+  },
+  {
+    "file": "H_rtter_et_al._2012_-_120mg_po_bid_-_R-Verapamil_-_PO_-_120_mg_-_Plasma_-_agg._n.csv",
+    "study": "H\u00e4rtter et al. 2012",
+    "route": "PO",
+    "dose": "120mg"
+  },
+  {
+    "file": "H_rtter_et_al._2012_-_120mg_po_bid_-_S-Verapamil_-_PO_-_120_mg_-_Plasma_-_agg._n.csv",
+    "study": "H\u00e4rtter et al. 2012",
+    "route": "PO",
+    "dose": "120mg"
+  },
+  {
+    "file": "H_rtter_et_al._2012_-_120mg_po_bid_-_R-Norverapamil_-_PO_-_120_mg_-_Plasma_-_agg.csv",
+    "study": "H\u00e4rtter et al. 2012",
+    "route": "PO",
+    "dose": "120mg"
+  },
+  {
+    "file": "H_rtter_et_al._2012_-_120mg_po_bid_-_S-Norverapamil_-_PO_-_120_mg_-_Plasma_-_agg.csv",
+    "study": "H\u00e4rtter et al. 2012",
+    "route": "PO",
+    "dose": "120mg"
+  },
+  {
+    "file": "van_Haarst_et_al._2009_-_Verapamil_only_-_Verapamil_-_PO_-_180_mg_-_Plasma_-_agg.csv",
+    "study": "van Haarst et al. 2009",
+    "route": "PO",
+    "dose": "180 mg"
+  },
+  {
+    "file": "van_Haarst_et_al._2009_-_Verapamil_only_-_Norverapamil_-_PO_-_180_mg_-_Plasma_-_.csv",
+    "study": "van Haarst et al. 2009",
+    "route": "PO",
+    "dose": "180 mg"
+  },
+  {
+    "file": "Blume_Mutschler_1983_-_Verapamil_-_Verapamil_-_PO_-_40_mg_-_Plasma_-_agg._n_12.csv",
+    "study": "Blume, Mutschler 1983",
+    "route": "PO",
+    "dose": "40 mg"
+  },
+  {
+    "file": "Blume_Mutschler_1990_-_Verapamil_-_Verapamil_-_PO_-_40_mg_-_Plasma_-_agg._n_24.csv",
+    "study": "Blume, Mutschler 1990",
+    "route": "PO",
+    "dose": "40 mg"
+  },
+  {
+    "file": "Blume_Mutschler_1987_-_Verapamil_-_Verapamil_-_PO_-_120_mg_-_Plasma_-_agg._n_12.csv",
+    "study": "Blume, Mutschler 1987",
+    "route": "PO",
+    "dose": "120 mg"
+  },
+  {
+    "file": "Blume_Mutschler_1994_-_Verapamil_-_Verapamil_-_PO_-_240_mg_-_Plasma_-_agg._n_24.csv",
+    "study": "Blume, Mutschler 1994",
+    "route": "PO",
+    "dose": "240 mg"
+  },
+  {
+    "file": "Maeda_2011_-_Verapamil_0.1_mg_-_Verapamil_-_PO_-_0.1_mg_-_Plasma_-_agg._n_8.csv",
+    "study": "Maeda 2011",
+    "route": "PO",
+    "dose": "0.1 mg"
+  },
+  {
+    "file": "Maeda_2011_-_Verapamil_0.1_mg_-_Norverapamil_-_Norverapamil_-_PO_-_0.1_mg_-_Plas.csv",
+    "study": "Maeda 2011",
+    "route": "PO",
+    "dose": "0.1 mg"
+  },
+  {
+    "file": "Maeda_2011_-_Verapamil_16_mg_-_Verapamil_-_PO_-_16_mg_-_Plasma_-_agg._n_8.csv",
+    "study": "Maeda 2011",
+    "route": "PO",
+    "dose": "16 mg"
+  },
+  {
+    "file": "Maeda_2011_-_Verapamil_16_mg_-_Norverapamil_-_Norverapamil_-_PO_-_16_mg_-_Plasma.csv",
+    "study": "Maeda 2011",
+    "route": "PO",
+    "dose": "16 mg"
+  },
+  {
+    "file": "Maeda_2011_-_Verapamil_3_mg_-_Verapamil_-_PO_-_3_mg_-_Plasma_-_agg._n_8.csv",
+    "study": "Maeda 2011",
+    "route": "PO",
+    "dose": "3 mg"
+  },
+  {
+    "file": "Maeda_2011_-_Verapamil_80_mg_-_Verapamil_-_PO_-_80_mg_-_Plasma_-_agg._n_8.csv",
+    "study": "Maeda 2011",
+    "route": "PO",
+    "dose": "80 mg"
+  },
+  {
+    "file": "Maeda_2011_-_Verapamil_3_mg_-_Norverapamil_-_Norverapamil_-_PO_-_3_mg_-_Plasma_-.csv",
+    "study": "Maeda 2011",
+    "route": "PO",
+    "dose": "3 mg"
+  },
+  {
+    "file": "Maeda_2011_-_Verapamil_80_mg_-_Norverapamil_-_Norverapamil_-_PO_-_80_mg_-_Plasma.csv",
+    "study": "Maeda 2011",
+    "route": "PO",
+    "dose": "80 mg"
+  },
+  {
+    "file": "Wing_et_al._1985_-_10mg_Verapamil_without_cimetidine_IV_-_Verapamil_-_IV_-_10_mg.csv",
+    "study": "Wing et al. 1985",
+    "route": "IV",
+    "dose": "10mg"
+  },
+  {
+    "file": "Sawicki_Janicki_2002_-_Healthy_volunteers_conventional_tablets_-_Norverapamil_-_.csv",
+    "study": "Sawicki, Janicki 2002",
+    "route": "PO",
+    "dose": "40 mg"
+  },
+  {
+    "file": "Sawicki_Janicki_2002_-_Healthy_volunteers_conventional_tablets_-_Verapamil_-_PO_.csv",
+    "study": "Sawicki, Janicki 2002",
+    "route": "PO",
+    "dose": "40 mg"
+  },
+  {
+    "file": "Johnston_1981_-_Verapamil_PO_-_Verapamil_-_PO_-_120_mg_-_Plasma_-_agg._n_6.csv",
+    "study": "Johnston 1981",
+    "route": "PO",
+    "dose": "120 mg"
+  },
+  {
+    "file": "Johnston_1981_-_Verapamil_IV_-_Verapamil_-_IV_-_0.1_mg_kg_-_Plasma_-_agg._n_6.csv",
+    "study": "Johnston 1981",
+    "route": "IV",
+    "dose": "0.1 mg"
+  },
+  {
+    "file": "John_et_al._1992_-_Healthy_volunteers_-_Verapamil_-_PO_-_40_mg_-_Plasma_-_agg._n.csv",
+    "study": "John et al. 1992",
+    "route": "PO",
+    "dose": "40 mg"
+  },
+  {
+    "file": "Johnston_1981_-_Verapamil_PO_-_Norverapamil_-_PO_-_120_mg_-_Plasma_-_agg._n_6.csv",
+    "study": "Johnston 1981",
+    "route": "PO",
+    "dose": "120 mg"
+  },
+  {
+    "file": "Mooy_et_al._1985_-_Normal_volunteers_80mg_PO_-_Verapamil_-_PO_-_80_mg_-_Plasma_-.csv",
+    "study": "Mooy et al. 1985",
+    "route": "PO",
+    "dose": "80mg"
+  },
+  {
+    "file": "Mooy_et_al._1985_-_Normal_volunteers_3mg_IV_-_Verapamil_-_IV_-_3_mg_-_Plasma_-_a.csv",
+    "study": "Mooy et al. 1985",
+    "route": "IV",
+    "dose": "3mg"
+  },
+  {
+    "file": "Mooy_et_al._1985_-_Normal_volunteers_80mg_PO_-_Norverapamil_-_PO_-_80_mg_-_Plasm.csv",
+    "study": "Mooy et al. 1985",
+    "route": "PO",
+    "dose": "80mg"
+  },
+  {
+    "file": "Mikus_et_al._1990_-_160mg_verapamil_without_cimetidine_PO_-_S-Verapamil_-_PO_-_1.csv",
+    "study": "Mikus et al. 1990",
+    "route": "PO",
+    "dose": "160mg"
+  }
+]

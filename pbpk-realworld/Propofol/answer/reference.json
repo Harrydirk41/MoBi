@@ -1,0 +1,35 @@
+{
+  "schema": "osp-answer-key/v1",
+  "warning": "REFERENCE ANSWERS - grading only, never shown to the agent.",
+  "compound": "Propofol",
+  "structural_choices": {
+    "calculation_methods": [
+      "Cellular partition coefficient method - PK-Sim Standard",
+      "Cellular permeability - PK-Sim Standard"
+    ],
+    "metabolizing_processes": [
+      {
+        "molecule": "UGT1A9",
+        "type": "MetabolizationLiverMicrosomes_MM"
+      },
+      {
+        "molecule": "CYP2B6",
+        "type": "MetabolizationLiverMicrosomes_MM"
+      }
+    ]
+  },
+  "estimated_parameters": [
+    {
+      "parameter": "Lipophilicity",
+      "value": 3.5917351902
+    },
+    {
+      "parameter": "In vitro Vmax for liver microsomes@UGT1A9",
+      "value": 105.0736032242
+    },
+    {
+      "parameter": "In vitro Vmax for liver microsomes@CYP2B6",
+      "value": 47.2831214509
+    }
+  ]
+}

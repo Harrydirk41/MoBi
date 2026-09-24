@@ -1,0 +1,38 @@
+[
+  {
+    "file": "Adedoyin1998_50_mg_po_S-Meph_measured.csv",
+    "study": "Adedoyin1998",
+    "route": "",
+    "dose": "50 mg"
+  },
+  {
+    "file": "Jacqz1986_50_mg_po_S-Meph_measured.csv",
+    "study": "Jacqz1986",
+    "route": "",
+    "dose": "50 mg"
+  },
+  {
+    "file": "Iga2016_50_mg_po_S-Meph-SM_simulated.csv",
+    "study": "Iga 2016",
+    "route": "",
+    "dose": "50 mg"
+  },
+  {
+    "file": "Iga2016_50_mg_po_S-Meph_SM1_simulated.csv",
+    "study": "Iga 2016",
+    "route": "",
+    "dose": "50 mg"
+  },
+  {
+    "file": "Iga2016_50_mg_po_S-Meph_SM3_simulated.csv",
+    "study": "Iga 2016",
+    "route": "",
+    "dose": "50 mg"
+  },
+  {
+    "file": "Wedlund1985_50_mg_po_S-Meph_measured_n_1.csv",
+    "study": "Wedlund1985 ",
+    "route": "",
+    "dose": "50 mg"
+  }
+]

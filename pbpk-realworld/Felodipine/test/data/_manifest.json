@@ -1,0 +1,110 @@
+[
+  {
+    "file": "Bratel_1989_-_5mg-PO_IR_tablet_-_Felodipine_-_PO_-_5_mg_-_Plasma_-_agg._n_11.csv",
+    "study": "Bratel 1989",
+    "route": "PO",
+    "dose": "5mg"
+  },
+  {
+    "file": "Goosen_2004_-_5mg-PO_ER_tablet_-_Felodipine_-_PO_-_5_mg_-_Plasma_-_agg._n_11.csv",
+    "study": "Goosen 2004",
+    "route": "PO",
+    "dose": "5mg"
+  },
+  {
+    "file": "Dresser_2000_-_2.5mg_5mg-PO_ER_tablet_-_Felodipine_-_PO_-_2.5_5_mg_-_Plasma_-_ag.csv",
+    "study": "Dresser 2000",
+    "route": "PO",
+    "dose": "2.5mg"
+  },
+  {
+    "file": "Dresser_2000_-_5mg-PO_ER_tablet_-_Felodipine_-_PO_-_5_mg_-_Plasma_-_agg._n_12.csv",
+    "study": "Dresser 2000",
+    "route": "PO",
+    "dose": "5mg"
+  },
+  {
+    "file": "Aberg_1997_-_10mg-PO_ER_tablet_-_Felodipine_-_PO_-_10_mg_-_Plasma_-_agg._n_36.csv",
+    "study": "Aberg 1997",
+    "route": "PO",
+    "dose": "10mg"
+  },
+  {
+    "file": "Bailey_1995_-_10mg-PO_ER_tablet_-_Felodipine_-_PO_-_10_mg_-_Plasma_-_agg._n_12.csv",
+    "study": "Bailey 1995",
+    "route": "PO",
+    "dose": "10mg"
+  },
+  {
+    "file": "Dresser_2017_-_10mg-PO_ER_tablet_-_Felodipine_-_PO_-_10_mg_-_Plasma_-_agg._n_5.csv",
+    "study": "Dresser 2017",
+    "route": "PO",
+    "dose": "10mg"
+  },
+  {
+    "file": "Lundahl_1998_-_10mg-PO_ER_tablet_-_Felodipine_-_PO_-_10_mg_-_Plasma_-_agg._n_12.csv",
+    "study": "Lundahl 1998",
+    "route": "PO",
+    "dose": "10mg"
+  },
+  {
+    "file": "Smith_1987_-_10mg-PO_IR_tablet_-_Felodipine_-_PO_-_10_mg_-_Plasma_-_agg._n_8.csv",
+    "study": "Smith 1987",
+    "route": "PO",
+    "dose": "10mg"
+  },
+  {
+    "file": "Bailey_2000_-_10mg-PO_ER_tablet_-_Felodipine_-_PO_-_10_mg_-_Plasma_-_agg._n_12.csv",
+    "study": "Bailey 2000",
+    "route": "PO",
+    "dose": "10mg"
+  },
+  {
+    "file": "Bailey_2003_-_10mg-PO_ER_tablet_-_Felodipine_-_PO_-_10_mg_-_Plasma_-_agg._n_8.csv",
+    "study": "Bailey 2003",
+    "route": "PO",
+    "dose": "10mg"
+  },
+  {
+    "file": "Gelal_2005_-_10mg-PO_ER_tablet_-_Felodipine_-_PO_-_10_mg_-_Serum_-_agg._n_10.csv",
+    "study": "Gelal 2005",
+    "route": "PO",
+    "dose": "10mg"
+  },
+  {
+    "file": "Bailey_1996_-_10mg-PO_ER_tablet_-_Felodipine_-_PO_-_10_mg_-_Plasma_-_agg._n_12.csv",
+    "study": "Bailey 1996",
+    "route": "PO",
+    "dose": "10mg"
+  },
+  {
+    "file": "Edgar_1987_-_10mg-PO_ER_tablet_-_Felodipine_-_PO_-_10_mg_-_Plasma_-_agg._n_12.csv",
+    "study": "Edgar 1987",
+    "route": "PO",
+    "dose": "10mg"
+  },
+  {
+    "file": "Edgar_1987_-_10mg-PO_IR_tablet_-_Felodipine_-_PO_-_10_mg_-_Plasma_-_agg._n_12.csv",
+    "study": "Edgar 1987",
+    "route": "PO",
+    "dose": "10mg"
+  },
+  {
+    "file": "Edgar_1987_-_10mg-PO_solution_-_Felodipine_-_PO_-_10_mg_-_Plasma_-_agg._n_12.csv",
+    "study": "Edgar 1987",
+    "route": "PO",
+    "dose": "10mg"
+  },
+  {
+    "file": "Lundahl_1997_-_1.5mg-IV_infusion_-_Felodipine_-_IV_-_1.5_mg_-_Plasma_-_agg._n_12.csv",
+    "study": "Lundahl 1997",
+    "route": "IV",
+    "dose": "1.5mg"
+  },
+  {
+    "file": "Lundahl_1997_-_10mg-PO_ER_tablet_-_Felodipine_-_PO_-_10_mg_-_Plasma_-_agg._n_12.csv",
+    "study": "Lundahl 1997",
+    "route": "PO",
+    "dose": "10mg"
+  }
+]

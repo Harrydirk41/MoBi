@@ -1,0 +1,116 @@
+[
+  {
+    "file": "Agarwala_2003_-_Day_6_-_Atazanavir_-_PO_-_400_mg_-_Plasma_-_agg._n_65.csv",
+    "study": "Agarwala 2003",
+    "route": "PO",
+    "dose": "400 mg"
+  },
+  {
+    "file": "Agarwala_2005a_-_ATV_400_mg_AM_N_15_-_Atazanavir_-_PO_-_400_mg_-_Plasma_-_agg._n.csv",
+    "study": "Agarwala 2005a",
+    "route": "PO",
+    "dose": "400 mg"
+  },
+  {
+    "file": "Martin_2008_-_Atazanavir_monotherapy_n_24_-_Atazanavir_-_PO_-_400_mg_-_Plasma_-_.csv",
+    "study": "Martin 2008",
+    "route": "PO",
+    "dose": "400 mg"
+  },
+  {
+    "file": "Zhu_2011_-_Treatment_A_Atazanavir_400_mg_QPM_-_Atazanavir_-_PO_-_400_mg_-_Plasma.csv",
+    "study": "Zhu 2011",
+    "route": "PO",
+    "dose": "400 mg"
+  },
+  {
+    "file": "Zhu_2011_-_Treatment_B_Atazanavir_400_mg_QAM_-_Atazanavir_-_PO_-_400_mg_-_Plasma.csv",
+    "study": "Zhu 2011",
+    "route": "PO",
+    "dose": "400 mg"
+  },
+  {
+    "file": "ClinPharmReview_AI424-040_p._64_-_200_mg_-_Atazanavir_-_PO_-_200_mg_-_Plasma_-_a.csv",
+    "study": "ClinPharmReview, AI424-040, p. 64",
+    "route": "PO",
+    "dose": "200 mg"
+  },
+  {
+    "file": "ClinPharmReview_AI424-040_p._64_-_400_mg_-_Atazanavir_-_PO_-_400_mg_-_Plasma_-_a.csv",
+    "study": "ClinPharmReview, AI424-040, p. 64",
+    "route": "PO",
+    "dose": "400 mg"
+  },
+  {
+    "file": "ClinPharmReview_AI424-040_p._64_-_800_mg_-_Atazanavir_-_PO_-_800_mg_-_Plasma_-_a.csv",
+    "study": "ClinPharmReview, AI424-040, p. 64",
+    "route": "PO",
+    "dose": "800 mg"
+  },
+  {
+    "file": "ClinPharmReview_AI424-014_p._77_-_Young_Females_-_Atazanavir_-_PO_-_400_mg_-_Pla.csv",
+    "study": "ClinPharmReview, AI424-014, p. 77",
+    "route": "PO",
+    "dose": "400 mg"
+  },
+  {
+    "file": "ClinPharmReview_AI424-014_p._77_-_Young_Males_-_Atazanavir_-_PO_-_400_mg_-_Plasm.csv",
+    "study": "ClinPharmReview, AI424-014, p. 77",
+    "route": "PO",
+    "dose": "400 mg"
+  },
+  {
+    "file": "ClinPharmReview_AI424-015_p._81_-_Normal_subjects_-_Atazanavir_-_PO_-_400_mg_-_P.csv",
+    "study": "ClinPharmReview, AI424-015, p. 81",
+    "route": "PO",
+    "dose": "400 mg"
+  },
+  {
+    "file": "ClinPharmReview_AI424-004_p._94_-_Treatment_A_-_Atazanavir_-_PO_-_400_mg_-_Plasm.csv",
+    "study": "ClinPharmReview, AI424-004, p. 94",
+    "route": "PO",
+    "dose": "400 mg"
+  },
+  {
+    "file": "ClinPharmReview_AI424-028_p._128_-_A-Day_6_-_Atazanavir_-_PO_-_200_mg_-_Plasma_-.csv",
+    "study": "ClinPharmReview, AI424-028, p. 128",
+    "route": "PO",
+    "dose": "200 mg"
+  },
+  {
+    "file": "ClinPharmReview_AI424-028_p._128_-_B-Day_6_-_Atazanavir_-_PO_-_200_mg_-_Plasma_-.csv",
+    "study": "ClinPharmReview, AI424-028, p. 128",
+    "route": "PO",
+    "dose": "200 mg"
+  },
+  {
+    "file": "ClinPharmReview_AI424-028_p._128_-_C-Day_6_-_Atazanavir_-_PO_-_400_mg_-_Plasma_-.csv",
+    "study": "ClinPharmReview, AI424-028, p. 128",
+    "route": "PO",
+    "dose": "400 mg"
+  },
+  {
+    "file": "ClinPharmReview_AI424-028_p._128_-_D-Day_6_-_Atazanavir_-_PO_-_400_mg_-_Plasma_-.csv",
+    "study": "ClinPharmReview, AI424-028, p. 128",
+    "route": "PO",
+    "dose": "400 mg"
+  },
+  {
+    "file": "ClinPharmReview_AI424-056_p._134_-_Atazanavir_without_ritonavir_Day_10_-_Atazana.csv",
+    "study": "ClinPharmReview, AI424-056, p. 134",
+    "route": "PO",
+    "dose": "300 mg"
+  },
+  {
+    "file": "ClinPharmReview_AI424-076_p._178_-_400_mg_-_Atazanavir_-_PO_-_400_mg_-_Plasma_-_.csv",
+    "study": "ClinPharmReview, AI424-076, p. 178",
+    "route": "PO",
+    "dose": "400 mg"
+  },
+  {
+    "file": "ClinPharmReview_AI424-076_p._178_-_800_mg_-_Atazanavir_-_PO_-_800_mg_-_Plasma_-_.csv",
+    "study": "ClinPharmReview, AI424-076, p. 178",
+    "route": "PO",
+    "dose": "800 mg"
+  }
+]

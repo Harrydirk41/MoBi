@@ -1,0 +1,116 @@
+[
+  {
+    "file": "Meistelman_1987_Figure_1_adults.csv",
+    "study": "Meistelman 1987",
+    "route": "",
+    "dose": ""
+  },
+  {
+    "file": "Kharasch_1997_-_Control_Perpetrator_Placebo_-_Alfentanil_-_IV_-_20_g_kg_-_Plasma.csv",
+    "study": "Kharasch 1997",
+    "route": "IV",
+    "dose": ""
+  },
+  {
+    "file": "Kharasch_2004_-_iv_Control_Perpetrator_Placebo_-_Alfentanil_-_IV_-_15_g_kg_-_Pla.csv",
+    "study": "Kharasch 2004",
+    "route": "IV",
+    "dose": ""
+  },
+  {
+    "file": "Kharasch_2004_-_po_1_60_g_kg_Control_Perpetrator_Placebo_-_Alfentanil_-_PO_-_60_.csv",
+    "study": "Kharasch 2004",
+    "route": "PO",
+    "dose": ""
+  },
+  {
+    "file": "Kharasch_2011_-_iv_Control_Perpetrator_Placebo_-_Alfentanil_-_IV_-_15_g_kg_-_Pla.csv",
+    "study": "Kharasch 2011",
+    "route": "IV",
+    "dose": ""
+  },
+  {
+    "file": "Kharasch_2011_-_po_Control_Perpetrator_Placebo_-_Alfentanil_-_PO_-_75_g_kg_-_Pla.csv",
+    "study": "Kharasch 2011",
+    "route": "PO",
+    "dose": ""
+  },
+  {
+    "file": "Phimmasone_2001_-_Control_Perpetrator_Placebo_-_Alfentanil_-_IV_-_15_g_kg_-_Plas.csv",
+    "study": "Phimmasone 2001",
+    "route": "IV",
+    "dose": ""
+  },
+  {
+    "file": "Ferrier_1985_-_healthy_control_patients_-_Alfentanil_-_IV_-_0.05_mg_kg_-_Plasma_.csv",
+    "study": "Ferrier 1985",
+    "route": "IV",
+    "dose": "0.05 mg"
+  },
+  {
+    "file": "Ferrier_1985_-_cirrhosis_patients_patients_-_Alfentanil_-_IV_-_0.05_mg_kg_-_Plas.csv",
+    "study": "Ferrier 1985",
+    "route": "IV",
+    "dose": "0.05 mg"
+  },
+  {
+    "file": "Kharasch_2011b_-_Alfentanil_IV_Control_sequential_-_Alfentanil_-_IV_-_1_mg_-_Pla.csv",
+    "study": "Kharasch 2011b",
+    "route": "IV",
+    "dose": "1 mg"
+  },
+  {
+    "file": "Kharasch_2011b_-_Alfentanil_IV_Grapefruit_coadmin_sequential_-_Alfentanil_-_IV_-.csv",
+    "study": "Kharasch 2011b",
+    "route": "IV",
+    "dose": "1 mg"
+  },
+  {
+    "file": "Kharasch_2011b_-_Alfentanil_IV_Control_simultaneous_-_Alfentanil_-_IV_-_1_mg_-_P.csv",
+    "study": "Kharasch 2011b",
+    "route": "IV",
+    "dose": "1 mg"
+  },
+  {
+    "file": "Kharasch_2011b_-_Alfentanil_IV_Grapefruit_coadmin_simultaneous_-_Alfentanil_-_IV.csv",
+    "study": "Kharasch 2011b",
+    "route": "IV",
+    "dose": "1 mg"
+  },
+  {
+    "file": "Kharasch_2011b_-_Alfentanil_PO_Control_sequential_-_Alfentanil_-_PO_-_4_mg_-_Pla.csv",
+    "study": "Kharasch 2011b",
+    "route": "PO",
+    "dose": "4 mg"
+  },
+  {
+    "file": "Kharasch_2011b_-_Alfentanil_PO_Grapefruit_coadmin_sequential_-_Alfentanil_-_PO_-.csv",
+    "study": "Kharasch 2011b",
+    "route": "PO",
+    "dose": "4 mg"
+  },
+  {
+    "file": "Kharasch_2011b_-_Alfentanil_PO_Control_simultaneous_-_Alfentanil_-_PO_-_4_mg_-_P.csv",
+    "study": "Kharasch 2011b",
+    "route": "PO",
+    "dose": "4 mg"
+  },
+  {
+    "file": "Kharasch_2011b_-_Alfentanil_PO_Grapefruit_coadmin_simultaneous_-_Alfentanil_-_PO.csv",
+    "study": "Kharasch 2011b",
+    "route": "PO",
+    "dose": "4 mg"
+  },
+  {
+    "file": "Kharasch2012_Alfentanil_alone_IV.csv",
+    "study": "study",
+    "route": "",
+    "dose": ""
+  },
+  {
+    "file": "Kharasch2012_Alfentanil_alone_po.csv",
+    "study": "study",
+    "route": "",
+    "dose": ""
+  }
+]
