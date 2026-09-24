@@ -45,6 +45,8 @@
   .dot.good{background:var(--good)}.dot.warn{background:var(--warn)}.dot.idle{background:var(--faint)}.dot.crit{background:var(--crit)}
   .m-item .meta{flex:1;min-width:0}.m-item b{font-weight:500;font-size:13.5px;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .m-item small{font-size:11px;color:var(--faint)}
+  .kind{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.03em;padding:1px 5px;border-radius:5px}
+  .kind.pediatric{background:var(--accent-soft);color:var(--accent-ink)}.kind.ddi{background:var(--warn-soft);color:var(--warn)}
   .ctrl{padding:6px 14px 16px;display:flex;flex-direction:column;gap:8px}
   .ctrl label{font-size:11px;color:var(--faint);text-transform:uppercase;letter-spacing:.05em}
   .ctrl select{width:100%;padding:7px 9px;border:1px solid var(--border);border-radius:9px;background:var(--surface)}
@@ -373,12 +375,13 @@ function badge(status,gmfe){const[cls,txt]=STATUS[status]||STATUS.new;
 let MODELS=[], BUILT={};                 // compound -> build status (for the context dots)
 async function loadModels(){
   let list; try{list=await (await fetch("/api/models")).json();}catch(e){list=[];}
-  MODELS=list; list.forEach(m=>{BUILT[m.compound]=m.status;});
+  MODELS=list; list.forEach(m=>{BUILT[m.dir||m.compound]=m.status;});
   const wrap=$("#modelList");wrap.innerHTML="";
   if(!list.length){wrap.innerHTML='<div class="m-item" style="opacity:.6"><span class="dot crit"></span><span class="meta"><b>no models found</b><small>library path not set</small></span></div>';return;}
   list.forEach(m=>{const[cls]=STATUS[m.status]||STATUS.new;
     const b=el("button","m-item");b.dataset.name=m.compound;
-    b.innerHTML=`<span class="dot ${cls}"></span><span class="meta"><b>${m.compound}</b><small>${m.gmfe?('held-out '+(+m.gmfe).toFixed(2)):'not built yet'}</small></span>`;
+    const kb=(m.kind&&m.kind!=='adult')?` <span class="kind ${m.kind}">${m.kind==='ddi'?'DDI':m.kind}</span>`:"";
+    b.innerHTML=`<span class="dot ${cls}"></span><span class="meta"><b>${escapeHtml(m.label||m.compound)}</b><small>${m.gmfe?('held-out '+(+m.gmfe).toFixed(2)):(m.kind==='ddi'?'interaction task':'not built yet')}${kb}</small></span>`;
     b.onclick=()=>select(m.compound,m.status,m.gmfe);wrap.appendChild(b);});
 }
 function select(name,status,gmfe){

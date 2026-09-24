@@ -225,7 +225,10 @@ def _try_model(f: dict, edits: dict, subset: str = "building") -> dict:
     if not cli.pksim_cli_path or not os.path.exists(cli.pksim_cli_path):
         return {"ok": False, "error": "PKSim.CLI not found — set PKPD_PKSIM_CLI to run a model."}
     inp = json.load(open(f["input"], encoding="utf-8"))
-    observed = inp["given_data"]["clinical_observed_data"]
+    observed = (inp.get("given_data", {}) or {}).get("clinical_observed_data")
+    if not observed:
+        return {"ok": False, "error": "This task has no plasma concentration data to fit "
+                "(e.g. a DDI task) — it runs via the interaction pipeline, not the web runner yet."}
     snapd = json.load(open(f["snapshot"], encoding="utf-8"))
     split = osp_split.split_studies(snapd, observed)
     build = set(split.get("building") or [])
@@ -339,6 +342,7 @@ def _reffit(project: str) -> dict:
     """Run a FINISHED reference model (forward simulation only — no fitting) and
     return per-dataset observed + simulated curves for an interactive fit overlay.
     Cached in-memory and on disk, so re-opening is instant. Needs PKSim.CLI."""
+    project = _task_dir(project)                        # task id -> base dir
     if project in _REFFIT_CACHE:
         return {"ok": True, "series": _REFFIT_CACHE[project], "cached": True}
     snap = os.path.join(_LIB, project, "json", f"{project}-Model.json")
@@ -390,39 +394,63 @@ def _reffit(project: str) -> dict:
         return {"ok": True, "series": series, "cached": False}
 
 
+def _report_status(rep: str):
+    status, gmfe = "new", None
+    if os.path.isfile(rep):
+        try:
+            r = json.load(open(rep, encoding="utf-8"))
+            g = r.get("held_out") or {}
+            verdict = (r.get("verdict") or "").lower()
+            status = "pass" if "pass" in verdict else ("fail" if "fail" in verdict else "done")
+            gmfe = g.get("agent") or r.get("gmfe")
+        except Exception:                               # noqa: BLE001
+            pass
+    return status, gmfe
+
+
 def _compounds() -> list[dict]:
-    """Compounds that have a normal blanked snapshot, with a report status if any."""
-    out = []
-    for snap in sorted(glob.glob(os.path.join(_LIB, "*", "benchmark", "*-Model.blanked.json"))
-                       + glob.glob(os.path.join(_LIB, "*", "benchmark", "*.blanked.json"))):
+    """Every task with a blanked snapshot: adult PBPK, pediatric, and DDI variants.
+    Each carries a unique `compound` id (dir + variant), the base `dir`, and `kind`."""
+    out, seen = [], set()
+    plain = sorted(glob.glob(os.path.join(_LIB, "*", "benchmark", "*.blanked.json")))
+    ddis = sorted(glob.glob(os.path.join(_LIB, "*", "benchmark", "*.ddi_blanked.json")))
+    for snap in plain + ddis:
         base = os.path.basename(snap)
-        if ".hard_blanked" in base or "Pediatric" in base:
+        if ".hard_blanked" in base:
             continue
         comp = os.path.basename(os.path.dirname(os.path.dirname(snap)))
-        if any(o["compound"] == comp for o in out):
+        if base.endswith(".ddi_blanked.json"):
+            kind, cid = "ddi", f"{comp} · DDI"
+            stem = base.replace(".blanked.json", "")
+            inp = os.path.join(_LIB, comp, "json_input",
+                               base.replace(".ddi_blanked.json", ".ddi_input.json"))
+        elif "Pediatric" in base:
+            kind, cid = "pediatric", f"{comp} · pediatric"
+            stem = base.replace(".blanked.json", "")
+            inp = os.path.join(_LIB, comp, "json_input", stem + ".input.json")
+        elif base.endswith("-Model.blanked.json"):
+            kind, cid = "adult", comp
+            stem = base.replace(".blanked.json", "")
+            inp = os.path.join(_LIB, comp, "json_input", stem + ".input.json")
+        else:
             continue
-        stem = base.replace(".blanked.json", "")
-        inp = os.path.join(_LIB, comp, "json_input", stem + ".input.json")
-        if not os.path.isfile(inp):
+        if cid in seen or not os.path.isfile(inp):
             continue
-        rep = os.path.join(_LIB, comp, "report", stem + ".json")
-        status, gmfe = "new", None
-        if os.path.isfile(rep):
-            try:
-                r = json.load(open(rep, encoding="utf-8"))
-                g = r.get("held_out") or {}
-                verdict = (r.get("verdict") or "").lower()
-                status = "pass" if "pass" in verdict else ("fail" if "fail" in verdict else "done")
-                gmfe = g.get("agent") or r.get("gmfe")
-            except Exception:
-                pass
-        out.append({"compound": comp, "snapshot": snap, "input": inp,
-                    "status": status, "gmfe": gmfe})
+        seen.add(cid)
+        status, gmfe = _report_status(os.path.join(_LIB, comp, "report", stem + ".json"))
+        out.append({"compound": cid, "dir": comp, "label": cid, "kind": kind,
+                    "snapshot": snap, "input": inp, "status": status, "gmfe": gmfe})
     return out
 
 
 def _find(compound: str) -> dict | None:
     return next((c for c in _compounds() if c["compound"] == compound), None)
+
+
+def _task_dir(x: str) -> str:
+    """Resolve a task id (or a bare directory) to its base compound directory."""
+    d = _find(x)
+    return d["dir"] if d else x
 
 
 # ---- rerunnable deliverable ----------------------------------------------- #
@@ -661,7 +689,11 @@ def _run_agent_locked(run_id, p, q) -> None:
         return
 
     inp = json.load(open(f["input"], encoding="utf-8"))
-    observed = inp["given_data"]["clinical_observed_data"]
+    observed = (inp.get("given_data", {}) or {}).get("clinical_observed_data")
+    if not observed:
+        q.put({"type": "error", "message": "This task has no plasma concentration data to fit "
+               "(e.g. a DDI task) — it runs via the interaction pipeline, not the web runner yet."})
+        return
     split = osp_split.split_studies(json.load(open(f["snapshot"], encoding="utf-8")), observed)
     build_set = set(split.get("building") or [])
     if split.get("verification"):
@@ -689,7 +721,7 @@ def _run_agent_locked(run_id, p, q) -> None:
     # materials (no web) so leave-one-out holds.
     ctx_report = ctx_data = None
     if self_extract:
-        tdir = os.path.join(_RW, compound, "test")
+        tdir = os.path.join(_RW, f["dir"], "test")
         reps = glob.glob(os.path.join(tdir, "report", "*.md"))
         ddir = os.path.join(tdir, "data")
         if reps and os.path.isdir(ddir):
@@ -731,7 +763,7 @@ def _run_agent_locked(run_id, p, q) -> None:
         (inp_agent.get("given_data", {}) or {}).get("literature_physicochemical")
     deliverable = None
     try:
-        deliverable = _write_deliverable(compound, f["snapshot"], edits, best,
+        deliverable = _write_deliverable(f["dir"], f["snapshot"], edits, best,
                                          givens, split, build_obs)
     except Exception:                        # noqa: BLE001 - packaging must never sink a run
         pass
@@ -776,7 +808,7 @@ def create_app():
 
     @app.get("/api/models")
     def models():
-        return JSONResponse([{k: c[k] for k in ("compound", "status", "gmfe")}
+        return JSONResponse([{k: c[k] for k in ("compound", "status", "gmfe", "label", "kind", "dir")}
                              for c in _compounds()])
 
     @app.get("/api/library")
@@ -794,7 +826,7 @@ def create_app():
 
     @app.get("/api/rw/report")
     def rw_report(project: str, kind: str = "test"):
-        d = os.path.join(_RW, project, kind, "report")
+        d = os.path.join(_RW, _task_dir(project), kind, "report")
         files = glob.glob(os.path.join(d, "*.md"))
         if not files:
             return JSONResponse({"markdown": ""})
@@ -802,7 +834,7 @@ def create_app():
 
     @app.get("/api/rw/series")
     def rw_series(project: str, kind: str = "test"):
-        return JSONResponse({"series": _rw_series(project, kind)})
+        return JSONResponse({"series": _rw_series(_task_dir(project), kind)})
 
     @app.get("/api/catalog")
     def catalog():
@@ -837,6 +869,7 @@ def create_app():
 
     @app.get("/api/rw/topology")
     def rw_topology(project: str):
+        project = _task_dir(project)
         snap = os.path.join(_LIB, project, "json", f"{project}-Model.json")
         if not os.path.isfile(snap):
             return JSONResponse({"error": "no snapshot"}, status_code=404)
@@ -856,7 +889,7 @@ def create_app():
         # the context report's simulated-vs-observed fit figures live in the OSP
         # library (images/...); serve them so the reference fit renders in-viewer.
         from fastapi.responses import FileResponse, Response
-        base = os.path.normpath(os.path.join(_LIB, project))
+        base = os.path.normpath(os.path.join(_LIB, _task_dir(project)))
         fp = os.path.normpath(os.path.join(base, path))
         if (not fp.startswith(base + os.sep) or not fp.lower().endswith(".png")
                 or not os.path.isfile(fp)):
@@ -885,7 +918,7 @@ def create_app():
     @app.get("/api/deliverable")
     def deliverable(compound: str):
         from fastapi.responses import Response
-        d = os.path.join(_LIB, compound, "deliverable")
+        d = os.path.join(_LIB, _task_dir(compound), "deliverable")
         if not os.path.isdir(d):
             return JSONResponse({"error": "no deliverable yet — run the agent first"},
                                 status_code=404)

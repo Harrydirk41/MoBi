@@ -92,6 +92,19 @@ class TestCopilotServer(unittest.TestCase):
         self.assertIn("MoBi (open modeling)", areas)
         self.assertEqual(areas["MoBi (open modeling)"], "mobi")
 
+    def test_pediatric_and_ddi_tasks_listed(self):
+        ms = self.c.get("/api/models").json()
+        kinds = {m["compound"]: m["kind"] for m in ms}
+        peds = [m for m in ms if m["kind"] == "pediatric"]
+        ddis = [m for m in ms if m["kind"] == "ddi"]
+        self.assertTrue(peds and ddis)                       # existing tutorials wired in
+        self.assertTrue(all(m.get("dir") for m in ms))       # each task resolves to a base dir
+        # a DDI task (no clinical data) fails cleanly on the web runner, not a 500
+        did = ddis[0]["compound"]
+        j = self.c.post("/api/try", json={"compound": did, "edits": {}}).json()
+        self.assertFalse(j["ok"])
+        self.assertTrue(j.get("error"))
+
     def test_model_view_is_editable_action_space(self):
         r = self.c.get("/api/model?compound=Tizanidine")
         self.assertEqual(r.status_code, 200)
