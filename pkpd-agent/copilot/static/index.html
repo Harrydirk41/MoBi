@@ -32,7 +32,10 @@
   button{cursor:pointer}.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
   .app{display:grid;grid-template-columns:262px minmax(0,1fr) 330px;height:100%}
   .rail,.center,.aside{min-width:0;height:100%;overflow-y:auto}
-  .rail{background:var(--surface);border-right:1px solid var(--border)}
+  .rail{background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden}
+  .rail .brand,.rail .railtop,.rail .ctrl{flex:0 0 auto}
+  .rail-sec.grow{flex:1 1 auto;min-height:0;display:flex;flex-direction:column;overflow:hidden}
+  .rail-sec.grow>#modelList{flex:1 1 auto;min-height:0;overflow-y:auto}
   .aside{background:var(--surface);border-left:1px solid var(--border);padding:16px}
   .center{display:flex;flex-direction:column;background:var(--bg)}
   .brand{display:flex;align-items:center;gap:10px;padding:16px;border-bottom:1px solid var(--border-2)}
@@ -47,6 +50,10 @@
   .m-item small{font-size:11px;color:var(--faint)}
   .kind{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.03em;padding:1px 5px;border-radius:5px}
   .kind.pediatric{background:var(--accent-soft);color:var(--accent-ink)}.kind.ddi{background:var(--warn-soft);color:var(--warn)}
+  .rst{flex:0 0 auto;font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.03em;padding:2px 6px;border-radius:6px}
+  .rst:empty{display:none}
+  .rst.run{background:var(--warn-soft);color:var(--warn)}.rst.done{background:var(--good-soft);color:var(--good)}
+  .rst.fail{background:var(--crit-soft);color:var(--crit)}.rst.idle{background:var(--surface-2);color:var(--muted)}
   .ctrl{padding:6px 14px 16px;display:flex;flex-direction:column;gap:8px}
   .ctrl label{font-size:11px;color:var(--faint);text-transform:uppercase;letter-spacing:.05em}
   .ctrl select{width:100%;padding:7px 9px;border:1px solid var(--border);border-radius:9px;background:var(--surface)}
@@ -244,7 +251,7 @@
   .fitbar{display:flex;align-items:center;gap:10px;padding:4px 14px 2px}
   .fitbar .act[disabled]{opacity:.55;cursor:default}
   @media (max-width:1120px){.app{grid-template-columns:236px minmax(0,1fr) 296px}}
-  @media (max-width:980px){html,body{height:auto}.app{grid-template-columns:1fr;height:auto}.rail,.aside{height:auto;overflow:visible;border:0;border-bottom:1px solid var(--border)}.aside{order:3}.topbar{position:static}}
+  @media (max-width:980px){html,body{height:auto}.app{grid-template-columns:1fr;height:auto}.rail,.aside{height:auto;overflow:visible;border:0;border-bottom:1px solid var(--border)}.rail{display:block}.rail-sec.grow,.rail-sec.grow>#modelList{overflow:visible;flex:none;min-height:0}.aside{order:3}.topbar{position:static}}
 </style>
 </head>
 <body>
@@ -254,11 +261,11 @@
       <div class="logo"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="5" r="2.1"/><circle cx="5.5" cy="16" r="2.1"/><circle cx="18.5" cy="16" r="2.1"/><path d="M12 7v4m0 0-5 4m5-4 5 4"/></svg></div>
       <div><b>PBPK Copilot</b><span>AI modeling agent · live</span></div>
     </div>
-    <div style="padding:10px 12px 2px;display:flex;flex-direction:column;gap:6px">
+    <div class="railtop" style="padding:10px 12px 2px;display:flex;flex-direction:column;gap:6px">
       <button class="catbtn" id="catBtn"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>Build / edit model</button>
       <button class="catbtn" id="sbBtn"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 19V5m6 14V9m6 10V3"/></svg>Autonomous run all</button>
     </div>
-    <div class="rail-sec"><h4>Models</h4><div id="modelList"><div class="m-item" style="opacity:.6"><span class="dot idle"></span><span class="meta"><b>loading…</b></span></div></div></div>
+    <div class="rail-sec grow"><h4>Models</h4><div id="modelList"><div class="m-item" style="opacity:.6"><span class="dot idle"></span><span class="meta"><b>loading…</b></span></div></div></div>
     <div class="ctrl">
       <label>LLM</label>
       <select id="llm"><option value="claude-sonnet-5">Claude Sonnet 5 (cheaper)</option><option value="claude-opus-5">Claude Opus 5</option></select>
@@ -394,8 +401,23 @@ async function loadModels(){
   list.forEach(m=>{const[cls]=STATUS[m.status]||STATUS.new;
     const b=el("button","m-item");b.dataset.name=m.compound;
     const kb=(m.kind&&m.kind!=='adult')?` <span class="kind ${m.kind}">${m.kind==='ddi'?'DDI':m.kind}</span>`:"";
-    b.innerHTML=`<span class="dot ${cls}"></span><span class="meta"><b>${escapeHtml(m.label||m.compound)}</b><small>${m.gmfe?('held-out '+(+m.gmfe).toFixed(2)):(m.kind==='ddi'?'interaction task':'not built yet')}${kb}</small></span>`;
+    b.innerHTML=`<span class="dot ${cls}"></span><span class="meta"><b>${escapeHtml(m.label||m.compound)}</b><small>${m.gmfe?('held-out '+(+m.gmfe).toFixed(2)):(m.kind==='ddi'?'interaction task':'not built yet')}${kb}</small></span><span class="rst" data-rst></span>`;
     b.onclick=()=>select(m.compound,m.status,m.gmfe);wrap.appendChild(b);});
+  Object.keys(RSTATE).forEach(c=>railSet(c,RSTATE[c],SBRESULTS[c]));  // repaint live status after a reload
+}
+// live per-model status shown in the left rail (queued/running/grading/done/stopped/failed)
+const RSTATE={}, SBRESULTS={};           // compound -> phase ; compound -> {in_sample,held_out}
+const RST={queued:["idle","queued"],running:["run","running"],grading:["run","grading"],
+           done:["done","done"],stopped:["fail","stopped"],failed:["fail","failed"]};
+function railSet(c,phase,opts){
+  if(phase)RSTATE[c]=phase; else delete RSTATE[c];
+  const b=document.querySelector(`.m-item[data-name="${(c||"").replace(/"/g,'\\"')}"]`);
+  if(!b)return;
+  const pill=b.querySelector("[data-rst]"),dot=b.querySelector(".dot"),small=b.querySelector("small");
+  const[cls,lbl]=RST[phase]||["idle",phase||""];
+  if(pill){pill.className="rst "+(phase?cls:"");pill.textContent=phase?lbl:"";}
+  if(dot&&phase)dot.className="dot "+(phase==="done"?"good":cls);
+  if(phase==="done"&&opts&&opts.held_out!=null&&small)small.textContent="held-out "+(+opts.held_out).toFixed(2);
 }
 function select(name,status,gmfe){
   current=name;
@@ -731,6 +753,11 @@ function renderScoreboard(comps){
   $("#sbBody").innerHTML=comps.map(c=>`<tr id="${sbRowId(c)}"><td>${escapeHtml(c)}</td><td><span class="sbst idle">queued</span></td><td class="g">—</td><td class="g">—</td></tr>`).join("");
 }
 function sbSet(c,o){
+  if(o.status){                         // mirror the run state into the left rail
+    const railPhase=o.status==="failed"?(o.note==="stopped"?"stopped":"failed"):o.status;
+    if(o.status==="done")SBRESULTS[c]={in_sample:o.in_sample,held_out:o.held_out};
+    railSet(c,railPhase,SBRESULTS[c]);
+  }
   const row=document.getElementById(sbRowId(c));if(!row)return;
   const tds=row.querySelectorAll("td");
   if(o.status){const map={running:["run","building…"],grading:["run","grading held-out…"],done:["done","done"],failed:["fail","failed"]};
@@ -771,12 +798,19 @@ async function runAllAutonomous(){
   const comps=(MODELS||[]).map(m=>m.compound);
   if(!comps.length){$("#sbState").textContent="no compounds";return;}
   const conc=Math.max(1,+($("#sbConc").value||1));
+  // resume: keep already-built compounds; if none remain, start a fresh full run
+  if(comps.every(c=>SBRESULTS[c]))Object.keys(SBRESULTS).forEach(c=>delete SBRESULTS[c]);
   sbStop=false;sbStopOne=new Set();sbAbortByComp=new Map();sbRunning=true;
   $("#sbStart").hidden=true;$("#sbStop").hidden=false;
-  renderScoreboard(comps);let done=0,idx=0;
+  renderScoreboard(comps);
+  Object.keys(SBRESULTS).forEach(c=>{if(comps.includes(c))sbSet(c,{status:"done",in_sample:SBRESULTS[c].in_sample,held_out:SBRESULTS[c].held_out});});
+  let done=comps.filter(c=>SBRESULTS[c]).length,idx=0;
+  const label=()=>$("#sbState").textContent=`${done}/${comps.length} done`+(conc>1?` · ${conc} parallel`:"");
+  label();
   async function worker(){
     while(!sbStop){
       const i=idx++;if(i>=comps.length)break;const c=comps[i];
+      if(SBRESULTS[c])continue;                 // already built — resume skips it
       if(sbStopOne.has(c)){sbSet(c,{status:"failed",note:"stopped"});done++;continue;}
       sbSet(c,{status:"running"});
       const r=await runOne(c);
@@ -790,7 +824,7 @@ async function runAllAutonomous(){
         if(sbStopOne.has(c))sbSet(c,{status:"failed",note:"stopped"});
         else sbSet(c,{status:"done",in_sample:r.best_gmfe,held_out:held});
         done++;}
-      $("#sbState").textContent=`${done}/${comps.length} done`+(conc>1?` · ${conc} parallel`:"");
+      label();
     }
   }
   await Promise.all(Array.from({length:conc},()=>worker()));
@@ -966,9 +1000,10 @@ function mdToHtml(md,imgBase){
 }
 
 /* run + stream */
+let buildingComp=null;                  // the compound the single-build stream is for
 $("#runBtn").onclick=async()=>{
   if(!current)return;
-  pending=[];
+  pending=[];buildingComp=current;railSet(current,"running");
   $("#runBtn").disabled=true;$("#stopBtn").hidden=false;$("#runState").textContent="starting…";
   $("#thread").querySelectorAll(".empty").forEach(x=>x.remove());
   let run_id;
@@ -1050,11 +1085,13 @@ function handle(ev){
     doneActions(ev);
     $("#fitBadge").innerHTML=pass?'<span class="badge pass">converged ≤ 1.6</span>':'<span class="badge run">see held-out grade</span>';
     $("#runState").textContent="done";
+    if(buildingComp){railSet(buildingComp,"done");loadModels();}  // refresh the rail with the server-side grade
   }else if(ev.type==="error"){
     th.appendChild(el("div","verdict",`<div style="color:var(--crit)">⚠ ${escapeHtml(ev.message)}</div>`));
     $("#runState").textContent="error";
+    if(buildingComp)railSet(buildingComp,"failed");
   }else if(ev.type==="end"){
-    if(es)es.close();$("#stopBtn").hidden=true;$("#runBtn").disabled=false;
+    if(es)es.close();$("#stopBtn").hidden=true;$("#runBtn").disabled=false;buildingComp=null;
   }
 }
 function prettyTool(n){return({osp_inspect:"Inspecting task, priors & data",osp_options:"Reading the action space",osp_sweep_methods:"Sweeping distribution methods",osp_optimize:"Optimizing parameters",osp_try_model:"Trying a model edit",osp_read_report:"Reading the report",osp_list_studies:"Listing the data files",osp_read_study:"Reading a study curve",osp_record_givens:"Recording extracted givens"})[n]||n;}
