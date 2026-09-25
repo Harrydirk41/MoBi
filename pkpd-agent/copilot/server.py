@@ -658,6 +658,21 @@ def _obs_detail(tool: str, c: dict):
     if tool == "osp_read_report":
         md = c.get("report_markdown") or ""
         return {"report excerpt (agent extracts givens from this)": trim(md, 2400)} if md else None
+    if tool == "osp_read_reference":
+        d = {}
+        if c.get("calculation_methods"):
+            d["methods"] = c["calculation_methods"]
+        procs = c.get("processes") or []
+        if procs:
+            d["processes"] = [f"{molname(p)}" + (f" ({p.get('type')})" if isinstance(p, dict) else "")
+                              for p in procs]
+        if c.get("estimated_parameters"):
+            d["fitted parameters"] = [str(e if not isinstance(e, dict) else e.get("parameter"))
+                                      for e in c["estimated_parameters"]]
+        rep = c.get("report_markdown")
+        if rep:
+            d["analogue report (full write-up)"] = trim(rep, 2600)
+        return d or None
     if tool == "osp_inspect":
         d = {}
         if c.get("objective"):
@@ -676,7 +691,10 @@ def _obs_detail(tool: str, c: dict):
             d["candidate enzymes/transporters"] = cm[:40]
         rl = c.get("reference_library")
         if isinstance(rl, dict):
-            d["reference library"] = f"{rl.get('mode')} · {len(rl.get('models') or [])} models"
+            avail = rl.get("available") or rl.get("models") or []
+            names = [a.get("compound") for a in avail if isinstance(a, dict)]
+            d["reference library (open with osp_read_reference)"] = (
+                f"{rl.get('mode')} · {len(avail)} analogues: " + ", ".join(n for n in names if n))
         return d or None
     if tool == "osp_options":
         d = {}
@@ -832,6 +850,7 @@ def _run_agent_locked(run_id, p, q) -> None:
     else:
         build_obs, inp_agent = observed, inp
 
+    context_reports: dict = {}                   # compound -> its full context report .md
     if library:
         from pkpd_agent.engines import reference_library as RL
         lib = RL.library_for_snapshot(f["snapshot"],
@@ -839,6 +858,11 @@ def _run_agent_locked(run_id, p, q) -> None:
                                       only=only or None)
         inp_agent = dict(inp_agent)
         inp_agent["reference_library"] = lib
+        for mdl in lib.get("models") or []:      # let the agent open each analogue's own report
+            comp = mdl.get("compound")
+            reps = glob.glob(os.path.join(_RW, comp, "context", "report", "*.md"))
+            if reps:
+                context_reports[comp] = reps[0]
         q.put({"type": "meta", "library": lib["mode"], "n_ref": len(lib["models"])})
 
     q.put({"type": "meta", "building": len(build_obs),
@@ -864,6 +888,7 @@ def _run_agent_locked(run_id, p, q) -> None:
     register_osp_loop_tools(registry, cfg, {
         "cli": cli, "snapshot_path": f["snapshot"],
         "observed": build_obs, "input": inp_agent,
+        "context_reports": context_reports,
         "self_extract": bool(ctx_report)})
     if ctx_report:
         register_context_tools(registry, cfg, {

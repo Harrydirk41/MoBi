@@ -15,6 +15,7 @@ is captured in the handlers, so these are registered per-task, not globally.
 from __future__ import annotations
 
 import json
+import os
 from typing import Any
 
 from ..engines.osp_cli import OSPCli
@@ -521,6 +522,8 @@ def register_osp_loop_tools(registry: ToolRegistry, config, ctx: dict) -> None:
         input_schema={"type": "object", "properties": {}},
         handler=inspect, phase="observe"))
 
+    context_reports: dict = ctx.get("context_reports") or {}   # compound -> report .md path
+
     def read_reference(args: dict, session) -> ToolResult:
         reflib = inp.get("reference_library") or {}
         models = reflib.get("models") or []
@@ -538,25 +541,36 @@ def register_osp_loop_tools(registry: ToolRegistry, config, ctx: dict) -> None:
             return ToolResult.error(
                 f"Unknown analogue '{name}'. Available: "
                 + ", ".join(x.get("compound", "") for x in models))
+        # the analogue's FULL modeling report (its own published write-up), if handed
+        report_md = None
+        rp = context_reports.get(m.get("compound"))
+        if rp and os.path.isfile(rp):
+            try:
+                report_md = open(rp, encoding="utf-8").read()[:20000]
+            except OSError:
+                report_md = None
         return ToolResult.success(
             f"finished model of the analogue {m.get('compound')} (a leave-one-out "
-            "reference, NOT the target) — read its full structure and reuse it by "
-            "analogy where the chemistry matches; fit the numbers to THIS compound.",
+            "reference, NOT the target) — read its full report and structure and "
+            "reuse it by analogy where the chemistry matches; fit the numbers to "
+            "THIS compound.",
             compound=m.get("compound"),
             calculation_methods=m.get("calculation_methods"),
             processes=m.get("processes"),
             estimated_parameters=m.get("estimated_parameters"),
+            report_markdown=report_md,
             reference_markdown=_reference_markdown(m))
 
     registry.register(Tool(
         name="osp_read_reference",
         description=(
             "OPEN and read one analogue's finished model from the reference library "
-            "(by compound name, from the index osp_inspect returns). Returns its "
-            "full structure — distribution/permeability method, the "
-            "enzyme/transporter processes, and the parameters the modeler fitted — "
-            "as a readable page. You MUST open the closest analogues this way before "
-            "choosing your structure; the inspect index alone is not enough."),
+            "(by compound name, from the index osp_inspect returns). Returns that "
+            "analogue's FULL modeling report (report_markdown — its own published "
+            "write-up: methods, rationale, fitted values) plus a structured summary "
+            "(distribution/permeability method, processes, fitted parameter names). "
+            "You MUST open and READ the closest analogues this way before choosing "
+            "your structure; the inspect index alone is not enough."),
         input_schema={"type": "object", "properties": {
             "compound": {"type": "string",
                          "description": "analogue name from the reference_library index"}},

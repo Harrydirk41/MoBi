@@ -38,11 +38,12 @@ class TestReferenceIndex(unittest.TestCase):
 
 
 class TestReadReference(unittest.TestCase):
-    def _tool(self):
+    def _tool(self, context_reports=None):
         reg = ToolRegistry()
         register_osp_loop_tools(reg, AgentConfig(mock=False), {
             "cli": object(), "snapshot_path": "x", "observed": [],
-            "input": {"reference_library": _LIB}})
+            "input": {"reference_library": _LIB},
+            "context_reports": context_reports or {}})
         return reg.get("osp_read_reference").handler
 
     def test_open_analogue_returns_full_structure(self):
@@ -51,6 +52,14 @@ class TestReadReference(unittest.TestCase):
         self.assertEqual(r.data["processes"][0]["molecule"], "CYP3A4")
         self.assertIn("Intrinsic clearance@CYP3A4", r.data["estimated_parameters"])
         self.assertIn("Reference model: Sufentanil", r.data["reference_markdown"])
+
+    def test_open_analogue_serves_full_report_when_present(self):
+        import tempfile, os as _os
+        d = tempfile.mkdtemp()
+        rp = _os.path.join(d, "Sufentanil.md")
+        open(rp, "w").write("# Sufentanil model\nUses Schmitt distribution, CYP3A4.")
+        r = self._tool({"Sufentanil": rp})({"compound": "Sufentanil"}, ModelingSession(goal="g"))
+        self.assertIn("Schmitt distribution", r.data["report_markdown"])
 
     def test_unknown_analogue_lists_available(self):
         r = self._tool()({"compound": "Nope"}, ModelingSession(goal="g"))
