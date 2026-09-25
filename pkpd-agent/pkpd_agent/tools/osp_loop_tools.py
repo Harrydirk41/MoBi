@@ -257,6 +257,52 @@ def _method_guidance(observed: list[dict]) -> dict[str, Any]:
     return out
 
 
+def _structure_problems(structure, estimate, link_groups=None) -> list[str]:
+    """Catch model-config patterns that make PK-Sim build/run produce no output,
+    so the agent gets an actionable message instead of the opaque 'no result CSVs
+    parsed'. Pure config checks - no engine needed."""
+    structure = structure or {}
+    estimate = estimate or {}
+    problems: list[str] = []
+    # (1) two+ added processes on the SAME molecule -> their per-molecule parameter
+    #     keys collide (both e.g. kcat@CYP3A4 / Intrinsic clearance@CYP3A4), so
+    #     PK-Sim cannot build them apart and the run yields nothing.
+    counts: dict[str, int] = {}
+    for p in structure.get("add_processes") or []:
+        mol = (p or {}).get("molecule")
+        if mol:
+            counts[mol] = counts.get(mol, 0) + 1
+    for mol, n in counts.items():
+        if n > 1:
+            problems.append(
+                f"you added {n} processes on the same molecule '{mol}': their "
+                f"parameters share one key (kcat@{mol} / Intrinsic clearance@{mol}), "
+                "so PK-Sim cannot distinguish the parallel routes and the run "
+                f"produces no output. Model the parallel {mol} routes as ONE lumped "
+                f"pathway (a single process on {mol}, one total clearance), or put "
+                "each route on a distinct molecule.")
+    # (2) link_scale group with fewer than two DISTINCT members (e.g. the same key
+    #     twice) - degenerate, and usually rides on the duplicate-molecule bug.
+    for members in (link_groups or []):
+        if len(set(members)) < 2:
+            problems.append(
+                f"a link_scale group has fewer than two distinct members ({members}); "
+                "link_scale fits the shared magnitude of >=2 DIFFERENT parameters - "
+                "pass distinct keys, or fit the single parameter directly with "
+                "'estimate'.")
+    # (3) fitting 'Permeability' while a permeability method that COMPUTES it is
+    #     active -> Permeability is not a free parameter, so PK-Sim fails to run.
+    perm = (structure.get("calculation_methods") or {}).get("permeability")
+    if "Permeability" in estimate and perm and "Charge dependent" in str(perm):
+        problems.append(
+            f"'Permeability' is being fitted but the permeability method '{perm}' "
+            "COMPUTES cellular permeability from physchem, so Permeability is not a "
+            "settable/fittable parameter under it and PK-Sim fails to run. Switch "
+            "permeability to 'PK-Sim Standard' to fit Permeability, or remove it "
+            "from estimate.")
+    return problems
+
+
 def _given_physchem_value(base: str, lit: list) -> "float | None":
     """The GIVEN value of a DIRECT physicochemical property (currently lipophilicity) if the input
     provided it, else None. Only direct measurements are returned - NOT in-vitro kinetic inputs
@@ -648,6 +694,15 @@ def register_osp_loop_tools(registry: ToolRegistry, config, ctx: dict) -> None:
                 "after fixing given measurements, no parameter is left to estimate - the input "
                 f"already supplies these values ({'; '.join(constraint_notes)}). Choose a different "
                 "uncertain parameter (e.g. Intrinsic clearance) to fit.")
+        # pre-flight: reject configs PK-Sim can't run, with an actionable reason,
+        # instead of burning eval attempts on an opaque 'no result CSVs' crash.
+        probs = _structure_problems(args.get("structure"), estimate,
+                                    [g.get("members") or [] for g in (args.get("link_scale") or [])])
+        if probs:
+            return ToolResult.error(
+                "this model configuration cannot run (fix the STRUCTURE, not the "
+                "bounds): " + " | ".join(probs))
+
         r = OO.run_optimization(
             cli, snapshot_path, observed, estimate=estimate,
             fix=given_fix, structure=args.get("structure"),
