@@ -475,3 +475,38 @@ def plausibility(params: list[dict]) -> list[dict]:
         if bad:
             flags.append({"parameter": p.get("parameter"), "value": v, "message": bad})
     return flags
+
+
+def _downsample_curve(pts: list, cap: int = 80) -> list:
+    """Thin a simulated curve to ~cap evenly-spaced points for a compact overlay
+    (the raw PK-Sim grid is far denser than a plot needs)."""
+    n = len(pts)
+    if n <= cap:
+        return pts
+    step = n / float(cap)
+    out = [pts[int(i * step)] for i in range(cap)]
+    if out[-1] is not pts[-1]:
+        out.append(pts[-1])                       # always keep the terminal point
+    return out
+
+
+def overlay_series(observed: list[dict], predicted: list[dict],
+                   cap: int = 80) -> list[dict]:
+    """Per-dataset observed vs simulated curves for a fit overlay (fit-vision).
+
+    ``observed`` entries carry ``time_h``/``conc_mg_L``; ``predicted`` entries
+    (from :func:`map_predictions`) carry ``time_h``/``pred_conc_mg_L`` keyed by
+    ``dataset``. Returns ``[{study, route, dose, observed:[[t,c]],
+    simulated:[[t,c]]}]`` - the shape :mod:`fit_plot` renders."""
+    pred_by = {p.get("dataset"): p for p in (predicted or [])}
+    out = []
+    for o in observed or []:
+        p = pred_by.get(o.get("dataset"))
+        obs_pts = [[t, c] for t, c in zip(o.get("time_h", []), o.get("conc_mg_L", []))
+                   if c is not None]
+        sim_pts = ([[t, c] for t, c in zip(p.get("time_h", []), p.get("pred_conc_mg_L", []))
+                    if c is not None] if p else [])
+        out.append({"study": o.get("study") or o.get("dataset"),
+                    "route": o.get("route", ""), "dose": o.get("dose", ""),
+                    "observed": obs_pts, "simulated": _downsample_curve(sim_pts, cap)})
+    return out

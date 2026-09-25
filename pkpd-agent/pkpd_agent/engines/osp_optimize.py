@@ -306,6 +306,7 @@ def run_optimization(cli: OSPCli, snapshot_path: str, observed: list[dict],
             return {"ok": False, "message": f"ranking run failed: {res_sub.get('message')}",
                     "optimized": expand(optimized)}
         score = osp_score.score_fit(observed_sub, predicted_sub)
+        overlay = osp_score.overlay_series(observed_sub, predicted_sub)
     else:
         sensitivity = _local_sensitivity(eval_at, _log_sse, observed_sub, subset,
                                          optimized, names, best, lx, hx)
@@ -322,6 +323,7 @@ def run_optimization(cli: OSPCli, snapshot_path: str, observed: list[dict],
             return {"ok": False, "message": f"final run failed: {res_full.get('message')}",
                     "optimized": expand(optimized)}
         score = osp_score.score_fit(observed, predicted_full)
+        overlay = osp_score.overlay_series(observed, predicted_full)
 
     # expand variable-space results to PER-PARAMETER values for the report/re-run:
     # a group scale becomes its actual member values, and each member inherits the
@@ -351,6 +353,7 @@ def run_optimization(cli: OSPCli, snapshot_path: str, observed: list[dict],
         "recommendations": actions,
         "n_evals": len(history),
         "fit_simulations": subset,
+        "series": overlay,                    # observed vs simulated, for fit-vision
     }
 
 

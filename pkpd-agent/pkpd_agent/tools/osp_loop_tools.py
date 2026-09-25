@@ -364,10 +364,27 @@ def register_osp_loop_tools(registry: ToolRegistry, config, ctx: dict) -> None:
     # reference model's fix-vs-fit split (which params it fit vs took as given) -
     # that is a chosen method. The agent decides from its own recorded givens.
     self_extract: bool = bool(ctx.get("self_extract"))
+    # FIT-VISION: hand the model a rendered semilog overlay of its own predicted
+    # curves vs the observed data, so it reasons about SHAPE (missing distribution
+    # phase, wrong terminal slope, Cmax/tmax offset) the scalar GMFE hides. On by
+    # default; the copilot toggle can turn it off for an ablation.
+    fit_vision: bool = bool(ctx.get("fit_vision", True))
 
     def _hide_status(model: dict) -> dict:
         return {**model, "parameters": [{k: v for k, v in p.items() if k != "value_status"}
                                         for p in model.get("parameters", [])]}
+
+    def _fit_images(series: list, title: str) -> list:
+        """Render the observed-vs-simulated overlay to a PNG image block, when
+        fit-vision is on and there is something plottable. Never raises into a run."""
+        if not fit_vision or not series:
+            return []
+        try:
+            from ..engines import fit_plot
+            im = fit_plot.render_fit_b64(series, title=title)
+            return [im] if im else []
+        except Exception:                            # noqa: BLE001 - vision is best-effort
+            return []
 
     def _cap_evals(n: int) -> int:
         """Clamp a requested optimizer budget to config.max_evals_cap (if set), so a
@@ -456,10 +473,14 @@ def register_osp_loop_tools(registry: ToolRegistry, config, ctx: dict) -> None:
                   "gmfe": d["gmfe"], "bias": d["bias"]}
                  for d in score["per_dataset"][:3]]
         pkp = score.get("pk_parameters") or {}
-        return ToolResult.success(
+        overlay = osp_score.overlay_series(observed, predicted)
+        images = _fit_images(overlay, f"observed vs simulated — GMFE {overall.get('gmfe')}")
+        out = ToolResult.success(
             f"GMFE {overall.get('gmfe')} overall "
             f"(within2fold {overall.get('within_2fold_pct')}%); "
-            f"best so far {session.get('osp_best_gmfe')}",
+            f"best so far {session.get('osp_best_gmfe')}"
+            + (" — a fit overlay is attached; read it for shape mismatches "
+               "(distribution phase, terminal slope, Cmax/tmax)." if images else ""),
             gmfe_overall=overall.get("gmfe"),
             within_2fold_pct=overall.get("within_2fold_pct"),
             bias_overall=overall.get("bias"),
@@ -474,7 +495,10 @@ def register_osp_loop_tools(registry: ToolRegistry, config, ctx: dict) -> None:
             n_matched=len(predicted), n_total=len(observed),
             best_gmfe_so_far=session.get("osp_best_gmfe"),
             iteration=len(hist),
+            saw_fit_curve=bool(images),               # transparency marker for the UI
         )
+        out.images = images
+        return out
 
     # -- observe (authoritative action space) --------------------------- #
     def options(args: dict, session) -> ToolResult:
@@ -756,10 +780,14 @@ def register_osp_loop_tools(registry: ToolRegistry, config, ctx: dict) -> None:
             rec_line = (f" | NEXT: {lead['action']}"
                         + (f" (+{len(recs)-1} more identifiability note(s))"
                            if len(recs) > 1 else ""))
-        return ToolResult.success(
+        images = _fit_images(r.get("series") or [],
+                             f"observed vs simulated — GMFE {gmfe}")
+        out = ToolResult.success(
             f"optimized {list(r['optimized'])} on {len(r['fit_simulations'])} "
             f"study(ies) -> GMFE {gmfe} "
-            f"(best so far {session.get('osp_best_gmfe')}){rec_line}",
+            f"(best so far {session.get('osp_best_gmfe')}){rec_line}"
+            + (" | a fit overlay is attached — inspect the curve shape, not just "
+               "the GMFE." if images else ""),
             optimized=r["optimized"], fit=r["fit"], by_route=r["by_route"],
             worst_datasets=r["worst_datasets"],
             params_at_bound=r["params_at_bound"],
@@ -769,7 +797,10 @@ def register_osp_loop_tools(registry: ToolRegistry, config, ctx: dict) -> None:
             parameter_flags=flags,
             measured_constraints=constraint_notes or None,
             n_evals=r["n_evals"], fit_simulations=r["fit_simulations"],
-            iteration=len(hist))
+            iteration=len(hist),
+            saw_fit_curve=bool(images))               # transparency marker for the UI
+        out.images = images
+        return out
 
     registry.register(Tool(
         name="osp_optimize",
@@ -792,7 +823,12 @@ def register_osp_loop_tools(registry: ToolRegistry, config, ctx: dict) -> None:
             "optimized values, the "
             "full-set GMFE + per-route bias, and params_at_bound (a parameter "
             "pinned to a bound = unidentifiable or wrong structure - reason about "
-            "it). Fits against a representative subset of studies for speed."),
+            "it). Fits against a representative subset of studies for speed. The "
+            "result also attaches a SEMILOG PLOT of your predicted curves vs the "
+            "observed data (log concentration vs time): LOOK AT IT - a good GMFE "
+            "can still hide a missing distribution phase, a wrong terminal slope, "
+            "or an over/undershot Cmax or shifted tmax. Diagnose the shape, not "
+            "just the number, before your next edit."),
         input_schema={
             "type": "object",
             "properties": {
@@ -1194,7 +1230,10 @@ def register_osp_loop_tools(registry: ToolRegistry, config, ctx: dict) -> None:
             "real error — before committing to a full osp_optimize. Returns GMFE "
             "and %-within-2-fold overall and PER ROUTE, plus the per-route "
             "geometric BIAS (>1 = over-predicts -> raise clearance; <1 = under). "
-            "Use the bias and worst datasets to decide the next edit."),
+            "Use the bias and worst datasets to decide the next edit. It also "
+            "attaches a SEMILOG overlay of predicted vs observed curves — read the "
+            "shape (distribution phase, terminal slope, Cmax/tmax), not just the "
+            "GMFE."),
         input_schema={
             "type": "object",
             "properties": {

@@ -131,10 +131,26 @@ class LLMPolicy:
                     findings_txt = "\n\nVERIFICATION:\n" + "\n".join(
                         f"[{f.level.upper()}] {f.gate}: {f.message}" for f in ev.findings
                     )
+                text = _json(ev.content) + findings_txt
+                images = getattr(ev, "images", None) or []
+                if images:
+                    # fit-vision: hand the model the rendered overlay(s) alongside the
+                    # numbers, so it can see SHAPE the scalar GMFE hides. tool_result
+                    # content becomes a block list (text + image blocks).
+                    content: Any = [{"type": "text", "text": text}]
+                    for im in images:
+                        content.append({
+                            "type": "image",
+                            "source": {"type": "base64",
+                                       "media_type": im.get("media_type", "image/png"),
+                                       "data": im["data"]},
+                        })
+                else:
+                    content = text
                 pending.append({
                     "type": "tool_result",
                     "tool_use_id": ev.call_id,
-                    "content": _json(ev.content) + findings_txt,
+                    "content": content,
                     "is_error": not ev.ok,
                 })
             else:

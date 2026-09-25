@@ -44,6 +44,10 @@ class Observation:
     ok: bool
     content: dict[str, Any]
     findings: list["Finding"] = field(default_factory=list)
+    # images the model should SEE with this result (fit-vision overlays); carried
+    # on a side channel so the base64 never enters ``content`` (which is streamed
+    # and persisted). Materialized into tool_result image blocks by the policy.
+    images: list[dict[str, str]] = field(default_factory=list)
 
     @property
     def blocked(self) -> bool:

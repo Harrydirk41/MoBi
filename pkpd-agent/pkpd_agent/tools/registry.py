@@ -22,6 +22,12 @@ class ToolResult:
     ok: bool
     data: dict[str, Any] = field(default_factory=dict)
     message: str = ""
+    # A SIDE CHANNEL for images the model should SEE (fit-vision overlays), each
+    # {"media_type", "data"(base64)}. Deliberately OUTSIDE to_content(): the
+    # base64 must never land in the streamed/persisted transcript (it would bloat
+    # every SSE event and every saved run JSON) - the policy layer materializes
+    # these into tool_result image blocks at message-build time and nowhere else.
+    images: list[dict[str, str]] = field(default_factory=list)
 
     @classmethod
     def success(cls, message: str = "", **data: Any) -> "ToolResult":

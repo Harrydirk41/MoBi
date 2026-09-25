@@ -90,6 +90,7 @@ class DecisionLoop:
                     ok=result.ok,
                     content=result.to_content(),
                     findings=findings,
+                    images=list(getattr(result, "images", None) or []),
                 )
                 emit(obs)
                 if obs.blocked and self.config.stop_on_block:

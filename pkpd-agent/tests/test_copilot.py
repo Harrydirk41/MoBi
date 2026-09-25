@@ -309,7 +309,11 @@ class TestCopilotServer(unittest.TestCase):
             "calculation_methods": {"partition": "Rodgers and Rowland",
                                     "permeability": "PK-Sim Standard"},
             "add_processes": [{"type": "metabolization_mm", "molecule": "CYP3A4"}],
-            "parameters": {"Lipophilicity": 2.5, "kcat@CYP3A4": 10.0}}})
+            "parameters": {"Lipophilicity": 2.5, "kcat@CYP3A4": 10.0},
+            # a parameter the agent FIXED at a literature value (not optimized) is
+            # still part of the adopted model -> it must show up in the comparison,
+            # not as a misleading "—".
+            "fix": {"GFR fraction": 0.5}}})
         self.assertEqual(r.status_code, 200)
         j = r.json()
         comp = j.get("comparison")
@@ -317,9 +321,15 @@ class TestCopilotServer(unittest.TestCase):
         by = {s["aspect"]: s for s in comp["structure"]}
         self.assertTrue(by["partition method"]["match"])          # matched the reference
         self.assertTrue(by["clearing molecules"]["match"])
-        lip = next(p for p in comp["parameters"] if p["name"] == "Lipophilicity")
+        params = {p["name"]: p for p in comp["parameters"]}
+        lip = params["Lipophilicity"]
         self.assertIsNotNone(lip["fold"])                         # fold vs reference computed
         self.assertIn(lip["verdict"], ("recovered", "close", "off", "far"))
+        # the FIXED given surfaces as the agent's value (was "—" before the fix)
+        self.assertEqual(params["GFR fraction"]["agent"], 0.5)
+        self.assertIsNotNone(params["GFR fraction"]["fold"])
+        # a molecule-qualified fit key ('kcat@CYP3A4') lines up with the reference
+        self.assertEqual(params["kcat@CYP3A4"]["agent"], 10.0)
         # curves degrade gracefully without a CLI
         self.assertIn("in_sample", j)
         # the LLM interpretation field is present (None without an API key — best-effort)
@@ -392,6 +402,22 @@ class TestCopilotServer(unittest.TestCase):
             self.assertTrue(server._RUNS[rid]["cancel"])     # loop's should_stop reads this
         finally:
             server._RUNS.pop(rid, None)
+
+    def test_running_lists_live_runs_for_discovery(self):
+        # a page (even on another machine) can DISCOVER a live run and attach to it
+        from copilot import server
+        server._RUNS["live_run_x"] = {"queue": None, "done": False, "compound": "Alprazolam"}
+        server._RUNS["done_run_y"] = {"queue": None, "done": True, "compound": "Midazolam"}
+        try:
+            runs = self.c.get("/api/running").json()
+            comps = {r["compound"] for r in runs}
+            self.assertIn("Alprazolam", comps)               # live -> discoverable
+            self.assertNotIn("Midazolam", comps)             # finished -> not listed
+            row = next(r for r in runs if r["compound"] == "Alprazolam")
+            self.assertEqual(row["run_id"], "live_run_x")
+        finally:
+            server._RUNS.pop("live_run_x", None)
+            server._RUNS.pop("done_run_y", None)
 
     def test_clear_cache_removes_reffit_only(self):
         import os as _os

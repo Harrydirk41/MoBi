@@ -66,16 +66,46 @@ _RUNS: dict[str, dict] = {}
 
 
 class _LoggingQueue(queue.Queue):
-    """A queue that also records every dict event put through it, so a run's full
-    trace can be persisted to disk and replayed after a page reload / restart."""
+    """A recording BROADCAST queue for one run.
+
+    It does two jobs so a run can be watched from several pages at once (e.g. a
+    laptop and a second machine) and reloaded later:
+      * records every dict event to ``.log`` (persisted to disk for replay), and
+      * fans each event out to any number of live subscriber queues, so multiple
+        SSE connections each get their OWN copy instead of stealing events from a
+        single shared queue.
+    A late joiner calls ``subscribe()`` to get the backlog-so-far plus a live
+    queue, taken together under the lock so no event is dropped or duplicated
+    across the hand-off."""
     def __init__(self):
         super().__init__()
         self.log: list = []
+        self._subs: list[queue.Queue] = []
+        self._lock = threading.Lock()
 
     def put(self, item, *a, **k):
         if isinstance(item, dict):
-            self.log.append(item)
+            with self._lock:
+                self.log.append(item)
+                subs = list(self._subs)
+            for s in subs:
+                s.put(item)
         return super().put(item, *a, **k)
+
+    def subscribe(self):
+        """Register a live subscriber. Returns (backlog_snapshot, sub_queue); the
+        snapshot and the registration happen under one lock so the subscriber's
+        queue receives exactly the events AFTER the snapshot."""
+        s: queue.Queue = queue.Queue()
+        with self._lock:
+            backlog = list(self.log)
+            self._subs.append(s)
+        return backlog, s
+
+    def unsubscribe(self, s) -> None:
+        with self._lock:
+            if s in self._subs:
+                self._subs.remove(s)
 
 
 def _run_record_path(compound: str) -> str:
@@ -95,6 +125,7 @@ def _persist_run(compound: str, events: list, p: dict) -> None:
             "compound": compound, "ts": __import__("time").time(),
             "model": p.get("model"), "hard": bool(p.get("hard")),
             "web": bool(p.get("web")), "self_extract": bool(p.get("self_extract")),
+            "fit_vision": bool(p.get("fit_vision", True)),
             "in_sample_gmfe": done.get("best_gmfe"),
             "held_out_gmfe": None,               # filled by /api/runs/<c>/grade when the client grades
             "best_edits": done.get("best_edits"),
@@ -454,10 +485,22 @@ def _report(f: dict, edits: dict, model: str | None = None) -> dict:
             {"aspect": "clearing molecules", "agent": sorted(amols),
              "reference": ans["molecules"], "match": (set(amols) == set(ans["molecules"]))},
         ]
-        aparams = edits.get("parameters") or {}
+        # The agent's model VALUE for a parameter is its fitted value OR the
+        # literature value it FIXED — both are part of the adopted model. Comparing
+        # only the optimized subset makes a correctly-fixed given (e.g. fu taken
+        # from literature) show a misleading "—". And match by BASE name so a
+        # molecule-qualified key ('Intrinsic clearance@CYP3A4') lines up with the
+        # reference's plain 'Intrinsic clearance' instead of dropping to "—".
+        def _basekey(n):
+            return str(n).split("@", 1)[0].split("|", 1)[0].strip().lower()
+        agent_vals: dict = {}
+        for src in (edits.get("fix") or {}, edits.get("parameters") or {}):
+            if isinstance(src, dict):
+                for k, v in src.items():
+                    agent_vals[_basekey(k)] = v      # a fitted value overrides a fixed one
         prows = []
         for name, rv in ans["parameters"].items():
-            av = aparams.get(name)
+            av = agent_vals.get(_basekey(name))
             fold = (av / rv) if (isinstance(av, (int, float)) and isinstance(rv, (int, float)) and rv) else None
             prows.append({"name": name, "agent": av, "reference": rv,
                           "fold": (round(fold, 3) if fold else None),
@@ -953,6 +996,7 @@ def _serialize_observation(ev) -> dict:
             "by_route": c.get("by_route"),
             "ranked_top": c.get("ranked_top"),
             "recorded": c.get("recorded"),        # agent's self-extracted givens table
+            "saw_fit_curve": c.get("saw_fit_curve"),   # model was shown a fit overlay
             "detail": _obs_detail(tool, c)}       # what the agent actually read/saw
 
 
@@ -1091,13 +1135,16 @@ def _run_agent_locked(run_id, p, q) -> None:
         "cli": cli, "snapshot_path": f["snapshot"],
         "observed": build_obs, "input": inp_agent,
         "context_reports": context_reports,
-        "self_extract": bool(ctx_report)})
+        "self_extract": bool(ctx_report),
+        "fit_vision": p.get("fit_vision", True)})   # let the model SEE its fit curves
     if ctx_report:
         register_context_tools(registry, cfg, {
             "report_path": ctx_report, "data_dir": ctx_data, "input": inp_agent})
     web = bool(p.get("web"))                 # Anthropic's native, server-side web tools
     if web:                                  # real open-web lookup (NOT leave-one-out)
         q.put({"type": "meta", "web": True})
+    if p.get("fit_vision", True):            # the model sees its own fit overlays
+        q.put({"type": "meta", "fit_vision": True})
 
     goal = f"{inp.get('objective', 'Build the PBPK model.')}\n\n"
     if note:                                 # modeler steering from the composer
@@ -1334,10 +1381,12 @@ def create_app():
         se = payload.get("self_extract")
         self_extract = os.path.isdir(_RW) if se is None else bool(se)
         run_id = uuid.uuid4().hex[:12]
-        _RUNS[run_id] = {"queue": _LoggingQueue(), "done": False}
+        _RUNS[run_id] = {"queue": _LoggingQueue(), "done": False, "compound": compound}
         params = {"compound": compound, "model": model, "max_steps": max_steps,
                   "library": lib, "only": only, "self_extract": self_extract,
                   "hard": bool(payload.get("hard")), "web": bool(payload.get("web")),
+                  # fit-vision defaults ON: the modeler chose "best modeling"
+                  "fit_vision": bool(payload.get("fit_vision", True)),
                   "note": payload.get("note")}
         threading.Thread(target=_run_agent, args=(run_id, params), daemon=True).start()
         return JSONResponse({"run_id": run_id})
@@ -1374,19 +1423,43 @@ def create_app():
         run = _RUNS.get(run_id)
         if not run:
             return JSONResponse({"error": "unknown run"}, status_code=404)
-        q: queue.Queue = run["queue"]
+        q = run["queue"]
 
         def gen():
-            while True:
-                try:
-                    ev = q.get(timeout=30)
-                except queue.Empty:
-                    yield ": keep-alive\n\n"
-                    continue
-                yield f"data: {json.dumps(ev)}\n\n"
-                if ev.get("type") == "end":
-                    break
+            # multi-watcher: each connection gets its own subscriber queue, and a
+            # late joiner (a second page, or one opened after the run started)
+            # first replays the backlog, then streams live - so two pages on the
+            # same run stay in sync instead of stealing each other's events.
+            if hasattr(q, "subscribe"):
+                backlog, sub = q.subscribe()
+            else:                                     # pragma: no cover - plain Queue fallback
+                backlog, sub = [], q
+            try:
+                for ev in backlog:
+                    yield f"data: {json.dumps(ev)}\n\n"
+                    if ev.get("type") == "end":       # run already finished -> replay is complete
+                        return
+                while True:
+                    try:
+                        ev = sub.get(timeout=30)
+                    except queue.Empty:
+                        yield ": keep-alive\n\n"
+                        continue
+                    yield f"data: {json.dumps(ev)}\n\n"
+                    if ev.get("type") == "end":
+                        break
+            finally:
+                if hasattr(q, "unsubscribe"):
+                    q.unsubscribe(sub)
         return StreamingResponse(gen(), media_type="text/event-stream")
+
+    @app.get("/api/running")
+    def running():
+        """Live runs, so a page (even on another machine) can DISCOVER and attach
+        to a build already in flight - it does not need to have started it."""
+        return JSONResponse([
+            {"run_id": rid, "compound": r.get("compound"), "done": bool(r.get("done"))}
+            for rid, r in _RUNS.items() if not r.get("done")])
 
     return app
 
