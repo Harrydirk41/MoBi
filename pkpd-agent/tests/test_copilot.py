@@ -322,6 +322,8 @@ class TestCopilotServer(unittest.TestCase):
         self.assertIn(lip["verdict"], ("recovered", "close", "off", "far"))
         # curves degrade gracefully without a CLI
         self.assertIn("in_sample", j)
+        # the LLM interpretation field is present (None without an API key — best-effort)
+        self.assertIn("interpretation", j)
         self.assertEqual(self.c.post("/api/report", json={"compound": "Nope"}).status_code, 404)
 
     def test_hard_mode_swaps_to_structure_blind_snapshot(self):

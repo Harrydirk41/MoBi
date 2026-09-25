@@ -106,6 +106,8 @@
   .rc-grade span{display:block;font-size:10.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
   .rc-grade b{font-size:20px}.rc-grade small{display:block;color:var(--faint);font-size:10.5px;margin-top:2px}
   .rc-plot{margin:6px 0}.rc-note{color:var(--faint);font-size:11.5px;padding:6px 0}
+  .rc-interp{display:flex;gap:9px;margin:10px 0;padding:10px 12px;background:var(--accent-soft);border-radius:9px;font-size:12.5px;line-height:1.5;color:var(--ink)}
+  .rc-interp .av{flex:0 0 auto;color:var(--accent-ink);margin-top:1px}.rc-interp b{color:var(--accent-ink)}
   .rc-sub{font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--faint);margin:12px 0 5px}
   .rc-tbl{width:100%;border-collapse:collapse;font-size:12px}
   .rc-tbl th{text-align:left;font-size:10px;text-transform:uppercase;color:var(--faint);padding:3px 6px;border-bottom:1px solid var(--border-2)}
@@ -1156,7 +1158,9 @@ function handle(ev){
         (fs.length?` · ${fs.length} page(s) fetched`:"")));
     }
     doneActions(ev);
-    if(ev.best_edits)renderReport(current,ev.best_edits);   // post-build report: curves + held-out grade + comparison
+    // single build -> auto-build the full report; batch compound -> show grades + a
+    // "Build full report" button so N finished runs don't pile PK-Sim work on a busy server.
+    if(ev.best_edits){if(buildingComp)renderReport(current,ev.best_edits);else reportStub(current,ev.best_edits,ev);}
     $("#fitBadge").innerHTML=pass?'<span class="badge pass">converged ≤ 1.6</span>':'<span class="badge run">see held-out grade</span>';
     $("#runState").textContent="done";
     if(buildingComp){railSet(buildingComp,"done");loadModels();}  // refresh the rail with the server-side grade
@@ -1193,17 +1197,30 @@ function renderGivens(list){
       `<td class="v">${escapeHtml(String(val))} <span class="tag ${prov}">${prov}</span></td></tr>`;
   }).join("")+'</table>';
 }
+function reportStub(compound,edits,ev){  // batch: show grades now, build the heavy report on demand
+  const th=$("#thread");
+  const held=(SBRESULTS[compound]||{}).held_out;
+  const card=el("div","report-card");
+  const g=(lbl,v,hi)=>`<div class="rc-grade${hi?' hi':''}"><span>${lbl}</span><b>${v!=null?(+v).toFixed(2):"—"}</b></div>`;
+  card.innerHTML=`<div class="rc-h"><b>📋 Report — ${escapeHtml(compound)}</b><small>held-out grade + comparison to the reference (revealed after the blind build)</small></div>`+
+    `<div class="rc-body"><div class="rc-grades">${g("in-sample GMFE",ev.best_gmfe)}${g("held-out GMFE — unseen",held,true)}</div>`+
+    `<button class="act" data-buildreport>▶ Build full report (curves + comparison + reviewer's read)</button>`+
+    `<div class="rc-note">runs a few PK-Sim simulations — best after the batch finishes, to avoid overloading the machine.</div></div>`;
+  th.appendChild(card);card.scrollIntoView({block:"end"});
+  card.querySelector("[data-buildreport]").onclick=()=>{card.remove();renderReport(compound,edits);};
+}
 async function renderReport(compound,edits){
   const th=$("#thread");
   const card=el("div","report-card");
   card.innerHTML=`<div class="rc-h"><b>📋 Report — ${escapeHtml(compound)}</b><small>held-out grade + comparison to the reference answer — revealed after the blind build (never shown to the agent)</small></div><div class="rc-body">building the report… (runs a few PK-Sim simulations — slow while other builds are running)</div>`;
   th.appendChild(card);card.scrollIntoView({block:"end"});
-  let r;try{r=await (await fetchT("/api/report",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({compound,edits})},180000)).json();}
+  let r;try{r=await (await fetchT("/api/report",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({compound,edits,model:$("#llm").value})},180000)).json();}
   catch(e){card.querySelector(".rc-body").innerHTML='report timed out or server busy. <button class="act" data-rcretry>↻ retry</button>';
     const b=card.querySelector("[data-rcretry]");if(b)b.onclick=()=>{card.remove();renderReport(compound,edits);};return;}
   if(!r||r.error){card.querySelector(".rc-body").textContent=(r&&r.error)||"report unavailable";return;}
   const grade=(lbl,g,hi)=>`<div class="rc-grade${hi?' hi':''}"><span>${lbl}</span><b>${g&&g.gmfe!=null?(+g.gmfe).toFixed(2):"—"}</b>${g&&g.pk_gmfe?`<small>${Object.entries(g.pk_gmfe).filter(([,v])=>v!=null).map(([k,v])=>k+" "+(+v).toFixed(2)+"×").join(" · ")}</small>`:""}</div>`;
   let html=`<div class="rc-grades">${grade("in-sample GMFE",r.in_sample)}${grade("held-out GMFE — unseen studies",r.held_out,true)}</div>`;
+  if(r.interpretation)html+=`<div class="rc-interp"><span class="av"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M8 12h8M12 8v8"/></svg></span><div><b>reviewer's read</b> ${escapeHtml(r.interpretation).replace(/\n/g,"<br>")}</div></div>`;
   const series=(r.held_out&&r.held_out.series&&r.held_out.series.length)?r.held_out.series:(r.in_sample&&r.in_sample.series);
   if(series&&series.length){const p=plotFit(series);html+=`<div class="rc-plot">${p.svg}</div><div class="plotlegend rc-leg">${p.legend}</div>`;}
   else{const err=(r.held_out&&r.held_out.error)||(r.in_sample&&r.in_sample.error);if(err)html+=`<div class="rc-note">curves need PKSim.CLI — ${escapeHtml(err)}</div>`;}

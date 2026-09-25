@@ -372,7 +372,7 @@ def _fold_verdict(fold):
             else "off" if mag <= 3 else "far")
 
 
-def _report(f: dict, edits: dict) -> dict:
+def _report(f: dict, edits: dict, model: str | None = None) -> dict:
     """The post-build REPORT: in-sample + held-out fit curves and grades, the
     reference overlay, and a post-hoc comparison of the adopted model to the
     reference answer (structure + each fitted parameter). The comparison is a
@@ -411,9 +411,51 @@ def _report(f: dict, edits: dict) -> dict:
     def pack(r):
         return ({"gmfe": r.get("gmfe"), "pk_gmfe": r.get("pk_gmfe"), "series": r.get("series")}
                 if r.get("ok") else {"error": r.get("error")})
-    return {"ok": True, "in_sample": pack(ins), "held_out": pack(held),
-            "reference": ({"series": ref.get("series")} if ref.get("ok") else {"error": ref.get("error")}),
-            "comparison": comparison}
+    out = {"ok": True, "in_sample": pack(ins), "held_out": pack(held),
+           "reference": ({"series": ref.get("series")} if ref.get("ok") else {"error": ref.get("error")}),
+           "comparison": comparison}
+    out["interpretation"] = _report_narrative(f["dir"], out, model)
+    return out
+
+
+def _report_narrative(compound: str, rep: dict, model: str | None) -> "str | None":
+    """A short LLM interpretation of the finished model vs the reference — a
+    post-hoc reviewer's read for the human (it sees the comparison, which is fine:
+    it is never fed back into the modeling loop). Best-effort: no key -> None."""
+    try:
+        import anthropic
+    except ImportError:
+        return None
+    if not os.environ.get("ANTHROPIC_API_KEY"):
+        return None
+    comp = rep.get("comparison") or {}
+    facts = {
+        "compound": compound,
+        "in_sample_gmfe": (rep.get("in_sample") or {}).get("gmfe"),
+        "held_out_gmfe": (rep.get("held_out") or {}).get("gmfe"),
+        "pk_parameter_folds": (rep.get("held_out") or {}).get("pk_gmfe"),
+        "structure_vs_reference": comp.get("structure"),
+        "parameters_vs_reference": [p for p in (comp.get("parameters") or []) if p.get("reference") is not None],
+    }
+    prompt = (
+        "You are a senior PBPK modeler reviewing a finished model AGAINST the "
+        "reference answer (post-hoc review — the builder never saw this). Here are "
+        "the facts as JSON:\n\n" + json.dumps(facts, default=str, indent=1) + "\n\n"
+        "In 3–5 plain sentences, interpret honestly: did the STRUCTURE match the "
+        "reference (methods, clearing molecules)? Is the HELD-OUT prediction good "
+        "(GMFE ~<=1.5 is good, ~2 acceptable, >3 poor)? Which fitted PARAMETERS are "
+        "far from the reference, and does it matter — a parameter far from the "
+        "reference that the data cannot constrain (or that trades off with another) "
+        "is acceptable, one that is far AND influential is a real miss. End with a "
+        "one-line verdict. Do not restate the numbers as a table; interpret them.")
+    try:
+        client = anthropic.Anthropic()
+        resp = client.messages.create(
+            model=model or "claude-sonnet-5", max_tokens=600,
+            messages=[{"role": "user", "content": prompt}])
+        return "".join(b.text for b in resp.content if getattr(b, "type", None) == "text").strip() or None
+    except Exception:                                # noqa: BLE001 - narrative must never sink the report
+        return None
 
 
 def _built_view(project: str) -> dict:
@@ -1151,7 +1193,7 @@ def create_app():
         f = _find(payload.get("compound"))
         if not f:
             return JSONResponse({"error": "unknown compound"}, status_code=404)
-        return JSONResponse(_report(f, payload.get("edits") or {}))
+        return JSONResponse(_report(f, payload.get("edits") or {}, payload.get("model")))
 
     @app.get("/api/built")
     def built(compound: str):
