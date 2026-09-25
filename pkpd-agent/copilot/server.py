@@ -880,7 +880,8 @@ def _run_agent_locked(run_id, p, q) -> None:
                  "(clearing enzyme, physchem, transporters) and any already-published "
                  "PBPK model, and build on what has been done - cite what you use.\n\n")
     goal += "Start with osp_inspect, then determine the model and call osp_optimize."
-    policy = LLMPolicy(cfg, registry, R._system_prompt(1.6, self_extract=bool(ctx_report)),
+    policy = LLMPolicy(cfg, registry,
+                       R._system_prompt(1.6, self_extract=bool(ctx_report), web=web),
                        web=web)
     loop = DecisionLoop(config=cfg, registry=registry, policy=policy)
 

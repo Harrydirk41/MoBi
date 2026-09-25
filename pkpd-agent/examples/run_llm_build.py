@@ -64,7 +64,11 @@ from pkpd_agent.tools.registry import ToolRegistry
 from pkpd_agent.tools.osp_loop_tools import register_osp_loop_tools
 
 
-def _system_prompt(target: float, self_extract: bool = False) -> str:
+def _system_prompt(target: float, self_extract: bool = False, web: bool = False) -> str:
+    source = ("From the handed report and data, and from web search / web fetch "
+              "when you need a value or the mechanism they do not give"
+              if web else "ONLY from the handed report and data - you have no "
+              "web access")
     step0 = (
         "0. SELF-EXTRACT the givens FIRST. osp_inspect will show NO pre-digested "
         "literature_physicochemical - you build the context yourself from the raw "
@@ -76,13 +80,16 @@ def _system_prompt(target: float, self_extract: bool = False) -> str:
         "the clearing enzyme), each with its source citation and provenance "
         "('given' = read from the report, 'judged' = inferred). Your recorded "
         "givens drive the fix-vs-fit split, so do this BEFORE osp_options / "
-        "osp_optimize. Extract ONLY from the handed report and data - you have no "
-        "web access, and the report's chosen methods and fitted values are "
-        "redacted.\n") if self_extract else ""
+        f"osp_optimize. Extract {source}; the report's chosen methods and fitted "
+        "values are redacted.\n") if self_extract else ""
     return (
         "You are a PBPK modeler using the OSP PK-Sim engine with a numerical "
         "optimizer. The whole-body physiological structure is fixed; you decide "
         "the DRUG model and let the optimizer fit the numbers.\n\n"
+        "NARRATE YOUR REASONING: before every tool call, write one or two plain "
+        "sentences saying what you are about to do and WHY (the hypothesis or the "
+        "evidence driving it). This text is shown to the user as your reasoning, so "
+        "never emit a tool call with no accompanying sentence.\n\n"
         "Each round:\n"
         + step0 +
         "1. Call osp_inspect (task: objective, known biology, priors, data) and "
