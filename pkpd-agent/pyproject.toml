@@ -21,3 +21,6 @@ copilot = ["fastapi>=0.110", "uvicorn>=0.27"]   # the local web copilot (copilot
 
 [tool.setuptools.packages.find]
 include = ["pkpd_agent*"]
+
+[tool.setuptools.package-data]
+pkpd_agent = ["prompts/*.md"]   # the editable modeling playbook ships with the package
