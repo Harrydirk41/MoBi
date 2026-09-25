@@ -96,6 +96,23 @@
   .dval{color:var(--ink);white-space:pre-wrap;max-height:240px;overflow:auto;font-size:12px;line-height:1.5;background:var(--surface-2);border-radius:8px;padding:8px 10px}
   .dchips{display:flex;flex-wrap:wrap;gap:5px}
   .dchip{font-family:var(--mono);font-size:10.5px;padding:2px 7px;border-radius:6px;background:var(--surface-2);color:var(--muted)}
+  .report-card{border:1px solid var(--border);border-radius:var(--r);background:var(--surface);overflow:hidden}
+  .report-card .rc-h{padding:11px 14px;border-bottom:1px solid var(--border-2);background:var(--surface-2)}
+  .report-card .rc-h b{font-size:13.5px}.report-card .rc-h small{display:block;color:var(--faint);font-size:11px;margin-top:2px}
+  .report-card .rc-body{padding:12px 14px;font-size:12.5px}
+  .rc-grades{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:10px}
+  .rc-grade{flex:1 1 160px;border:1px solid var(--border);border-radius:9px;padding:8px 11px}
+  .rc-grade.hi{border-color:var(--accent);background:var(--accent-soft)}
+  .rc-grade span{display:block;font-size:10.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+  .rc-grade b{font-size:20px}.rc-grade small{display:block;color:var(--faint);font-size:10.5px;margin-top:2px}
+  .rc-plot{margin:6px 0}.rc-note{color:var(--faint);font-size:11.5px;padding:6px 0}
+  .rc-sub{font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--faint);margin:12px 0 5px}
+  .rc-tbl{width:100%;border-collapse:collapse;font-size:12px}
+  .rc-tbl th{text-align:left;font-size:10px;text-transform:uppercase;color:var(--faint);padding:3px 6px;border-bottom:1px solid var(--border-2)}
+  .rc-tbl td{padding:4px 6px;border-bottom:1px solid var(--border-2)}
+  .rc-tbl .ok{color:var(--good);font-weight:600}.rc-tbl .no{color:var(--crit);font-weight:600}
+  .v-recovered{color:var(--good);font-weight:600}.v-close{color:var(--good)}
+  .v-off{color:var(--warn);font-weight:600}.v-far{color:var(--crit);font-weight:600}.v-na{color:var(--faint)}
   .verdict{border-radius:var(--r);padding:12px 14px;display:flex;gap:11px;align-items:center;font-size:13px}
   .verdict.pass{background:var(--good-soft);border:1px solid color-mix(in srgb,var(--good) 30%,transparent)}
   .verdict.pass b{color:var(--good)}
@@ -1124,7 +1141,7 @@ function handle(ev){
     if(ev.best_edits)$("#editsBox").textContent=JSON.stringify(ev.best_edits,null,1);
     if(ev.givens)renderGivens(ev.givens);
     const pass=ev.best_gmfe!=null&&+ev.best_gmfe<=1.6;
-    th.appendChild(el("div","verdict pass",`<span class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M5 12l4.5 4.5L19 7"/></svg></span><div>Best in-sample GMFE <b>${ev.best_gmfe!=null?(+ev.best_gmfe).toFixed(2):"—"}</b>. The held-out grade and report are written to the model's <span class="mono">report/</span> folder.</div>`));
+    th.appendChild(el("div","verdict pass",`<span class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M5 12l4.5 4.5L19 7"/></svg></span><div>Best in-sample GMFE <b>${ev.best_gmfe!=null?(+ev.best_gmfe).toFixed(2):"—"}</b>. Building the report — held-out grade + comparison to the reference below.</div>`));
     if(ev.web_lookups&&ev.web_lookups.length){
       const qs=ev.web_lookups.filter(w=>w.kind==="search").map(w=>w.query);
       const fs=ev.web_lookups.filter(w=>w.kind==="fetch").map(w=>w.url);
@@ -1133,6 +1150,7 @@ function handle(ev){
         (fs.length?` · ${fs.length} page(s) fetched`:"")));
     }
     doneActions(ev);
+    if(ev.best_edits)renderReport(current,ev.best_edits);   // post-build report: curves + held-out grade + comparison
     $("#fitBadge").innerHTML=pass?'<span class="badge pass">converged ≤ 1.6</span>':'<span class="badge run">see held-out grade</span>';
     $("#runState").textContent="done";
     if(buildingComp){railSet(buildingComp,"done");loadModels();}  // refresh the rail with the server-side grade
@@ -1168,6 +1186,29 @@ function renderGivens(list){
     return `<tr><td class="p">${escapeHtml(String(g.parameter||""))}${g.source?`<div class="s">${escapeHtml(String(g.source))}</div>`:""}</td>`+
       `<td class="v">${escapeHtml(String(val))} <span class="tag ${prov}">${prov}</span></td></tr>`;
   }).join("")+'</table>';
+}
+async function renderReport(compound,edits){
+  const th=$("#thread");
+  const card=el("div","report-card");
+  card.innerHTML=`<div class="rc-h"><b>📋 Report — ${escapeHtml(compound)}</b><small>held-out grade + comparison to the reference answer — revealed after the blind build (never shown to the agent)</small></div><div class="rc-body">building the report…</div>`;
+  th.appendChild(card);card.scrollIntoView({block:"end"});
+  let r;try{r=await (await fetch("/api/report",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({compound,edits})})).json();}
+  catch(e){card.querySelector(".rc-body").textContent="report unavailable (server error)";return;}
+  if(!r||r.error){card.querySelector(".rc-body").textContent=(r&&r.error)||"report unavailable";return;}
+  const grade=(lbl,g,hi)=>`<div class="rc-grade${hi?' hi':''}"><span>${lbl}</span><b>${g&&g.gmfe!=null?(+g.gmfe).toFixed(2):"—"}</b>${g&&g.pk_gmfe?`<small>${Object.entries(g.pk_gmfe).filter(([,v])=>v!=null).map(([k,v])=>k+" "+(+v).toFixed(2)+"×").join(" · ")}</small>`:""}</div>`;
+  let html=`<div class="rc-grades">${grade("in-sample GMFE",r.in_sample)}${grade("held-out GMFE — unseen studies",r.held_out,true)}</div>`;
+  const series=(r.held_out&&r.held_out.series&&r.held_out.series.length)?r.held_out.series:(r.in_sample&&r.in_sample.series);
+  if(series&&series.length){const p=plotFit(series);html+=`<div class="rc-plot">${p.svg}</div><div class="plotlegend rc-leg">${p.legend}</div>`;}
+  else{const err=(r.held_out&&r.held_out.error)||(r.in_sample&&r.in_sample.error);if(err)html+=`<div class="rc-note">curves need PKSim.CLI — ${escapeHtml(err)}</div>`;}
+  if(r.comparison){
+    html+=`<div class="rc-sub">Structure vs reference</div><table class="rc-tbl"><tr><th>aspect</th><th>agent</th><th>reference</th><th></th></tr>`+
+      r.comparison.structure.map(s=>`<tr><td>${escapeHtml(s.aspect)}</td><td>${escapeHtml(Array.isArray(s.agent)?s.agent.join(", "):String(s.agent==null?"—":s.agent))}</td><td>${escapeHtml(Array.isArray(s.reference)?s.reference.join(", "):String(s.reference==null?"—":s.reference))}</td><td>${s.match?'<span class="ok">✓ match</span>':'<span class="no">✗ differs</span>'}</td></tr>`).join("")+`</table>`;
+    const pr=r.comparison.parameters.filter(p=>p.reference!=null);
+    if(pr.length)html+=`<div class="rc-sub">Fitted parameters vs reference</div><table class="rc-tbl"><tr><th>parameter</th><th>agent</th><th>reference</th><th>fold</th><th></th></tr>`+
+      pr.map(p=>`<tr><td>${escapeHtml(p.name)}</td><td>${p.agent!=null?(+p.agent).toPrecision(3):'—'}</td><td>${(+p.reference).toPrecision(3)}</td><td>${p.fold!=null?p.fold+'×':'—'}</td><td><span class="v-${p.verdict==='—'?'na':p.verdict}">${p.verdict}</span></td></tr>`).join("")+`</table>`;
+  }
+  card.querySelector(".rc-body").innerHTML=html;
+  card.querySelectorAll(".rc-leg span[data-i]").forEach(sp=>sp.onclick=()=>{sp.classList.toggle("off");const g=card.querySelector(`g.sr[data-i="${sp.dataset.i}"]`);if(g)g.classList.toggle("off");});
 }
 function doneActions(ev){
   const wrap=el("div","actions");

@@ -303,6 +303,27 @@ class TestCopilotServer(unittest.TestCase):
             if prev is not None:
                 os.environ["ANTHROPIC_API_KEY"] = prev
 
+    def test_report_compares_adopted_model_to_reference(self):
+        # the post-build report grades the adopted model against the reference answer
+        r = self.c.post("/api/report", json={"compound": "Alprazolam", "edits": {
+            "calculation_methods": {"partition": "Rodgers and Rowland",
+                                    "permeability": "PK-Sim Standard"},
+            "add_processes": [{"type": "metabolization_mm", "molecule": "CYP3A4"}],
+            "parameters": {"Lipophilicity": 2.5, "kcat@CYP3A4": 10.0}}})
+        self.assertEqual(r.status_code, 200)
+        j = r.json()
+        comp = j.get("comparison")
+        self.assertTrue(comp)
+        by = {s["aspect"]: s for s in comp["structure"]}
+        self.assertTrue(by["partition method"]["match"])          # matched the reference
+        self.assertTrue(by["clearing molecules"]["match"])
+        lip = next(p for p in comp["parameters"] if p["name"] == "Lipophilicity")
+        self.assertIsNotNone(lip["fold"])                         # fold vs reference computed
+        self.assertIn(lip["verdict"], ("recovered", "close", "off", "far"))
+        # curves degrade gracefully without a CLI
+        self.assertIn("in_sample", j)
+        self.assertEqual(self.c.post("/api/report", json={"compound": "Nope"}).status_code, 404)
+
     def test_hard_mode_swaps_to_structure_blind_snapshot(self):
         # structure-blind run picks the hard_blanked snapshot (mechanism stripped)
         # and emits a `hard` meta before it needs a key.

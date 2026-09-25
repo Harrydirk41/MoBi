@@ -326,6 +326,96 @@ def _try_model(f: dict, edits: dict, subset: str = "building") -> dict:
             "optimized": optimized, "series": series}
 
 
+def _short_method(s: str) -> str:
+    """'Cellular partition coefficient method - Rodgers and Rowland' -> 'Rodgers and Rowland'."""
+    return str(s).split(" - ")[-1].strip() if s else s
+
+
+def _reference_answer(f: dict) -> "dict | None":
+    """The reference (ground-truth) structure + fitted values from the answer key.
+    POST-HOC only — used to build the report's comparison, never handed to the agent."""
+    import glob as _glob
+    aks = [a for a in _glob.glob(os.path.join(_LIB, f["dir"], "answer_key", "*.answer_key.json"))
+           if "ddi" not in os.path.basename(a)]
+    if not aks:
+        return None
+    try:
+        ak = json.load(open(aks[0], encoding="utf-8"))
+    except (OSError, ValueError):
+        return None
+    sc = ak.get("structural_choices", {}) or {}
+    methods = sc.get("calculation_methods") or []
+
+    def m_of(kind):
+        for s in methods:
+            if kind in s.lower():
+                return _short_method(s)
+        return None
+    procs = sc.get("metabolizing_processes") or sc.get("processes") or []
+    return {
+        "partition": m_of("partition"),
+        "permeability": m_of("permeab"),
+        "molecules": sorted({p.get("molecule") for p in procs if isinstance(p, dict) and p.get("molecule")}),
+        "parameters": {e.get("parameter"): e.get("value") for e in ak.get("estimated_parameters") or []},
+    }
+
+
+def _meq(a, b) -> bool:
+    return bool(a) and bool(b) and _short_method(a).lower() == _short_method(b).lower()
+
+
+def _fold_verdict(fold):
+    if fold is None:
+        return "—"
+    mag = fold if fold >= 1 else 1.0 / fold
+    return ("recovered" if mag <= 1.25 else "close" if mag <= 2
+            else "off" if mag <= 3 else "far")
+
+
+def _report(f: dict, edits: dict) -> dict:
+    """The post-build REPORT: in-sample + held-out fit curves and grades, the
+    reference overlay, and a post-hoc comparison of the adopted model to the
+    reference answer (structure + each fitted parameter). The comparison is a
+    REVEAL for the human — it is never fed back to the agent."""
+    edits = {k: v for k, v in (edits or {}).items() if k != "estimate"}   # forward run at the fitted values
+    ins = _try_model(f, edits, subset="building")
+    held = _try_model(f, edits, subset="held_out")
+    try:
+        ref = _reffit(f["dir"])
+    except Exception:                                    # noqa: BLE001
+        ref = {"ok": False}
+    ans = _reference_answer(f)
+    comparison = None
+    if ans:
+        cm = edits.get("calculation_methods") or {}
+        amols = {p.get("molecule") for p in (edits.get("add_processes") or [])
+                 if isinstance(p, dict) and p.get("molecule")}
+        struct = [
+            {"aspect": "partition method", "agent": cm.get("partition"),
+             "reference": ans["partition"], "match": _meq(cm.get("partition"), ans["partition"])},
+            {"aspect": "permeability method", "agent": cm.get("permeability"),
+             "reference": ans["permeability"], "match": _meq(cm.get("permeability"), ans["permeability"])},
+            {"aspect": "clearing molecules", "agent": sorted(amols),
+             "reference": ans["molecules"], "match": (set(amols) == set(ans["molecules"]))},
+        ]
+        aparams = edits.get("parameters") or {}
+        prows = []
+        for name, rv in ans["parameters"].items():
+            av = aparams.get(name)
+            fold = (av / rv) if (isinstance(av, (int, float)) and isinstance(rv, (int, float)) and rv) else None
+            prows.append({"name": name, "agent": av, "reference": rv,
+                          "fold": (round(fold, 3) if fold else None),
+                          "verdict": _fold_verdict(fold)})
+        comparison = {"structure": struct, "parameters": prows,
+                      "reference_gmfe": None}
+    def pack(r):
+        return ({"gmfe": r.get("gmfe"), "pk_gmfe": r.get("pk_gmfe"), "series": r.get("series")}
+                if r.get("ok") else {"error": r.get("error")})
+    return {"ok": True, "in_sample": pack(ins), "held_out": pack(held),
+            "reference": ({"series": ref.get("series")} if ref.get("ok") else {"error": ref.get("error")}),
+            "comparison": comparison}
+
+
 def _built_view(project: str) -> dict:
     """A finished model's adopted methods + its key tunable parameters (with their
     fitted values and a plausible slider range), so the UI can perturb them and
@@ -1053,6 +1143,15 @@ def create_app():
         if not f:
             return JSONResponse({"error": "unknown compound"}, status_code=404)
         return JSONResponse(_try_model(f, edits, subset="held_out"))
+
+    @app.post("/api/report")
+    def report(payload: dict):
+        # post-build report: in-sample + held-out curves/grades + comparison vs the
+        # reference answer (revealed to the human only, never fed to the agent).
+        f = _find(payload.get("compound"))
+        if not f:
+            return JSONResponse({"error": "unknown compound"}, status_code=404)
+        return JSONResponse(_report(f, payload.get("edits") or {}))
 
     @app.get("/api/built")
     def built(compound: str):
