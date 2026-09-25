@@ -89,6 +89,20 @@ class TestNativeWebTools(unittest.TestCase):
         urls = next(w["urls"] for w in log if w["kind"] == "results")
         self.assertIn("https://osp/model", urls)
 
+    def test_on_web_callback_streams_each_action_live(self):
+        streamed = []
+        r1 = _blk(stop_reason="pause_turn", content=[
+            _blk(type="server_tool_use", name="web_search", input={"query": "alfentanil logP"}),
+            _blk(type="web_search_tool_result", content=[_blk(url="https://x/1")]),
+        ])
+        r2 = _blk(stop_reason="end_turn", content=[_blk(type="text", text="ok")])
+        p = _policy([r1, r2], web=True)
+        p.on_web = lambda e: streamed.append(e)
+        p.decide(ModelingSession(goal="g"))
+        kinds = [e["kind"] for e in streamed]
+        self.assertEqual(kinds, ["search", "results"])       # both surfaced, in order
+        self.assertEqual(streamed[0]["query"], "alfentanil logP")
+
     def test_no_recording_when_web_off(self):
         r = _blk(stop_reason="end_turn", content=[_blk(type="text", text="x")])
         p = _policy([r], web=False)

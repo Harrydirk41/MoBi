@@ -907,7 +907,8 @@ def _run_agent_locked(run_id, p, q) -> None:
     goal += "Start with osp_inspect, then determine the model and call osp_optimize."
     policy = LLMPolicy(cfg, registry,
                        R._system_prompt(1.6, self_extract=bool(ctx_report), web=web),
-                       web=web)
+                       web=web,
+                       on_web=lambda e: q.put({"type": "web", **e}))   # stream web activity live
     loop = DecisionLoop(config=cfg, registry=registry, policy=policy)
 
     def on_event(ev):

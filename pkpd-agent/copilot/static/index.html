@@ -70,6 +70,7 @@
   .u-msg{align-self:flex-end;max-width:80%;background:var(--accent);color:#fff;padding:10px 14px;border-radius:14px 14px 4px 14px;font-size:13.5px}
   :root[data-theme="dark"] .u-msg,:root:not([data-theme="light"]) .u-msg{color:#04262a}
   .meta-line{font-size:12px;color:var(--muted);background:var(--surface-2);border-radius:9px;padding:7px 12px;align-self:center}
+  .webline{color:var(--accent-ink);background:var(--accent-soft);align-self:stretch;font-family:var(--mono,monospace);font-size:11.5px}
   .step{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);box-shadow:var(--shadow);overflow:hidden}
   .step .head{display:flex;align-items:center;gap:11px;padding:11px 14px;width:100%;background:none;border:0;text-align:left;cursor:pointer}
   .step .head:hover{background:var(--surface-2)}
@@ -1077,6 +1078,13 @@ function handle(ev){
     if(ev.hard_unavailable)t.push("structure-blind requested but no hard snapshot — using normal");
     if(ev.web)t.push("web lookup ON — open literature/web (not a blind grade)");
     if(t.length)th.appendChild(el("div","meta-line",t.join(" · ")));
+  }else if(ev.type==="web"){
+    // native (Anthropic server-side) web activity, streamed live
+    const label=ev.kind==="search"?`🔎 web search — ${escapeHtml(ev.query||"")}`
+      :ev.kind==="fetch"?`🌐 fetched — ${escapeHtml(ev.url||"")}`
+      :ev.kind==="results"?`↳ ${(ev.urls||[]).length} result(s): ${escapeHtml((ev.urls||[]).slice(0,3).join("  ·  "))}`
+      :"web";
+    th.appendChild(el("div","meta-line webline",label));
   }else if(ev.type==="status"){$("#runState").textContent=ev.phase;}
   else if(ev.type==="decision"){
     if(ev.text){const r=el("div","reason",`<span class="av"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M8 12h8M12 8v8"/></svg></span><span><b>agent reasoning</b>${escapeHtml(ev.text).slice(0,1600)}</span>`);th.appendChild(r);}

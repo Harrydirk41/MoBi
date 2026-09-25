@@ -90,11 +90,13 @@ class LLMPolicy:
     thinking blocks and tool_use/tool_result pairing are preserved across the
     manual loop."""
 
-    def __init__(self, config, registry, system_prompt: str, web: bool = False) -> None:
+    def __init__(self, config, registry, system_prompt: str, web: bool = False,
+                 on_web=None) -> None:
         self.config = config
         self.registry = registry
         self.system_prompt = system_prompt
         self.web = web                       # inject Anthropic's native web tools
+        self.on_web = on_web                 # callback(entry) to stream web activity live
         self._messages: list[dict[str, Any]] = []
         self._client = None  # lazy
 
@@ -169,14 +171,15 @@ class LLMPolicy:
         if not self.web or session is None:
             return
         log = session.get("web_lookups") or []
+        new: list[dict] = []
         for b in content:
             bt = getattr(b, "type", None)
             if bt == "server_tool_use":
                 inp = dict(getattr(b, "input", {}) or {})
                 if getattr(b, "name", "") == "web_search":
-                    log.append({"kind": "search", "query": inp.get("query", "")})
+                    new.append({"kind": "search", "query": inp.get("query", "")})
                 elif getattr(b, "name", "") == "web_fetch":
-                    log.append({"kind": "fetch", "url": inp.get("url", "")})
+                    new.append({"kind": "fetch", "url": inp.get("url", "")})
             elif bt in ("web_search_tool_result", "web_fetch_tool_result"):
                 res = getattr(b, "content", None)
                 urls = []
@@ -186,8 +189,15 @@ class LLMPolicy:
                         if u:
                             urls.append(u)
                 if urls:
-                    log.append({"kind": "results", "urls": urls[:10]})
-        session.put("web_lookups", log)
+                    new.append({"kind": "results", "urls": urls[:10]})
+        for entry in new:                    # stream each web action live, then persist
+            if self.on_web:
+                try:
+                    self.on_web(entry)
+                except Exception:            # noqa: BLE001 - streaming must never sink a run
+                    pass
+        if new:
+            session.put("web_lookups", log + new)
 
     def decide(self, session) -> PolicyStep:
         client = self._ensure_client()
