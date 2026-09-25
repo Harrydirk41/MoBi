@@ -36,6 +36,28 @@ class _ModelNeverRan(Exception):
         super().__init__(self.detail)
 
 
+def _resolve_sims(requested, all_sims):
+    """Map an agent's fit_simulations (loose study labels like 'Kroboth 1988 -
+    1.0 mg') onto the project's ACTUAL simulation names by token match, so a
+    staged IV-first fit does not fail with 'Simulation not found'. Returns
+    (matched real names, unmatched requests)."""
+    def toks(s):
+        return set(re.sub(r"[^a-z0-9]+", " ", str(s).lower()).split())
+    matched, unmatched = [], []
+    for r in requested or []:
+        rt = toks(r)
+        hits = [s for s in all_sims if rt and rt.issubset(toks(s))]
+        if not hits:                                # looser: joined-substring
+            rj = "".join(sorted(rt))
+            hits = [s for s in all_sims if rj and rj in "".join(sorted(toks(s)))]
+        (matched.extend(hits) if hits else unmatched.append(r))
+    seen, out = set(), []
+    for x in matched:
+        if x not in seen:
+            seen.add(x); out.append(x)
+    return out, unmatched
+
+
 def _log_reason(logs) -> str:
     """Pull the most informative line out of PK-Sim's captured stdout/stderr so a
     build/run failure carries WHAT PK-Sim complained about, not just 'no CSVs'."""
@@ -176,7 +198,15 @@ def run_optimization(cli: OSPCli, snapshot_path: str, observed: list[dict],
     # subset of simulations to fit against. In FAST (ranking) mode use fewer studies - the method
     # sweep only needs the RELATIVE GMFE to order methods, not a full-data fit.
     all_sims = cli.simulation_names(snapshot_path)
-    subset = fit_simulations or pick_subset(all_sims, k=2 if fast else 4)
+    if fit_simulations:
+        subset, unmatched = _resolve_sims(fit_simulations, all_sims)
+        if not subset:
+            return {"ok": False, "message":
+                    f"none of fit_simulations {fit_simulations} match a simulation in "
+                    f"the project. Valid simulations include: {all_sims[:20]}. Omit "
+                    "fit_simulations to fit a representative subset automatically."}
+    else:
+        subset = pick_subset(all_sims, k=2 if fast else 4)
     subset_studies = {osp_score._norm_study(OSPCli._parse_sim_name(s)[0]) for s in subset}
     observed_sub = [o for o in observed
                     if osp_score._norm_study(osp_score._obs_key(o)[0]) in subset_studies] \

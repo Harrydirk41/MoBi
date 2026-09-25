@@ -41,3 +41,25 @@ class TestStructureProblems(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class TestResolveSims(unittest.TestCase):
+    """fit_simulations from the agent (loose labels) resolve to real simulation
+    names, so staged IV-first fits don't fail with 'Simulation not found'."""
+    def setUp(self):
+        from pkpd_agent.engines.osp_optimize import _resolve_sims
+        self._r = _resolve_sims
+        self.sims = ["Kroboth 1988 - IV - 0.5 mg", "Kroboth 1988 - IV - 1.0 mg",
+                     "Kroboth 1988 - IV - 2.0 mg", "Smith 1984 - IV - 1 mg"]
+
+    def test_loose_label_resolves(self):
+        got, un = self._r(["Kroboth 1988 - 1.0 mg"], self.sims)
+        self.assertEqual(got, ["Kroboth 1988 - IV - 1.0 mg"]); self.assertEqual(un, [])
+
+    def test_study_only_matches_all_its_sims(self):
+        got, _ = self._r(["Kroboth 1988"], self.sims)
+        self.assertEqual(len(got), 3)
+
+    def test_unmatched_reported(self):
+        got, un = self._r(["Nope 2050"], self.sims)
+        self.assertEqual(got, []); self.assertEqual(un, ["Nope 2050"])

@@ -279,8 +279,10 @@ def _structure_problems(structure, estimate, link_groups=None) -> list[str]:
                 f"parameters share one key (kcat@{mol} / Intrinsic clearance@{mol}), "
                 "so PK-Sim cannot distinguish the parallel routes and the run "
                 f"produces no output. Model the parallel {mol} routes as ONE lumped "
-                f"pathway (a single process on {mol}, one total clearance), or put "
-                "each route on a distinct molecule.")
+                f"pathway — a single process on {mol} with one total clearance. "
+                "(A single plasma curve cannot split parallel routes on the same "
+                f"enzyme anyway.) Do NOT move a second {mol} route onto a different "
+                "molecule to dodge this — that models the wrong biology.")
     # (2) link_scale group with fewer than two DISTINCT members (e.g. the same key
     #     twice) - degenerate, and usually rides on the duplicate-molecule bug.
     for members in (link_groups or []):
@@ -1170,24 +1172,28 @@ def register_osp_loop_tools(registry: ToolRegistry, config, ctx: dict) -> None:
     registry.register(Tool(
         name="osp_try_model",
         description=(
-            "ACT: apply an edit spec to the model, run PK-Sim headless, and score "
-            "the fit against the observed data. edits = {parameters:{name:value}, "
+            "ACT / DRY-RUN a model: apply an edit spec, run PK-Sim headless once "
+            "(no fitting), and score the fit. edits = {parameters:{name:value}, "
             "calculation_methods:{partition:..,permeability:..}, "
-            "processes:{Molecule:true/false}}. Returns GMFE and %-within-2-fold "
-            "overall and PER ROUTE, plus the per-route geometric BIAS (>1 = the "
-            "model over-predicts -> lower exposure/raise clearance; <1 = "
-            "under-predicts). Use the bias and worst datasets to decide the next "
-            "edit. Iterate to minimize GMFE."),
+            "processes:{Molecule:true/false}, add_processes:[{type,molecule,"
+            "parameters}]}. It APPLIES add_processes too, so use it to VALIDATE a "
+            "structure you are about to fit — build it here first with default "
+            "parameters; if it runs you get a GMFE, if it can't you get PK-Sim's "
+            "real error — before committing to a full osp_optimize. Returns GMFE "
+            "and %-within-2-fold overall and PER ROUTE, plus the per-route "
+            "geometric BIAS (>1 = over-predicts -> raise clearance; <1 = under). "
+            "Use the bias and worst datasets to decide the next edit."),
         input_schema={
             "type": "object",
             "properties": {
                 "edits": {
                     "type": "object",
-                    "description": "parameters / calculation_methods / processes",
+                    "description": "parameters / calculation_methods / processes / add_processes",
                     "properties": {
                         "parameters": {"type": "object"},
                         "calculation_methods": {"type": "object"},
                         "processes": {"type": "object"},
+                        "add_processes": {"type": "array", "items": {"type": "object"}},
                     },
                 },
             },
