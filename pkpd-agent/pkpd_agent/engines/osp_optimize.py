@@ -36,6 +36,25 @@ class _ModelNeverRan(Exception):
         super().__init__(self.detail)
 
 
+def _log_reason(logs) -> str:
+    """Pull the most informative line out of PK-Sim's captured stdout/stderr so a
+    build/run failure carries WHAT PK-Sim complained about, not just 'no CSVs'."""
+    if not logs:
+        return ""
+    for r in reversed(logs):                    # a real stderr line is the best signal
+        se = (r.get("stderr") or "").strip()
+        if se:
+            return se.splitlines()[-1][:300]
+    keys = ("error", "not found", "does not", "invalid", "unknown", "cannot",
+            "no such", "failed", "parameter")
+    for r in reversed(logs):
+        for ln in reversed((r.get("stdout") or "").splitlines()):
+            low = ln.strip().lower()
+            if low and any(k in low for k in keys):
+                return ln.strip()[:300]
+    return ""
+
+
 # --------------------------------------------------------------------------- #
 # choose a representative subset of simulations to fit against (for speed)
 # --------------------------------------------------------------------------- #
@@ -193,6 +212,7 @@ def run_optimization(cli: OSPCli, snapshot_path: str, observed: list[dict],
         predicted, res = eval_at(values, subset)
         if predicted is None:
             err = res.get("message")
+            state["last_fail"] = res            # keep the failing run's PK-Sim logs
             history.append({"values": values, "obj": None, "error": err})
             if on_eval:
                 on_eval(len(history), values, None, err)
@@ -215,14 +235,20 @@ def run_optimization(cli: OSPCli, snapshot_path: str, observed: list[dict],
         res = minimize(objective, x0, method="Nelder-Mead",
                        options={"maxfev": max_evals, "xatol": 0.02, "fatol": 1e-3})
     except _ModelNeverRan as exc:
+        logtail = _log_reason((state.get("last_fail") or {}).get("logs"))
         return {"ok": False, "run_never_succeeded": True,
                 "message": (f"the model failed to build/run on all {len(history)} "
                             f"attempts before any parameter could be fitted: "
-                            f"{exc.detail}. This is a STRUCTURE/configuration "
-                            "problem (calculation methods, processes, or a "
-                            "parameter key that does not exist), NOT a parameter-"
-                            "value or bounds problem - fix the model setup, not the "
-                            "bounds."),
+                            f"{exc.detail}."
+                            + (f" PK-Sim log: {logtail}" if logtail else "")
+                            + f" Parameters attempted: {', '.join(names)}. A parameter "
+                            "key must be one listed by osp_options, or "
+                            "'<param>@<molecule>' introduced by a process you ADDED "
+                            "(e.g. kcat@P-gp); a free-text name not in osp_options "
+                            "(e.g. 'Plasma clearance') does not exist and makes the "
+                            "run produce nothing. This is a STRUCTURE/configuration "
+                            "problem - fix the model setup (methods/processes/"
+                            "parameter keys), not the bounds."),
                 "n_evals": len(history)}
     best = np.clip(res.x, lx, hx)
     optimized = {n: float(10 ** best[i]) for i, n in enumerate(names)}
