@@ -873,7 +873,7 @@ function stopOne(c){                    // stop a single compound; the rest keep
 }
 function runOne(compound){
   return new Promise((resolve)=>{
-    let best_gmfe=null,best_edits=null,err=null,s=null,done=false,rid=null;
+    let best_gmfe=null,best_edits=null,held_out=null,err=null,s=null,done=false,rid=null;
     const finish=(o)=>{if(done)return;done=true;try{if(s)s.close();}catch(e){}sbAborts.delete(abort);sbAbortByComp.delete(compound);resolve(o);};
     // Stop (all or one) also cancels the run on the SERVER so it stops building
     const abort=()=>{if(rid)fetch("/api/cancel/"+rid,{method:"POST"}).catch(()=>{});finish({error:"stopped"});};
@@ -889,8 +889,9 @@ function runOne(compound){
         (RUNLOG[rid]=RUNLOG[rid]||[]).push(ev);
         if(attachedRun===rid&&current===compound)handle(ev);   // mirror into the live thread
         if(ev.type==="done"){best_gmfe=ev.best_gmfe;best_edits=ev.best_edits;}
+        else if(ev.type==="report"){held_out=(ev.held_out&&ev.held_out.gmfe!=null)?ev.held_out.gmfe:held_out;}  // grade from the pipeline report
         else if(ev.type==="error"){err=ev.message;}
-        else if(ev.type==="end"){finish({best_gmfe,best_edits,error:err});}};
+        else if(ev.type==="end"){finish({best_gmfe,best_edits,held_out,error:err});}};
       s.onerror=()=>{};
     })();
   });
@@ -919,13 +920,17 @@ async function runAllAutonomous(){
       if(sbStop){sbSet(c,{status:"failed",note:"stopped"});break;}
       if(r.error==="stopped"||sbStopOne.has(c)){sbSet(c,{status:"failed",note:"stopped"});done++;}
       else if(r.error){sbSet(c,{status:"failed",note:r.error});done++;}
-      else{sbSet(c,{status:"grading",in_sample:r.best_gmfe});
-        let held=null;
-        if(r.best_edits&&!sbStopOne.has(c)){try{const g=await (await fetch("/api/grade",{method:"POST",headers:{"Content-Type":"application/json"},
-          body:JSON.stringify({compound:c,edits:r.best_edits})})).json();if(g.ok)held=g.gmfe;}catch(e){}}
+      else{
+        // held-out grade comes FROM THE PIPELINE REPORT (streamed with the run), so
+        // no separate /api/grade PK-Sim round-trip; the server already persisted it.
+        let held=(r.held_out!=null)?r.held_out:null;
+        // fallback only if the pipeline didn't produce a grade (e.g. no held-out studies)
+        if(held==null&&r.best_edits&&!sbStopOne.has(c)){sbSet(c,{status:"grading",in_sample:r.best_gmfe});
+          try{const g=await (await fetch("/api/grade",{method:"POST",headers:{"Content-Type":"application/json"},
+            body:JSON.stringify({compound:c,edits:r.best_edits})})).json();if(g.ok)held=g.gmfe;}catch(e){}
+          if(held!=null)fetch(`/api/runs/${encodeURIComponent(c)}/grade`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({held_out:held})}).catch(()=>{});}
         if(sbStopOne.has(c))sbSet(c,{status:"failed",note:"stopped"});
-        else{sbSet(c,{status:"done",in_sample:r.best_gmfe,held_out:held});
-          if(held!=null)fetch(`/api/runs/${encodeURIComponent(c)}/grade`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({held_out:held})}).catch(()=>{});}  // persist for reload
+        else sbSet(c,{status:"done",in_sample:r.best_gmfe,held_out:held});
         done++;}
       label();
     }
@@ -1217,12 +1222,18 @@ function handle(ev){
         (fs.length?` · ${fs.length} page(s) fetched`:"")));
     }
     doneActions(ev);
-    // single build -> auto-build the full report; batch compound -> show grades + a
-    // "Build full report" button so N finished runs don't pile PK-Sim work on a busy server.
-    if(ev.best_edits){if(buildingComp)renderReport(current,ev.best_edits);else reportStub(current,ev.best_edits,ev);}
+    // the REPORT is now part of the run pipeline: it streams as its own 'report'
+    // event right after 'done' (see the ev.type==="report" branch), so there is no
+    // per-click fetch that can time out. Nothing to trigger here.
     $("#fitBadge").innerHTML=pass?'<span class="badge pass">converged ≤ 1.6</span>':'<span class="badge run">see held-out grade</span>';
     $("#runState").textContent="done";
-    if(buildingComp){railSet(buildingComp,"done");loadModels();}  // refresh the rail with the server-side grade
+    if(buildingComp)railSet(buildingComp,"done");
+  }else if(ev.type==="report"){
+    // pipeline report streamed from the server (curves + held-out grade + comparison)
+    const card=reportCardShell(ev.compound||current);
+    $("#thread").appendChild(card);card.scrollIntoView({block:"end"});
+    renderReportCard(ev.compound||current,ev,card);
+    if(buildingComp)loadModels();                 // refresh the rail with the persisted held-out grade
   }else if(ev.type==="error"){
     th.appendChild(el("div","verdict",`<div style="color:var(--crit)">⚠ ${escapeHtml(ev.message)}</div>`));
     $("#runState").textContent="error";
@@ -1256,26 +1267,26 @@ function renderGivens(list){
       `<td class="v">${escapeHtml(String(val))} <span class="tag ${prov}">${prov}</span></td></tr>`;
   }).join("")+'</table>';
 }
-function reportStub(compound,edits,ev){  // batch: show grades now, build the heavy report on demand
-  const th=$("#thread");
-  const held=(SBRESULTS[compound]||{}).held_out;
+// Report card shell (used by the streamed 'report' event AND the on-demand fetch path)
+function reportCardShell(compound){
   const card=el("div","report-card");
-  const g=(lbl,v,hi)=>`<div class="rc-grade${hi?' hi':''}"><span>${lbl}</span><b>${v!=null?(+v).toFixed(2):"—"}</b></div>`;
-  card.innerHTML=`<div class="rc-h"><b>📋 Report — ${escapeHtml(compound)}</b><small>held-out grade + comparison to the reference (revealed after the blind build)</small></div>`+
-    `<div class="rc-body"><div class="rc-grades">${g("in-sample GMFE",ev.best_gmfe)}${g("held-out GMFE — unseen",held,true)}</div>`+
-    `<button class="act" data-buildreport>▶ Build full report (curves + comparison + reviewer's read)</button>`+
-    `<div class="rc-note">runs a few PK-Sim simulations — best after the batch finishes, to avoid overloading the machine.</div></div>`;
-  th.appendChild(card);card.scrollIntoView({block:"end"});
-  card.querySelector("[data-buildreport]").onclick=()=>{card.remove();renderReport(compound,edits);};
+  card.innerHTML=`<div class="rc-h"><b>📋 Report — ${escapeHtml(compound)}</b><small>held-out grade + comparison to the reference answer — revealed after the blind build (never shown to the agent)</small></div><div class="rc-body">building the report…</div>`;
+  return card;
 }
+// on-demand fetch path (the "↻ retry" button, "↺ Load saved run" fallback). The
+// normal flow does NOT use this — the report streams from the run pipeline.
 async function renderReport(compound,edits){
   const th=$("#thread");
-  const card=el("div","report-card");
-  card.innerHTML=`<div class="rc-h"><b>📋 Report — ${escapeHtml(compound)}</b><small>held-out grade + comparison to the reference answer — revealed after the blind build (never shown to the agent)</small></div><div class="rc-body">building the report… (runs a few PK-Sim simulations — slow while other builds are running)</div>`;
-  th.appendChild(card);card.scrollIntoView({block:"end"});
-  let r;try{r=await (await fetchT("/api/report",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({compound,edits,model:$("#llm").value})},180000)).json();}
+  const card=reportCardShell(compound);th.appendChild(card);card.scrollIntoView({block:"end"});
+  let r;try{r=await (await fetchT("/api/report",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({compound,edits,model:$("#llm").value})},600000)).json();}
   catch(e){card.querySelector(".rc-body").innerHTML='report timed out or server busy. <button class="act" data-rcretry>↻ retry</button>';
     const b=card.querySelector("[data-rcretry]");if(b)b.onclick=()=>{card.remove();renderReport(compound,edits);};return;}
+  renderReportCard(compound,r,card);
+}
+// Fill a report card from report DATA (streamed 'report' event or a fetch result).
+function renderReportCard(compound,r,card){
+  const th=$("#thread");
+  if(!card){card=reportCardShell(compound);th.appendChild(card);card.scrollIntoView({block:"end"});}
   if(!r||r.error){card.querySelector(".rc-body").textContent=(r&&r.error)||"report unavailable";return;}
   const grade=(lbl,g,hi)=>`<div class="rc-grade${hi?' hi':''}"><span>${lbl}</span><b>${g&&g.gmfe!=null?(+g.gmfe).toFixed(2):"—"}</b>${g&&g.pk_gmfe?`<small>${Object.entries(g.pk_gmfe).filter(([,v])=>v!=null).map(([k,v])=>k+" "+(+v).toFixed(2)+"×").join(" · ")}</small>`:""}</div>`;
   let html=`<div class="rc-grades">${grade("in-sample GMFE",r.in_sample)}${grade("held-out GMFE — unseen studies",r.held_out,true)}</div>`;

@@ -343,6 +343,9 @@ class TestCopilotServer(unittest.TestCase):
                   {"type": "decision", "text": "hi", "calls": []},
                   {"type": "done", "best_gmfe": 1.42, "best_edits": {"parameters": {"x": 1}},
                    "web_lookups": [], "blind": True},
+                  # the pipeline report streams before 'end' and carries the held-out grade
+                  {"type": "report", "compound": "Triazolam",
+                   "held_out": {"gmfe": 1.63}, "in_sample": {"gmfe": 1.42}},
                   {"type": "end"}]
         p = {"compound": "Triazolam", "model": "claude-sonnet-5"}
         path = server._run_record_path("Triazolam")
@@ -350,7 +353,8 @@ class TestCopilotServer(unittest.TestCase):
             server._persist_run("Triazolam", events, p)
             rec = server._load_run("Triazolam")
             self.assertEqual(rec["in_sample_gmfe"], 1.42)
-            self.assertEqual(len(rec["events"]), 4)
+            self.assertEqual(rec["held_out_gmfe"], 1.63)   # captured from the pipeline report
+            self.assertEqual(len(rec["events"]), 5)
             # /api/runs replays it
             r = self.c.get("/api/runs/Triazolam")
             self.assertEqual(r.status_code, 200)

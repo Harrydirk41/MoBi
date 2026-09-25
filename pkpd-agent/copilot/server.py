@@ -121,13 +121,16 @@ def _persist_run(compound: str, events: list, p: dict) -> None:
     the page can reload/resume it later. Best-effort — never sinks a run."""
     try:
         done = next((e for e in reversed(events) if e.get("type") == "done"), {})
+        # the pipeline report (streamed before 'end') carries the held-out grade
+        rep = next((e for e in reversed(events) if e.get("type") == "report"), {})
+        held = ((rep.get("held_out") or {}).get("gmfe")) if rep else None
         rec = {
             "compound": compound, "ts": __import__("time").time(),
             "model": p.get("model"), "hard": bool(p.get("hard")),
             "web": bool(p.get("web")), "self_extract": bool(p.get("self_extract")),
             "fit_vision": bool(p.get("fit_vision", True)),
             "in_sample_gmfe": done.get("best_gmfe"),
-            "held_out_gmfe": None,               # filled by /api/runs/<c>/grade when the client grades
+            "held_out_gmfe": held,               # from the pipeline report; /api/runs/<c>/grade can still set it
             "best_edits": done.get("best_edits"),
             "givens": done.get("givens"),
             "web_lookups": done.get("web_lookups") or [],
@@ -1195,6 +1198,20 @@ def _run_agent_locked(run_id, p, q) -> None:
            "givens": givens, "deliverable": bool(deliverable),
            # transparency: what the run consulted on the open web (non-blind if any)
            "web_lookups": web_lookups, "blind": (not web_lookups)})
+
+    # The REPORT is part of the pipeline, not a separate click/HTTP call. Compute it
+    # HERE, on the same worker, right after the build: its PK-Sim runs serialize with
+    # the build via _SIM_LOCK (no pile-up), it streams back over the SAME SSE as a
+    # 'report' event before 'end' (so it can't hit an HTTP timeout), and because the
+    # batch worker waits for 'end', the next compound only starts once this report is
+    # done. Best-effort: a report failure never sinks the run.
+    if edits:
+        try:
+            rep = _report(f, edits, model)
+            q.put({"type": "report", "compound": compound, **rep})
+        except Exception as e:                       # noqa: BLE001
+            q.put({"type": "report", "compound": compound,
+                   "error": f"{type(e).__name__}: {e}"})
 
 
 # ---- FastAPI app ---------------------------------------------------------- #
