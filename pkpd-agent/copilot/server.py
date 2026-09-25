@@ -868,10 +868,19 @@ def _run_agent_locked(run_id, p, q) -> None:
     if ctx_report:
         register_context_tools(registry, cfg, {
             "report_path": ctx_report, "data_dir": ctx_data, "input": inp_agent})
+    web = bool(p.get("web"))
+    if web:                                  # real open-web lookup (NOT leave-one-out)
+        from pkpd_agent.tools.web_tools import register_web_tools
+        register_web_tools(registry, cfg, {"input": inp_agent})
+        q.put({"type": "meta", "web": True})
 
     goal = f"{inp.get('objective', 'Build the PBPK model.')}\n\n"
     if note:                                 # modeler steering from the composer
         goal += f"Modeler note: {note}\n\n"
+    if web:
+        goal += ("You MAY use osp_web_search / osp_web_fetch to look up this "
+                 "compound's DMPK and any already-published PBPK model, and build "
+                 "on what has been done - cite what you use.\n\n")
     goal += "Start with osp_inspect, then determine the model and call osp_optimize."
     policy = LLMPolicy(cfg, registry, R._system_prompt(1.6, self_extract=bool(ctx_report)))
     loop = DecisionLoop(config=cfg, registry=registry, policy=policy)
@@ -905,8 +914,11 @@ def _run_agent_locked(run_id, p, q) -> None:
                                          givens, split, build_obs)
     except Exception:                        # noqa: BLE001 - packaging must never sink a run
         pass
+    web_lookups = session.get("web_lookups") or []
     q.put({"type": "done", "best_gmfe": best, "best_edits": edits,
-           "givens": givens, "deliverable": bool(deliverable)})
+           "givens": givens, "deliverable": bool(deliverable),
+           # transparency: what the run consulted on the open web (non-blind if any)
+           "web_lookups": web_lookups, "blind": (not web_lookups)})
 
 
 # ---- FastAPI app ---------------------------------------------------------- #
@@ -1064,7 +1076,8 @@ def create_app():
         _RUNS[run_id] = {"queue": queue.Queue(), "done": False}
         params = {"compound": compound, "model": model, "max_steps": max_steps,
                   "library": lib, "only": only, "self_extract": self_extract,
-                  "hard": bool(payload.get("hard")), "note": payload.get("note")}
+                  "hard": bool(payload.get("hard")), "web": bool(payload.get("web")),
+                  "note": payload.get("note")}
         threading.Thread(target=_run_agent, args=(run_id, params), daemon=True).start()
         return JSONResponse({"run_id": run_id})
 

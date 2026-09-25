@@ -275,6 +275,8 @@
       <label style="display:flex;align-items:center;gap:8px;text-transform:none;letter-spacing:0;font-size:12.5px;color:var(--ink)"><input type="checkbox" id="selfExtract" checked style="width:15px;height:15px;accent-color:var(--accent)">Agent extracts them from the report</label>
       <label>Structure</label>
       <label title="Strip the model skeleton: enzyme identity and processes are withheld (a candidate pool is given) so the agent must discover the mechanism, not fit values into a given structure." style="display:flex;align-items:center;gap:8px;text-transform:none;letter-spacing:0;font-size:12.5px;color:var(--ink)"><input type="checkbox" id="hardMode" style="width:15px;height:15px;accent-color:var(--accent)">Structure-blind (agent discovers the mechanism)</label>
+      <label>Web lookup</label>
+      <label title="Let the agent search PubMed and the open web and read pages (osp_web_search / osp_web_fetch) — it can find this compound's DMPK and any already-published model. This is NOT leave-one-out: a run that uses the web is not a blind de-novo grade; what it consulted is recorded." style="display:flex;align-items:center;gap:8px;text-transform:none;letter-spacing:0;font-size:12.5px;color:var(--ink)"><input type="checkbox" id="webMode" style="width:15px;height:15px;accent-color:var(--accent)">Allow web/literature lookup (not blind)</label>
       <label>Context the agent sees</label>
       <div style="font-size:12px;color:var(--muted)" id="ctxSummary">all projects (default)</div>
     </div>
@@ -802,7 +804,7 @@ function runOne(compound){
     sbAborts.add(abort);sbAbortByComp.set(compound,abort);
     (async()=>{
       try{rid=(await (await fetch("/api/run",{method:"POST",headers:{"Content-Type":"application/json"},
-        body:JSON.stringify({compound,model:$("#llm").value,max_steps:+$("#steps").value,hard:$("#hardMode").checked})})).json()).run_id;}
+        body:JSON.stringify({compound,model:$("#llm").value,max_steps:+$("#steps").value,hard:$("#hardMode").checked,web:$("#webMode").checked})})).json()).run_id;}
       catch(e){return finish({error:"server error"});}
       if(sbStop||sbStopOne.has(compound)||done){if(rid)fetch("/api/cancel/"+rid,{method:"POST"}).catch(()=>{});return finish({error:"stopped"});}
       SBRUN[compound]=rid;RUNLOG[rid]=[];        // buffer this run so it can be watched in the centre
@@ -1035,7 +1037,7 @@ $("#runBtn").onclick=async()=>{
   const others=PROJECTS.filter(p=>p!==current),sel=selectedCtx();
   const ctx=(!PROJECTS.length||sel.length===others.length)?null:sel;
   try{run_id=(await (await fetch("/api/run",{method:"POST",headers:{"Content-Type":"application/json"},
-    body:JSON.stringify({compound:current,model:$("#llm").value,max_steps:+$("#steps").value,context_projects:ctx,self_extract:$("#selfExtract").checked,hard:$("#hardMode").checked,note:$("#noteBox").value.trim()||null})})).json()).run_id;}
+    body:JSON.stringify({compound:current,model:$("#llm").value,max_steps:+$("#steps").value,context_projects:ctx,self_extract:$("#selfExtract").checked,hard:$("#hardMode").checked,web:$("#webMode").checked,note:$("#noteBox").value.trim()||null})})).json()).run_id;}
   catch(e){$("#runState").textContent="server not reachable";$("#runBtn").disabled=false;return;}
   curRunId=run_id;
   es=new EventSource(`/api/stream/${run_id}`);
@@ -1073,6 +1075,7 @@ function handle(ev){
     if(ev.self_extract)t.push("agent extracts givens from the report");
     if(ev.hard)t.push("structure-blind: mechanism withheld, agent must discover it");
     if(ev.hard_unavailable)t.push("structure-blind requested but no hard snapshot — using normal");
+    if(ev.web)t.push("web lookup ON — open literature/web (not a blind grade)");
     if(t.length)th.appendChild(el("div","meta-line",t.join(" · ")));
   }else if(ev.type==="status"){$("#runState").textContent=ev.phase;}
   else if(ev.type==="decision"){
@@ -1114,6 +1117,13 @@ function handle(ev){
     if(ev.givens)renderGivens(ev.givens);
     const pass=ev.best_gmfe!=null&&+ev.best_gmfe<=1.6;
     th.appendChild(el("div","verdict pass",`<span class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M5 12l4.5 4.5L19 7"/></svg></span><div>Best in-sample GMFE <b>${ev.best_gmfe!=null?(+ev.best_gmfe).toFixed(2):"—"}</b>. The held-out grade and report are written to the model's <span class="mono">report/</span> folder.</div>`));
+    if(ev.web_lookups&&ev.web_lookups.length){
+      const qs=ev.web_lookups.filter(w=>w.kind==="search").map(w=>w.query);
+      const fs=ev.web_lookups.filter(w=>w.kind==="fetch").map(w=>w.url);
+      th.appendChild(el("div","meta-line",`⚠ non-blind run — consulted the web: `+
+        (qs.length?`${qs.length} search(es) [${escapeHtml(qs.slice(0,4).join(" · ")).slice(0,160)}]`:"")+
+        (fs.length?` · ${fs.length} page(s) fetched`:"")));
+    }
     doneActions(ev);
     $("#fitBadge").innerHTML=pass?'<span class="badge pass">converged ≤ 1.6</span>':'<span class="badge run">see held-out grade</span>';
     $("#runState").textContent="done";

@@ -56,6 +56,22 @@ evaluation closer to the Kuepfer 2016 best-practice workflow:
   peak or terminal slope surfaces as the structural clue it is. Shown on the
   editor result line and returned to the agent after each `osp_optimize`.
 
+## Web / literature lookup (not blind)
+
+An *Allow web/literature lookup* toggle gives the agent two tools —
+`osp_web_search` (PubMed via NCBI E-utilities + a best-effort general-web
+backend) and `osp_web_fetch` (read one URL) — so it can look up the compound's
+DMPK (which enzyme clears it, physchem, transporters) and any **already-published
+PBPK model**, and build on prior work, the way a real modeler does.
+
+This is deliberately **not leave-one-out**: with the open web the agent can reach
+the target's own published model. That is the point (model like a modeler who can
+look things up), so a run that uses the web is **not a blind de-novo grade**. The
+tools stay honest by *recording*, not hiding: every query and fetch is logged on
+the session and reported (the finish banner shows `⚠ non-blind run — consulted
+the web …`, and the `done` event carries `web_lookups` + `blind:false`). Leave the
+toggle off for a blind benchmark run.
+
 ## Two honest defaults
 
 - **Self-extract (context data lake).** By default the pre-digested givens are
