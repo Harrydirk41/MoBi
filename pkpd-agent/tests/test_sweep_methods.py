@@ -316,14 +316,53 @@ class TestFixGivenPhyschem(unittest.TestCase):
         self.assertEqual(fix, {})
 
 
+class TestDefaultedProcessParams(unittest.TestCase):
+    """A process parameter left at its catalog default (not set in the process spec,
+    not fitted, not fixed) is surfaced so a silent default (GFR fraction 1.0, Km 1.0)
+    cannot quietly become the model value."""
+    def test_flags_a_param_left_at_default(self):
+        from pkpd_agent.tools.osp_loop_tools import _defaulted_process_params
+        # add GFR but neither set nor fit its fraction -> default 1.0 must be flagged
+        d = _defaulted_process_params([{"type": "glomerular_filtration"}], provided_keys=[])
+        names = {x["parameter"] for x in d}
+        self.assertIn("GFR fraction", names)
+        self.assertEqual(next(x for x in d if x["parameter"] == "GFR fraction")["default"], 1.0)
+
+    def test_explicit_value_is_not_flagged(self):
+        from pkpd_agent.tools.osp_loop_tools import _defaulted_process_params
+        d = _defaulted_process_params(
+            [{"type": "glomerular_filtration", "parameters": {"GFR fraction": 0.3}}],
+            provided_keys=[])
+        self.assertEqual(d, [])
+
+    def test_fitted_param_is_not_flagged_even_molecule_qualified(self):
+        from pkpd_agent.tools.osp_loop_tools import _defaulted_process_params
+        # fitting 'Intrinsic clearance@CYP3A4' clears the metabolization default
+        d = _defaulted_process_params(
+            [{"type": "metabolization_first_order", "molecule": "CYP3A4"}],
+            provided_keys=["Intrinsic clearance@CYP3A4"])
+        self.assertEqual(d, [])
+
+    def test_partial_fit_flags_only_the_unset_one(self):
+        from pkpd_agent.tools.osp_loop_tools import _defaulted_process_params
+        # MM metabolism has Vmax/Km/kcat; fit only kcat -> Km & Vmax remain defaulted
+        d = _defaulted_process_params(
+            [{"type": "metabolization_mm", "molecule": "CYP3A4"}],
+            provided_keys=["kcat@CYP3A4"])
+        left = {x["parameter"] for x in d}
+        self.assertIn("Km", left)
+        self.assertNotIn("kcat", left)
+
+
 class TestGFRGuard(unittest.TestCase):
     def test_gfr_out_of_range_flagged(self):
         flags = osp_score.plausibility([{"parameter": "GFR fraction", "value": 1.4}])
         self.assertTrue(any("GFR fraction" in f["message"] for f in flags))
 
-    def test_gfr_pushed_low_flagged(self):
-        flags = osp_score.plausibility([{"parameter": "GFR fraction", "value": 0.3}])
-        self.assertTrue(any("reabsorption" in f["message"] for f in flags))
+    def test_gfr_below_one_is_not_flagged(self):
+        # a GFR fraction < 1 is common and legitimate; the harness offers no opinion
+        # on where in [0, 1] it sits (only the physical [0, 1] bound is enforced).
+        self.assertEqual(osp_score.plausibility([{"parameter": "GFR fraction", "value": 0.3}]), [])
 
     def test_gfr_physiological_ok(self):
         self.assertEqual(osp_score.plausibility([{"parameter": "GFR fraction", "value": 1.0}]), [])
@@ -362,7 +401,10 @@ class TestSweepScreenVerdict(unittest.TestCase):
     def test_not_adequate_when_all_poor(self):
         r = self._sweep(3.10)                    # every method fits badly
         self.assertFalse(r.data["screen_adequate"])
-        self.assertIn("not the lever here", r.data["advice"])
+        # the verdict is framed as evidence + the agent's call, not a hard command
+        self.assertIn("soft target", r.data["advice"])
+        self.assertIn("your call", r.data["advice"])
+        self.assertNotIn("do not accept", r.data["advice"].lower())
 
 
 class TestSweepParallel(unittest.TestCase):

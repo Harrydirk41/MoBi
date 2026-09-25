@@ -997,6 +997,7 @@ def _serialize_observation(ev) -> dict:
             "ranked_top": c.get("ranked_top"),
             "recorded": c.get("recorded"),        # agent's self-extracted givens table
             "saw_fit_curve": c.get("saw_fit_curve"),   # model was shown a fit overlay
+            "defaulted_params": c.get("defaulted_process_params"),  # params silently at default
             "detail": _obs_detail(tool, c)}       # what the agent actually read/saw
 
 

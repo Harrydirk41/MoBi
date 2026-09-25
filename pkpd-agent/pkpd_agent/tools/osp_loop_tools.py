@@ -373,6 +373,32 @@ def _fix_given_physchem(estimate: dict, fix: dict, lit: list):
     return estimate, fix, notes
 
 
+def _defaulted_process_params(add_processes, provided_keys) -> list[dict]:
+    """Added-process parameters left at their CATALOG DEFAULT - i.e. the agent
+    added the process but neither gave the parameter a value in the process spec
+    nor fitted/fixed it. These defaults are otherwise injected SILENTLY (GFR
+    fraction 1.0 = full filtration, Km 1.0, Intrinsic clearance 0.1), so a default
+    can quietly become the model value. Surfacing them lets the agent SEE what it
+    left unset and decide to fit or set it. `provided_keys` = every parameter name
+    the agent set or chose to fit (base name or '<param>@<molecule>')."""
+    prov = {str(k).lower() for k in (provided_keys or [])}
+    out = []
+    for p in add_processes or []:
+        if not isinstance(p, dict):
+            continue
+        spec = osp_catalog.PROCESS_TYPES.get(p.get("type")) or {}
+        given = {str(k).lower() for k in (p.get("parameters") or {})}
+        mol = str(p.get("molecule") or "")
+        for prm in spec.get("parameters", []):
+            base = str(prm["name"]).lower()
+            qual = f"{base}@{mol.lower()}" if mol else base
+            if base in given or base in prov or qual in prov:
+                continue
+            out.append({"molecule": mol or None, "parameter": prm["name"],
+                        "default": prm.get("default")})
+    return out
+
+
 def _given_measurement(base: str, lit: list) -> bool:
     """True if the input's literature_physicochemical GIVES a measured value for this parameter
     (matched by kind), so it must be respected - never widened or freely re-estimated. General: keys
@@ -510,12 +536,24 @@ def register_osp_loop_tools(registry: ToolRegistry, config, ctx: dict) -> None:
         pkp = score.get("pk_parameters") or {}
         overlay = osp_score.overlay_series(observed, predicted)
         images = _fit_images(overlay, f"observed vs simulated — GMFE {overall.get('gmfe')}")
+        defaulted = _defaulted_process_params(
+            edits.get("add_processes"),
+            list((edits.get("parameters") or {}).keys()) + list((edits.get("fix") or {}).keys()))
+        dflt_note = ""
+        if defaulted:
+            dflt_note = (" | ⚠ added-process parameter(s) left at their DEFAULT (not set "
+                         "or fitted): "
+                         + ", ".join(f"{d['parameter']}"
+                                     + (f"@{d['molecule']}" if d['molecule'] else "")
+                                     + f"={d['default']}" for d in defaulted)
+                         + " — a default silently defines the model; set or fit these.")
         out = ToolResult.success(
             f"GMFE {overall.get('gmfe')} overall "
             f"(within2fold {overall.get('within_2fold_pct')}%); "
             f"best so far {session.get('osp_best_gmfe')}"
             + (" — a fit overlay is attached; read it for shape mismatches "
-               "(distribution phase, terminal slope, Cmax/tmax)." if images else ""),
+               "(distribution phase, terminal slope, Cmax/tmax)." if images else "")
+            + dflt_note,
             gmfe_overall=overall.get("gmfe"),
             within_2fold_pct=overall.get("within_2fold_pct"),
             bias_overall=overall.get("bias"),
@@ -525,6 +563,7 @@ def register_osp_loop_tools(registry: ToolRegistry, config, ctx: dict) -> None:
             pk_parameter_gmfe=pkp.get("gmfe_by_metric"),
             worst_datasets=worst,
             parameter_flags=flags,
+            defaulted_process_params=defaulted or None,   # params silently at their default
             edits_applied=applied,
             not_found=applied.get("not_found"),
             n_matched=len(predicted), n_total=len(observed),
@@ -817,10 +856,22 @@ def register_osp_loop_tools(registry: ToolRegistry, config, ctx: dict) -> None:
                            if len(recs) > 1 else ""))
         images = _fit_images(r.get("series") or [],
                              f"observed vs simulated — GMFE {gmfe}")
+        struct = args.get("structure") or {}
+        defaulted = _defaulted_process_params(
+            struct.get("add_processes"),
+            list(estimate.keys()) + list(given_fix.keys()) + list((args.get("fix") or {}).keys()))
+        dflt_note = ""
+        if defaulted:
+            dflt_note = (" | ⚠ added-process parameter(s) left at their DEFAULT (not fitted "
+                         "or set): "
+                         + ", ".join(f"{d['parameter']}"
+                                     + (f"@{d['molecule']}" if d['molecule'] else "")
+                                     + f"={d['default']}" for d in defaulted)
+                         + " — a default silently defines the model; fit or set these.")
         out = ToolResult.success(
             f"optimized {list(r['optimized'])} on {len(r['fit_simulations'])} "
             f"study(ies) -> GMFE {gmfe} "
-            f"(best so far {session.get('osp_best_gmfe')}){rec_line}"
+            f"(best so far {session.get('osp_best_gmfe')}){rec_line}{dflt_note}"
             + (" | a fit overlay is attached — inspect the curve shape, not just "
                "the GMFE." if images else ""),
             optimized=r["optimized"], fit=r["fit"], by_route=r["by_route"],
@@ -830,6 +881,7 @@ def register_osp_loop_tools(registry: ToolRegistry, config, ctx: dict) -> None:
             link_scales=r.get("link_scales"),
             recommendations=recs,
             parameter_flags=flags,
+            defaulted_process_params=defaulted or None,   # params silently at their default
             measured_constraints=constraint_notes or None,
             n_evals=r["n_evals"], fit_simulations=r["fit_simulations"],
             iteration=len(hist),
@@ -1190,20 +1242,26 @@ def register_osp_loop_tools(registry: ToolRegistry, config, ctx: dict) -> None:
         # are heavy and not needed by the agent, which only picks the winning method.
         ranked_compact = [{"partition": x["partition"], "permeability": x["permeability"],
                            "gmfe": x["gmfe"]} for x in results[:5]]
-        # verdict for the "quick screen -> if none good, adjust and re-sweep" flow:
-        # the best screened method is adequate only if it fits reasonably AND did not
-        # rail a free bound. Otherwise tell the agent the lever is elsewhere.
+        # verdict for the "quick screen -> if none good, adjust and re-sweep" flow.
+        # ~GMFE 2.0 is a SOFT target (overridable via perm_threshold), reported as
+        # EVIDENCE, not a pass/fail command: below it the method is a good pick; above
+        # it the method is likely not the lever - but on a genuinely hard compound this
+        # may be its achievable best, so the call is the agent's, not the harness's.
         railed = bool(best.get("params_at_bound"))
         adequate = best["gmfe"] is not None and best["gmfe"] <= PERM_TRIGGER_GMFE and not railed
         advice = None
         if not adequate:
-            advice = (f"No screened method fit adequately (best GMFE {best['gmfe']}"
-                      + (", and the winner railed on a bound" if railed else "")
-                      + "). The distribution method is not the lever here: free a measured "
-                      "physchem WITHIN its measured range, or revisit the mechanism "
-                      "(add/disable a process), then re-sweep your shortlist - do not accept "
-                      "this winner as final.")
-            print(f"  sweep: screen NOT adequate - {advice}", flush=True)
+            advice = (f"Best screened GMFE {best['gmfe']} is above the ~{PERM_TRIGGER_GMFE:g} "
+                      "soft target"
+                      + (", and the winner railed on a bound (so the bound, not the data, is "
+                         "setting a value)" if railed else "")
+                      + ". That usually means the distribution method is not the remaining "
+                      "lever: consider freeing a measured physchem WITHIN its measured range, "
+                      "or revisiting the mechanism (add/disable a process), then re-sweeping. "
+                      "But if you judge this a genuinely hard compound, this GMFE may be its "
+                      "achievable best - your call, not a hard fail.")
+            print(f"  sweep: best GMFE {best['gmfe']} above the ~{PERM_TRIGGER_GMFE:g} "
+                  f"soft target - {advice}", flush=True)
         msg = (f"screened {len(results)} method combo(s), re-fitting {list(estimate)} under each; "
                f"BEST = {best['partition']} / {best['permeability']} -> GMFE {best['gmfe']} "
                f"(best so far {session.get('osp_best_gmfe')}). ")
