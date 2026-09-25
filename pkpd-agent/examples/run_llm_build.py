@@ -69,6 +69,18 @@ def _system_prompt(target: float, self_extract: bool = False, web: bool = False)
               "when you need a value or the mechanism they do not give"
               if web else "ONLY from the handed report and data - you have no "
               "web access")
+    web_rule = (
+        "YOU HAVE WEB SEARCH (web_search / web_fetch) - USE IT, do not answer from "
+        "memory. For any numeric prior NOT in the handed report - especially "
+        "lipophilicity/logP, plasma clearance (or hepatic extraction), blood:plasma "
+        "ratio, fraction metabolized, and in-vitro CLint/Km - actually CALL "
+        "web_search, take the value from a real source, and record it via "
+        "osp_record_givens with that citation (provenance 'given'). If the clearing "
+        "enzyme or a transporter role is not explicit in the report, confirm it by "
+        "web_search too. NEVER state a number or a mechanism as fact from your own "
+        "memory when you could look it up - and never describe a search you did not "
+        "run. If a published PBPK model exists for this compound, fetch it and build "
+        "on its structure, citing it.\n\n") if web else ""
     step0 = (
         "0. SELF-EXTRACT the givens FIRST. osp_inspect will show NO pre-digested "
         "literature_physicochemical - you build the context yourself from the raw "
@@ -90,6 +102,12 @@ def _system_prompt(target: float, self_extract: bool = False, web: bool = False)
         "sentences saying what you are about to do and WHY (the hypothesis or the "
         "evidence driving it). This text is shown to the user as your reasoning, so "
         "never emit a tool call with no accompanying sentence.\n\n"
+        "READ THE DATA before you fit: call osp_read_study on at least the IV curves "
+        "(and one PO curve if present) to SEE the profile shape - how many "
+        "distribution phases, the terminal slope, any dose-nonlinearity. That shape "
+        "decides how many processes/compartments the model needs. Do not go from the "
+        "study LIST straight to fitting.\n\n"
+        + web_rule +
         "Each round:\n"
         + step0 +
         "1. Call osp_inspect (task: objective, known biology, priors, data) and "
