@@ -166,9 +166,10 @@
   .report td,.report th{border:1px solid var(--border);padding:3px 7px;text-align:left}
   .report code{font-family:var(--mono);font-size:11px}
   .report img.rfig{max-width:100%;height:auto;display:block;margin:8px auto;border:1px solid var(--border);border-radius:8px;background:#fff}
-  table.giv{width:100%;border-collapse:collapse;font-size:11px}
-  table.giv td{padding:3px 4px;border-bottom:1px solid var(--border-2);vertical-align:top}
-  table.giv td.p{color:var(--ink)}table.giv td.v{font-family:var(--mono);text-align:right;white-space:nowrap}
+  table.giv{width:100%;border-collapse:collapse;font-size:11px;table-layout:fixed}
+  table.giv td{padding:3px 4px;border-bottom:1px solid var(--border-2);vertical-align:top;overflow-wrap:anywhere;word-break:break-word}
+  table.giv td.p{color:var(--ink);width:54%}
+  table.giv td.v{font-family:var(--mono);text-align:right;width:46%}
   table.giv td.s{color:var(--faint);font-size:10px}
   .tag{font-size:9.5px;padding:1px 5px;border-radius:5px;font-weight:600}
   .tag.given{background:var(--accent-soft);color:var(--accent-ink)}
@@ -968,9 +969,10 @@ function plotFit(series){
 }
 
 /* ---- what the modeler is handed: data viz + redacted report --------------- */
-function fetchT(url,ms){  // fetch with a timeout so a busy server never hangs the UI
+function fetchT(url,opts,ms){  // fetch with a timeout so a busy server never hangs the UI
+  if(typeof opts==="number"){ms=opts;opts=undefined;}   // back-compat: fetchT(url, ms)
   const c=new AbortController(),t=setTimeout(()=>c.abort(),ms||12000);
-  return fetch(url,{signal:c.signal}).finally(()=>clearTimeout(t));
+  return fetch(url,{...(opts||{}),signal:c.signal}).finally(()=>clearTimeout(t));
 }
 async function renderHandoff(name){
   const th=$("#thread");
@@ -1194,10 +1196,11 @@ function renderGivens(list){
 async function renderReport(compound,edits){
   const th=$("#thread");
   const card=el("div","report-card");
-  card.innerHTML=`<div class="rc-h"><b>📋 Report — ${escapeHtml(compound)}</b><small>held-out grade + comparison to the reference answer — revealed after the blind build (never shown to the agent)</small></div><div class="rc-body">building the report…</div>`;
+  card.innerHTML=`<div class="rc-h"><b>📋 Report — ${escapeHtml(compound)}</b><small>held-out grade + comparison to the reference answer — revealed after the blind build (never shown to the agent)</small></div><div class="rc-body">building the report… (runs a few PK-Sim simulations — slow while other builds are running)</div>`;
   th.appendChild(card);card.scrollIntoView({block:"end"});
-  let r;try{r=await (await fetch("/api/report",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({compound,edits})})).json();}
-  catch(e){card.querySelector(".rc-body").textContent="report unavailable (server error)";return;}
+  let r;try{r=await (await fetchT("/api/report",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({compound,edits})},180000)).json();}
+  catch(e){card.querySelector(".rc-body").innerHTML='report timed out or server busy. <button class="act" data-rcretry>↻ retry</button>';
+    const b=card.querySelector("[data-rcretry]");if(b)b.onclick=()=>{card.remove();renderReport(compound,edits);};return;}
   if(!r||r.error){card.querySelector(".rc-body").textContent=(r&&r.error)||"report unavailable";return;}
   const grade=(lbl,g,hi)=>`<div class="rc-grade${hi?' hi':''}"><span>${lbl}</span><b>${g&&g.gmfe!=null?(+g.gmfe).toFixed(2):"—"}</b>${g&&g.pk_gmfe?`<small>${Object.entries(g.pk_gmfe).filter(([,v])=>v!=null).map(([k,v])=>k+" "+(+v).toFixed(2)+"×").join(" · ")}</small>`:""}</div>`;
   let html=`<div class="rc-grades">${grade("in-sample GMFE",r.in_sample)}${grade("held-out GMFE — unseen studies",r.held_out,true)}</div>`;
