@@ -675,7 +675,19 @@ def register_osp_loop_tools(registry: ToolRegistry, config, ctx: dict) -> None:
                     clo, chi = max(lo, mr[0]), min(hi, mr[1])
                     if clo >= chi:            # requested band entirely outside
                         clo, chi = mr
-                    if (clo, chi) != (lo, hi):
+                    if not (chi > clo > 0):
+                        # the measured range has no positive WIDTH to fit within
+                        # (a single measured value) -> you cannot estimate it; FIX it
+                        # at the measured value rather than fail with a cryptic bounds
+                        # error. (This is what made co-fitting fu with logP fail.)
+                        estimate.pop(name)
+                        fixval = mr[0] if mr[0] > 0 else (lo if lo > 0 else mr[1])
+                        given_fix.setdefault(name, fixval)
+                        constraint_notes.append(
+                            f"{name}: its measured value has no uncertainty band to fit "
+                            f"within (range [{mr[0]:.3g}, {mr[1]:.3g}]) — FIXED at "
+                            f"{fixval:.3g} instead of estimated.")
+                    elif (clo, chi) != (lo, hi):
                         estimate[name] = [clo, chi]
                         constraint_notes.append(
                             f"{name}: a measured quantity - bounds constrained to "

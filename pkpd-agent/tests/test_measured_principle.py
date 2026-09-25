@@ -98,5 +98,46 @@ class TestOptimizeEnforcement(unittest.TestCase):
             [0.09, 0.11])
 
 
+class TestCollapsedMeasuredRange(unittest.TestCase):
+    """A measured-soft parameter whose measured range is a single value has no
+    band to fit within: it must be FIXED (with a clear note), not turned into
+    degenerate [x, x] bounds that fail with a cryptic 'each parameter needs
+    bounds' error (the alfentanil fu+logP failure)."""
+    def setUp(self):
+        self.inp = {"given_data": {"literature_physicochemical": [
+            {"parameter": "Fraction unbound in plasma",
+             "reported_range_percent": [8.6, 8.6]}]}}   # a POINT, no width
+        self.captured = {}
+
+        def fake_run(cli, snap, observed, estimate, fix=None, **kw):
+            self.captured["estimate"] = estimate
+            self.captured["fix"] = fix or {}
+            return {"ok": True, "optimized": {k: sum(v) / 2 for k, v in estimate.items()},
+                    "fit": {"gmfe": 1.5}, "by_route": {}, "worst_datasets": [],
+                    "params_at_bound": [], "sensitivity": {}, "n_evals": 10,
+                    "fit_simulations": ["s1"]}
+        self._orig = OO.run_optimization
+        OO.run_optimization = fake_run
+        self.reg = ToolRegistry()
+        register_osp_loop_tools(self.reg, AgentConfig(mock=False), {
+            "cli": object(), "snapshot_path": "x", "observed": [], "input": self.inp})
+        self.opt = self.reg.get("osp_optimize").handler
+
+    def tearDown(self):
+        OO.run_optimization = self._orig
+
+    def test_pointvalue_fu_is_fixed_not_estimated(self):
+        r = self.opt({"estimate": {
+            "Fraction unbound (plasma, reference value)": [0.086, 0.12],
+            "Lipophilicity": [0, 4]}}, ModelingSession(goal="g"))
+        self.assertTrue(r.ok)                                          # did NOT fail cryptically
+        est = self.captured["estimate"]
+        self.assertNotIn("Fraction unbound (plasma, reference value)", est)   # moved out of estimate
+        self.assertIn("Lipophilicity", est)                            # the other param still fit
+        self.assertAlmostEqual(
+            self.captured["fix"]["Fraction unbound (plasma, reference value)"], 0.086)
+        self.assertTrue(any("no uncertainty band" in n for n in (r.data.get("measured_constraints") or [])))
+
+
 if __name__ == "__main__":
     unittest.main()
