@@ -347,7 +347,79 @@ def score_fit(observed: list[dict], predicted_profiles: list[dict]) -> dict[str,
         "overall": _metrics(all_fe),
         "by_route": {r: _metrics(fe) for r, fe in by_route.items()},
         "per_dataset": sorted(per_ds, key=lambda d: (d["gmfe"] or 0), reverse=True),
+        "pk_parameters": pk_parameters(observed, predicted_profiles),
     }
+
+
+# --------------------------------------------------------------------------- #
+# PK-parameter goodness-of-fit (Cmax / tmax / AUC / t1/2), the classic PBPK
+# evaluation table (Kuepfer 2016): GMFE captures the whole curve, but a modeler
+# also checks whether the PEAK, its timing, the EXPOSURE and the TERMINAL slope
+# each land. Observed and predicted are evaluated on the SAME (observed) time
+# grid so the comparison is apples-to-apples and independent of grid density.
+# --------------------------------------------------------------------------- #
+
+def _pk_params(times: list[float], concs: list[float]) -> "dict | None":
+    pts = [(t, c) for t, c in zip(times, concs)
+           if _finite(t) is not None and _finite(c) is not None and c > 0]
+    pts.sort()
+    if len(pts) < 2:
+        return None
+    cmax = max(c for _, c in pts)
+    tmax = next(t for t, c in pts if c == cmax)
+    auc = sum((pts[i][0] - pts[i - 1][0]) * (pts[i][1] + pts[i - 1][1]) / 2.0
+              for i in range(1, len(pts)))                 # linear trapezoid
+    # terminal half-life: log-linear slope over the points from tmax onward
+    tail = [(t, c) for t, c in pts if t >= tmax and c > 0]
+    thalf = None
+    if len(tail) >= 3:
+        xs = [t for t, _ in tail]
+        ys = [math.log(c) for _, c in tail]
+        n = len(xs)
+        mx, my = sum(xs) / n, sum(ys) / n
+        den = sum((x - mx) ** 2 for x in xs)
+        if den > 0:
+            slope = sum((x - mx) * (y - my) for x, y in zip(xs, ys)) / den
+            if slope < 0:
+                thalf = math.log(2) / (-slope)
+    return {"cmax": cmax, "tmax": tmax, "auc": auc, "thalf": thalf}
+
+
+def _fold(a: "float | None", r: "float | None") -> "float | None":
+    if a is None or r is None or r == 0:
+        return None
+    return round(a / r, 3)
+
+
+def pk_parameters(observed: list[dict], predicted_profiles: list[dict]) -> dict[str, Any]:
+    """Per-dataset observed vs predicted Cmax/tmax/AUC/t1/2 with fold-errors, plus
+    the median |log| fold-error per metric across datasets (GMFE-style)."""
+    preds = {p["dataset"]: p for p in predicted_profiles}
+    rows, agg = [], {"cmax": [], "auc": [], "tmax": [], "thalf": []}
+    for o in observed:
+        pr = preds.get(o["dataset"])
+        if not pr:
+            continue
+        ot = list(o["time_h"])
+        obs = _pk_params(ot, list(o["conc_mg_L"]))
+        # predicted sampled at the SAME observed times
+        psamp = [_interp(pr["time_h"], pr["pred_conc_mg_L"], t) for t in ot]
+        sim = _pk_params(ot, [p if p is not None else 0.0 for p in psamp])
+        if not obs or not sim:
+            continue
+        row = {"dataset": o["dataset"], "study": o.get("study"),
+               "route": (_norm_route(_obs_key(o)[1]) or "NA")}
+        for k in ("cmax", "tmax", "auc", "thalf"):
+            f = _fold(sim.get(k), obs.get(k))
+            row[k + "_obs"] = (round(obs.get(k), 4) if obs.get(k) is not None else None)
+            row[k + "_pred"] = (round(sim.get(k), 4) if sim.get(k) is not None else None)
+            row[k + "_fold"] = f
+            if f and f > 0:
+                agg[k].append(abs(math.log(f)))
+        rows.append(row)
+    summary = {k: (round(math.exp(sum(v) / len(v)), 3) if v else None)
+               for k, v in agg.items()}   # geometric-mean fold-error per metric
+    return {"per_dataset": rows, "gmfe_by_metric": summary}
 
 
 # --------------------------------------------------------------------------- #

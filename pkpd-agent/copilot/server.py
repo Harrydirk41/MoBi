@@ -310,6 +310,7 @@ def _try_model(f: dict, edits: dict, subset: str = "building") -> dict:
         if gmfe is None:
             gmfe = sc["overall"].get("gmfe")
         by_route = by_route or sc.get("by_route")
+        pk_gmfe = (sc.get("pk_parameters") or {}).get("gmfe_by_metric")
     pred_by = {p["dataset"]: p for p in predicted}
     series = []
     for o in obs:
@@ -321,7 +322,8 @@ def _try_model(f: dict, edits: dict, subset: str = "building") -> dict:
                          if c is not None],
             "simulated": _downsample([[t, c] for t, c in zip(p["time_h"], p["pred_conc_mg_L"])
                                       if c is not None]) if p else []})
-    return {"ok": True, "gmfe": gmfe, "by_route": by_route, "optimized": optimized, "series": series}
+    return {"ok": True, "gmfe": gmfe, "by_route": by_route, "pk_gmfe": pk_gmfe,
+            "optimized": optimized, "series": series}
 
 
 def _built_view(project: str) -> dict:
@@ -791,6 +793,19 @@ def _run_agent_locked(run_id, p, q) -> None:
         q.put({"type": "error", "message": f"no benchmark snapshot for {compound}"})
         return
 
+    # STRUCTURE-BLIND (hard) mode: swap in the hard_blanked snapshot (processes /
+    # enzyme identity stripped) + the hard input (a candidate_clearance_molecules
+    # pool instead of the given enzyme), so the agent must DISCOVER the mechanism,
+    # not just fit values into a given skeleton.
+    if p.get("hard"):
+        hs = f["snapshot"].replace(".blanked.json", ".hard_blanked.json")
+        hi = f["input"].replace(".input.json", ".hard.input.json")
+        if os.path.isfile(hs) and os.path.isfile(hi):
+            f = {**f, "snapshot": hs, "input": hi}
+            q.put({"type": "meta", "hard": True})
+        else:
+            q.put({"type": "meta", "hard_unavailable": True})
+
     cfg = AgentConfig(mock=False, max_steps=max_steps)
     cfg.model = model
     if not cfg.anthropic_key_present():
@@ -1049,7 +1064,7 @@ def create_app():
         _RUNS[run_id] = {"queue": queue.Queue(), "done": False}
         params = {"compound": compound, "model": model, "max_steps": max_steps,
                   "library": lib, "only": only, "self_extract": self_extract,
-                  "note": payload.get("note")}
+                  "hard": bool(payload.get("hard")), "note": payload.get("note")}
         threading.Thread(target=_run_agent, args=(run_id, params), daemon=True).start()
         return JSONResponse({"run_id": run_id})
 

@@ -34,6 +34,28 @@ Then open <http://127.0.0.1:8765>.
   dots; all/none). Unchecking narrows the reference library; unchecking all runs
   de-novo.
 
+## Less scaffolding, more real modeling
+
+Three changes make the task closer to what a modeler actually faces, and the
+evaluation closer to the Kuepfer 2016 best-practice workflow:
+
+- **Structure-blind (hard) mode** — a *Structure-blind* toggle runs against the
+  `*-Model.hard_blanked.json` snapshot (the process skeleton and the metabolizing
+  enzyme identity are stripped) plus the hard input (a
+  `candidate_clearance_molecules` pool instead of the given enzyme). The agent
+  then has to **discover the mechanism** — which enzyme clears the drug, which
+  processes to add — not just fit values into a handed structure. Combine it with
+  self-extract for the least-scaffolded task (structure *and* physchem withheld).
+- **Staged IV→PO guidance** — `osp_inspect` now returns `method_guidance`: when
+  both IV and PO data are present it tells the agent to fit in stages (IV sets
+  distribution + clearance, then PO holds those and fits only absorption), and it
+  flags when saturable kinetics are unidentifiable (fewer than two dose levels).
+  Guidance from the data shape, never the answer.
+- **PK-parameter goodness-of-fit** — beyond GMFE, every fit reports Cmax / tmax /
+  AUC / t½ fold-errors (`pk_parameter_gmfe`), so a good pointwise GMFE with a bad
+  peak or terminal slope surfaces as the structural clue it is. Shown on the
+  editor result line and returned to the agent after each `osp_optimize`.
+
 ## Two honest defaults
 
 - **Self-extract (context data lake).** By default the pre-digested givens are

@@ -376,3 +376,28 @@ class TestSweepParallel(unittest.TestCase):
         self.assertTrue(r.ok)
         self.assertEqual(r.data["best"]["partition"], "Schmitt")
         self.assertGreater(len(tids), 1)              # actually ran on multiple threads
+
+
+class TestMethodGuidance(unittest.TestCase):
+    """Data-shape guidance (not answers): staged IV->PO and saturable identifiability."""
+    def _g(self, observed):
+        from pkpd_agent.tools.osp_loop_tools import _method_guidance
+        return _method_guidance(observed)
+
+    def test_staging_when_iv_and_po_present(self):
+        obs = [{"route": "IV", "dose": "1 mg"}, {"route": "PO", "dose": "1 mg"}]
+        g = self._g(obs)
+        self.assertIn("route_staging", g)
+        self.assertIn("IV", g["route_staging"])
+        self.assertIn("absorption", g["route_staging"].lower())
+
+    def test_no_staging_when_iv_only(self):
+        g = self._g([{"route": "IV", "dose": "1 mg"}, {"route": "IV", "dose": "2 mg"}])
+        self.assertNotIn("route_staging", g)          # single route -> nothing to stage
+        self.assertEqual(g["dose_levels"], 2)
+        self.assertNotIn("saturable_identifiability", g)   # >=2 doses -> identifiable
+
+    def test_saturable_warned_with_single_dose(self):
+        g = self._g([{"route": "IV", "dose": "1 mg"}, {"route": "PO", "dose": "1 mg"}])
+        self.assertEqual(g["dose_levels"], 1)
+        self.assertIn("saturable_identifiability", g)

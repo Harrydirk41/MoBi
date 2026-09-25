@@ -164,6 +164,42 @@ def _observed_overview(observed: list[dict]) -> dict[str, Any]:
     return {"n_datasets": len(observed), "by_route": routes}
 
 
+def _method_guidance(observed: list[dict]) -> dict[str, Any]:
+    """Best-practice METHOD guidance derived only from the data shape (not the
+    answer): the staged IV->PO fit (Kuepfer 2016) and whether saturable kinetics
+    are even identifiable from the doses on hand. Guidance, not instructions."""
+    def _r(o):
+        s = str(o.get("route") or "").upper()
+        return "IV" if "IV" in s else ("PO" if ("PO" in s or "ORAL" in s) else "other")
+    routes = {_r(o) for o in observed}
+    doses = {str(o.get("dose")) for o in observed if o.get("dose")}
+    out: dict[str, Any] = {}
+    if "IV" in routes and "PO" in routes:
+        out["route_staging"] = (
+            "Both IV and PO data are present. Fit in STAGES: (1) on the IV data "
+            "alone, choose the distribution method and fit distribution + systemic "
+            "clearance; (2) then on the PO data, HOLD those fixed and fit ONLY the "
+            "absorption parameters (intestinal permeability, dissolution/solubility, "
+            "lag/meal). Fitting all routes jointly lets absorption and clearance "
+            "compensate and can hide a structural gap. (If an IV-relevant process is "
+            "also an absorption process, e.g. a gut uptake transporter, fit IV+PO "
+            "together instead.)")
+    elif "PO" in routes and "IV" not in routes:
+        out["route_staging"] = (
+            "PO data only: absorption and clearance are not separately identifiable "
+            "without IV data — fix clearance from a prior/IVIVE where you can, and "
+            "treat the absolute clearance as uncertain.")
+    n_doses = len(doses)
+    out["dose_levels"] = n_doses
+    if n_doses < 2:
+        out["saturable_identifiability"] = (
+            f"Only {n_doses} dose level in the data. Michaelis–Menten / saturable "
+            "kinetics (Km, Vmax), saturable transport, or dose-nonlinear absorption "
+            "are NOT identifiable without ≥2 dose levels — prefer linear clearance "
+            "unless a prior fixes the saturable constants.")
+    return out
+
+
 def _given_physchem_value(base: str, lit: list) -> "float | None":
     """The GIVEN value of a DIRECT physicochemical property (currently lipophilicity) if the input
     provided it, else None. Only direct measurements are returned - NOT in-vitro kinetic inputs
@@ -262,6 +298,7 @@ def register_osp_loop_tools(registry: ToolRegistry, config, ctx: dict) -> None:
             evaluation_rubric=inp.get("evaluation_rubric"),
             current_model=model,
             observed_overview=_observed_overview(observed),
+            method_guidance=_method_guidance(observed),   # staged IV->PO + saturable identifiability
             valid_partition_methods=PARTITION_METHODS,
             valid_permeability_methods=PERMEABILITY_METHODS,
         )
@@ -312,6 +349,7 @@ def register_osp_loop_tools(registry: ToolRegistry, config, ctx: dict) -> None:
         worst = [{"dataset": d["dataset"], "route": d["route"],
                   "gmfe": d["gmfe"], "bias": d["bias"]}
                  for d in score["per_dataset"][:3]]
+        pkp = score.get("pk_parameters") or {}
         return ToolResult.success(
             f"GMFE {overall.get('gmfe')} overall "
             f"(within2fold {overall.get('within_2fold_pct')}%); "
@@ -320,6 +358,9 @@ def register_osp_loop_tools(registry: ToolRegistry, config, ctx: dict) -> None:
             within_2fold_pct=overall.get("within_2fold_pct"),
             bias_overall=overall.get("bias"),
             by_route=score["by_route"],
+            # PK-parameter fold-errors (Cmax/tmax/AUC/t1/2) so shape & exposure,
+            # not just the pointwise GMFE, guide the next edit.
+            pk_parameter_gmfe=pkp.get("gmfe_by_metric"),
             worst_datasets=worst,
             parameter_flags=flags,
             edits_applied=applied,

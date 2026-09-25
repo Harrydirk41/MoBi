@@ -303,6 +303,28 @@ class TestCopilotServer(unittest.TestCase):
             if prev is not None:
                 os.environ["ANTHROPIC_API_KEY"] = prev
 
+    def test_hard_mode_swaps_to_structure_blind_snapshot(self):
+        # structure-blind run picks the hard_blanked snapshot (mechanism stripped)
+        # and emits a `hard` meta before it needs a key.
+        import json
+        prev = os.environ.pop("ANTHROPIC_API_KEY", None)
+        try:
+            rid = self.c.post("/api/run", json={"compound": "Triazolam",
+                                                "hard": True}).json()["run_id"]
+            metas = []
+            with self.c.stream("GET", f"/api/stream/{rid}") as s:
+                for line in s.iter_lines():
+                    if line and line.startswith("data:"):
+                        ev = json.loads(line[5:])
+                        if ev.get("type") == "meta":
+                            metas.append(ev)
+                        if ev.get("type") == "end":
+                            break
+            self.assertTrue(any(m.get("hard") for m in metas))     # structure-blind engaged
+        finally:
+            if prev is not None:
+                os.environ["ANTHROPIC_API_KEY"] = prev
+
     def test_cancel_sets_flag_and_404s_unknown(self):
         from copilot import server
         self.assertEqual(self.c.post("/api/cancel/nosuchrun").status_code, 404)

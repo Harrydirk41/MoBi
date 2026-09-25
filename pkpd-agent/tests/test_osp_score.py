@@ -164,6 +164,33 @@ class TestMetrics(unittest.TestCase):
         self.assertAlmostEqual(r["overall"]["gmfe"], 1.0, places=6)  # interp -> 7.5
 
 
+class TestPKParameters(unittest.TestCase):
+    def test_perfect_fit_folds_are_one(self):
+        # predicted sampled on the same grid as observed -> every PK fold = 1.0
+        t = [0.25, 0.5, 1, 2, 4, 6, 8]
+        c = [100, 80, 50, 25, 8, 3, 1]
+        observed = [_obs("A IV", "S", "IV", "1 mg", t, c)]
+        pred = [{"dataset": "A IV", "time_h": t, "pred_conc_mg_L": c}]
+        pk = osp_score.score_fit(observed, pred)["pk_parameters"]
+        by = pk["gmfe_by_metric"]
+        for k in ("cmax", "auc", "tmax", "thalf"):
+            self.assertAlmostEqual(by[k], 1.0, places=3)
+        row = pk["per_dataset"][0]
+        self.assertAlmostEqual(row["cmax_fold"], 1.0, places=3)
+        self.assertAlmostEqual(row["auc_fold"], 1.0, places=3)
+        self.assertTrue(row["thalf_obs"] and row["thalf_pred"])   # terminal slope computed
+
+    def test_overprediction_shows_in_cmax_and_auc(self):
+        t = [0.25, 0.5, 1, 2, 4, 6, 8]
+        observed = [_obs("A IV", "S", "IV", "1 mg", t, [100, 80, 50, 25, 8, 3, 1])]
+        pred = [{"dataset": "A IV", "time_h": t,
+                 "pred_conc_mg_L": [200, 160, 100, 50, 16, 6, 2]}]   # 2x everywhere
+        row = osp_score.score_fit(observed, pred)["pk_parameters"]["per_dataset"][0]
+        self.assertAlmostEqual(row["cmax_fold"], 2.0, places=3)
+        self.assertAlmostEqual(row["auc_fold"], 2.0, places=3)      # scale-invariant thalf
+        self.assertAlmostEqual(row["thalf_fold"], 1.0, places=3)
+
+
 class TestPlausibility(unittest.TestCase):
     def test_flags(self):
         flags = osp_score.plausibility([

@@ -273,6 +273,8 @@
       <select id="steps"><option>8</option><option selected>10</option><option>14</option></select>
       <label>Givens</label>
       <label style="display:flex;align-items:center;gap:8px;text-transform:none;letter-spacing:0;font-size:12.5px;color:var(--ink)"><input type="checkbox" id="selfExtract" checked style="width:15px;height:15px;accent-color:var(--accent)">Agent extracts them from the report</label>
+      <label>Structure</label>
+      <label title="Strip the model skeleton: enzyme identity and processes are withheld (a candidate pool is given) so the agent must discover the mechanism, not fit values into a given structure." style="display:flex;align-items:center;gap:8px;text-transform:none;letter-spacing:0;font-size:12.5px;color:var(--ink)"><input type="checkbox" id="hardMode" style="width:15px;height:15px;accent-color:var(--accent)">Structure-blind (agent discovers the mechanism)</label>
       <label>Context the agent sees</label>
       <div style="font-size:12px;color:var(--muted)" id="ctxSummary">all projects (default)</div>
     </div>
@@ -730,7 +732,8 @@ $("#edRun").onclick=async()=>{
   catch(e){$("#edState").textContent="server not reachable";$("#edRun").disabled=false;return;}
   $("#edRun").disabled=false;
   if(!r.ok){$("#edState").textContent=r.error||"failed";return;}
-  $("#edState").textContent=`GMFE ${(+r.gmfe).toFixed(3)}`+(r.optimized&&Object.keys(r.optimized).length?` · fitted ${Object.keys(r.optimized).length} param(s)`:" (no fit — forward run)");
+  const pk=r.pk_gmfe?Object.entries(r.pk_gmfe).filter(([,v])=>v!=null).map(([k,v])=>`${k} ${(+v).toFixed(2)}×`).join(" · "):"";
+  $("#edState").textContent=`GMFE ${(+r.gmfe).toFixed(3)}`+(r.optimized&&Object.keys(r.optimized).length?` · fitted ${Object.keys(r.optimized).length} param(s)`:" (no fit — forward run)")+(pk?` · PK: ${pk}`:"");
   const f=plotFit(r.series);$("#edPlotWrap").innerHTML=f.svg;$("#edLegend").innerHTML=f.legend;
   $("#edLegend").querySelectorAll("span[data-i]").forEach(sp=>sp.onclick=()=>{sp.classList.toggle("off");const g=$("#edPlotWrap").querySelector(`g.sr[data-i="${sp.dataset.i}"]`);if(g)g.classList.toggle("off");});
   if(r.gmfe!=null)$("#fitGmfe").textContent=(+r.gmfe).toFixed(2);
@@ -799,7 +802,7 @@ function runOne(compound){
     sbAborts.add(abort);sbAbortByComp.set(compound,abort);
     (async()=>{
       try{rid=(await (await fetch("/api/run",{method:"POST",headers:{"Content-Type":"application/json"},
-        body:JSON.stringify({compound,model:$("#llm").value,max_steps:+$("#steps").value})})).json()).run_id;}
+        body:JSON.stringify({compound,model:$("#llm").value,max_steps:+$("#steps").value,hard:$("#hardMode").checked})})).json()).run_id;}
       catch(e){return finish({error:"server error"});}
       if(sbStop||sbStopOne.has(compound)||done){if(rid)fetch("/api/cancel/"+rid,{method:"POST"}).catch(()=>{});return finish({error:"stopped"});}
       SBRUN[compound]=rid;RUNLOG[rid]=[];        // buffer this run so it can be watched in the centre
@@ -1032,7 +1035,7 @@ $("#runBtn").onclick=async()=>{
   const others=PROJECTS.filter(p=>p!==current),sel=selectedCtx();
   const ctx=(!PROJECTS.length||sel.length===others.length)?null:sel;
   try{run_id=(await (await fetch("/api/run",{method:"POST",headers:{"Content-Type":"application/json"},
-    body:JSON.stringify({compound:current,model:$("#llm").value,max_steps:+$("#steps").value,context_projects:ctx,self_extract:$("#selfExtract").checked,note:$("#noteBox").value.trim()||null})})).json()).run_id;}
+    body:JSON.stringify({compound:current,model:$("#llm").value,max_steps:+$("#steps").value,context_projects:ctx,self_extract:$("#selfExtract").checked,hard:$("#hardMode").checked,note:$("#noteBox").value.trim()||null})})).json()).run_id;}
   catch(e){$("#runState").textContent="server not reachable";$("#runBtn").disabled=false;return;}
   curRunId=run_id;
   es=new EventSource(`/api/stream/${run_id}`);
@@ -1068,6 +1071,8 @@ function handle(ev){
     let t=[];if(ev.building!=null)t.push(`${ev.building} building · ${ev.held_out} held out (${ev.studies} studies)`);
     if(ev.library)t.push(`library: ${ev.library}, ${ev.n_ref} models`);
     if(ev.self_extract)t.push("agent extracts givens from the report");
+    if(ev.hard)t.push("structure-blind: mechanism withheld, agent must discover it");
+    if(ev.hard_unavailable)t.push("structure-blind requested but no hard snapshot — using normal");
     if(t.length)th.appendChild(el("div","meta-line",t.join(" · ")));
   }else if(ev.type==="status"){$("#runState").textContent=ev.phase;}
   else if(ev.type==="decision"){
