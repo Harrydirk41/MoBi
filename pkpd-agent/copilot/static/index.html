@@ -779,10 +779,10 @@ async function attachRun(compound){
   const rid=SBRUN[compound];
   if(!rid||!RUNLOG[rid])return false;
   attachedRun=null;pending=[];                 // pause forwarding while we rebuild the thread
-  await renderHandoff(compound);
+  renderHandoff(compound);                     // sets the skeleton synchronously; curves load in the bg (non-blocking)
   $("#thread").querySelectorAll(".empty").forEach(x=>x.remove());
-  $("#thread").appendChild(el("div","meta-line","▶ live — the autonomous run for "+compound+" streams here"));
-  RUNLOG[rid].slice().forEach(ev=>handle(ev));  // replay everything so far…
+  $("#thread").appendChild(el("div","meta-line","▶ the autonomous run for "+compound+" — trace"+(SBRESULTS[compound]?" + report (done)":" (live)")));
+  RUNLOG[rid].slice().forEach(ev=>handle(ev));  // replay everything so far (incl. a done event -> report card)…
   attachedRun=rid;                              // …then forward new events as they arrive
   $("#runState").textContent="watching autonomous run";
   return true;
@@ -968,6 +968,10 @@ function plotFit(series){
 }
 
 /* ---- what the modeler is handed: data viz + redacted report --------------- */
+function fetchT(url,ms){  // fetch with a timeout so a busy server never hangs the UI
+  const c=new AbortController(),t=setTimeout(()=>c.abort(),ms||12000);
+  return fetch(url,{signal:c.signal}).finally(()=>clearTimeout(t));
+}
 async function renderHandoff(name){
   const th=$("#thread");
   th.innerHTML=`<div class="handoff" id="handoff"><div class="hh"><span class="ic">📎</span>`+
@@ -975,14 +979,14 @@ async function renderHandoff(name){
     `<div class="plotwrap" id="plotWrap"><div style="color:var(--faint);font-size:12px;padding:24px;text-align:center">loading curves…</div></div>`+
     `<div class="plotlegend" id="plotLegend"></div></div>`+
     `<div class="u-msg">Build a whole-body PBPK model for ${name} — decide the structure, fit the identifiable parameters, grade on held-out studies.</div>`;
-  try{const s=(await (await fetch(`/api/rw/series?project=${encodeURIComponent(name)}&kind=test`)).json()).series||[];
+  try{const s=(await (await fetchT(`/api/rw/series?project=${encodeURIComponent(name)}&kind=test`)).json()).series||[];
     const r=plot(s);$("#plotWrap").innerHTML=r.svg;$("#plotLegend").innerHTML=r.legend;
     $("#plotLegend").querySelectorAll("span[data-i]").forEach(sp=>sp.onclick=()=>{  // click a curve to toggle it
       sp.classList.toggle("off");
       const gEl=$("#plotWrap").querySelector(`g.sr[data-i="${sp.dataset.i}"]`);
       if(gEl)gEl.classList.toggle("off");});
-  }catch(e){$("#plotWrap").innerHTML='<div style="color:var(--faint);font-size:12px;padding:24px;text-align:center">no curves for this project</div>';}
-  try{const md=(await (await fetch(`/api/rw/report?project=${encodeURIComponent(name)}&kind=test`)).json()).markdown||"";
+  }catch(e){$("#plotWrap").innerHTML='<div style="color:var(--faint);font-size:12px;padding:24px;text-align:center">curves unavailable (server busy) — the trace is below</div>';}
+  try{const md=(await (await fetchT(`/api/rw/report?project=${encodeURIComponent(name)}&kind=test`)).json()).markdown||"";
     if(md&&name===current){const d=el("details");d.innerHTML=`<summary>The report you were given — modeling strategy & fitted values redacted</summary><div class="report">${mdToHtml(md)}</div>`;$("#handoff").appendChild(d);}
   }catch(e){}
 }
