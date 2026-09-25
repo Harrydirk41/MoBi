@@ -164,6 +164,62 @@ def _observed_overview(observed: list[dict]) -> dict[str, Any]:
     return {"n_datasets": len(observed), "by_route": routes}
 
 
+def _reference_index(reflib: "dict | None") -> "dict | None":
+    """Turn the assembled reference library into a bare INDEX for osp_inspect:
+    which analogues exist and which enzymes/transporters each involves - but NOT
+    their methods or parameter names. To actually use an analogue's structure the
+    agent must open it with osp_read_reference, so it reads rather than skims."""
+    if not reflib:
+        return None
+    idx = []
+    for m in reflib.get("models") or []:
+        mols = set()
+        for p in m.get("processes") or []:
+            if isinstance(p, dict) and p.get("molecule"):
+                mols.add(p["molecule"])
+        for e in m.get("estimated_parameters") or []:
+            pn = e if isinstance(e, str) else (e.get("parameter") or "")
+            if "@" in pn:
+                mols.add(pn.split("@", 1)[1])
+        idx.append({"compound": m.get("compound"), "involves": sorted(mols)})
+    return {"mode": reflib.get("mode"),
+            "note": (reflib.get("note", "") + " This is only an INDEX. To USE an "
+                     "analogue you MUST open it: call osp_read_reference(compound) "
+                     "to read its full structure (distribution/permeability method, "
+                     "processes, fitted parameter names)."),
+            "available": idx}
+
+
+def _reference_markdown(m: dict) -> str:
+    methods = m.get("calculation_methods") or []
+    procs = m.get("processes") or []
+    est = m.get("estimated_parameters") or []
+    lines = [f"# Reference model: {m.get('compound')} (analogue, leave-one-out)",
+             "", "## Calculation methods"]
+    lines += [f"- {x}" for x in methods] or ["- (none listed)"]
+    lines += ["", "## Processes (mechanisms)"]
+    if procs:
+        for p in procs:
+            mol = p.get("molecule") if isinstance(p, dict) else None
+            ty = p.get("type") if isinstance(p, dict) else None
+            lines.append(f"- {mol or '?'} — {ty or '?'}")
+    else:
+        lines.append("- (none)")
+    lines += ["", "## Parameters the modeler ESTIMATED (fitted)"]
+    if est:
+        for e in est:
+            if isinstance(e, dict):
+                v = e.get("value")
+                lines.append(f"- {e.get('parameter')}" + (f" = {v}" if v is not None else ""))
+            else:
+                lines.append(f"- {e}")
+    else:
+        lines.append("- (none)")
+    lines += ["", "Reuse this STRUCTURE by analogy where the chemistry matches; fit "
+              "the numbers to THIS compound's own data (do not copy values blindly)."]
+    return "\n".join(lines)
+
+
 def _method_guidance(observed: list[dict]) -> dict[str, Any]:
     """Best-practice METHOD guidance derived only from the data shape (not the
     answer): the staged IV->PO fit (Kuepfer 2016) and whether saturable kinetics
@@ -292,9 +348,10 @@ def register_osp_loop_tools(registry: ToolRegistry, config, ctx: dict) -> None:
             literature_physicochemical=gd.get("literature_physicochemical")
             or inp.get("literature_physicochemical"),
             unknowns_guidance=inp.get("unknowns_guidance"),
-            # LIBRARY-ASSISTED mode: finished models of OTHER compounds (leave-one-out)
-            # the agent may reuse by analogy; None in de-novo mode.
-            reference_library=inp.get("reference_library"),
+            # LIBRARY-ASSISTED mode: an INDEX of finished models of OTHER compounds
+            # (leave-one-out); the agent must osp_read_reference to see any one's
+            # structure. None in de-novo mode.
+            reference_library=_reference_index(inp.get("reference_library")),
             evaluation_rubric=inp.get("evaluation_rubric"),
             current_model=model,
             observed_overview=_observed_overview(observed),
@@ -463,6 +520,48 @@ def register_osp_loop_tools(registry: ToolRegistry, config, ctx: dict) -> None:
             "clinical datasets (routes, studies, doses). Call this first."),
         input_schema={"type": "object", "properties": {}},
         handler=inspect, phase="observe"))
+
+    def read_reference(args: dict, session) -> ToolResult:
+        reflib = inp.get("reference_library") or {}
+        models = reflib.get("models") or []
+        if not models:
+            return ToolResult.error("No reference library for this task (de-novo "
+                                    "mode) — decide the structure from first principles.")
+        name = (args.get("compound") or "").strip()
+        if not name:
+            return ToolResult.error(
+                "Name an analogue to read. Available: "
+                + ", ".join(x.get("compound", "") for x in models))
+        m = next((x for x in models
+                  if (x.get("compound") or "").lower() == name.lower()), None)
+        if not m:
+            return ToolResult.error(
+                f"Unknown analogue '{name}'. Available: "
+                + ", ".join(x.get("compound", "") for x in models))
+        return ToolResult.success(
+            f"finished model of the analogue {m.get('compound')} (a leave-one-out "
+            "reference, NOT the target) — read its full structure and reuse it by "
+            "analogy where the chemistry matches; fit the numbers to THIS compound.",
+            compound=m.get("compound"),
+            calculation_methods=m.get("calculation_methods"),
+            processes=m.get("processes"),
+            estimated_parameters=m.get("estimated_parameters"),
+            reference_markdown=_reference_markdown(m))
+
+    registry.register(Tool(
+        name="osp_read_reference",
+        description=(
+            "OPEN and read one analogue's finished model from the reference library "
+            "(by compound name, from the index osp_inspect returns). Returns its "
+            "full structure — distribution/permeability method, the "
+            "enzyme/transporter processes, and the parameters the modeler fitted — "
+            "as a readable page. You MUST open the closest analogues this way before "
+            "choosing your structure; the inspect index alone is not enough."),
+        input_schema={"type": "object", "properties": {
+            "compound": {"type": "string",
+                         "description": "analogue name from the reference_library index"}},
+            "required": ["compound"]},
+        handler=read_reference, phase="observe"))
 
     # -- act (numerical parameter identification) ----------------------- #
     def optimize(args: dict, session) -> ToolResult:

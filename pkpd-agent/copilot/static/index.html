@@ -1066,7 +1066,7 @@ function stepBody(step){step.classList.add("hasdetail");return step.querySelecto
 function setRgt(step,txt){step.querySelector(".rgt").textContent=txt;}
 const TOOLIC={osp_inspect:"🔍",osp_options:"🧭",osp_sweep_methods:"⚗️",osp_optimize:"📈",
   osp_try_model:"🧪",osp_read_report:"📄",osp_list_studies:"📊",osp_read_study:"📉",
-  osp_record_givens:"🧾"};
+  osp_record_givens:"🧾",osp_read_reference:"📚"};
 function handle(ev){
   const th=$("#thread");
   if(ev.type==="meta"){
@@ -1136,7 +1136,7 @@ function handle(ev){
     if(es)es.close();$("#stopBtn").hidden=true;$("#runBtn").disabled=false;buildingComp=null;
   }
 }
-function prettyTool(n){return({osp_inspect:"Inspecting task, priors & data",osp_options:"Reading the action space",osp_sweep_methods:"Sweeping distribution methods",osp_optimize:"Optimizing parameters",osp_try_model:"Trying a model edit",osp_read_report:"Reading the report",osp_list_studies:"Listing the data files",osp_read_study:"Reading a study curve",osp_record_givens:"Recording extracted givens"})[n]||n;}
+function prettyTool(n){return({osp_inspect:"Inspecting task, priors & data",osp_options:"Reading the action space",osp_sweep_methods:"Sweeping distribution methods",osp_optimize:"Optimizing parameters",osp_try_model:"Trying a model edit",osp_read_report:"Reading the report",osp_list_studies:"Listing the data files",osp_read_study:"Reading a study curve",osp_record_givens:"Recording extracted givens",osp_read_reference:"Reading a reference analogue"})[n]||n;}
 function argSummary(c){const a=c.args||{};if(a.estimate)return"fitting "+Object.keys(a.estimate).join(", ").slice(0,60);if(a.edits)return"applying an edit";return"";}
 function escapeHtml(s){return(s||"").replace(/[&<>]/g,x=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[x]));}
 function renderDetail(step,detail){
