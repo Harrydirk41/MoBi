@@ -323,18 +323,53 @@ def _given_physchem_value(base: str, lit: list) -> "float | None":
     return None
 
 
+# Lipophilicity is an EFFECTIVE distribution parameter in PK-Sim, so its best-fit
+# value commonly differs from the measured logP by up to ~1 log unit; the fit is
+# constrained to a WINDOW this wide around the given logP rather than pinned at it.
+_LIP_WINDOW = 1.0
+
+
+def _is_lipophilicity(base: str) -> bool:
+    b = (base or "").lower()
+    return "lipophil" in b or b in ("logp", "logd")
+
+
 def _fix_given_physchem(estimate: dict, fix: dict, lit: list):
-    """Move any estimate parameter whose value the input GAVE as a direct measurement into `fix` at
-    that value. Returns (estimate, fix, notes). A measured value must be used, not re-fitted."""
+    """Constrain estimate parameters whose value the input GAVE as a direct measurement.
+
+    A true measurement (fraction unbound, pKa, solubility) is FIXED at its value.
+    LIPOPHILICITY is the exception: in PK-Sim it is an EFFECTIVE distribution
+    parameter that commonly sits up to ~1 log unit off the measured logP (the
+    reference alfentanil model fits 1.85 against a measured 2.16), so pinning it
+    at the measured value biases Vd and can make the model unfittable no matter
+    which distribution method is swept. Instead we keep it ESTIMABLE within a
+    bounded window (measured +/- 1 log unit) - narrow enough to keep the method
+    identifiable, wide enough to let the effective value settle. Returns
+    (estimate, fix, notes)."""
     estimate, fix, notes = dict(estimate), dict(fix or {}), []
     for name in list(estimate):
-        gv = _given_physchem_value(name.split("@", 1)[0], lit)
-        if gv is not None:
+        base = name.split("@", 1)[0]
+        gv = _given_physchem_value(base, lit)
+        if gv is None:
+            continue
+        if _is_lipophilicity(base):
+            lo, hi = gv - _LIP_WINDOW, gv + _LIP_WINDOW
+            req = estimate.get(name)
+            if isinstance(req, (list, tuple)) and len(req) == 2:
+                # intersect with the agent's requested bounds, but never collapse
+                clo, chi = max(lo, float(req[0])), min(hi, float(req[1]))
+                if chi > clo:
+                    lo, hi = clo, chi
+            estimate[name] = [lo, hi]
+            notes.append(f"{name}: measured logP {gv:g} given, but Lipophilicity is an "
+                         f"EFFECTIVE distribution parameter - fitted within a bounded window "
+                         f"[{lo:g}, {hi:g}] around the measured value (not pinned at it, which "
+                         f"would bias Vd).")
+        else:
             estimate.pop(name)
             fix[name] = gv
             notes.append(f"{name}: a measured value ({gv:g}) was given in the input - FIXED at it, "
-                         f"not estimated (re-fitting a given measurement is not allowed and makes "
-                         f"the distribution method unidentifiable).")
+                         f"not estimated (a true measurement is used, not re-fitted).")
     return estimate, fix, notes
 
 

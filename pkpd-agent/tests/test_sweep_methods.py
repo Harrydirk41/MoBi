@@ -262,17 +262,40 @@ class TestSweepWidening(unittest.TestCase):
 
 
 class TestFixGivenPhyschem(unittest.TestCase):
-    """A physchem value the input GAVE (e.g. lipophilicity) must be FIXED, not re-fitted - the
-    Tizanidine failure, where the agent fit a given logP and made the method unidentifiable."""
-    def test_given_lipophilicity_is_moved_to_fix(self):
+    """A physchem value the input GAVE constrains the fit. A TRUE measurement (fu, pKa)
+    is FIXED; but LIPOPHILICITY is an effective distribution parameter, so a given logP
+    is turned into a bounded WINDOW around the measured value, not pinned at it (pinning
+    it at the measured logP biases Vd and made the alfentanil web-lookup run unfittable)."""
+    def test_given_lipophilicity_is_windowed_not_pinned(self):
         from pkpd_agent.tools.osp_loop_tools import _fix_given_physchem
         lit = [{"parameter": "Lipophilicity", "value": 1.4}]
         est, fix, notes = _fix_given_physchem(
             {"Lipophilicity": [0.5, 4.0], "Intrinsic clearance": [0.01, 5.0]}, {}, lit)
-        self.assertNotIn("Lipophilicity", est)          # not estimated
-        self.assertEqual(fix["Lipophilicity"], 1.4)     # fixed at the given value
+        self.assertIn("Lipophilicity", est)             # still estimated (effective param)
+        self.assertNotIn("Lipophilicity", fix)          # NOT pinned at the measured value
+        lo, hi = est["Lipophilicity"]
+        self.assertLessEqual(lo, 1.4)                   # the window brackets the measured 1.4
+        self.assertGreaterEqual(hi, 1.4)
+        self.assertGreaterEqual(lo, 0.4 - 1e-9)         # ~measured +/- 1 log unit
+        self.assertLessEqual(hi, 2.4 + 1e-9)            # (2.4 = 1.4 + 1, tighter than the requested 4.0)
         self.assertIn("Intrinsic clearance", est)       # the genuinely-uncertain one still fitted
         self.assertTrue(notes)
+
+    def test_true_measurement_fraction_unbound_is_still_pinned(self):
+        # a REAL measurement (not an effective parameter) is still fixed at its value.
+        # (_given_physchem_value currently only surfaces lipophilicity, so this guards the
+        # general branch: whatever it surfaces that is NOT lipophilicity gets pinned.)
+        from pkpd_agent.tools import osp_loop_tools as T
+        orig = T._given_physchem_value
+        T._given_physchem_value = lambda base, lit: (0.1 if "unbound" in base.lower() else None)
+        try:
+            est, fix, notes = T._fix_given_physchem(
+                {"Fraction unbound": [0.05, 0.2], "Intrinsic clearance": [0.01, 5.0]}, {}, [])
+            self.assertNotIn("Fraction unbound", est)   # a true measurement is fixed
+            self.assertEqual(fix["Fraction unbound"], 0.1)
+            self.assertIn("Intrinsic clearance", est)
+        finally:
+            T._given_physchem_value = orig
 
     def test_not_given_lipophilicity_stays_free(self):
         from pkpd_agent.tools.osp_loop_tools import _fix_given_physchem
