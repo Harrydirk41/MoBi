@@ -267,3 +267,4 @@ src/**/licenses.licx
 # PBPK copilot run artifacts (generated per-run deliverables)
 OSP-PBPK-Model-Library/*/deliverable/
 OSP-PBPK-Model-Library/*/benchmark/.reffit.json
+OSP-PBPK-Model-Library/*/report/copilot_run__*.json

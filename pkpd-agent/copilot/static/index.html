@@ -421,6 +421,11 @@ let MODELS=[], BUILT={};                 // compound -> build status (for the co
 async function loadModels(){
   let list; try{list=await (await fetch("/api/models")).json();}catch(e){list=[];}
   MODELS=list; list.forEach(m=>{BUILT[m.dir||m.compound]=m.status;});
+  // restore persisted runs across page reloads: seed the resume state + rail dots so
+  // a finished compound shows built (and the batch "Run all" skips it) without re-running.
+  list.forEach(m=>{if(m.saved&&(m.saved.held_out!=null||m.saved.in_sample!=null)){
+    SBRESULTS[m.compound]={held_out:m.saved.held_out,in_sample:m.saved.in_sample};
+    RSTATE[m.compound]="done";}});
   const wrap=$("#modelList");wrap.innerHTML="";
   if(!list.length){wrap.innerHTML='<div class="m-item" style="opacity:.6"><span class="dot crit"></span><span class="meta"><b>no models found</b><small>library path not set</small></span></div>';return;}
   list.forEach(m=>{const[cls]=STATUS[m.status]||STATUS.new;
@@ -455,7 +460,22 @@ function select(name,status,gmfe){
   attachedRun=null;
   // while the autonomous batch is live, clicking a running compound mirrors its trace here
   if(sbRunning&&SBRUN[name]&&RUNLOG[SBRUN[name]])attachRun(name);
-  else renderHandoff(name);          // otherwise: "what you're handed": curves + redacted report
+  else{
+    renderHandoff(name);             // "what you're handed": curves + redacted report
+    const m=(MODELS||[]).find(x=>x.compound===name);
+    if(m&&m.saved)$("#thread").appendChild(el("div","actions",
+      `<button class="act" data-loadsaved>↺ Load saved run — trace + report (from disk)</button>`))
+      .querySelector("[data-loadsaved]").onclick=()=>loadSavedRun(name);
+  }
+}
+async function loadSavedRun(compound){
+  let rec;try{rec=await (await fetchT(`/api/runs/${encodeURIComponent(compound)}`,60000)).json();}catch(e){return;}
+  if(!rec||!rec.events){return;}
+  current=compound;pending=[];attachedRun=null;
+  renderHandoff(compound);           // rebuild the panel (skeleton sync)
+  $("#thread").querySelectorAll(".empty").forEach(x=>x.remove());
+  $("#thread").appendChild(el("div","meta-line","↺ saved run reloaded from disk — "+new Date((rec.ts||0)*1000).toLocaleString()));
+  rec.events.forEach(ev=>handle(ev));   // replay the persisted trace (its done event draws the report)
 }
 
 /* ---- context data lake: which finished projects the agent may read -------- */
@@ -869,7 +889,8 @@ async function runAllAutonomous(){
         if(r.best_edits&&!sbStopOne.has(c)){try{const g=await (await fetch("/api/grade",{method:"POST",headers:{"Content-Type":"application/json"},
           body:JSON.stringify({compound:c,edits:r.best_edits})})).json();if(g.ok)held=g.gmfe;}catch(e){}}
         if(sbStopOne.has(c))sbSet(c,{status:"failed",note:"stopped"});
-        else sbSet(c,{status:"done",in_sample:r.best_gmfe,held_out:held});
+        else{sbSet(c,{status:"done",in_sample:r.best_gmfe,held_out:held});
+          if(held!=null)fetch(`/api/runs/${encodeURIComponent(c)}/grade`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({held_out:held})}).catch(()=>{});}  // persist for reload
         done++;}
       label();
     }

@@ -63,6 +63,62 @@ def _rw_series(project: str, kind: str = "test", cap: int = 400) -> list[dict]:
 
 # ---- runs registry -------------------------------------------------------- #
 _RUNS: dict[str, dict] = {}
+
+
+class _LoggingQueue(queue.Queue):
+    """A queue that also records every dict event put through it, so a run's full
+    trace can be persisted to disk and replayed after a page reload / restart."""
+    def __init__(self):
+        super().__init__()
+        self.log: list = []
+
+    def put(self, item, *a, **k):
+        if isinstance(item, dict):
+            self.log.append(item)
+        return super().put(item, *a, **k)
+
+
+def _run_record_path(compound: str) -> str:
+    # resolve the base dir WITHOUT _find/_task_dir (which would recurse through
+    # _compounds -> _load_run -> here); a variant cid is "<Dir> · pediatric/DDI".
+    comp_dir = str(compound).split(" · ")[0]
+    slug = "".join(ch if ch.isalnum() else "_" for ch in str(compound))
+    return os.path.join(_LIB, comp_dir, "report", f"copilot_run__{slug}.json")
+
+
+def _persist_run(compound: str, events: list, p: dict) -> None:
+    """Write a run's outcome + full trace to <compound>/report/copilot_run.json so
+    the page can reload/resume it later. Best-effort — never sinks a run."""
+    try:
+        done = next((e for e in reversed(events) if e.get("type") == "done"), {})
+        rec = {
+            "compound": compound, "ts": __import__("time").time(),
+            "model": p.get("model"), "hard": bool(p.get("hard")),
+            "web": bool(p.get("web")), "self_extract": bool(p.get("self_extract")),
+            "in_sample_gmfe": done.get("best_gmfe"),
+            "held_out_gmfe": None,               # filled by /api/runs/<c>/grade when the client grades
+            "best_edits": done.get("best_edits"),
+            "givens": done.get("givens"),
+            "web_lookups": done.get("web_lookups") or [],
+            "blind": done.get("blind", True),
+            "events": events,
+        }
+        path = _run_record_path(compound)
+        os.makedirs(os.path.dirname(path), exist_ok=True)
+        with open(path, "w", encoding="utf-8") as fh:
+            json.dump(rec, fh)
+    except Exception:                            # noqa: BLE001
+        pass
+
+
+def _load_run(compound: str) -> "dict | None":
+    path = _run_record_path(compound)
+    if not os.path.isfile(path):
+        return None
+    try:
+        return json.load(open(path, encoding="utf-8"))
+    except (OSError, ValueError):
+        return None
 # Concurrent agent runs. Default 1 (serial, unchanged). Set PKPD_COPILOT_JOBS>1
 # to run several compounds at once — each run's stdout is routed per-thread so
 # their SSE streams don't interleave. Keep near the core count.
@@ -684,8 +740,17 @@ def _compounds() -> list[dict]:
             continue
         seen.add(cid)
         status, gmfe = _report_status(os.path.join(_LIB, comp, "report", stem + ".json"))
+        rec = _load_run(cid)                         # a persisted copilot run, if any
+        saved = None
+        if rec:
+            saved = {"held_out": rec.get("held_out_gmfe"),
+                     "in_sample": rec.get("in_sample_gmfe"), "ts": rec.get("ts")}
+            if status == "new":                      # no CLI report — reflect the saved run
+                status = "done"
+                gmfe = rec.get("held_out_gmfe") or rec.get("in_sample_gmfe")
         out.append({"compound": cid, "dir": comp, "label": cid, "kind": kind,
-                    "snapshot": snap, "input": inp, "status": status, "gmfe": gmfe})
+                    "snapshot": snap, "input": inp, "status": status, "gmfe": gmfe,
+                    "saved": saved})
     return out
 
 
@@ -917,6 +982,11 @@ def _run_agent(run_id: str, p: dict) -> None:
     finally:
         q.put({"type": "end"})
         _RUNS[run_id]["done"] = True
+        # persist the full trace + outcome so the page can reload/resume it later
+        try:
+            _persist_run(p.get("compound"), getattr(q, "log", []), p)
+        except Exception:                          # noqa: BLE001
+            pass
 
 
 def _run_agent_locked(run_id, p, q) -> None:
@@ -1127,7 +1197,8 @@ def create_app():
 
     @app.get("/api/models")
     def models():
-        return JSONResponse([{k: c[k] for k in ("compound", "status", "gmfe", "label", "kind", "dir")}
+        return JSONResponse([{k: c.get(k) for k in
+                              ("compound", "status", "gmfe", "label", "kind", "dir", "saved")}
                              for c in _compounds()])
 
     @app.get("/api/library")
@@ -1195,6 +1266,29 @@ def create_app():
             return JSONResponse({"error": "unknown compound"}, status_code=404)
         return JSONResponse(_report(f, payload.get("edits") or {}, payload.get("model")))
 
+    @app.get("/api/runs/{compound}")
+    def run_record(compound: str):
+        # the persisted trace + outcome of a finished run, so the page can replay it
+        # after a reload without re-running the agent.
+        rec = _load_run(compound)
+        if not rec:
+            return JSONResponse({"error": "no saved run"}, status_code=404)
+        return JSONResponse(rec)
+
+    @app.post("/api/runs/{compound}/grade")
+    def run_grade(compound: str, payload: dict):
+        # persist the held-out grade the scoreboard computed, so a reload shows it.
+        rec = _load_run(compound)
+        if not rec:
+            return JSONResponse({"ok": False, "error": "no saved run"}, status_code=404)
+        rec["held_out_gmfe"] = payload.get("held_out")
+        try:
+            with open(_run_record_path(compound), "w", encoding="utf-8") as fh:
+                json.dump(rec, fh)
+        except OSError:
+            return JSONResponse({"ok": False}, status_code=500)
+        return JSONResponse({"ok": True})
+
     @app.get("/api/built")
     def built(compound: str):
         return JSONResponse(_built_view(compound))
@@ -1240,7 +1334,7 @@ def create_app():
         se = payload.get("self_extract")
         self_extract = os.path.isdir(_RW) if se is None else bool(se)
         run_id = uuid.uuid4().hex[:12]
-        _RUNS[run_id] = {"queue": queue.Queue(), "done": False}
+        _RUNS[run_id] = {"queue": _LoggingQueue(), "done": False}
         params = {"compound": compound, "model": model, "max_steps": max_steps,
                   "library": lib, "only": only, "self_extract": self_extract,
                   "hard": bool(payload.get("hard")), "web": bool(payload.get("web")),

@@ -326,6 +326,38 @@ class TestCopilotServer(unittest.TestCase):
         self.assertIn("interpretation", j)
         self.assertEqual(self.c.post("/api/report", json={"compound": "Nope"}).status_code, 404)
 
+    def test_run_persists_and_reloads(self):
+        import os as _os
+        from copilot import server
+        events = [{"type": "meta", "building": 5},
+                  {"type": "decision", "text": "hi", "calls": []},
+                  {"type": "done", "best_gmfe": 1.42, "best_edits": {"parameters": {"x": 1}},
+                   "web_lookups": [], "blind": True},
+                  {"type": "end"}]
+        p = {"compound": "Triazolam", "model": "claude-sonnet-5"}
+        path = server._run_record_path("Triazolam")
+        try:
+            server._persist_run("Triazolam", events, p)
+            rec = server._load_run("Triazolam")
+            self.assertEqual(rec["in_sample_gmfe"], 1.42)
+            self.assertEqual(len(rec["events"]), 4)
+            # /api/runs replays it
+            r = self.c.get("/api/runs/Triazolam")
+            self.assertEqual(r.status_code, 200)
+            self.assertEqual(r.json()["best_edits"], {"parameters": {"x": 1}})
+            # /api/runs/<c>/grade persists the held-out grade
+            self.assertTrue(self.c.post("/api/runs/Triazolam/grade",
+                                        json={"held_out": 1.77}).json()["ok"])
+            self.assertEqual(server._load_run("Triazolam")["held_out_gmfe"], 1.77)
+            # /api/models now reflects the persisted run (built + saved grade)
+            m = next(x for x in self.c.get("/api/models").json() if x["compound"] == "Triazolam")
+            self.assertEqual(m["status"], "done")
+            self.assertEqual((m.get("saved") or {}).get("held_out"), 1.77)
+            self.assertEqual(self.c.get("/api/runs/NoSuchCompound").status_code, 404)
+        finally:
+            if _os.path.isfile(path):
+                _os.remove(path)
+
     def test_hard_mode_swaps_to_structure_blind_snapshot(self):
         # structure-blind run picks the hard_blanked snapshot (mechanism stripped)
         # and emits a `hard` meta before it needs a key.
