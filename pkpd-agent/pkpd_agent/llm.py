@@ -90,10 +90,11 @@ class LLMPolicy:
     thinking blocks and tool_use/tool_result pairing are preserved across the
     manual loop."""
 
-    def __init__(self, config, registry, system_prompt: str) -> None:
+    def __init__(self, config, registry, system_prompt: str, web: bool = False) -> None:
         self.config = config
         self.registry = registry
         self.system_prompt = system_prompt
+        self.web = web                       # inject Anthropic's native web tools
         self._messages: list[dict[str, Any]] = []
         self._client = None  # lazy
 
@@ -149,21 +150,66 @@ class LLMPolicy:
         m = (self.config.model or "").lower()
         return "haiku" not in m and "claude-3" not in m and "claude-2" not in m
 
+    def _web_tools(self) -> list[dict[str, Any]]:
+        """Anthropic's native, server-side web tools (the model goes online, not
+        us). Newer Claude-5-family models get the dynamic-filtering variants +
+        web_fetch; older ones get basic web_search only."""
+        if not self.web:
+            return []
+        m = (self.config.model or "").lower()
+        new = any(k in m for k in ("opus-5", "opus-4", "sonnet-5", "sonnet-4-6"))
+        if new:
+            return [{"type": "web_search_20260209", "name": "web_search"},
+                    {"type": "web_fetch_20260209", "name": "web_fetch"}]
+        return [{"type": "web_search_20250305", "name": "web_search"}]
+
+    def _record_web(self, session, content) -> None:
+        """Transparency: log the model's server-side searches/fetches + result
+        urls onto the session so the report can state what was consulted."""
+        if not self.web or session is None:
+            return
+        log = session.get("web_lookups") or []
+        for b in content:
+            bt = getattr(b, "type", None)
+            if bt == "server_tool_use":
+                inp = dict(getattr(b, "input", {}) or {})
+                if getattr(b, "name", "") == "web_search":
+                    log.append({"kind": "search", "query": inp.get("query", "")})
+                elif getattr(b, "name", "") == "web_fetch":
+                    log.append({"kind": "fetch", "url": inp.get("url", "")})
+            elif bt in ("web_search_tool_result", "web_fetch_tool_result"):
+                res = getattr(b, "content", None)
+                urls = []
+                if isinstance(res, list):
+                    for r in res:
+                        u = getattr(r, "url", None) or (r.get("url") if isinstance(r, dict) else None)
+                        if u:
+                            urls.append(u)
+                if urls:
+                    log.append({"kind": "results", "urls": urls[:10]})
+        session.put("web_lookups", log)
+
     def decide(self, session) -> PolicyStep:
         client = self._ensure_client()
         kwargs = dict(
             model=self.config.model,
             max_tokens=self.config.max_tokens,
             system=self.system_prompt,
-            tools=self.registry.to_anthropic_schema(),
+            tools=self.registry.to_anthropic_schema() + self._web_tools(),
             messages=self._messages,
         )
         if self._supports_adaptive_thinking():
             kwargs["thinking"] = {"type": "adaptive"}
             kwargs["output_config"] = {"effort": self.config.effort}
-        resp = client.messages.create(**kwargs)
-        # Preserve the full assistant turn (incl. thinking) for the next request.
-        self._messages.append({"role": "assistant", "content": resp.content})
+        # A native web tool can make the API pause mid-turn (pause_turn) while it
+        # runs the search server-side; resend the accumulated turn to continue.
+        for _ in range(8):
+            resp = client.messages.create(**kwargs)
+            self._messages.append({"role": "assistant", "content": resp.content})
+            self._record_web(session, resp.content)
+            if getattr(resp, "stop_reason", None) != "pause_turn":
+                break
+            kwargs["messages"] = self._messages
 
         if getattr(resp, "stop_reason", None) == "refusal":
             return FinishStep("The model declined this request (safety refusal).")

@@ -58,19 +58,22 @@ evaluation closer to the Kuepfer 2016 best-practice workflow:
 
 ## Web / literature lookup (not blind)
 
-An *Allow web/literature lookup* toggle gives the agent two tools —
-`osp_web_search` (PubMed via NCBI E-utilities + a best-effort general-web
-backend) and `osp_web_fetch` (read one URL) — so it can look up the compound's
-DMPK (which enzyme clears it, physchem, transporters) and any **already-published
-PBPK model**, and build on prior work, the way a real modeler does.
+An *Allow web/literature lookup* toggle turns on **Anthropic's native,
+server-side web tools** (`web_search` + `web_fetch`) — the model itself goes
+online (with citations, ranking and freshness handled by Anthropic), not any
+home-rolled scraper. It can look up the compound's DMPK (which enzyme clears it,
+physchem, transporters) and any **already-published PBPK model**, and build on
+prior work, the way a real modeler does. No extra key — it rides the same
+`ANTHROPIC_API_KEY`; note native web search bills separately (~$10 / 1000
+searches).
 
 This is deliberately **not leave-one-out**: with the open web the agent can reach
 the target's own published model. That is the point (model like a modeler who can
-look things up), so a run that uses the web is **not a blind de-novo grade**. The
-tools stay honest by *recording*, not hiding: every query and fetch is logged on
-the session and reported (the finish banner shows `⚠ non-blind run — consulted
-the web …`, and the `done` event carries `web_lookups` + `blind:false`). Leave the
-toggle off for a blind benchmark run.
+look things up), so a run that uses the web is **not a blind de-novo grade**. It
+stays honest by *recording*, not hiding: every server-side search/fetch and the
+result urls are logged on the session (the finish banner shows `⚠ non-blind run —
+consulted the web …`, and the `done` event carries `web_lookups` + `blind:false`).
+Leave the toggle off for a blind benchmark run.
 
 ## Two honest defaults
 

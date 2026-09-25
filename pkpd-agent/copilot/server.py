@@ -868,21 +868,20 @@ def _run_agent_locked(run_id, p, q) -> None:
     if ctx_report:
         register_context_tools(registry, cfg, {
             "report_path": ctx_report, "data_dir": ctx_data, "input": inp_agent})
-    web = bool(p.get("web"))
+    web = bool(p.get("web"))                 # Anthropic's native, server-side web tools
     if web:                                  # real open-web lookup (NOT leave-one-out)
-        from pkpd_agent.tools.web_tools import register_web_tools
-        register_web_tools(registry, cfg, {"input": inp_agent})
         q.put({"type": "meta", "web": True})
 
     goal = f"{inp.get('objective', 'Build the PBPK model.')}\n\n"
     if note:                                 # modeler steering from the composer
         goal += f"Modeler note: {note}\n\n"
     if web:
-        goal += ("You MAY use osp_web_search / osp_web_fetch to look up this "
-                 "compound's DMPK and any already-published PBPK model, and build "
-                 "on what has been done - cite what you use.\n\n")
+        goal += ("You have web search and web fetch: look up this compound's DMPK "
+                 "(clearing enzyme, physchem, transporters) and any already-published "
+                 "PBPK model, and build on what has been done - cite what you use.\n\n")
     goal += "Start with osp_inspect, then determine the model and call osp_optimize."
-    policy = LLMPolicy(cfg, registry, R._system_prompt(1.6, self_extract=bool(ctx_report)))
+    policy = LLMPolicy(cfg, registry, R._system_prompt(1.6, self_extract=bool(ctx_report)),
+                       web=web)
     loop = DecisionLoop(config=cfg, registry=registry, policy=policy)
 
     def on_event(ev):
