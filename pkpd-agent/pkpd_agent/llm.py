@@ -168,16 +168,19 @@ class LLMPolicy:
         m = (self.config.model or "").lower()
         return "haiku" not in m and "claude-3" not in m and "claude-2" not in m
 
-    # The benchmark ANSWERS live in the OSP model library (its website and its
-    # GitHub repos, e.g. Open-Systems-Pharmacology/<Compound>-Model, plus personal
-    # mirrors). Blocking these domains at the SOURCE lets the agent use the open web
-    # for genuine literature (DMPK, physchem, published clinical PK, other modeling
-    # approaches) while it CANNOT retrieve THIS compound's own finished model — so
-    # web assists modeling instead of leaking the answer. A code-level invariant,
-    # not a heuristic. (github.com is blocked wholesale: the OSP models and their
-    # mirrors all live there, and no benchmark input needs code hosting.)
-    _BLOCKED_DOMAINS = ["github.com", "githubusercontent.com",
-                        "open-systems-pharmacology.org"]
+    # The benchmark ANSWERS live in the OSP model library: its website, and its
+    # GitHub org (Open-Systems-Pharmacology/OSP-PBPK-Model-Library and the
+    # <Compound>-Model repos). Block those at the SOURCE — but ONLY the OSP org
+    # path, so the rest of GitHub and the open web stay searchable for genuine
+    # literature (DMPK, physchem, published clinical PK, other modeling approaches).
+    # A code-level invariant, not a heuristic. Path-scoped so general GitHub is not
+    # walled off. NOTE: a personal MIRROR of a model outside this org (e.g. a
+    # user's own <Compound>-Model fork) is not caught by an org-path block.
+    _BLOCKED_DOMAINS = [
+        "github.com/Open-Systems-Pharmacology",
+        "raw.githubusercontent.com/Open-Systems-Pharmacology",
+        "open-systems-pharmacology.org",
+    ]
 
     def _web_tools(self) -> list[dict[str, Any]]:
         """Anthropic's native, server-side web tools (the model goes online, not

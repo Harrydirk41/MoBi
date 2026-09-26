@@ -50,10 +50,10 @@ class TestNativeWebTools(unittest.TestCase):
         self.assertIn("web_search_20260209", types_)
         self.assertIn("web_fetch_20260209", types_)
 
-    def test_answer_source_domains_are_blocked(self):
-        # the OSP model library (its site + GitHub repos/mirrors) hosts the benchmark
-        # answers; both web tools must block those domains so web assists modeling
-        # without leaking THIS compound's own finished model.
+    def test_answer_source_domains_are_blocked_but_general_github_is_open(self):
+        # only the OSP org path + site host the benchmark answers; both web tools
+        # block THOSE so web assists modeling without leaking the compound's own
+        # finished model — while the rest of GitHub stays searchable.
         resp = _blk(stop_reason="end_turn", content=[_blk(type="text", text="done")])
         p = _policy([resp], web=True)
         p.decide(ModelingSession(goal="g"))
@@ -61,16 +61,16 @@ class TestNativeWebTools(unittest.TestCase):
         self.assertTrue(webs)
         for t in webs:
             blk = t.get("blocked_domains") or []
-            self.assertIn("github.com", blk)
+            self.assertIn("github.com/Open-Systems-Pharmacology", blk)
             self.assertIn("open-systems-pharmacology.org", blk)
-            self.assertIn("githubusercontent.com", blk)
+            self.assertNotIn("github.com", blk)          # general GitHub is NOT blocked
 
     def test_older_model_web_search_also_blocked(self):
         resp = _blk(stop_reason="end_turn", content=[_blk(type="text", text="done")])
         p = _policy([resp], web=True, model="claude-haiku-4-5")
         p.decide(ModelingSession(goal="g"))
         ws = next(t for t in p._seen[0]["tools"] if t["type"] == "web_search_20250305")
-        self.assertIn("github.com", ws.get("blocked_domains") or [])
+        self.assertIn("github.com/Open-Systems-Pharmacology", ws.get("blocked_domains") or [])
 
     def test_no_web_tools_when_disabled(self):
         resp = _blk(stop_reason="end_turn", content=[_blk(type="text", text="x")])
