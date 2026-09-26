@@ -256,14 +256,23 @@ def map_predictions(profiles: list, observed: list[dict], linkage: dict | None =
     maps to no simulation are left unmatched (excluded), not heuristically force-fit.
     Without a linkage it falls back to name-based ``_match_score`` matching."""
     predicted_profiles, unmatched = [], []
-    prof_by_sim = {p.simulation: p for p in profiles} if linkage else {}
+    # A linkage is authoritative ONLY when it is non-empty. An empty dict (a snapshot
+    # with no OutputMappings) must FALL BACK to name matching, not silently grade on
+    # ZERO datasets - so the guard is truthiness, not `is not None` (which made an
+    # empty linkage produce a blank GMFE while the loop scored the same model fine).
+    use_linkage = bool(linkage)
+    prof_by_sim = {p.simulation: p for p in profiles} if use_linkage else {}
     for o in observed:
         ds = o["dataset"]
         best = None
-        if linkage is not None:
+        if use_linkage:
             sim = linkage.get(ds)
             best = prof_by_sim.get(sim) if sim else None    # unmapped or no-profile -> None
         else:
+            # name-based fallback: each observation takes its best-scoring simulation.
+            # NON-exclusive on purpose: several observed arms of one study (e.g. patient
+            # subgroups) legitimately share ONE simulation (fanout), while distinct
+            # formulation/food arms are separated by their higher _match_score.
             best_score = 0
             for p in profiles:
                 s = _match_score(o, p)
