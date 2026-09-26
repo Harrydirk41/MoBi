@@ -1264,7 +1264,10 @@ def register_osp_loop_tools(registry: ToolRegistry, config, ctx: dict) -> None:
         railed = bool(best.get("params_at_bound"))
         adequate = best["gmfe"] is not None and best["gmfe"] <= PERM_TRIGGER_GMFE and not railed
         advice = None
-        if not adequate:
+        # MINIMAL mode: the sweep is a numerical search — return the ranking and let
+        # the LLM judge whether the fit is good enough. No "adequate/not-adequate"
+        # verdict (that is the modeling judgement under test).
+        if not adequate and not minimal:
             advice = (f"Best screened GMFE {best['gmfe']} is above the ~{PERM_TRIGGER_GMFE:g} "
                       "soft target"
                       + (", and the winner railed on a bound (so the bound, not the data, is "
@@ -1279,16 +1282,24 @@ def register_osp_loop_tools(registry: ToolRegistry, config, ctx: dict) -> None:
         msg = (f"screened {len(results)} method combo(s), re-fitting {list(estimate)} under each; "
                f"BEST = {best['partition']} / {best['permeability']} -> GMFE {best['gmfe']} "
                f"(best so far {session.get('osp_best_gmfe')}). ")
-        msg += (advice if not adequate else
-                "The distribution method is now chosen - refine with osp_optimize, "
-                "do NOT re-sweep the same grid.")
+        if minimal:
+            msg += ("Best-ranked method adopted; refine with osp_optimize, or re-sweep a "
+                    "different shortlist — your call whether this fit is good enough.")
+        else:
+            msg += (advice if not adequate else
+                    "The distribution method is now chosen - refine with osp_optimize, "
+                    "do NOT re-sweep the same grid.")
         return ToolResult.success(
-            msg, ranked_top=ranked_compact, screen_adequate=adequate, advice=advice,
+            msg, ranked_top=ranked_compact,
+            screen_adequate=(None if minimal else adequate), advice=advice,
             best={"partition": best["partition"], "permeability": best["permeability"],
                   "gmfe": best["gmfe"], "optimized": best["optimized"]})
 
-    if not minimal:                       # the method sweep does modeling FOR the agent
-      registry.register(Tool(
+    # osp_sweep_methods is a NUMERICAL search tool (a batch optimizer over methods),
+    # so it stays available even in minimal mode — the LLM judges WHICH methods to
+    # sweep (partition_methods/permeability_methods) and reads the ranking itself;
+    # minimal only strips the sweep's "adequate/not-adequate" VERDICT (an opinion).
+    registry.register(Tool(
         name="osp_sweep_methods",
         description=(
             "ACT (deterministic structure sweep by COORDINATE DESCENT): sweep the 5 partition "

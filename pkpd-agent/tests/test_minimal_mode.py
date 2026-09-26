@@ -23,9 +23,36 @@ def _reg(minimal):
 
 
 class TestMinimalDropsScaffold(unittest.TestCase):
-    def test_sweep_tool_absent_in_minimal(self):
-        self.assertIn("osp_sweep_methods", _reg(False).names())   # full mode has it
-        self.assertNotIn("osp_sweep_methods", _reg(True).names())  # minimal drops it
+    def test_sweep_tool_present_in_both_modes(self):
+        # the sweep is a NUMERICAL search (a batch optimizer over methods), so it
+        # stays available in minimal too — only its verdict is stripped (see below).
+        self.assertIn("osp_sweep_methods", _reg(False).names())
+        self.assertIn("osp_sweep_methods", _reg(True).names())
+
+    def test_sweep_verdict_stripped_in_minimal(self):
+        # full mode returns an adequate/not-adequate verdict + advice; minimal
+        # returns just the ranking (the "good enough?" judgement is the LLM's).
+        seen = []
+
+        def fake_run(cli, snap, observed, estimate, **kw):
+            return {"ok": True, "optimized": {k: sum(v) / 2 for k, v in estimate.items()},
+                    "fit": {"gmfe": 3.5}, "by_route": {}, "worst_datasets": [],
+                    "params_at_bound": [], "sensitivity": {}, "recommendations": [],
+                    "n_evals": 6, "fit_simulations": ["s1"], "series": []}
+        orig = OO.run_optimization
+        OO.run_optimization = fake_run
+        try:
+            args = {"estimate": {"Lipophilicity": [-2, 3]},
+                    "partition_methods": ["PK-Sim Standard"],
+                    "permeability_methods": ["PK-Sim Standard"]}
+            r_full = _reg(False).get("osp_sweep_methods").handler(dict(args), ModelingSession(goal="g"))
+            r_min = _reg(True).get("osp_sweep_methods").handler(dict(args), ModelingSession(goal="g"))
+            self.assertIsNotNone(r_full.data.get("advice"))       # full: a verdict on a poor fit
+            self.assertIsNone(r_min.data.get("advice"))           # minimal: no verdict
+            self.assertIsNone(r_min.data.get("screen_adequate"))  # no pass/fail judgement
+            self.assertIn("your call", r_min.message)             # explicitly the LLM's call
+        finally:
+            OO.run_optimization = orig
 
     def test_core_tools_still_present_in_minimal(self):
         names = _reg(True).names()
@@ -85,8 +112,9 @@ class TestMinimalSystemPrompt(unittest.TestCase):
         self.assertIn("STOPPING RULE", mini)                     # the explicit stop condition
         self.assertIn("biologically reasonable", mini)
         self.assertNotEqual(full, mini)
-        # the full playbook prescribes a staged/sweep workflow; the minimal one does not
-        self.assertNotIn("osp_sweep_methods", mini)
+        # the sweep stays available (numerical search) but framed as the LLM's call
+        self.assertIn("osp_sweep_methods", mini)
+        self.assertIn("YOU decide", mini)
 
 
 if __name__ == "__main__":
