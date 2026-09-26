@@ -57,6 +57,26 @@ class TestSplit(unittest.TestCase):
         self.assertNotIn("Kharasch2012_alone_a", sp["verification"])  # never held out
         self.assertNotIn("Kharasch2012", sp["held_out_studies"])
 
+    def test_iv_only_compound_still_gets_holdout(self):
+        # every study carries an IV arm (no PO-only study), as for alfentanil. The
+        # split must still hold out a whole IV-containing study while keeping >=1 IV
+        # study in building, so the compound is graded blind instead of not at all.
+        obs, links, sims = [], {}, []
+        studies = ["Aa 2001", "Bb 2002", "Cc 2003", "Dd 2004", "Ee 2005", "Ff 2006"]
+        for i, st in enumerate(studies):
+            for route in ("IV", "po"):                 # each study has both arms
+                ds = f"{st}.{route}"
+                obs.append(_obs(ds, st, route))
+                links[ds] = f"sim{i}"; sims.append(f"sim{i}")
+        sp = SP.split_studies(_snap(sims, links), obs)
+        self.assertEqual(sp["method"], "study-holdout-iv")
+        self.assertTrue(sp["verification"])                       # graded blind
+        self.assertTrue(sp["held_out_studies"])
+        # at least one IV study remains in building to anchor disposition
+        held = set(sp["held_out_studies"])
+        self.assertLess(len(held), len(studies))
+        self.assertGreaterEqual(len(sp["building"]), len(sp["verification"]))
+
     def test_building_stays_majority(self):
         # a single data-rich study must not dominate the held-out set
         obs, links, sims = [], {}, []

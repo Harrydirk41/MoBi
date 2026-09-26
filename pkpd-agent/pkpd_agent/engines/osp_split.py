@@ -14,8 +14,10 @@ linkage) are split; unmapped extras (e.g. DDI-network control arms) are dropped.
 Preference order for the split:
   1. OSP's OWN tag - a SimulationClassifications group whose name marks verification
      ('model verification', 'validation', 'test'). That is the modeller's real split.
-  2. A deterministic study-level holdout - IV studies stay in building (they anchor
-     disposition), a spread ~1/3 of the remaining studies are held out. Reproducible.
+  2. A deterministic study-level holdout - PO-only studies are the preferred holdout
+     pool (IV studies anchor disposition and stay in building); a spread ~1/3 are held
+     out. If no PO-only study exists, hold out an IV-containing study instead while
+     keeping >=1 IV study in building. Reproducible.
   3. If too few studies to split meaningfully, no holdout (graded on all, flagged).
 """
 
@@ -104,13 +106,25 @@ def split_studies(snap: dict, observed: list[dict],
             return {"building": build, "verification": verif, "method": "osp-tag",
                     "n_studies": len(groups), "held_out_studies": held}
 
-    # 2. deterministic study-level holdout (IV studies stay in building; a study
-    #    with any route/dose-less row is not held out — it stays in building)
+    # 2. deterministic study-level holdout. Preferred pool = PO-only studies: holding
+    #    these out never removes the IV anchor for disposition (clearance/Vd). But some
+    #    compounds have NO PO-only study — every study carries an IV arm (e.g.
+    #    alfentanil) — and would then get no held-out grade at all. For those, fall back
+    #    to holding out whole IV-containing studies while ALWAYS keeping >=1 IV study in
+    #    building, so disposition stays anchored and the compound is still graded blind.
+    #    A study with any route/dose-less row is never held out (stays in building).
     if len(groups) >= min_studies:
-        po = sorted(s for s in groups if "IV" not in routes[s] and s not in incomplete)
-        if po:
-            k = max(1, round(len(po) * holdout_frac))
-            held = {po[i] for i in _spread_indices(len(po), k)}
+        complete = [s for s in groups if s not in incomplete]
+        pool = sorted(s for s in complete if "IV" not in routes[s])
+        method = "study-holdout"
+        if not pool:
+            iv_studies = sorted(s for s in complete if "IV" in routes[s])
+            if len(iv_studies) >= 2:
+                pool = iv_studies[1:]          # keep the first IV study for building
+                method = "study-holdout-iv"
+        if pool:
+            k = max(1, round(len(pool) * holdout_frac))
+            held = {pool[i] for i in _spread_indices(len(pool), k)}
             # building must stay the MAJORITY by dataset count - if the held studies are
             # data-rich, return the largest to building until building >= verification.
             n_all = len(all_ds)
@@ -121,7 +135,7 @@ def split_studies(snap: dict, observed: list[dict],
                 verif = [ds for s in held for ds in groups[s]]
                 build = [ds for s in groups if s not in held for ds in groups[s]]
                 return {"building": build, "verification": verif,
-                        "method": "study-holdout", "n_studies": len(groups),
+                        "method": method, "n_studies": len(groups),
                         "held_out_studies": sorted(held)}
 
     # 3. too few studies to split - grade on all, flagged
