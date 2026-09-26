@@ -436,6 +436,19 @@ def register_osp_loop_tools(registry: ToolRegistry, config, ctx: dict) -> None:
     # method_guidance. Only the tools + the code-enforced invariants remain.
     minimal: bool = bool(ctx.get("minimal", False))
 
+    _link_cache: dict = {}
+
+    def _linkage():
+        """The snapshot's OutputMappings linkage, cached — so try_model scores the
+        same way the report/judge does (empty -> name-match fallback, see F3)."""
+        if "v" not in _link_cache:
+            try:
+                _link_cache["v"] = osp_score.linkage_from_snapshot(
+                    json.load(open(snapshot_path, encoding="utf-8")))
+            except (OSError, ValueError):
+                _link_cache["v"] = None
+        return _link_cache["v"]
+
     def _hide_status(model: dict) -> dict:
         return {**model, "parameters": [{k: v for k, v in p.items() if k != "value_status"}
                                         for p in model.get("parameters", [])]}
@@ -520,7 +533,7 @@ def register_osp_loop_tools(registry: ToolRegistry, config, ctx: dict) -> None:
                 f"PK-Sim run failed: {res['message']}",
                 edits_applied=res.get("edits_applied"))
 
-        predicted, unmatched = osp_score.map_predictions(res["profiles"], observed)
+        predicted, unmatched = osp_score.map_predictions(res["profiles"], observed, _linkage())
         score = osp_score.score_fit(observed, predicted)
         applied = res.get("edits_applied") or {}
         param_list = [{"parameter": k, "value": v, "unit": ""}

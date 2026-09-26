@@ -216,6 +216,17 @@ def run_optimization(cli: OSPCli, snapshot_path: str, observed: list[dict],
     base_edits.setdefault("parameters", {})
     base_edits["parameters"].update(fix or {})
 
+    # Score observed<->simulated the SAME way the report/judge does: via the
+    # snapshot's OutputMappings linkage. Otherwise the optimizer minimizes a
+    # name-matched objective the graded re-run does not reproduce (the drift). An
+    # empty linkage falls back to name matching inside map_predictions (F3).
+    import json as _json
+    try:
+        linkage = osp_score.linkage_from_snapshot(
+            _json.load(open(snapshot_path, encoding="utf-8")))
+    except (OSError, ValueError):
+        linkage = None
+
     lx, hx = np.log10(los), np.log10(his)
     history: list[dict] = []
 
@@ -230,7 +241,7 @@ def run_optimization(cli: OSPCli, snapshot_path: str, observed: list[dict],
             return None, res
         predicted, _ = osp_score.map_predictions(
             res["profiles"],
-            observed_sub if sims is subset else observed)
+            observed_sub if sims is subset else observed, linkage)
         return predicted, res
 
     state = {"n_ok": 0}                       # did the model ever run at all?

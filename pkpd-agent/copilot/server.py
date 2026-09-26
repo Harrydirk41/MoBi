@@ -120,7 +120,13 @@ def _persist_run(compound: str, events: list, p: dict) -> None:
     """Write a run's outcome + full trace to <compound>/report/copilot_run.json so
     the page can reload/resume it later. Best-effort — never sinks a run."""
     try:
-        done = next((e for e in reversed(events) if e.get("type") == "done"), {})
+        done = next((e for e in reversed(events) if e.get("type") == "done"), None)
+        # Only a run that actually FINISHED (emitted a 'done') is persisted as a
+        # saved result. A run that errored out has no 'done' event; persisting it
+        # would make _compounds promote it to "done" with a blank GMFE and the batch
+        # skip it as already-built. Leave it un-saved so it shows as new / retryable.
+        if not done:
+            return
         # the pipeline report (streamed before 'end') carries the held-out grade
         rep = next((e for e in reversed(events) if e.get("type") == "report"), {})
         held = ((rep.get("held_out") or {}).get("gmfe")) if rep else None

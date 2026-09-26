@@ -30,8 +30,17 @@ import re
 import shutil
 import subprocess
 import tempfile
+import threading
 from dataclasses import dataclass, field
 from typing import Any
+
+# Serialize EVERY PK-Sim subprocess process-wide. PKSim.CLI holds .NET/licensing
+# state that two concurrent processes corrupt, so all invocations (build+run,
+# simulation_names) funnel through _run under this one lock. This is what makes
+# PKPD_COPILOT_JOBS>1 safe: the agent builds and the report both ultimately call
+# _run, which the server's coarser _SIM_LOCK did NOT cover (it wrapped only the
+# report path, leaving the agent build unserialized).
+_PKSIM_LOCK = threading.Lock()
 
 
 # --------------------------------------------------------------------------- #
@@ -542,9 +551,10 @@ class OSPCli:
     def _run(self, args: list[str]) -> dict[str, Any]:
         cmd = [self.pksim_cli_path] + args
         try:
-            p = subprocess.run(cmd, capture_output=True, text=True,
-                               encoding="utf-8", errors="replace",
-                               timeout=self.timeout_s)
+            with _PKSIM_LOCK:                         # process-wide PK-Sim serialization
+                p = subprocess.run(cmd, capture_output=True, text=True,
+                                   encoding="utf-8", errors="replace",
+                                   timeout=self.timeout_s)
             return {"cmd": " ".join(args), "returncode": p.returncode,
                     "stdout": (p.stdout or "")[-2000:], "stderr": (p.stderr or "")[-2000:]}
         except subprocess.TimeoutExpired:

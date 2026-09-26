@@ -377,6 +377,22 @@ class TestCopilotServer(unittest.TestCase):
             if _os.path.isfile(path):
                 _os.remove(path)
 
+    def test_errored_run_is_not_persisted_as_done(self):
+        # a run that errored (no 'done' event) must NOT be saved — otherwise it
+        # shows as "done" with a blank GMFE and the batch skips it as built.
+        import os as _os
+        from copilot import server
+        events = [{"type": "meta"}, {"type": "error", "message": "boom"},
+                  {"type": "end"}]
+        path = server._run_record_path("Triazolam")
+        try:
+            server._persist_run("Triazolam", events, {"compound": "Triazolam"})
+            self.assertFalse(_os.path.isfile(path))       # nothing written
+            self.assertIsNone(server._load_run("Triazolam"))
+        finally:
+            if _os.path.isfile(path):
+                _os.remove(path)
+
     def test_hard_mode_swaps_to_structure_blind_snapshot(self):
         # structure-blind run picks the hard_blanked snapshot (mechanism stripped)
         # and emits a `hard` meta before it needs a key.
