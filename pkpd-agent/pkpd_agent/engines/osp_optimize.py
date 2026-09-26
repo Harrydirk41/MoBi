@@ -207,10 +207,23 @@ def run_optimization(cli: OSPCli, snapshot_path: str, observed: list[dict],
                     "fit_simulations to fit a representative subset automatically."}
     else:
         subset = pick_subset(all_sims, k=2 if fast else 4)
-    subset_studies = {osp_score._norm_study(OSPCli._parse_sim_name(s)[0]) for s in subset}
-    observed_sub = [o for o in observed
-                    if osp_score._norm_study(osp_score._obs_key(o)[0]) in subset_studies] \
-        or observed
+    # Match observed studies to the fit subset on the REAL author+year token when both
+    # names carry one (robust to route/dose suffixes and formatting), and only fall back
+    # to the whole-string squash for names that have no token (e.g. "Digoxin po, 0.5 mg").
+    # Using the squash alone (F7) let a token-bearing study fail to match its own sim
+    # whenever the route/dose text differed, quietly fitting against `observed` instead.
+    _sim_names = [OSPCli._parse_sim_name(s)[0] for s in subset]
+    subset_tokens = {t for s in _sim_names if (t := osp_score._study_token(s))}
+    subset_norms = {osp_score._norm_study(s) for s in _sim_names}
+
+    def _in_subset(o) -> bool:
+        oname = osp_score._obs_key(o)[0]
+        tok = osp_score._study_token(oname)
+        if tok is not None:
+            return tok in subset_tokens
+        return osp_score._norm_study(oname) in subset_norms
+
+    observed_sub = [o for o in observed if _in_subset(o)] or observed
 
     base_edits: dict[str, Any] = dict(structure or {})
     base_edits.setdefault("parameters", {})

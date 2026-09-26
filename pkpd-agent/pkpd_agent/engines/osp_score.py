@@ -328,34 +328,65 @@ def _metrics(fe: list[float]) -> dict[str, Any]:
     }
 
 
+def _sim_end(pr: dict) -> "float | None":
+    """Largest finite time in a predicted profile (the simulation's horizon)."""
+    ts = [tf for t in pr.get("time_h") or [] if (tf := _finite(t)) is not None]
+    return max(ts) if ts else None
+
+
 def score_fit(observed: list[dict], predicted_profiles: list[dict]) -> dict[str, Any]:
     preds = {p["dataset"]: p for p in predicted_profiles}
     obs_by = {o["dataset"]: o for o in observed}
     all_fe, by_route, per_ds = [], {}, []
+    ds_gmfes = []                                    # per-dataset GMFEs (study-equal weight)
+    n_total = len(obs_by)                            # observed datasets seen
+    n_matched = 0                                    # of those, had a prediction
+    n_scored = 0                                     # of those, produced any fold-error
+    beyond_end = 0                                   # observed points past the sim's horizon
     for name, o in obs_by.items():
         pr = preds.get(name)
         if not pr:
             continue
+        n_matched += 1
         route = (_norm_route(_obs_key(o)[1]) or "NA")
+        sim_end = _sim_end(pr)
         fe = []
         for t, c in zip(o["time_h"], o["conc_mg_L"]):
             of, tf = _finite(c), _finite(t)
             if of is None or of <= 0 or tf is None:
+                continue
+            # An observation later than the simulation's last time point cannot be
+            # scored (no prediction exists there). Silently dropping it lets a model
+            # that UNDER-RUNS the time axis look fine on the points it does cover, so
+            # count these separately and surface them.
+            if sim_end is not None and tf > sim_end + 1e-9:
+                beyond_end += 1
                 continue
             p = _interp(pr["time_h"], pr["pred_conc_mg_L"], tf)
             if p is None or p <= 0:
                 continue
             fe.append(p / of)
         if fe:
+            n_scored += 1
             all_fe.extend(fe)
             by_route.setdefault(route, []).extend(fe)
             m = _metrics(fe)
+            if m["gmfe"] is not None:
+                ds_gmfes.append(m["gmfe"])
             per_ds.append({"dataset": name, "study": o.get("study"),
                            "route": route, **m})
+    # Two headline aggregates: `overall` is POINT-weighted (a study with many samples
+    # dominates); `gmfe_by_dataset` gives every dataset EQUAL weight (geometric mean of
+    # the per-dataset GMFEs), which is how OSP evaluation tables read across studies.
+    gmfe_by_dataset = (round(math.exp(sum(math.log(g) for g in ds_gmfes) / len(ds_gmfes)), 3)
+                       if ds_gmfes else None)
     return {
         "overall": _metrics(all_fe),
+        "gmfe_by_dataset": gmfe_by_dataset,
         "by_route": {r: _metrics(fe) for r, fe in by_route.items()},
         "per_dataset": sorted(per_ds, key=lambda d: (d["gmfe"] or 0), reverse=True),
+        "coverage": {"n_datasets": n_total, "n_matched": n_matched,
+                     "n_scored": n_scored, "obs_points_beyond_sim_end": beyond_end},
         "pk_parameters": pk_parameters(observed, predicted_profiles),
     }
 
@@ -409,11 +440,20 @@ def pk_parameters(observed: list[dict], predicted_profiles: list[dict]) -> dict[
         pr = preds.get(o["dataset"])
         if not pr:
             continue
-        ot = list(o["time_h"])
-        obs = _pk_params(ot, list(o["conc_mg_L"]))
-        # predicted sampled at the SAME observed times
-        psamp = [_interp(pr["time_h"], pr["pred_conc_mg_L"], t) for t in ot]
-        sim = _pk_params(ot, [p if p is not None else 0.0 for p in psamp])
+        # Evaluate obs and pred on the SAME window: only the observed times where the
+        # prediction is actually defined (within the simulation's range). Otherwise a
+        # sim that ends before the last observation gave a TRUNCATED predicted AUC
+        # (off-curve samples were forced to 0 and dropped) against a full-grid
+        # observed AUC, biasing the AUC fold below 1 for a model whose exposure is
+        # fine. Pairing on the overlap keeps it apples-to-apples.
+        paired = [(t, c, _interp(pr["time_h"], pr["pred_conc_mg_L"], t))
+                  for t, c in zip(o["time_h"], o["conc_mg_L"])
+                  if _finite(t) is not None and _finite(c) is not None]
+        paired = [(t, c, p) for t, c, p in paired if p is not None]
+        if len(paired) < 2:
+            continue
+        obs = _pk_params([t for t, _, _ in paired], [c for _, c, _ in paired])
+        sim = _pk_params([t for t, _, _ in paired], [p for _, _, p in paired])
         if not obs or not sim:
             continue
         row = {"dataset": o["dataset"], "study": o.get("study"),

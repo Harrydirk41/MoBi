@@ -460,6 +460,8 @@ def assemble(session, config, cli, input_dict, snapshot_path, best_edits,
         pred, _ = osp_score.map_predictions(res.get("profiles", []), observed, linkage=agent_link)
         score = osp_score.score_fit(observed, pred)
         fit = dict(score["overall"]); fit["by_route"] = score["by_route"]
+        fit["gmfe_by_dataset"] = score.get("gmfe_by_dataset")
+        fit["coverage"] = score.get("coverage")
         predmap = {p["dataset"]: p for p in pred}
         refmap = {}
         if ref_snapshot_path:
@@ -480,7 +482,11 @@ def assemble(session, config, cli, input_dict, snapshot_path, best_edits,
             split = None
         if split and split.get("verification"):
             vset = set(split["verification"])
-            v_obs = [o for o in observed if o["dataset"] in vset]
+            # Compare agent vs reference on the SAME held-out datasets only: a dataset
+            # counts only if BOTH models produced a prediction for it, otherwise the two
+            # GMFEs would summarize different subsets and the ratio would be meaningless.
+            common = vset & set(predmap) & (set(refmap) if refmap else set(predmap))
+            v_obs = [o for o in observed if o["dataset"] in common]
             a_ho = osp_score.score_fit(v_obs, pred)["overall"]["gmfe"] if v_obs else None
             r_ho = (osp_score.score_fit(v_obs, list(refmap.values()))["overall"]["gmfe"]
                     if (v_obs and refmap) else None)
@@ -488,7 +494,9 @@ def assemble(session, config, cli, input_dict, snapshot_path, best_edits,
             fit["heldout"] = {
                 "agent_gmfe": a_ho, "reference_gmfe": r_ho, "ratio": ratio,
                 "pass": bool(ratio is not None and ratio <= 1.25),
-                "n_verification": len(v_obs), "method": split["method"],
+                "n_verification": len(v_obs),
+                "n_verification_available": len([o for o in observed if o["dataset"] in vset]),
+                "method": split["method"],
                 "held_out_studies": split["held_out_studies"]}
         for o in observed:
             pm, rm = predmap.get(o["dataset"]), refmap.get(o["dataset"])
@@ -919,6 +927,21 @@ def write_html(d: ReportData, path: str) -> None:
                       for r in rows)
         return f"<table><thead><tr>{th}</tr></thead><tbody>{trs}</tbody></table>"
 
+    def _coverage_note(cov):
+        if not cov:
+            return ""
+        parts = []
+        nt, nm, ns = cov.get("n_datasets"), cov.get("n_matched"), cov.get("n_scored")
+        if nt is not None:
+            parts.append(f"{esc(ns)}/{esc(nt)} observed datasets scored"
+                         + (f" ({esc(nm)} matched to a simulation)"
+                            if nm is not None and nm != ns else ""))
+        be = cov.get("obs_points_beyond_sim_end")
+        if be:
+            parts.append(f'<span class="g-soft">{esc(be)} observed point(s) fell beyond '
+                         f'the simulation horizon and could not be scored</span>')
+        return f'<p class="eqnote">{"; ".join(parts)}.</p>' if parts else ""
+
     def _sens_cell(p):
         s = p.get("sensitivity")
         if not isinstance(s, (int, float)):
@@ -1056,7 +1079,9 @@ routes {esc(', '.join(str(r) for r in (d.data_overview.get('routes') or [])))}.<
 <p style="white-space:pre-wrap">{esc(d.narrative.get('parameter_rationale',''))}</p>
 
 <h2>7. Concentration-time analysis</h2>
-<p>Overall <b>GMFE {esc(fit.get('gmfe'))}</b>, within-2-fold {esc(fit.get('within_2fold_pct'))}%.</p>
+<p>Overall <b>GMFE {esc(fit.get('gmfe'))}</b> (point-weighted), within-2-fold {esc(fit.get('within_2fold_pct'))}%.
+{f"Per-dataset GMFE (each study weighted equally): <b>{esc(fit.get('gmfe_by_dataset'))}</b>." if fit.get('gmfe_by_dataset') is not None else ''}</p>
+{_coverage_note(fit.get('coverage'))}
 <ul>{by_route}</ul>
 <p class="legend"><b class="o">●</b> observed &nbsp; <b class="p">— agent model</b> &nbsp; <b class="r">--- reference model</b></p>
 <div class="plots">{plots}</div>
