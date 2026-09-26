@@ -168,18 +168,34 @@ class LLMPolicy:
         m = (self.config.model or "").lower()
         return "haiku" not in m and "claude-3" not in m and "claude-2" not in m
 
+    # The benchmark ANSWERS live in the OSP model library (its website and its
+    # GitHub repos, e.g. Open-Systems-Pharmacology/<Compound>-Model, plus personal
+    # mirrors). Blocking these domains at the SOURCE lets the agent use the open web
+    # for genuine literature (DMPK, physchem, published clinical PK, other modeling
+    # approaches) while it CANNOT retrieve THIS compound's own finished model — so
+    # web assists modeling instead of leaking the answer. A code-level invariant,
+    # not a heuristic. (github.com is blocked wholesale: the OSP models and their
+    # mirrors all live there, and no benchmark input needs code hosting.)
+    _BLOCKED_DOMAINS = ["github.com", "githubusercontent.com",
+                        "open-systems-pharmacology.org"]
+
     def _web_tools(self) -> list[dict[str, Any]]:
         """Anthropic's native, server-side web tools (the model goes online, not
         us). Newer Claude-5-family models get the dynamic-filtering variants +
-        web_fetch; older ones get basic web_search only."""
+        web_fetch; older ones get basic web_search only. Both are pinned with
+        blocked_domains so the answer source is walled off (see _BLOCKED_DOMAINS)."""
         if not self.web:
             return []
+        blocked = list(self._BLOCKED_DOMAINS)
         m = (self.config.model or "").lower()
         new = any(k in m for k in ("opus-5", "opus-4", "sonnet-5", "sonnet-4-6"))
         if new:
-            return [{"type": "web_search_20260209", "name": "web_search"},
-                    {"type": "web_fetch_20260209", "name": "web_fetch"}]
-        return [{"type": "web_search_20250305", "name": "web_search"}]
+            return [{"type": "web_search_20260209", "name": "web_search",
+                     "blocked_domains": blocked},
+                    {"type": "web_fetch_20260209", "name": "web_fetch",
+                     "blocked_domains": blocked}]
+        return [{"type": "web_search_20250305", "name": "web_search",
+                 "blocked_domains": blocked}]
 
     def _record_web(self, session, content) -> None:
         """Transparency: log the model's server-side searches/fetches + result
