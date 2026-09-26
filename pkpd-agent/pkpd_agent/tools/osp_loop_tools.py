@@ -1241,8 +1241,13 @@ def register_osp_loop_tools(registry: ToolRegistry, config, ctx: dict) -> None:
         prev = session.get("osp_best_gmfe")
         if prev is None or best["gmfe"] < prev:
             session.put("osp_best_gmfe", best["gmfe"])
+            # carry the STRUCTURE (add_processes/processes) into best_edits, else a
+            # sweep-best model loses its enzymes: the report shows blank clearing
+            # molecules and the forward run rebuilds a model with no metabolism.
+            # base_structure holds the mechanism; the winning methods override it.
             session.put("osp_best_edits",
-                        {"parameters": best["optimized"], "fix": fix,
+                        {**base_structure,
+                         "parameters": best["optimized"], "fix": fix,
                          "calculation_methods": {"partition": best["partition"],
                                                  "permeability": best["permeability"]}})
         cache[sig] = {**best, "ranked": results}          # remember this grid so it is not re-swept

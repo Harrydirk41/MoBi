@@ -60,6 +60,19 @@ class TestSweepMethods(unittest.TestCase):
         self.assertEqual(sess.get("osp_best_gmfe"), 1.40)
         self.assertEqual(sess.get("osp_best_edits")["calculation_methods"]["partition"], "Schmitt")
 
+    def test_sweep_best_edits_keeps_the_structure(self):
+        # regression: the sweep must carry add_processes into best_edits, else a
+        # sweep-best model loses its enzymes (report shows blank clearing molecules
+        # and the forward run has no metabolism).
+        sess = ModelingSession(goal="g")
+        self.sweep({"estimate": {"Lipophilicity": [-2, 3]},
+                    "structure": {"add_processes": [
+                        {"type": "metabolization_first_order", "molecule": "UGT1A9",
+                         "parameters": {"Intrinsic clearance": 0.1}}]}}, sess)
+        be = sess.get("osp_best_edits")
+        mols = {p.get("molecule") for p in (be.get("add_processes") or [])}
+        self.assertIn("UGT1A9", mols)                     # structure survived into best_edits
+
     def test_refits_physchem_under_each_method(self):
         # every combo re-runs the optimizer with the physchem in 'estimate' (not frozen)
         self.sweep({"estimate": {"Lipophilicity": [-2, 3]}}, ModelingSession(goal="g"))
