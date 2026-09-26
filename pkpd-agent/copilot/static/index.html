@@ -1033,7 +1033,7 @@ function plotFit(series){
   const W=720,H=300,pL=48,pR=14,pT=12,pB=30;
   let tmax=0,cmin=Infinity,cmax=0;
   const scan=pts=>pts.forEach(([t,c])=>{if(t>tmax)tmax=t;if(c>0){if(c<cmin)cmin=c;if(c>cmax)cmax=c;}});
-  series.forEach(s=>{scan(s.observed||[]);scan(s.simulated||[]);});
+  series.forEach(s=>{scan(s.observed||[]);scan(s.simulated||[]);scan(s.reference||[]);});
   if(!(cmax>0))return{svg:'',legend:''};
   const lo=Math.floor(Math.log10(cmin)),hi=Math.ceil(Math.log10(cmax));
   const X=t=>pL+(t/(tmax||1))*(W-pL-pR);
@@ -1046,10 +1046,14 @@ function plotFit(series){
   g+=`<text x="${(pL+(W-pR-pL)/2).toFixed(0)}" y="${H-4}" text-anchor="middle" font-size="9.5" fill="var(--muted)">time (h)</text>`;
   g+=`<text transform="translate(12,${(pT+(H-pT-pB)/2).toFixed(0)}) rotate(-90)" text-anchor="middle" font-size="9.5" fill="var(--muted)">conc (log)</text>`;
   const leg=[];
+  const path=(pts)=>pts.map(([t,c],j)=>(j?"L":"M")+X(t).toFixed(1)+" "+Y(c).toFixed(1)).join(" ");
   series.forEach((s,i)=>{const col=COL[i%COL.length];let sg="";
+    // reference model = DASHED line (same colour, drawn first so the agent's solid
+    // line sits on top); the agent's model = SOLID line; observed = circles.
+    const ref=(s.reference||[]).filter(([t,c])=>c>0);
+    if(ref.length>1)sg+=`<path d="${path(ref)}" fill="none" stroke="${col}" stroke-width="1.5" stroke-dasharray="5 3" opacity=".7"/>`;
     const sim=(s.simulated||[]).filter(([t,c])=>c>0);
-    if(sim.length>1){const dd=sim.map(([t,c],j)=>(j?"L":"M")+X(t).toFixed(1)+" "+Y(c).toFixed(1)).join(" ");
-      sg+=`<path d="${dd}" fill="none" stroke="${col}" stroke-width="1.8" opacity=".92"/>`;}
+    if(sim.length>1)sg+=`<path d="${path(sim)}" fill="none" stroke="${col}" stroke-width="1.8" opacity=".92"/>`;
     (s.observed||[]).filter(([t,c])=>c>0).forEach(([t,c])=>{
       sg+=`<circle cx="${X(t).toFixed(1)}" cy="${Y(c).toFixed(1)}" r="2.7" fill="var(--surface)" stroke="${col}" stroke-width="1.3"><title>${escapeHtml(String(s.study||""))}: ${t} h · ${(+c).toPrecision(3)} mg/L</title></circle>`;});
     g+=`<g class="sr" data-i="${i}">${sg}</g>`;
@@ -1331,9 +1335,16 @@ function renderReportCard(compound,r,card){
   if(curves(r.held_out)){seriesSet=r.held_out;seriesLabel="held-out (unseen) studies";}
   else if(curves(r.in_sample)){seriesSet=r.in_sample;seriesLabel="in-sample (fit) studies"+(r.held_out&&r.held_out.series&&r.held_out.series.length?" — the held-out studies could not be simulated, see the note":"");}
   else{seriesSet=(r.held_out&&r.held_out.series&&r.held_out.series.length)?r.held_out:r.in_sample;seriesLabel="";}
-  const series=seriesSet&&seriesSet.series;
+  let series=seriesSet&&seriesSet.series;
+  // overlay the REFERENCE model's forward simulation (already computed in the report)
+  // so the plot compares your model vs the reference vs the observed data.
+  const refSeries=(r.reference&&r.reference.series)||[];
+  const rkey=s=>[s.study,s.route,s.dose].map(x=>String(x==null?"":x)).join("|");
+  const refBy={};refSeries.forEach(s=>{refBy[rkey(s)]=s;});
+  const haveRef=series&&series.some(s=>((refBy[rkey(s)]||{}).simulated||[]).length>1);
+  if(haveRef)series=series.map(s=>({...s,reference:(refBy[rkey(s)]||{}).simulated||[]}));
   if(series&&series.length){const p=plotFit(series);
-    html+=`<div class="rc-cap">line = the model's forward simulation · ○ = the real observed clinical data${seriesLabel?` · showing: ${escapeHtml(seriesLabel)}`:""}</div>`+
+    html+=`<div class="rc-cap">solid line = your model · ${haveRef?"dashed line = the reference model · ":""}○ = the real observed clinical data${seriesLabel?` · showing: ${escapeHtml(seriesLabel)}`:""}</div>`+
           `<div class="rc-plot">${p.svg}</div><div class="plotlegend rc-leg">${p.legend}</div>`;
     // honest diagnostic: a dataset with observed points but no model curve means
     // the forward run produced no simulation for it (not a silent blank).
