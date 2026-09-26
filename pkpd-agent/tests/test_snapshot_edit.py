@@ -180,6 +180,40 @@ class TestSimulationProcessMirroring(unittest.TestCase):
                  for sc in sim["Compounds"] for p in sc["Processes"]]
         self.assertNotIn("CYP3A4-1st order CL", names)
 
+    def test_add_liver_clearance_mirrors_with_hepatic_systemic_type(self):
+        # regression: the compound InternalName is 'LiverClearance' but the
+        # simulation SystemicProcessType PK-Sim maps is 'Hepatic'. Using
+        # 'LiverClearance' there made snap fail to build ('no .pksim5 produced').
+        out, rep = apply_edits(self.snap, {"add_processes": [
+            {"type": "liver_clearance", "parameters": {"Plasma clearance": 2.0}}]})
+        # compound carries InternalName 'LiverClearance'; the sim mirror carries the
+        # PK-Sim enum 'Hepatic' — PK-Sim pairs the two internally (in the real
+        # Vancomycin snapshot the DataSource is even a citation), so both values
+        # simply have to be correct.
+        self.assertIn("LiverClearance",
+                      [p["InternalName"] for p in out["Compounds"][0]["Processes"]])
+        spts = [p.get("SystemicProcessType") for sim in out["Simulations"]
+                for sc in sim["Compounds"] for p in sc["Processes"]]
+        self.assertIn("Hepatic", spts)                  # correct enum
+        self.assertNotIn("LiverClearance", spts)        # not the InternalName
+
+    def test_add_kidney_clearance_mirrors_with_renal_systemic_type(self):
+        out, _ = apply_edits(self.snap, {"add_processes": [
+            {"type": "kidney_clearance", "parameters": {"Plasma clearance": 1.0}}]})
+        spts = [p.get("SystemicProcessType") for sim in out["Simulations"]
+                for sc in sim["Compounds"] for p in sc["Processes"]]
+        self.assertIn("Renal", spts)
+
+    def test_added_systemic_clearance_is_removable(self):
+        # the Name-suffix fallback in _sim_proc_matches keeps disable working even
+        # though SystemicProcessType ('Hepatic') no longer equals DataSource.
+        out, _ = apply_edits(self.snap, {"add_processes": [
+            {"type": "liver_clearance", "parameters": {"Plasma clearance": 2.0}}]})
+        out2, rep = apply_edits(out, {"processes": {"LiverClearance": False}})
+        spts = [p.get("SystemicProcessType") for sim in out2["Simulations"]
+                for sc in sim["Compounds"] for p in sc["Processes"]]
+        self.assertNotIn("Hepatic", spts)               # sim mirror cleaned up too
+
     def test_re_add_systemic_restores_sim_refs(self):
         disabled, _ = apply_edits(self.snap, {"processes": {"GFR": False}})
         out, rep = apply_edits(disabled, {"add_processes": [

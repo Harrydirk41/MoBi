@@ -448,9 +448,13 @@ PROCESS_TYPES: dict[str, dict[str, Any]] = {
         "description": "renal clearance by glomerular filtration of unbound drug.",
     },
     "liver_clearance": {
+        # compound-level InternalName is 'LiverClearance', but the simulation-level
+        # SystemicProcessType PK-Sim expects is 'Hepatic' (verified against the
+        # Vancomycin library snapshot). A mismatched SystemicProcessType makes snap
+        # fail to build the model ('no .pksim5 produced').
         "internal_name": "LiverClearance", "data_source": "plasma clearance",
-        "applies_to": "system", "validated": False,
-        "systemic_label": "Liver Plasma Clearance", "systemic_type": "LiverClearance",
+        "applies_to": "system", "validated": True,
+        "systemic_label": "Liver Plasma Clearance", "systemic_type": "Hepatic",
         "parameters": [{"name": "Plasma clearance", "unit": "ml/min/kg",
                         "default": 1.0}],
         "description": "lumped whole-liver (hepatic) plasma clearance - a simpler "
@@ -458,9 +462,11 @@ PROCESS_TYPES: dict[str, dict[str, Any]] = {
                        "have total clearance.",
     },
     "kidney_clearance": {
+        # InternalName 'KidneyClearance' -> SystemicProcessType 'Renal' (verified
+        # against the Moclobemide library snapshot), not 'KidneyClearance'.
         "internal_name": "KidneyClearance", "data_source": "plasma clearance",
-        "applies_to": "system", "validated": False,
-        "systemic_label": "Kidney Plasma Clearance", "systemic_type": "KidneyClearance",
+        "applies_to": "system", "validated": True,
+        "systemic_label": "Kidney Plasma Clearance", "systemic_type": "Renal",
         "parameters": [{"name": "Plasma clearance", "unit": "ml/min/kg",
                         "default": 1.0}],
         "description": "lumped renal plasma clearance (beyond passive GFR).",
@@ -573,7 +579,7 @@ PROCESS_TYPES: dict[str, dict[str, Any]] = {
         "internal_name": "MetabolizationHepatocytes_tHalf",
         "data_source": "hepatocytes t1/2", "applies_to": "system",
         "validated": False, "internal_name_verified": False,
-        "systemic_label": "Total Hepatic Clearance", "systemic_type": "LiverClearance",
+        "systemic_label": "Total Hepatic Clearance", "systemic_type": "Hepatic",
         "provenance": "PK-Sim v12 docs (In vitro hepatocytes - t1/2, Total Hepatic "
                       "Clearance); InternalName inferred - validate before use",
         "parameters": [{"name": "In vitro half-life (hepatocytes)", "unit": "min",
@@ -588,7 +594,7 @@ PROCESS_TYPES: dict[str, dict[str, Any]] = {
         "internal_name": "MetabolizationLiverMicrosomes_tHalf",
         "data_source": "microsomes t1/2", "applies_to": "system",
         "validated": False, "internal_name_verified": False,
-        "systemic_label": "Total Hepatic Clearance", "systemic_type": "LiverClearance",
+        "systemic_label": "Total Hepatic Clearance", "systemic_type": "Hepatic",
         "provenance": "PK-Sim v12 docs (In vitro liver microsomes - t1/2, Total "
                       "Hepatic Clearance); InternalName inferred - validate first",
         "parameters": [{"name": "In vitro half-life (microsomes)", "unit": "min",
@@ -599,10 +605,13 @@ PROCESS_TYPES: dict[str, dict[str, Any]] = {
                        "microsome depletion HALF-LIFE.",
     },
     "biliary_clearance": {
+        # the library only exposes GFR / Hepatic / Renal systemic types; biliary
+        # excretion is a hepatic route, so 'Hepatic' is the buildable mapping
+        # (inferred - not seen as a distinct SystemicProcessType in the snapshots).
         "internal_name": "BiliaryClearance", "data_source": "plasma clearance",
         "applies_to": "system", "validated": False,
-        "systemic_label": "Biliary Clearance", "systemic_type": "BiliaryClearance",
-        "provenance": "PK-Sim systemic process; verify InternalName/params",
+        "systemic_label": "Biliary Clearance", "systemic_type": "Hepatic",
+        "provenance": "PK-Sim systemic process; SystemicProcessType inferred as Hepatic",
         "parameters": [{"name": "Plasma clearance", "unit": "ml/min/kg",
                         "default": 1.0}],
         "description": "lumped biliary (hepatobiliary) plasma clearance into bile.",
