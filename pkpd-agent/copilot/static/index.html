@@ -110,6 +110,9 @@
   .rc-plot{margin:6px 0}.rc-note{color:var(--faint);font-size:11.5px;padding:6px 0}
   .rc-cap{color:var(--muted);font-size:11px;padding:2px 0 4px}
   .rc-interp{display:flex;gap:9px;margin:10px 0;padding:10px 12px;background:var(--accent-soft);border-radius:9px;font-size:12.5px;line-height:1.5;color:var(--ink)}
+  .postmortem{align-self:stretch;margin:10px 0;padding:12px 14px;background:var(--accent-soft);border-left:3px solid var(--accent);border-radius:9px}
+  .postmortem .pm-h{display:flex;align-items:center;gap:7px;font-size:12px;color:var(--accent-ink);margin-bottom:6px}.postmortem .pm-h small{color:var(--muted);font-weight:400}
+  .postmortem .pm-b{font-size:12.5px;line-height:1.55;color:var(--ink)}
   .rc-interp .av{flex:0 0 auto;color:var(--accent-ink);margin-top:1px}.rc-interp b{color:var(--accent-ink)}
   .rc-sub{font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--faint);margin:12px 0 5px}
   .rc-tbl{width:100%;border-collapse:collapse;font-size:12px}
@@ -304,6 +307,8 @@
       <label title="Let the agent search PubMed and the open web and read pages (osp_web_search / osp_web_fetch) — it can find this compound's DMPK and any already-published model. This is NOT leave-one-out: a run that uses the web is not a blind de-novo grade; what it consulted is recorded." style="display:flex;align-items:center;gap:8px;text-transform:none;letter-spacing:0;font-size:12.5px;color:var(--ink)"><input type="checkbox" id="webMode" style="width:15px;height:15px;accent-color:var(--accent)">Allow web/literature lookup (not blind)</label>
       <label>Fit vision</label>
       <label title="After each fit, hand the model a semilog plot of its own predicted curves vs the observed data, so it reasons about SHAPE (a missing distribution phase, a wrong terminal slope, an over/undershot Cmax) the scalar GMFE hides — not just the number. On by default (the best-modeling setting); turn off for a numbers-only ablation." style="display:flex;align-items:center;gap:8px;text-transform:none;letter-spacing:0;font-size:12.5px;color:var(--ink)"><input type="checkbox" id="fitVision" checked style="width:15px;height:15px;accent-color:var(--accent)">Show the agent its own fit curves</label>
+      <label>Minimal mode</label>
+      <label title="Purist mode: trust the LLM's own trial-and-error. Drops the modeling-scaffold that does part of the modeling for it — the method sweep, the optimizer's directive identifiability recommendations, staged-fit guidance, and the soft biological-plausibility opinions (the model judges those itself). Only the tools + code-enforced invariants + a stopping rule remain. Off by default; turn on to A/B whether the scaffold actually helps." style="display:flex;align-items:center;gap:8px;text-transform:none;letter-spacing:0;font-size:12.5px;color:var(--ink)"><input type="checkbox" id="minimalMode" style="width:15px;height:15px;accent-color:var(--accent)">Minimal (trust the LLM; drop the scaffold)</label>
       <label>Context the agent sees</label>
       <div style="font-size:12px;color:var(--muted)" id="ctxSummary">all projects (default)</div>
     </div>
@@ -895,7 +900,7 @@ function runOne(compound){
     sbAborts.add(abort);sbAbortByComp.set(compound,abort);
     (async()=>{
       try{rid=(await (await fetch("/api/run",{method:"POST",headers:{"Content-Type":"application/json"},
-        body:JSON.stringify({compound,model:$("#llm").value,max_steps:+$("#steps").value,hard:$("#hardMode").checked,web:$("#webMode").checked,fit_vision:$("#fitVision").checked})})).json()).run_id;}
+        body:JSON.stringify({compound,model:$("#llm").value,max_steps:+$("#steps").value,hard:$("#hardMode").checked,web:$("#webMode").checked,fit_vision:$("#fitVision").checked,minimal:$("#minimalMode").checked})})).json()).run_id;}
       catch(e){return finish({error:"server error"});}
       if(sbStop||sbStopOne.has(compound)||done){if(rid)fetch("/api/cancel/"+rid,{method:"POST"}).catch(()=>{});return finish({error:"stopped"});}
       SBRUN[compound]=rid;RUNLOG[rid]=[];        // buffer this run so it can be watched in the centre
@@ -1147,7 +1152,7 @@ $("#runBtn").onclick=async()=>{
   const others=PROJECTS.filter(p=>p!==current),sel=selectedCtx();
   const ctx=(!PROJECTS.length||sel.length===others.length)?null:sel;
   try{run_id=(await (await fetch("/api/run",{method:"POST",headers:{"Content-Type":"application/json"},
-    body:JSON.stringify({compound:current,model:$("#llm").value,max_steps:+$("#steps").value,context_projects:ctx,self_extract:$("#selfExtract").checked,hard:$("#hardMode").checked,web:$("#webMode").checked,fit_vision:$("#fitVision").checked,note:$("#noteBox").value.trim()||null})})).json()).run_id;}
+    body:JSON.stringify({compound:current,model:$("#llm").value,max_steps:+$("#steps").value,context_projects:ctx,self_extract:$("#selfExtract").checked,hard:$("#hardMode").checked,web:$("#webMode").checked,fit_vision:$("#fitVision").checked,minimal:$("#minimalMode").checked,note:$("#noteBox").value.trim()||null})})).json()).run_id;}
   catch(e){$("#runState").textContent="server not reachable";$("#runBtn").disabled=false;return;}
   curRunId=run_id;
   es=new EventSource(`/api/stream/${run_id}`);
@@ -1187,6 +1192,7 @@ function handle(ev){
     if(ev.hard_unavailable)t.push("structure-blind requested but no hard snapshot — using normal");
     if(ev.web)t.push("web lookup ON — open literature/web (not a blind grade)");
     if(ev.fit_vision)t.push("fit vision ON — the agent sees its own predicted-vs-observed curves");
+    if(ev.minimal)t.push("MINIMAL mode — no sweep / recommendations / staged-fit guidance; the LLM drives");
     if(t.length)th.appendChild(el("div","meta-line",t.join(" · ")));
   }else if(ev.type==="web"){
     // native (Anthropic server-side) web activity, streamed live
@@ -1257,6 +1263,9 @@ function handle(ev){
     $("#thread").appendChild(card);card.scrollIntoView({block:"end"});
     renderReportCard(ev.compound||current,ev,card);
     if(buildingComp)loadModels();                 // refresh the rail with the persisted held-out grade
+  }else if(ev.type==="postmortem"){
+    // post-stop self-critique: the agent saw the reference and summarized its errors
+    th.appendChild(el("div","postmortem",`<div class="pm-h"><span class="av"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M8 12h8M12 8v8"/></svg></span><b>agent's post-mortem</b> <small>reference revealed after the blind build — the agent critiques its own model</small></div><div class="pm-b">${escapeHtml(ev.text||"").replace(/\n/g,"<br>")}</div>`));
   }else if(ev.type==="error"){
     th.appendChild(el("div","verdict",`<div style="color:var(--crit)">⚠ ${escapeHtml(ev.message)}</div>`));
     $("#runState").textContent="error";

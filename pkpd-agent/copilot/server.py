@@ -129,6 +129,7 @@ def _persist_run(compound: str, events: list, p: dict) -> None:
             "model": p.get("model"), "hard": bool(p.get("hard")),
             "web": bool(p.get("web")), "self_extract": bool(p.get("self_extract")),
             "fit_vision": bool(p.get("fit_vision", True)),
+            "minimal": bool(p.get("minimal")),
             "in_sample_gmfe": done.get("best_gmfe"),
             "held_out_gmfe": held,               # from the pipeline report; /api/runs/<c>/grade can still set it
             "best_edits": done.get("best_edits"),
@@ -557,6 +558,55 @@ def _report_narrative(compound: str, rep: dict, model: str | None) -> "str | Non
             messages=[{"role": "user", "content": prompt}])
         return "".join(b.text for b in resp.content if getattr(b, "type", None) == "text").strip() or None
     except Exception:                                # noqa: BLE001 - narrative must never sink the report
+        return None
+
+
+def _postmortem(compound: str, rep: dict, edits: dict, model: str | None) -> "str | None":
+    """POST-STOP self-critique. After the blind build, the reference answer is
+    REVEALED to the agent (the same model that built it) and it summarizes, in the
+    first person, what it got wrong and why. Strictly post-hoc: this runs after the
+    graded run has finished and never re-enters a scored build, so it cannot leak.
+    Best-effort: no key -> None."""
+    try:
+        import anthropic
+    except ImportError:
+        return None
+    if not os.environ.get("ANTHROPIC_API_KEY"):
+        return None
+    comp = rep.get("comparison") or {}
+    edits = edits or {}
+    facts = {
+        "your_model": {
+            "structure": {k: edits.get(k) for k in
+                          ("calculation_methods", "add_processes", "processes") if edits.get(k)},
+            "estimated_parameters": edits.get("parameters"),
+            "fixed_parameters": edits.get("fix")},
+        "your_in_sample_gmfe": (rep.get("in_sample") or {}).get("gmfe"),
+        "your_held_out_gmfe": (rep.get("held_out") or {}).get("gmfe"),
+        "structure_vs_reference": comp.get("structure"),
+        "parameters_vs_reference": [p for p in (comp.get("parameters") or [])
+                                    if p.get("reference") is not None],
+    }
+    prompt = (
+        "You just built this PBPK model BLIND — you never saw the reference answer "
+        "during the build. Now, post-hoc, the reference is REVEALED. Here is your "
+        "model, your held-out grade, and the reference, as JSON:\n\n"
+        + json.dumps(facts, default=str, indent=1) + "\n\n"
+        "Write a short FIRST-PERSON post-mortem (3-6 sentences): where did your "
+        "STRUCTURE or PARAMETERS differ from the reference; which differences "
+        "actually mattered for the fit and which were harmless (a fitted value far "
+        "from the reference that the data cannot constrain, or that trades off with "
+        "another, is NOT a real miss — say so); and honestly, was the biological-"
+        "reasonableness judgement you made during the build borne out or not? End "
+        "with the ONE thing you would do differently next time. Do not restate the "
+        "numbers as a table — interpret them.")
+    try:
+        client = anthropic.Anthropic()
+        resp = client.messages.create(
+            model=model or "claude-sonnet-5", max_tokens=700,
+            messages=[{"role": "user", "content": prompt}])
+        return "".join(b.text for b in resp.content if getattr(b, "type", None) == "text").strip() or None
+    except Exception:                                # noqa: BLE001 - never sinks the run
         return None
 
 
@@ -1140,7 +1190,8 @@ def _run_agent_locked(run_id, p, q) -> None:
         "observed": build_obs, "input": inp_agent,
         "context_reports": context_reports,
         "self_extract": bool(ctx_report),
-        "fit_vision": p.get("fit_vision", True)})   # let the model SEE its fit curves
+        "fit_vision": p.get("fit_vision", True),     # let the model SEE its fit curves
+        "minimal": p.get("minimal", False)})         # purist mode: drop modeling-scaffold
     if ctx_report:
         register_context_tools(registry, cfg, {
             "report_path": ctx_report, "data_dir": ctx_data, "input": inp_agent})
@@ -1149,6 +1200,9 @@ def _run_agent_locked(run_id, p, q) -> None:
         q.put({"type": "meta", "web": True})
     if p.get("fit_vision", True):            # the model sees its own fit overlays
         q.put({"type": "meta", "fit_vision": True})
+    minimal = bool(p.get("minimal"))
+    if minimal:                              # purist mode: tools + invariants + stop rule only
+        q.put({"type": "meta", "minimal": True})
 
     goal = f"{inp.get('objective', 'Build the PBPK model.')}\n\n"
     if note:                                 # modeler steering from the composer
@@ -1159,7 +1213,8 @@ def _run_agent_locked(run_id, p, q) -> None:
                  "PBPK model, and build on what has been done - cite what you use.\n\n")
     goal += "Start with osp_inspect, then determine the model and call osp_optimize."
     policy = LLMPolicy(cfg, registry,
-                       R._system_prompt(1.6, self_extract=bool(ctx_report), web=web),
+                       R._system_prompt(1.6, self_extract=bool(ctx_report), web=web,
+                                        minimal=minimal),
                        web=web,
                        on_web=lambda e: q.put({"type": "web", **e}))   # stream web activity live
     loop = DecisionLoop(config=cfg, registry=registry, policy=policy)
@@ -1209,6 +1264,11 @@ def _run_agent_locked(run_id, p, q) -> None:
         try:
             rep = _report(f, edits, model)
             q.put({"type": "report", "compound": compound, **rep})
+            # POST-STOP reveal: the agent sees the reference and critiques its own
+            # build. Strictly post-hoc (the graded run is already done) - never leaks.
+            pm = _postmortem(compound, rep, edits, model)
+            if pm:
+                q.put({"type": "postmortem", "compound": compound, "text": pm})
         except Exception as e:                       # noqa: BLE001
             q.put({"type": "report", "compound": compound,
                    "error": f"{type(e).__name__}: {e}"})
@@ -1417,6 +1477,7 @@ def create_app():
                   "hard": bool(payload.get("hard")), "web": bool(payload.get("web")),
                   # fit-vision defaults ON: the modeler chose "best modeling"
                   "fit_vision": bool(payload.get("fit_vision", True)),
+                  "minimal": bool(payload.get("minimal")),   # purist mode (default off)
                   "note": payload.get("note")}
         threading.Thread(target=_run_agent, args=(run_id, params), daemon=True).start()
         return JSONResponse({"run_id": run_id})

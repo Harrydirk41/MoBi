@@ -430,6 +430,11 @@ def register_osp_loop_tools(registry: ToolRegistry, config, ctx: dict) -> None:
     # phase, wrong terminal slope, Cmax/tmax offset) the scalar GMFE hides. On by
     # default; the copilot toggle can turn it off for an ablation.
     fit_vision: bool = bool(ctx.get("fit_vision", True))
+    # MINIMAL / PURIST mode: trust the model's own trial-and-error. Drop the
+    # modeling-scaffold that does part of the modeling FOR it — the method sweep,
+    # the optimizer's directive identifiability recommendations, and the staged-fit
+    # method_guidance. Only the tools + the code-enforced invariants remain.
+    minimal: bool = bool(ctx.get("minimal", False))
 
     def _hide_status(model: dict) -> dict:
         return {**model, "parameters": [{k: v for k, v in p.items() if k != "value_status"}
@@ -482,7 +487,9 @@ def register_osp_loop_tools(registry: ToolRegistry, config, ctx: dict) -> None:
             evaluation_rubric=inp.get("evaluation_rubric"),
             current_model=model,
             observed_overview=_observed_overview(observed),
-            method_guidance=_method_guidance(observed),   # staged IV->PO + saturable identifiability
+            # staged IV->PO + saturable identifiability guidance; withheld in minimal
+            # mode (the model decides its own fit strategy).
+            method_guidance=(None if minimal else _method_guidance(observed)),
             valid_partition_methods=PARTITION_METHODS,
             valid_permeability_methods=PERMEABILITY_METHODS,
         )
@@ -518,7 +525,7 @@ def register_osp_loop_tools(registry: ToolRegistry, config, ctx: dict) -> None:
         applied = res.get("edits_applied") or {}
         param_list = [{"parameter": k, "value": v, "unit": ""}
                       for k, v in applied.get("parameters", {}).items()]
-        flags = osp_score.plausibility(param_list)
+        flags = osp_score.plausibility(param_list, hard_only=minimal)
 
         overall = score["overall"]
         # track history + best
@@ -827,7 +834,7 @@ def register_osp_loop_tools(registry: ToolRegistry, config, ctx: dict) -> None:
 
         plist = [{"parameter": k, "value": v, "unit": ""}
                  for k, v in r["optimized"].items()]
-        flags = osp_score.plausibility(plist)
+        flags = osp_score.plausibility(plist, hard_only=minimal)
         gmfe = r["fit"].get("gmfe")
         hist = session.get("osp_history") or []
         hist.append({"estimate": list(estimate), "structure": args.get("structure"),
@@ -843,7 +850,9 @@ def register_osp_loop_tools(registry: ToolRegistry, config, ctx: dict) -> None:
                         {"parameters": r["optimized"], "fix": args.get("fix") or {},
                          **(args.get("structure") or {})})
             session.put("osp_best_sensitivity", r.get("sensitivity") or {})
-        recs = r.get("recommendations") or []
+        # minimal mode: no directive identifiability advice — the raw sensitivity
+        # numbers are still returned; the model draws its own conclusions.
+        recs = [] if minimal else (r.get("recommendations") or [])
         # surface the actionable identifiability findings first in the message so
         # the agent acts on them (fix unidentifiable params, refit) rather than
         # re-floating the same parameters next round.
@@ -1273,7 +1282,8 @@ def register_osp_loop_tools(registry: ToolRegistry, config, ctx: dict) -> None:
             best={"partition": best["partition"], "permeability": best["permeability"],
                   "gmfe": best["gmfe"], "optimized": best["optimized"]})
 
-    registry.register(Tool(
+    if not minimal:                       # the method sweep does modeling FOR the agent
+      registry.register(Tool(
         name="osp_sweep_methods",
         description=(
             "ACT (deterministic structure sweep by COORDINATE DESCENT): sweep the 5 partition "

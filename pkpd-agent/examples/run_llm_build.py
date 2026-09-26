@@ -64,7 +64,8 @@ from pkpd_agent.tools.registry import ToolRegistry
 from pkpd_agent.tools.osp_loop_tools import register_osp_loop_tools
 
 
-def _system_prompt(target: float, self_extract: bool = False, web: bool = False) -> str:
+def _system_prompt(target: float, self_extract: bool = False, web: bool = False,
+                   minimal: bool = False) -> str:
     source = ("From the handed report and data, and from web search / web fetch "
               "when you need a value or the mechanism they do not give"
               if web else "ONLY from the handed report and data - you have no "
@@ -102,8 +103,9 @@ def _system_prompt(target: float, self_extract: bool = False, web: bool = False)
         import re as _re
         import pkpd_agent as _pkg
         from pathlib import Path as _Path
+        fname = "modeling_playbook_minimal.md" if minimal else "modeling_playbook.md"
         pb = (_Path(_pkg.__file__).resolve().parent / "prompts"
-              / "modeling_playbook.md").read_text(encoding="utf-8")
+              / fname).read_text(encoding="utf-8")
         pb = _re.sub(r"(?s)<!--.*?-->", "", pb).strip()
         return (pb.replace("{{WEB_RULE}}", web_rule)
                   .replace("{{STEP0}}", step0)
