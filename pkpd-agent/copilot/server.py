@@ -1340,6 +1340,18 @@ def create_app():
             return JSONResponse({"error": "no saved run"}, status_code=404)
         return JSONResponse(rec)
 
+    @app.delete("/api/runs/{compound}")
+    def run_delete(compound: str):
+        # discard a saved run so the compound is treated as un-built (a fresh
+        # re-run starts from scratch and the batch no longer skips it).
+        path = _run_record_path(compound)
+        try:
+            if os.path.isfile(path):
+                os.remove(path)
+        except OSError:
+            return JSONResponse({"ok": False}, status_code=500)
+        return JSONResponse({"ok": True, "deleted": compound})
+
     @app.post("/api/runs/{compound}/grade")
     def run_grade(compound: str, payload: dict):
         # persist the held-out grade the scoreboard computed, so a reload shows it.

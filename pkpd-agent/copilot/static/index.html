@@ -186,6 +186,7 @@
   .actions{display:flex;flex-wrap:wrap;gap:7px;margin-top:4px}
   .act{font-size:12px;padding:6px 11px;border:1px solid var(--border);border-radius:8px;background:var(--surface);color:var(--muted);display:inline-flex;align-items:center;gap:6px}
   .act:hover{color:var(--ink);border-color:var(--accent)}
+  .act.warn{color:var(--crit,#b3261e)}.act.warn:hover{border-color:var(--crit,#b3261e)}
   .act.dl{background:var(--accent-soft);color:var(--accent-ink);border-color:transparent;font-weight:600}
   .ctxrow .nm{cursor:pointer;color:var(--accent-ink)}.ctxrow .nm:hover{text-decoration:underline}
   .ctxrow.tgt .nm{color:var(--muted)}
@@ -470,10 +471,24 @@ function select(name,status,gmfe){
   else{
     renderHandoff(name);             // "what you're handed": curves + redacted report
     const m=(MODELS||[]).find(x=>x.compound===name);
-    if(m&&m.saved)$("#thread").appendChild(el("div","actions",
-      `<button class="act" data-loadsaved>↺ Load saved run — trace + report (from disk)</button>`))
-      .querySelector("[data-loadsaved]").onclick=()=>loadSavedRun(name);
+    if(m&&m.saved){
+      // this compound already has a saved run -> offer BOTH choices explicitly:
+      // load it as-is, or discard it and re-run from scratch.
+      const bar=$("#thread").appendChild(el("div","actions",
+        `<button class="act" data-loadsaved>↺ Load saved run — trace + report (from disk)</button>`+
+        `<button class="act warn" data-rerun>↻ Re-run from scratch (discard saved)</button>`));
+      bar.querySelector("[data-loadsaved]").onclick=()=>loadSavedRun(name);
+      bar.querySelector("[data-rerun]").onclick=()=>discardAndRerun(name);
+    }
   }
+}
+async function discardAndRerun(compound){
+  if(!confirm(`Discard the saved run for ${compound} and re-run from scratch? The saved trace + grade will be deleted.`))return;
+  try{await fetch(`/api/runs/${encodeURIComponent(compound)}`,{method:"DELETE"});}catch(e){}
+  delete SBRESULTS[compound];delete RSTATE[compound];   // no longer "built" (batch won't skip it)
+  await loadModels();                                    // refresh the rail (saved badge gone)
+  select(compound);                                      // reselect (now shows the fresh-build panel)
+  $("#runBtn").click();                                  // start a fresh build immediately
 }
 async function loadSavedRun(compound){
   let rec;try{rec=await (await fetchT(`/api/runs/${encodeURIComponent(compound)}`,60000)).json();}catch(e){return;}
@@ -900,8 +915,16 @@ async function runAllAutonomous(){
   const comps=(MODELS||[]).map(m=>m.compound);
   if(!comps.length){$("#sbState").textContent="no compounds";return;}
   const conc=Math.max(1,+($("#sbConc").value||1));
-  // resume: keep already-built compounds; if none remain, start a fresh full run
-  if(comps.every(c=>SBRESULTS[c]))Object.keys(SBRESULTS).forEach(c=>delete SBRESULTS[c]);
+  // explicit choice when some compounds already have a saved run: RESUME (skip the
+  // built ones) or RE-RUN ALL from scratch (discard every saved run).
+  const built=comps.filter(c=>SBRESULTS[c]);
+  if(built.length){
+    const rerunAll=!confirm(`${built.length} of ${comps.length} already have a saved run.\n\nOK = Resume (skip the ${built.length} built, run the rest).\nCancel = Re-run ALL from scratch (discard every saved run).`);
+    if(rerunAll){
+      await Promise.all(built.map(c=>fetch(`/api/runs/${encodeURIComponent(c)}`,{method:"DELETE"}).catch(()=>{})));
+      comps.forEach(c=>{delete SBRESULTS[c];delete RSTATE[c];});
+    }
+  }
   sbStop=false;sbStopOne=new Set();sbAbortByComp=new Map();sbRunning=true;
   SBRUN={};RUNLOG={};attachedRun=null;         // fresh event buffers for this batch
   $("#sbStart").hidden=true;$("#sbStop").hidden=false;

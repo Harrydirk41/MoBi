@@ -368,6 +368,11 @@ class TestCopilotServer(unittest.TestCase):
             self.assertEqual(m["status"], "done")
             self.assertEqual((m.get("saved") or {}).get("held_out"), 1.77)
             self.assertEqual(self.c.get("/api/runs/NoSuchCompound").status_code, 404)
+            # DELETE discards the saved run -> the compound is treated as un-built again
+            # (a fresh re-run starts from scratch; the batch stops skipping it)
+            self.assertTrue(self.c.delete("/api/runs/Triazolam").json()["ok"])
+            self.assertIsNone(server._load_run("Triazolam"))
+            self.assertEqual(self.c.get("/api/runs/Triazolam").status_code, 404)
         finally:
             if _os.path.isfile(path):
                 _os.remove(path)
