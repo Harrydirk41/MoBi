@@ -1323,9 +1323,17 @@ function renderReportCard(compound,r,card){
   const grade=(lbl,g,hi)=>`<div class="rc-grade${hi?' hi':''}"><span>${lbl}</span><b>${g&&g.gmfe!=null?(+g.gmfe).toFixed(2):"—"}</b>${g&&g.pk_gmfe?`<small>${Object.entries(g.pk_gmfe).filter(([,v])=>v!=null).map(([k,v])=>k+" "+(+v).toFixed(2)+"×").join(" · ")}</small>`:""}</div>`;
   let html=`<div class="rc-grades">${grade("in-sample GMFE",r.in_sample)}${grade("held-out GMFE — unseen studies",r.held_out,true)}</div>`;
   if(r.interpretation)html+=`<div class="rc-interp"><span class="av"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M8 12h8M12 8v8"/></svg></span><div><b>reviewer's read</b> ${escapeHtml(r.interpretation).replace(/\n/g,"<br>")}</div></div>`;
-  const series=(r.held_out&&r.held_out.series&&r.held_out.series.length)?r.held_out.series:(r.in_sample&&r.in_sample.series);
+  // pick the series to plot: prefer the one that actually HAS model curves (a set
+  // whose held-out studies can't be simulated has only observed points, so showing
+  // it hides the fit — fall back to the in-sample set, which has curves).
+  const curves=s=>s&&s.series&&s.series.filter(x=>(x.simulated||[]).filter(([,c])=>c>0).length>1).length;
+  let seriesSet=null,seriesLabel="";
+  if(curves(r.held_out)){seriesSet=r.held_out;seriesLabel="held-out (unseen) studies";}
+  else if(curves(r.in_sample)){seriesSet=r.in_sample;seriesLabel="in-sample (fit) studies"+(r.held_out&&r.held_out.series&&r.held_out.series.length?" — the held-out studies could not be simulated, see the note":"");}
+  else{seriesSet=(r.held_out&&r.held_out.series&&r.held_out.series.length)?r.held_out:r.in_sample;seriesLabel="";}
+  const series=seriesSet&&seriesSet.series;
   if(series&&series.length){const p=plotFit(series);
-    html+=`<div class="rc-cap">line = the model's forward simulation · ○ = the real observed clinical data (digitized from the study)</div>`+
+    html+=`<div class="rc-cap">line = the model's forward simulation · ○ = the real observed clinical data${seriesLabel?` · showing: ${escapeHtml(seriesLabel)}`:""}</div>`+
           `<div class="rc-plot">${p.svg}</div><div class="plotlegend rc-leg">${p.legend}</div>`;
     // honest diagnostic: a dataset with observed points but no model curve means
     // the forward run produced no simulation for it (not a silent blank).

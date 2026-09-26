@@ -75,6 +75,12 @@ def split_studies(snap: dict, observed: list[dict],
     'n_studies': int, 'held_out_studies': [...]}. Dataset-name lists."""
     link = osp_score.linkage_from_snapshot(snap)
     linked = [o for o in observed if o.get("dataset") in link]
+    # A dataset with no ROUTE carries no dosing regimen, so it cannot be turned into
+    # a simulation - it can be neither fit nor held-out-graded by a forward run.
+    # Drop it from the split (else it silently lands in held-out and yields no grade,
+    # as the alfentanil 'Kharasch2012_Alfentanil_alone_*' datasets did: route/dose
+    # were None, so the held-out forward run produced no curve and no GMFE).
+    linked = [o for o in linked if _route(o)]
     groups: dict[str, list[str]] = defaultdict(list)
     routes: dict[str, set] = defaultdict(set)
     for o in linked:

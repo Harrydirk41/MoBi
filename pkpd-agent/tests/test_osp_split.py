@@ -40,6 +40,23 @@ class TestSplit(unittest.TestCase):
         for ds in sp["building"]:
             self.assertNotIn(SP.osp_score._study_token(ds), held)
 
+    def test_routeless_dataset_is_dropped_from_the_split(self):
+        # a dataset with no route (no dosing -> not simulatable) must never be held
+        # out, or it yields no forward curve and no grade (the alfentanil Kharasch2012
+        # datasets). It is dropped from both building and verification.
+        obs, links, sims = [], {}, []
+        for i, st in enumerate(["Aa 2001", "Bb 2002", "Cc 2003", "Dd 2004", "Ee 2005"]):
+            ds = f"{st}.po"; obs.append(_obs(ds, st, "po"))
+            links[ds] = f"sim{i}"; sims.append(f"sim{i}")
+        # two route-less datasets, linked to simulations but with route=None
+        for nm in ("Kharasch2012_alone_IV", "Kharasch2012_alone_po"):
+            obs.append({"dataset": nm, "study": None, "route": None, "dose": None})
+            links[nm] = nm; sims.append(nm)
+        sp = SP.split_studies(_snap(sims, links), obs)
+        allds = set(sp["building"]) | set(sp["verification"])
+        self.assertNotIn("Kharasch2012_alone_IV", allds)   # dropped entirely
+        self.assertNotIn("Kharasch2012_alone_po", allds)
+
     def test_building_stays_majority(self):
         # a single data-rich study must not dominate the held-out set
         obs, links, sims = [], {}, []
