@@ -75,18 +75,22 @@ def split_studies(snap: dict, observed: list[dict],
     'n_studies': int, 'held_out_studies': [...]}. Dataset-name lists."""
     link = osp_score.linkage_from_snapshot(snap)
     linked = [o for o in observed if o.get("dataset") in link]
-    # A dataset with no ROUTE carries no dosing regimen, so it cannot be turned into
-    # a simulation - it can be neither fit nor held-out-graded by a forward run.
-    # Drop it from the split (else it silently lands in held-out and yields no grade,
-    # as the alfentanil 'Kharasch2012_Alfentanil_alone_*' datasets did: route/dose
-    # were None, so the held-out forward run produced no curve and no GMFE).
-    linked = [o for o in linked if _route(o)]
+    # A dataset whose observed row is missing its route/dose metadata is a shaky
+    # HELD-OUT target: the blind grade forward-runs it, and if the row can't be
+    # cleanly turned into a prediction it yields no curve and no GMFE (the alfentanil
+    # 'Kharasch2012_Alfentanil_alone_*' rows did exactly this). But such a row is
+    # still LINKED to a simulation and usable for BUILDING, so we do NOT drop it —
+    # we only keep it OUT of the held-out set. A study is held-out-eligible only if
+    # every one of its datasets carries route AND dose.
     groups: dict[str, list[str]] = defaultdict(list)
     routes: dict[str, set] = defaultdict(set)
+    incomplete: set[str] = set()               # studies with a route/dose-less row
     for o in linked:
         st = _study_key(o)
         groups[st].append(o["dataset"])
         routes[st].add(_route(o))
+        if not (o.get("route") and o.get("dose")):
+            incomplete.add(st)
 
     all_ds = [ds for g in groups.values() for ds in g]
 
@@ -100,9 +104,10 @@ def split_studies(snap: dict, observed: list[dict],
             return {"building": build, "verification": verif, "method": "osp-tag",
                     "n_studies": len(groups), "held_out_studies": held}
 
-    # 2. deterministic study-level holdout (IV studies stay in building)
+    # 2. deterministic study-level holdout (IV studies stay in building; a study
+    #    with any route/dose-less row is not held out — it stays in building)
     if len(groups) >= min_studies:
-        po = sorted(s for s in groups if "IV" not in routes[s])
+        po = sorted(s for s in groups if "IV" not in routes[s] and s not in incomplete)
         if po:
             k = max(1, round(len(po) * holdout_frac))
             held = {po[i] for i in _spread_indices(len(po), k)}
