@@ -74,7 +74,9 @@ def _prune_runs() -> None:
     is old or we are over the cap. Live/unfinished runs are always kept."""
     import time as _t
     now = _t.time()
-    done = [(rid, r) for rid, r in _RUNS.items() if r.get("done")]
+    # snapshot .items(): a background run thread may insert/pop concurrently, and
+    # iterating the live dict would raise "dictionary changed size during iteration".
+    done = [(rid, r) for rid, r in list(_RUNS.items()) if r.get("done")]
     stale = {rid for rid, r in done
              if r.get("done_ts") and now - r["done_ts"] > _RUNS_TTL_S}
     if len(done) - len(stale) > _RUNS_KEEP:            # still over cap: drop oldest done
@@ -1728,7 +1730,7 @@ def create_app():
         to a build already in flight - it does not need to have started it."""
         return JSONResponse([
             {"run_id": rid, "compound": r.get("compound"), "done": bool(r.get("done"))}
-            for rid, r in _RUNS.items() if not r.get("done")])
+            for rid, r in list(_RUNS.items()) if not r.get("done")])  # snapshot: concurrent inserts
 
     return app
 
