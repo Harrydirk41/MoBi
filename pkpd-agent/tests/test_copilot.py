@@ -108,6 +108,11 @@ class TestCopilotServer(unittest.TestCase):
         ddis = [m for m in ms if m["kind"] == "ddi"]
         self.assertTrue(peds and ddis)                       # existing tutorials wired in
         self.assertTrue(all(m.get("dir") for m in ms))       # each task resolves to a base dir
+        # structure-blind availability: DDI tasks have NO hard variant (the snapshot
+        # replace no-ops on "...ddi_blanked.json"), single/pediatric tasks do.
+        self.assertTrue(all(m.get("has_hard") is False for m in ddis))
+        singles = [m for m in ms if m["kind"] in ("adult", "pediatric")]
+        self.assertTrue(all(m.get("has_hard") is True for m in singles))
         # a DDI task (no clinical data) fails cleanly on the web runner, not a 500
         did = ddis[0]["compound"]
         j = self.c.post("/api/try", json={"compound": did, "edits": {}}).json()

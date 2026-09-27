@@ -1464,7 +1464,8 @@ def create_app():
     @app.get("/api/models")
     def models():
         return JSONResponse([{k: c.get(k) for k in
-                              ("compound", "status", "gmfe", "label", "kind", "dir", "saved")}
+                              ("compound", "status", "gmfe", "label", "kind", "dir",
+                               "saved", "has_hard")}
                              for c in _compounds()])
 
     @app.get("/api/library")
