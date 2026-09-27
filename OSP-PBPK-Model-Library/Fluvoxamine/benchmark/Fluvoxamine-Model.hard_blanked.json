@@ -1504,122 +1504,7 @@
           }
         }
       ],
-      "Processes": [
-        {
-          "InternalName": "MetabolizationLiverMicrosomes_MM",
-          "DataSource": "Fit",
-          "Molecule": "CYP1A2",
-          "Parameters": [
-            {
-              "Name": "In vitro Vmax for liver microsomes",
-              "Value": 0.0,
-              "Unit": "pmol/min/mg mic. protein"
-            },
-            {
-              "Name": "Content of CYP proteins in liver microsomes",
-              "Value": 45.0,
-              "Unit": "pmol/mg mic. protein",
-              "ValueOrigin": {
-                "Source": "Unknown"
-              }
-            },
-            {
-              "Name": "Km",
-              "Value": 0.0073460807948,
-              "Unit": "µmol/l"
-            },
-            {
-              "Name": "kcat",
-              "Value": 0.0155447966,
-              "Unit": "1/min",
-              "ValueOrigin": {
-                "Source": "Unknown"
-              }
-            }
-          ]
-        },
-        {
-          "InternalName": "rCYP450_MM",
-          "DataSource": "Miura2007",
-          "Molecule": "CYP2D6",
-          "Parameters": [
-            {
-              "Name": "In vitro Vmax/recombinant enzyme",
-              "Value": 0.69,
-              "Unit": "pmol/min/pmol rec. enzyme"
-            },
-            {
-              "Name": "Km",
-              "Value": 76.3,
-              "Unit": "µmol/l"
-            },
-            {
-              "Name": "kcat",
-              "Value": 1.0,
-              "Unit": "1/min",
-              "ValueOrigin": {
-                "Source": "Unknown",
-                "Description": "benchmark naive prior (blanked)"
-              }
-            }
-          ]
-        },
-        {
-          "InternalName": "GlomerularFiltration",
-          "DataSource": "4% Urine",
-          "Species": "Human",
-          "Parameters": [
-            {
-              "Name": "GFR fraction",
-              "Value": 1.0
-            }
-          ]
-        },
-        {
-          "InternalName": "MixedInhibition",
-          "DataSource": "Karjalainen2008/Yao2001",
-          "Molecule": "CYP1A2",
-          "Parameters": [
-            {
-              "Name": "Ki_c",
-              "Value": 10.0,
-              "Unit": "nmol/l",
-              "ValueOrigin": {
-                "Source": "Publication",
-                "Method": "InVitro",
-                "Description": "Karjalainen et al. In vitro inhibition of CYP1A2 by model inhibitors, anti-inflammatory analgesics and female sex steroids: predictability of in vivo interactions. Basic Clin. Pharmacol. Toxicol. 103, 157–65 (2008) and Yao, C. et al. Fluvoxamine-theophylline interaction: gap between in vitro and in vivo inhibition constants toward cytochrome P4501A2. Clin. Pharmacol. Ther. 70, 415–24 (2001)"
-              }
-            },
-            {
-              "Name": "Ki_u",
-              "Value": 10.0,
-              "Unit": "nmol/l",
-              "ValueOrigin": {
-                "Source": "Publication",
-                "Method": "InVitro",
-                "Description": "Karjalainen et al. In vitro inhibition of CYP1A2 by model inhibitors, anti-inflammatory analgesics and female sex steroids: predictability of in vivo interactions. Basic Clin. Pharmacol. Toxicol. 103, 157–65 (2008) and Yao, C. et al. Fluvoxamine-theophylline interaction: gap between in vitro and in vivo inhibition constants toward cytochrome P4501A2. Clin. Pharmacol. Ther. 70, 415–24 (2001)"
-              }
-            }
-          ]
-        },
-        {
-          "InternalName": "CompetitiveInhibition",
-          "DataSource": "Olesen2000/Yao2001",
-          "Molecule": "CYP3A4",
-          "Parameters": [
-            {
-              "Name": "Ki",
-              "Value": 1.6,
-              "Unit": "µmol/l",
-              "ValueOrigin": {
-                "Source": "Publication",
-                "Method": "InVitro",
-                "Description": "Olesen et al. Fluvoxamine-Clozapine drug interaction: inhibition in vitro of five cytochrome P450 isoforms involved in clozapine metabolism. J. Clin. Psychopharmacol. 20, 35–42 (2000) and Yao, C. et al. Fluvoxamine-theophylline interaction: gap between in vitro and in vivo inhibition constants toward cytochrome P4501A2. Clin. Pharmacol. Ther. 70, 415–24 (2001)"
-              }
-            }
-          ]
-        }
-      ],
+      "Processes": [],
       "CalculationMethods": [
         "Cellular partition coefficient method - PK-Sim Standard",
         "Cellular permeability - PK-Sim Standard"
@@ -2832,20 +2717,7 @@
               "GroupName": "COMPOUND_INTESTINAL_PERMEABILITY"
             }
           ],
-          "Processes": [
-            {
-              "Name": "CYP2D6-Miura2007",
-              "MoleculeName": "CYP2D6"
-            },
-            {
-              "Name": "CYP1A2-Fit",
-              "MoleculeName": "CYP1A2"
-            },
-            {
-              "Name": "Glomerular Filtration-4% Urine",
-              "SystemicProcessType": "GFR"
-            }
-          ],
+          "Processes": [],
           "Protocol": {
             "Name": "Chistensen 2002, 10 mg BID, EM",
             "Formulations": [
@@ -3020,20 +2892,7 @@
               "GroupName": "COMPOUND_INTESTINAL_PERMEABILITY"
             }
           ],
-          "Processes": [
-            {
-              "Name": "CYP2D6-Miura2007",
-              "MoleculeName": "CYP2D6"
-            },
-            {
-              "Name": "CYP1A2-Fit",
-              "MoleculeName": "CYP1A2"
-            },
-            {
-              "Name": "Glomerular Filtration-4% Urine",
-              "SystemicProcessType": "GFR"
-            }
-          ],
+          "Processes": [],
           "Protocol": {
             "Name": "Chistensen 2002, 10 mg QD, PM",
             "Formulations": [
@@ -3238,20 +3097,7 @@
               "GroupName": "COMPOUND_INTESTINAL_PERMEABILITY"
             }
           ],
-          "Processes": [
-            {
-              "Name": "CYP2D6-Miura2007",
-              "MoleculeName": "CYP2D6"
-            },
-            {
-              "Name": "CYP1A2-Fit",
-              "MoleculeName": "CYP1A2"
-            },
-            {
-              "Name": "Glomerular Filtration-4% Urine",
-              "SystemicProcessType": "GFR"
-            }
-          ],
+          "Processes": [],
           "Protocol": {
             "Name": "Chistensen 2002, 25 mg BID, EM",
             "Formulations": [
@@ -3426,20 +3272,7 @@
               "GroupName": "COMPOUND_INTESTINAL_PERMEABILITY"
             }
           ],
-          "Processes": [
-            {
-              "Name": "CYP2D6-Miura2007",
-              "MoleculeName": "CYP2D6"
-            },
-            {
-              "Name": "CYP1A2-Fit",
-              "MoleculeName": "CYP1A2"
-            },
-            {
-              "Name": "Glomerular Filtration-4% Urine",
-              "SystemicProcessType": "GFR"
-            }
-          ],
+          "Processes": [],
           "Protocol": {
             "Name": "Chistensen 2002, 25 mg QD, PM",
             "Formulations": [
@@ -3584,20 +3417,7 @@
               "GroupName": "COMPOUND_INTESTINAL_PERMEABILITY"
             }
           ],
-          "Processes": [
-            {
-              "Name": "CYP2D6-Miura2007",
-              "MoleculeName": "CYP2D6"
-            },
-            {
-              "Name": "CYP1A2-Fit",
-              "MoleculeName": "CYP1A2"
-            },
-            {
-              "Name": "Glomerular Filtration-4% Urine",
-              "SystemicProcessType": "GFR"
-            }
-          ],
+          "Processes": [],
           "Protocol": {
             "Name": "Spigset 1997, 50 mg SD",
             "Formulations": [
@@ -3742,20 +3562,7 @@
               "GroupName": "COMPOUND_INTESTINAL_PERMEABILITY"
             }
           ],
-          "Processes": [
-            {
-              "Name": "CYP2D6-Miura2007",
-              "MoleculeName": "CYP2D6"
-            },
-            {
-              "Name": "CYP1A2-Fit",
-              "MoleculeName": "CYP1A2"
-            },
-            {
-              "Name": "Glomerular Filtration-4% Urine",
-              "SystemicProcessType": "GFR"
-            }
-          ],
+          "Processes": [],
           "Protocol": {
             "Name": "Spigset 1997, 50 mg SD",
             "Formulations": [
@@ -3900,20 +3707,7 @@
               "GroupName": "COMPOUND_INTESTINAL_PERMEABILITY"
             }
           ],
-          "Processes": [
-            {
-              "Name": "CYP2D6-Miura2007",
-              "MoleculeName": "CYP2D6"
-            },
-            {
-              "Name": "CYP1A2-Fit",
-              "MoleculeName": "CYP1A2"
-            },
-            {
-              "Name": "Glomerular Filtration-4% Urine",
-              "SystemicProcessType": "GFR"
-            }
-          ],
+          "Processes": [],
           "Protocol": {
             "Name": "Jpanes Society 2015, 30 mg SD, infusion 60min"
           }
@@ -4328,20 +4122,7 @@
               "GroupName": "COMPOUND_INTESTINAL_PERMEABILITY"
             }
           ],
-          "Processes": [
-            {
-              "Name": "CYP2D6-Miura2007",
-              "MoleculeName": "CYP2D6"
-            },
-            {
-              "Name": "CYP1A2-Fit",
-              "MoleculeName": "CYP1A2"
-            },
-            {
-              "Name": "Glomerular Filtration-4% Urine",
-              "SystemicProcessType": "GFR"
-            }
-          ],
+          "Processes": [],
           "Protocol": {
             "Name": "de Vries 1992, 50 mg BID, 28 days",
             "Formulations": [
@@ -4542,20 +4323,7 @@
               "GroupName": "COMPOUND_INTESTINAL_PERMEABILITY"
             }
           ],
-          "Processes": [
-            {
-              "Name": "CYP2D6-Miura2007",
-              "MoleculeName": "CYP2D6"
-            },
-            {
-              "Name": "CYP1A2-Fit",
-              "MoleculeName": "CYP1A2"
-            },
-            {
-              "Name": "Glomerular Filtration-4% Urine",
-              "SystemicProcessType": "GFR"
-            }
-          ],
+          "Processes": [],
           "Protocol": {
             "Name": "Fleishaker 1994, 50 mg QD 3 days, 100 mg QD 7 days",
             "Formulations": [
@@ -4842,20 +4610,7 @@
               "GroupName": "COMPOUND_INTESTINAL_PERMEABILITY"
             }
           ],
-          "Processes": [
-            {
-              "Name": "CYP2D6-Miura2007",
-              "MoleculeName": "CYP2D6"
-            },
-            {
-              "Name": "CYP1A2-Fit",
-              "MoleculeName": "CYP1A2"
-            },
-            {
-              "Name": "Glomerular Filtration-4% Urine",
-              "SystemicProcessType": "GFR"
-            }
-          ],
+          "Processes": [],
           "Protocol": {
             "Name": "Labellarte 2004, 150 mg BID, 7 days",
             "Formulations": [
@@ -5035,20 +4790,7 @@
               "GroupName": "COMPOUND_INTESTINAL_PERMEABILITY"
             }
           ],
-          "Processes": [
-            {
-              "Name": "CYP2D6-Miura2007",
-              "MoleculeName": "CYP2D6"
-            },
-            {
-              "Name": "CYP1A2-Fit",
-              "MoleculeName": "CYP1A2"
-            },
-            {
-              "Name": "Glomerular Filtration-4% Urine",
-              "SystemicProcessType": "GFR"
-            }
-          ],
+          "Processes": [],
           "Protocol": {
             "Name": "SENSITIVITY_300mgQD_10days",
             "Formulations": [
@@ -5475,20 +5217,7 @@
               "GroupName": "COMPOUND_INTESTINAL_PERMEABILITY"
             }
           ],
-          "Processes": [
-            {
-              "Name": "CYP2D6-Miura2007",
-              "MoleculeName": "CYP2D6"
-            },
-            {
-              "Name": "CYP1A2-Fit",
-              "MoleculeName": "CYP1A2"
-            },
-            {
-              "Name": "Glomerular Filtration-4% Urine",
-              "SystemicProcessType": "GFR"
-            }
-          ],
+          "Processes": [],
           "Protocol": {
             "Name": "Spigset 1998, 12.5 mg BID 7 days, 25 mg BID 7 days, 50 mg BID 7 days, 100 mg BID 7 days, 28 days",
             "Formulations": [
@@ -5666,20 +5395,7 @@
               "GroupName": "COMPOUND_INTESTINAL_PERMEABILITY"
             }
           ],
-          "Processes": [
-            {
-              "Name": "CYP2D6-Miura2007",
-              "MoleculeName": "CYP2D6"
-            },
-            {
-              "Name": "CYP1A2-Fit",
-              "MoleculeName": "CYP1A2"
-            },
-            {
-              "Name": "Glomerular Filtration-4% Urine",
-              "SystemicProcessType": "GFR"
-            }
-          ],
+          "Processes": [],
           "Protocol": {
             "Name": "Spigset 1995, 50 mg SD",
             "Formulations": [
@@ -5824,20 +5540,7 @@
               "GroupName": "COMPOUND_INTESTINAL_PERMEABILITY"
             }
           ],
-          "Processes": [
-            {
-              "Name": "CYP2D6-Miura2007",
-              "MoleculeName": "CYP2D6"
-            },
-            {
-              "Name": "CYP1A2-Fit",
-              "MoleculeName": "CYP1A2"
-            },
-            {
-              "Name": "Glomerular Filtration-4% Urine",
-              "SystemicProcessType": "GFR"
-            }
-          ],
+          "Processes": [],
           "Protocol": {
             "Name": "Spigset 1995, 50 mg SD",
             "Formulations": [
@@ -5982,20 +5685,7 @@
               "GroupName": "COMPOUND_INTESTINAL_PERMEABILITY"
             }
           ],
-          "Processes": [
-            {
-              "Name": "CYP2D6-Miura2007",
-              "MoleculeName": "CYP2D6"
-            },
-            {
-              "Name": "CYP1A2-Fit",
-              "MoleculeName": "CYP1A2"
-            },
-            {
-              "Name": "Glomerular Filtration-4% Urine",
-              "SystemicProcessType": "GFR"
-            }
-          ],
+          "Processes": [],
           "Protocol": {
             "Name": "Bahrami 2007, 100 mg SD",
             "Formulations": [
@@ -6140,20 +5830,7 @@
               "GroupName": "COMPOUND_INTESTINAL_PERMEABILITY"
             }
           ],
-          "Processes": [
-            {
-              "Name": "CYP2D6-Miura2007",
-              "MoleculeName": "CYP2D6"
-            },
-            {
-              "Name": "CYP1A2-Fit",
-              "MoleculeName": "CYP1A2"
-            },
-            {
-              "Name": "Glomerular Filtration-4% Urine",
-              "SystemicProcessType": "GFR"
-            }
-          ],
+          "Processes": [],
           "Protocol": {
             "Name": "De Bree 1983, 100mg SD",
             "Formulations": [
@@ -6298,20 +5975,7 @@
               "GroupName": "COMPOUND_INTESTINAL_PERMEABILITY"
             }
           ],
-          "Processes": [
-            {
-              "Name": "CYP2D6-Miura2007",
-              "MoleculeName": "CYP2D6"
-            },
-            {
-              "Name": "CYP1A2-Fit",
-              "MoleculeName": "CYP1A2"
-            },
-            {
-              "Name": "Glomerular Filtration-4% Urine",
-              "SystemicProcessType": "GFR"
-            }
-          ],
+          "Processes": [],
           "Protocol": {
             "Name": "de Vries 1993, 100 mg SD",
             "Formulations": [
@@ -6456,20 +6120,7 @@
               "GroupName": "COMPOUND_INTESTINAL_PERMEABILITY"
             }
           ],
-          "Processes": [
-            {
-              "Name": "CYP2D6-Miura2007",
-              "MoleculeName": "CYP2D6"
-            },
-            {
-              "Name": "CYP1A2-Fit",
-              "MoleculeName": "CYP1A2"
-            },
-            {
-              "Name": "Glomerular Filtration-4% Urine",
-              "SystemicProcessType": "GFR"
-            }
-          ],
+          "Processes": [],
           "Protocol": {
             "Name": "de Vries 1993, 25 mg SD",
             "Formulations": [
@@ -6614,20 +6265,7 @@
               "GroupName": "COMPOUND_INTESTINAL_PERMEABILITY"
             }
           ],
-          "Processes": [
-            {
-              "Name": "CYP2D6-Miura2007",
-              "MoleculeName": "CYP2D6"
-            },
-            {
-              "Name": "CYP1A2-Fit",
-              "MoleculeName": "CYP1A2"
-            },
-            {
-              "Name": "Glomerular Filtration-4% Urine",
-              "SystemicProcessType": "GFR"
-            }
-          ],
+          "Processes": [],
           "Protocol": {
             "Name": "de Vries 1993, 50 mg SD",
             "Formulations": [
@@ -6772,20 +6410,7 @@
               "GroupName": "COMPOUND_INTESTINAL_PERMEABILITY"
             }
           ],
-          "Processes": [
-            {
-              "Name": "CYP2D6-Miura2007",
-              "MoleculeName": "CYP2D6"
-            },
-            {
-              "Name": "CYP1A2-Fit",
-              "MoleculeName": "CYP1A2"
-            },
-            {
-              "Name": "Glomerular Filtration-4% Urine",
-              "SystemicProcessType": "GFR"
-            }
-          ],
+          "Processes": [],
           "Protocol": {
             "Name": "Fukasawa 2006, 50 mg SD",
             "Formulations": [
@@ -6930,20 +6555,7 @@
               "GroupName": "COMPOUND_INTESTINAL_PERMEABILITY"
             }
           ],
-          "Processes": [
-            {
-              "Name": "CYP2D6-Miura2007",
-              "MoleculeName": "CYP2D6"
-            },
-            {
-              "Name": "CYP1A2-Fit",
-              "MoleculeName": "CYP1A2"
-            },
-            {
-              "Name": "Glomerular Filtration-4% Urine",
-              "SystemicProcessType": "GFR"
-            }
-          ],
+          "Processes": [],
           "Protocol": {
             "Name": "Jpanes Society 2015, 100 mg SD",
             "Formulations": [
@@ -7088,20 +6700,7 @@
               "GroupName": "COMPOUND_INTESTINAL_PERMEABILITY"
             }
           ],
-          "Processes": [
-            {
-              "Name": "CYP2D6-Miura2007",
-              "MoleculeName": "CYP2D6"
-            },
-            {
-              "Name": "CYP1A2-Fit",
-              "MoleculeName": "CYP1A2"
-            },
-            {
-              "Name": "Glomerular Filtration-4% Urine",
-              "SystemicProcessType": "GFR"
-            }
-          ],
+          "Processes": [],
           "Protocol": {
             "Name": "Jpanes Society 2015, 200 mg SD",
             "Formulations": [
@@ -7246,20 +6845,7 @@
               "GroupName": "COMPOUND_INTESTINAL_PERMEABILITY"
             }
           ],
-          "Processes": [
-            {
-              "Name": "CYP2D6-Miura2007",
-              "MoleculeName": "CYP2D6"
-            },
-            {
-              "Name": "CYP1A2-Fit",
-              "MoleculeName": "CYP1A2"
-            },
-            {
-              "Name": "Glomerular Filtration-4% Urine",
-              "SystemicProcessType": "GFR"
-            }
-          ],
+          "Processes": [],
           "Protocol": {
             "Name": "Jpanes Society 2015, 25 mg SD",
             "Formulations": [
@@ -7406,20 +6992,7 @@
               "GroupName": "COMPOUND_INTESTINAL_PERMEABILITY"
             }
           ],
-          "Processes": [
-            {
-              "Name": "CYP2D6-Miura2007",
-              "MoleculeName": "CYP2D6"
-            },
-            {
-              "Name": "CYP1A2-Fit",
-              "MoleculeName": "CYP1A2"
-            },
-            {
-              "Name": "Glomerular Filtration-4% Urine",
-              "SystemicProcessType": "GFR"
-            }
-          ],
+          "Processes": [],
           "Protocol": {
             "Name": "Japanese Society 2015, 50 mg SD",
             "Formulations": [
@@ -7566,20 +7139,7 @@
               "GroupName": "COMPOUND_INTESTINAL_PERMEABILITY"
             }
           ],
-          "Processes": [
-            {
-              "Name": "CYP2D6-Miura2007",
-              "MoleculeName": "CYP2D6"
-            },
-            {
-              "Name": "CYP1A2-Fit",
-              "MoleculeName": "CYP1A2"
-            },
-            {
-              "Name": "Glomerular Filtration-4% Urine",
-              "SystemicProcessType": "GFR"
-            }
-          ],
+          "Processes": [],
           "Protocol": {
             "Name": "Kunii 2005, 50 mg SD",
             "Formulations": [
@@ -7724,20 +7284,7 @@
               "GroupName": "COMPOUND_INTESTINAL_PERMEABILITY"
             }
           ],
-          "Processes": [
-            {
-              "Name": "CYP2D6-Miura2007",
-              "MoleculeName": "CYP2D6"
-            },
-            {
-              "Name": "CYP1A2-Fit",
-              "MoleculeName": "CYP1A2"
-            },
-            {
-              "Name": "Glomerular Filtration-4% Urine",
-              "SystemicProcessType": "GFR"
-            }
-          ],
+          "Processes": [],
           "Protocol": {
             "Name": "Orlando 2010, 50 mg SD",
             "Formulations": [
@@ -7882,20 +7429,7 @@
               "GroupName": "COMPOUND_INTESTINAL_PERMEABILITY"
             }
           ],
-          "Processes": [
-            {
-              "Name": "CYP2D6-Miura2007",
-              "MoleculeName": "CYP2D6"
-            },
-            {
-              "Name": "CYP1A2-Fit",
-              "MoleculeName": "CYP1A2"
-            },
-            {
-              "Name": "Glomerular Filtration-4% Urine",
-              "SystemicProcessType": "GFR"
-            }
-          ],
+          "Processes": [],
           "Protocol": {
             "Name": "van Harten 1991, 50 mg SD",
             "Formulations": [

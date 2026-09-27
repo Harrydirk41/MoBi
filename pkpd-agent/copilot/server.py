@@ -969,7 +969,11 @@ def _compounds() -> list[dict]:
                 gmfe = rec.get("held_out_gmfe") or rec.get("in_sample_gmfe")
         # does a structure-blind (hard) variant exist? the toggle is a silent no-op
         # without one, so the UI can disable it per-compound instead of misleading.
-        has_hard = os.path.isfile(snap.replace(".blanked.json", ".hard_blanked.json"))
+        # NB: the replace no-ops on a DDI snapshot ("...ddi_blanked.json" has no
+        # ".blanked.json" boundary), so require the path to actually change — a DDI
+        # task has no hard variant.
+        _hp = snap.replace(".blanked.json", ".hard_blanked.json")
+        has_hard = _hp != snap and os.path.isfile(_hp)
         out.append({"compound": cid, "dir": comp, "label": cid, "kind": kind,
                     "snapshot": snap, "input": inp, "status": status, "gmfe": gmfe,
                     "saved": saved, "has_hard": has_hard})
@@ -1246,7 +1250,8 @@ def _run_agent_locked(run_id, p, q) -> None:
     if p.get("hard"):
         hs = f["snapshot"].replace(".blanked.json", ".hard_blanked.json")
         hi = f["input"].replace(".input.json", ".hard.input.json")
-        if os.path.isfile(hs) and os.path.isfile(hi):
+        # hs==snapshot means the replace no-op'd (e.g. a DDI task) -> no hard variant
+        if hs != f["snapshot"] and os.path.isfile(hs) and os.path.isfile(hi):
             f = {**f, "snapshot": hs, "input": hi}
             hard_active = True
             q.put({"type": "meta", "hard": True})
