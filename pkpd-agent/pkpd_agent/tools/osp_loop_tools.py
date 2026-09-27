@@ -339,9 +339,8 @@ def _fix_given_physchem(estimate: dict, fix: dict, lit: list):
 
     A true measurement (fraction unbound, pKa, solubility) is FIXED at its value.
     LIPOPHILICITY is the exception: in PK-Sim it is an EFFECTIVE distribution
-    parameter that commonly sits up to ~1 log unit off the measured logP (the
-    reference alfentanil model fits 1.85 against a measured 2.16), so pinning it
-    at the measured value biases Vd and can make the model unfittable no matter
+    parameter that commonly sits up to ~1 log unit off the measured logP, so pinning
+    it at the measured value biases Vd and can make the model unfittable no matter
     which distribution method is swept. Instead we keep it ESTIMABLE within a
     bounded window (measured +/- 1 log unit) - narrow enough to keep the method
     identifiable, wide enough to let the effective value settle. Returns
@@ -430,11 +429,6 @@ def register_osp_loop_tools(registry: ToolRegistry, config, ctx: dict) -> None:
     # phase, wrong terminal slope, Cmax/tmax offset) the scalar GMFE hides. On by
     # default; the copilot toggle can turn it off for an ablation.
     fit_vision: bool = bool(ctx.get("fit_vision", True))
-    # MINIMAL / PURIST mode: trust the model's own trial-and-error. Drop the
-    # modeling-scaffold that does part of the modeling FOR it — the method sweep,
-    # the optimizer's directive identifiability recommendations, and the staged-fit
-    # method_guidance. Only the tools + the code-enforced invariants remain.
-    minimal: bool = bool(ctx.get("minimal", False))
 
     _link_cache: dict = {}
 
@@ -500,9 +494,9 @@ def register_osp_loop_tools(registry: ToolRegistry, config, ctx: dict) -> None:
             evaluation_rubric=inp.get("evaluation_rubric"),
             current_model=model,
             observed_overview=_observed_overview(observed),
-            # staged IV->PO + saturable identifiability guidance; withheld in minimal
-            # mode (the model decides its own fit strategy).
-            method_guidance=(None if minimal else _method_guidance(observed)),
+            # staged IV->PO + saturable identifiability guidance (the model still
+            # decides its own fit strategy from it).
+            method_guidance=_method_guidance(observed),
             valid_partition_methods=PARTITION_METHODS,
             valid_permeability_methods=PERMEABILITY_METHODS,
         )
@@ -538,7 +532,7 @@ def register_osp_loop_tools(registry: ToolRegistry, config, ctx: dict) -> None:
         applied = res.get("edits_applied") or {}
         param_list = [{"parameter": k, "value": v, "unit": ""}
                       for k, v in applied.get("parameters", {}).items()]
-        flags = osp_score.plausibility(param_list, hard_only=minimal)
+        flags = osp_score.plausibility(param_list)
 
         overall = score["overall"]
         # track history + best
@@ -847,7 +841,7 @@ def register_osp_loop_tools(registry: ToolRegistry, config, ctx: dict) -> None:
 
         plist = [{"parameter": k, "value": v, "unit": ""}
                  for k, v in r["optimized"].items()]
-        flags = osp_score.plausibility(plist, hard_only=minimal)
+        flags = osp_score.plausibility(plist)
         gmfe = r["fit"].get("gmfe")
         hist = session.get("osp_history") or []
         hist.append({"estimate": list(estimate), "structure": args.get("structure"),
@@ -863,9 +857,7 @@ def register_osp_loop_tools(registry: ToolRegistry, config, ctx: dict) -> None:
                         {"parameters": r["optimized"], "fix": args.get("fix") or {},
                          **(args.get("structure") or {})})
             session.put("osp_best_sensitivity", r.get("sensitivity") or {})
-        # minimal mode: no directive identifiability advice — the raw sensitivity
-        # numbers are still returned; the model draws its own conclusions.
-        recs = [] if minimal else (r.get("recommendations") or [])
+        recs = r.get("recommendations") or []
         # surface the actionable identifiability findings first in the message so
         # the agent acts on them (fix unidentifiable params, refit) rather than
         # re-floating the same parameters next round.
@@ -1277,10 +1269,7 @@ def register_osp_loop_tools(registry: ToolRegistry, config, ctx: dict) -> None:
         railed = bool(best.get("params_at_bound"))
         adequate = best["gmfe"] is not None and best["gmfe"] <= PERM_TRIGGER_GMFE and not railed
         advice = None
-        # MINIMAL mode: the sweep is a numerical search — return the ranking and let
-        # the LLM judge whether the fit is good enough. No "adequate/not-adequate"
-        # verdict (that is the modeling judgement under test).
-        if not adequate and not minimal:
+        if not adequate:
             advice = (f"Best screened GMFE {best['gmfe']} is above the ~{PERM_TRIGGER_GMFE:g} "
                       "soft target"
                       + (", and the winner railed on a bound (so the bound, not the data, is "
@@ -1295,23 +1284,18 @@ def register_osp_loop_tools(registry: ToolRegistry, config, ctx: dict) -> None:
         msg = (f"screened {len(results)} method combo(s), re-fitting {list(estimate)} under each; "
                f"BEST = {best['partition']} / {best['permeability']} -> GMFE {best['gmfe']} "
                f"(best so far {session.get('osp_best_gmfe')}). ")
-        if minimal:
-            msg += ("Best-ranked method adopted; refine with osp_optimize, or re-sweep a "
-                    "different shortlist — your call whether this fit is good enough.")
-        else:
-            msg += (advice if not adequate else
-                    "The distribution method is now chosen - refine with osp_optimize, "
-                    "do NOT re-sweep the same grid.")
+        msg += (advice if not adequate else
+                "The distribution method is now chosen - refine with osp_optimize, "
+                "do NOT re-sweep the same grid.")
         return ToolResult.success(
             msg, ranked_top=ranked_compact,
-            screen_adequate=(None if minimal else adequate), advice=advice,
+            screen_adequate=adequate, advice=advice,
             best={"partition": best["partition"], "permeability": best["permeability"],
                   "gmfe": best["gmfe"], "optimized": best["optimized"]})
 
-    # osp_sweep_methods is a NUMERICAL search tool (a batch optimizer over methods),
-    # so it stays available even in minimal mode — the LLM judges WHICH methods to
-    # sweep (partition_methods/permeability_methods) and reads the ranking itself;
-    # minimal only strips the sweep's "adequate/not-adequate" VERDICT (an opinion).
+    # osp_sweep_methods is a NUMERICAL search tool (a batch optimizer over methods):
+    # the LLM judges WHICH methods to sweep (partition_methods/permeability_methods)
+    # and reads the ranking; the "adequate" flag is EVIDENCE, not a pass/fail command.
     registry.register(Tool(
         name="osp_sweep_methods",
         description=(

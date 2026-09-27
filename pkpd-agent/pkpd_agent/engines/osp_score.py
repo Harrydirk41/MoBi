@@ -490,13 +490,12 @@ def physical_bounds(name: str) -> "tuple[float, float] | None":
     return None
 
 
-def plausibility(params: list[dict], hard_only: bool = False) -> list[dict]:
-    """Flag implausible parameter values. With ``hard_only`` (minimal/purist mode)
-    only PHYSICAL IMPOSSIBILITY is flagged — fraction unbound outside (0, 1], a
-    non-positive clearance/permeability, a GFR fraction outside [0, 1]. The softer
-    biological-plausibility opinions (a lipophilicity range, clearance vs hepatic
-    blood flow) are dropped: judging those is the modeling skill under test, so the
-    model makes that call itself."""
+def plausibility(params: list[dict]) -> list[dict]:
+    """Flag implausible parameter values. PHYSICAL IMPOSSIBILITY is always flagged —
+    fraction unbound outside (0, 1], a non-positive clearance/permeability, a GFR
+    fraction outside [0, 1] — alongside softer biological-plausibility advisories (a
+    lipophilicity range, clearance vs hepatic blood flow). All are advisory notes the
+    modeler weighs; none is a hard constraint on the fit."""
     flags = []
     for p in params or []:
         name = (p.get("parameter") or "").lower()
@@ -509,12 +508,12 @@ def plausibility(params: list[dict], hard_only: bool = False) -> list[dict]:
             if not 0 < v <= 1:
                 bad = "fraction unbound must be in (0, 1]"
         elif "lipophil" in name or name in ("logp", "logd"):
-            if not hard_only and not -2 <= v <= 7:      # soft opinion
+            if not -2 <= v <= 7:                        # soft opinion
                 bad = "lipophilicity expected within [-2, 7]"
         elif "clearance" in name or re.search(r"\bcl\b", name):
             if v <= 0:
                 bad = "clearance must be > 0"
-            elif not hard_only and "l/min" in unit and v > 1.5:   # soft opinion
+            elif "l/min" in unit and v > 1.5:           # soft opinion
                 bad = "clearance > ~1.5 L/min exceeds adult hepatic blood flow"
         elif "permeab" in name and v <= 0:
             bad = "permeability must be > 0"

@@ -155,7 +155,7 @@ def _run_record_path(compound: str) -> str:
 # every /api/models poll, for every compound) reads this instead of json-parsing the
 # whole trace file just to show a GMFE and a timestamp.
 _SUMMARY_KEYS = ("compound", "ts", "model", "hard", "web", "self_extract",
-                 "fit_vision", "minimal", "in_sample_gmfe", "held_out_gmfe", "blind")
+                 "fit_vision", "in_sample_gmfe", "held_out_gmfe", "blind")
 
 
 def _run_summary_path(compound: str) -> str:
@@ -205,7 +205,6 @@ def _persist_run(compound: str, events: list, p: dict) -> None:
             "model": p.get("model"), "hard": bool(p.get("hard")),
             "web": bool(p.get("web")), "self_extract": bool(p.get("self_extract")),
             "fit_vision": bool(p.get("fit_vision", True)),
-            "minimal": bool(p.get("minimal")),
             "in_sample_gmfe": done.get("best_gmfe"),
             "held_out_gmfe": held,               # from the pipeline report; /api/runs/<c>/grade can still set it
             "best_edits": done.get("best_edits"),
@@ -1297,8 +1296,7 @@ def _run_agent_locked(run_id, p, q) -> None:
         "observed": build_obs, "input": inp_agent,
         "context_reports": context_reports,
         "self_extract": bool(ctx_report),
-        "fit_vision": p.get("fit_vision", True),     # let the model SEE its fit curves
-        "minimal": p.get("minimal", False)})         # purist mode: drop modeling-scaffold
+        "fit_vision": p.get("fit_vision", True)})    # let the model SEE its fit curves
     if ctx_report:
         register_context_tools(registry, cfg, {
             "report_path": ctx_report, "data_dir": ctx_data, "input": inp_agent})
@@ -1307,9 +1305,6 @@ def _run_agent_locked(run_id, p, q) -> None:
         q.put({"type": "meta", "web": True})
     if p.get("fit_vision", True):            # the model sees its own fit overlays
         q.put({"type": "meta", "fit_vision": True})
-    minimal = bool(p.get("minimal"))
-    if minimal:                              # purist mode: tools + invariants + stop rule only
-        q.put({"type": "meta", "minimal": True})
 
     goal = f"{inp.get('objective', 'Build the PBPK model.')}\n\n"
     if note:                                 # modeler steering from the composer
@@ -1320,8 +1315,7 @@ def _run_agent_locked(run_id, p, q) -> None:
                  "PBPK model, and build on what has been done - cite what you use.\n\n")
     goal += "Start with osp_inspect, then determine the model and call osp_optimize."
     policy = LLMPolicy(cfg, registry,
-                       R._system_prompt(1.6, self_extract=bool(ctx_report), web=web,
-                                        minimal=minimal),
+                       R._system_prompt(1.6, self_extract=bool(ctx_report), web=web),
                        web=web,
                        on_web=lambda e: q.put({"type": "web", **e}))   # stream web activity live
     loop = DecisionLoop(config=cfg, registry=registry, policy=policy)
@@ -1591,7 +1585,6 @@ def create_app():
                   "hard": bool(payload.get("hard")), "web": bool(payload.get("web")),
                   # fit-vision defaults ON: the modeler chose "best modeling"
                   "fit_vision": bool(payload.get("fit_vision", True)),
-                  "minimal": bool(payload.get("minimal")),   # purist mode (default off)
                   "note": payload.get("note")}
         threading.Thread(target=_run_agent, args=(run_id, params), daemon=True).start()
         return JSONResponse({"run_id": run_id})
