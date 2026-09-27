@@ -278,7 +278,7 @@ def run_optimization(cli: OSPCli, snapshot_path: str, observed: list[dict],
             observed_sub if sims is subset else observed, linkage)
         return predicted, res
 
-    state = {"n_ok": 0}                       # did the model ever run at all?
+    state = {"n_ok": 0, "n_scored": 0}        # did the model run / ever score a point?
 
     def objective(x):
         xc = np.clip(x, lx, hx)
@@ -300,6 +300,8 @@ def run_optimization(cli: OSPCli, snapshot_path: str, observed: list[dict],
             return 1e6 + penalty
         state["n_ok"] += 1
         sse, npts = _log_sse(observed_sub, predicted)
+        if npts > 0:
+            state["n_scored"] += 1
         history.append({"values": values, "log_sse": round(sse, 5), "n": npts})
         if on_eval:
             on_eval(len(history), values, round(sse, 5))
@@ -324,6 +326,24 @@ def run_optimization(cli: OSPCli, snapshot_path: str, observed: list[dict],
                             "run produce nothing. This is a STRUCTURE/configuration "
                             "problem - fix the model setup (methods/processes/"
                             "parameter keys), not the bounds."),
+                "n_evals": len(history)}
+    # The model BUILT and ran, but not one evaluation scored a single point (every
+    # simulated curve was empty / non-overlapping with the observed times). Returning
+    # the "best" here would be a meaningless garbage fit, so fail loudly with an
+    # actionable message instead — the cause is a DEGENERATE model, not the bounds.
+    if state["n_ok"] > 0 and state["n_scored"] == 0:
+        return {"ok": False, "scored_nothing": True,
+                "message": (f"the model built and ran on all {len(history)} attempts but "
+                            "not one produced a scorable curve — every simulation was "
+                            "empty or ended before the observed sample times (n=0 points "
+                            "matched). This is a DEGENERATE MODEL, not a bounds problem: a "
+                            "clearance parameter is likely stuck at/near zero (no "
+                            "elimination), a fitted value railed to a physically "
+                            "meaningless extreme, or the added process has no effect. "
+                            "Check that every clearance process actually has its rate "
+                            "fitted (not left at a 0 default), and that estimate bounds "
+                            "bracket physically sensible values, then retry. Parameters "
+                            f"attempted: {', '.join(names)}."),
                 "n_evals": len(history)}
     best = np.clip(res.x, lx, hx)
     optimized = {n: _to_value(best[i], is_log[i]) for i, n in enumerate(names)}

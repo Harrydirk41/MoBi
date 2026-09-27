@@ -201,6 +201,30 @@ class TestEarlyAbortOnBrokenModel(unittest.TestCase):
         self.assertTrue(any(len(a) >= 4 and a[3] and "MapToModel" in a[3]
                             for a in seen))
 
+    class _DegenerateCli:
+        """Builds fine, but every simulated curve is off the observed time window,
+        so nothing ever scores (n=0) — a degenerate model."""
+        def simulation_names(self, p):
+            return ["StudyA - PO - 10 mg"]
+
+        def build_and_run(self, path, edits=None, simulations=None,
+                          prune_simulations=False):
+            from pkpd_agent.engines.osp_cli import PredictedProfile
+            prof = PredictedProfile(simulation="StudyA - PO - 10 mg", study="StudyA",
+                                    route="PO", dose="10 mg",
+                                    time_h=[100.0, 200.0], conc_mg_L=[1.0, 1.0])
+            return {"ok": True, "profiles": [prof]}
+
+    def test_scored_nothing_fails_loudly_not_garbage_fit(self):
+        cli = self._DegenerateCli()
+        obs = [{"dataset": "StudyA - PO - 10 mg", "study": "StudyA", "route": "PO",
+                "dose": "10 mg", "time_h": [1, 2, 4], "conc_mg_L": [0.1, 0.08, 0.05]}]
+        r = run_optimization(cli, "snap.json", obs,
+                             estimate={"Intrinsic clearance": [0.01, 50]}, max_evals=40)
+        self.assertFalse(r["ok"])
+        self.assertTrue(r.get("scored_nothing"))
+        self.assertIn("DEGENERATE", r["message"])
+
 
 class TestIdentifiabilityActions(unittest.TestCase):
     """The optimizer must turn identifiability evidence into concrete actions so
