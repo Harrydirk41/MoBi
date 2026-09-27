@@ -532,10 +532,22 @@ def _reference_answer(f: dict) -> "dict | None":
                 return _short_method(s)
         return None
     procs = sc.get("metabolizing_processes") or sc.get("processes") or []
+    # "Clearing molecules" must count only processes that actually CLEAR the drug
+    # (metabolization / transport), NOT interaction processes (the drug inhibits or
+    # induces an enzyme) nor target BINDING (a pharmacodynamic receptor). Fluvoxamine
+    # is cleared by CYP1A2 + CYP2D6 but only INHIBITS CYP3A4 (CompetitiveInhibition);
+    # midazolam is cleared by CYP3A4 + UGT1A4 but BINDS GABRG2 (SpecificBinding) as its
+    # target. Lumping those in wrongly showed them as reference clearance pathways and
+    # penalized the agent for omitting them.
+    def _clears(p):
+        t = (p.get("type") or "").lower()
+        return not any(w in t for w in ("inhibition", "induction", "inducer",
+                                        "inhibitor", "binding"))
     return {
         "partition": m_of("partition"),
         "permeability": m_of("permeab"),
-        "molecules": sorted({p.get("molecule") for p in procs if isinstance(p, dict) and p.get("molecule")}),
+        "molecules": sorted({p.get("molecule") for p in procs
+                             if isinstance(p, dict) and p.get("molecule") and _clears(p)}),
         "parameters": {e.get("parameter"): e.get("value") for e in ak.get("estimated_parameters") or []},
     }
 
