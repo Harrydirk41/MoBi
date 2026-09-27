@@ -139,19 +139,22 @@ class TestMapping(unittest.TestCase):
         self.assertIn("Greiner.DDI.arm", unm)          # unmapped extra excluded
         self.assertNotIn("Greiner.DDI.arm", by)
 
-    def test_linkage_matches_despite_pksim_illegal_char_stripping(self):
-        """PK-Sim names each result dir with RemoveIllegalCharactersFrom(simName), so a
-        per-kg dose sim ('... 0.05 mg/kg') comes back as '... 0.05 mgkg' (the '/' is
-        stripped). The OutputMappings linkage still holds the RAW name, so matching must
-        normalize both sides or a per-kg-dosed compound (e.g. alfentanil) matches nothing."""
+    def test_linkage_matches_despite_pksim_illegal_char_replacement(self):
+        """PK-Sim names each result dir with RemoveIllegalCharactersFrom(simName), which
+        REPLACES '/' with '_', so a per-kg dose sim ('... 0.05 mg/kg') comes back as
+        '... 0.05 mg_kg'. The OutputMappings linkage still holds the RAW name, so matching
+        must normalize both sides the SAME way (replace, not strip) or a per-kg-dosed
+        compound (e.g. alfentanil, every sim 'mg/kg') matches nothing and the fit blows up."""
         link = {"Ferrier.iv": "Ferrier 1985, Alfentanil iv 0.05 mg/kg"}
-        # profile name as read back from the run's output directory (slash stripped):
-        profiles = [PredictedProfile("Ferrier 1985, Alfentanil iv 0.05 mgkg",
+        # profile name as read back from the run's output directory ('/' -> '_'):
+        profiles = [PredictedProfile("Ferrier 1985, Alfentanil iv 0.05 mg_kg",
                                      None, None, None, [1, 2], [0.5, 0.2])]
         observed = [_obs("Ferrier.iv", "Ferrier 1985", "iv", "0.05 mg/kg", [1, 2], [0.4, 0.18])]
         pred, unm = osp_score.map_predictions(profiles, observed, linkage=link)
-        self.assertEqual(len(pred), 1)                  # matched despite the '/' stripping
+        self.assertEqual(len(pred), 1)                  # matched despite '/' -> '_'
         self.assertEqual(unm, [])
+        # sanity: the normalizer replaces (not strips) the illegal char
+        self.assertEqual(osp_score._sim_key("a/b:c*d"), "a_b_c_d")
 
 
 class TestMetrics(unittest.TestCase):

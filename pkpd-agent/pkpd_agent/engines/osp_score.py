@@ -248,18 +248,21 @@ def linkage_from_snapshot(snap: dict) -> dict[str, str]:
     return link
 
 
-# characters PK-Sim's FileHelper.RemoveIllegalCharactersFrom strips when it names a
-# result file/dir from a simulation name (the Windows invalid-filename set, a superset
-# of Linux's, so the comparison holds whichever OS generated the reference dirs).
-_ILLEGAL_FILE_CHARS = '<>:"/\\|?*'
-_ILLEGAL_FILE_RE = re.compile("[" + re.escape(_ILLEGAL_FILE_CHARS) + "\x00-\x1f]")
+# PK-Sim names each result file/dir with OSPSuite.Utility FileHelper
+# .RemoveIllegalCharactersFrom(simName), which REPLACES each of these characters with
+# an underscore (verified against the OSPSuite.Utility source - note it is NOT the
+# standard Windows set: it omits the double quote and includes the braces).
+_ILLEGAL_FILE_CHARS = ("\\", "/", ":", "*", "?", "<", ">", "|", "{", "}")
 
 
 def _sim_key(name: "str | None") -> str:
     """A simulation name normalized the way PK-Sim's result-file naming normalizes it,
     so a linkage entry (raw snapshot name, e.g. '... 0.05 mg/kg') matches the profile
-    read back from the run's output directory (illegal chars stripped, e.g. '0.05 mgkg')."""
-    return _ILLEGAL_FILE_RE.sub("", name or "")
+    read back from the run's output directory ('/' -> '_', e.g. '... 0.05 mg_kg')."""
+    s = name or ""
+    for c in _ILLEGAL_FILE_CHARS:
+        s = s.replace(c, "_")
+    return s
 
 
 def map_predictions(profiles: list, observed: list[dict], linkage: dict | None = None):

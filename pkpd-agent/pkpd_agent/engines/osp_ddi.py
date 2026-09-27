@@ -26,6 +26,7 @@ from typing import Any
 from .osp_cli import OSPCli
 from . import osp_catalog
 from .osp_catalog import INTERACTION_PROCESS_TYPES
+from .osp_score import _sim_key
 
 # InternalNames that mark a compound as a perpetrator (inhibition / induction)
 _INTERACTION_INTERNAL_NAMES = {s["internal_name"]
@@ -195,7 +196,12 @@ def interaction_ratios(pairs: list, profiles_by_sim: dict) -> list[dict[str, Any
     VICTIM compound (the measured plasma), control and treatment alike."""
     out = []
     for pr in pairs:
-        c, t = profiles_by_sim.get(pr["control"]), profiles_by_sim.get(pr["treatment"])
+        # PK-Sim replaces illegal chars in the result-dir name, so profiles_by_sim is
+        # keyed by the normalized name; the pair's control/treatment are RAW snapshot
+        # names -> normalize the lookup the same way (else a per-kg / special-char sim
+        # silently drops the whole DDI pair).
+        c, t = (profiles_by_sim.get(_sim_key(pr["control"])),
+                profiles_by_sim.get(_sim_key(pr["treatment"])))
         if not c or not t:
             continue
         ac, at = _auc(c["time_h"], c["conc"]), _auc(t["time_h"], t["conc"])
@@ -256,7 +262,7 @@ def run_ddi_prediction(cli, snapshot_path: str, ddi: dict, victim: str,
                             prune_simulations=True, target_molecule=victim)
     if not res.get("ok"):
         return {"ok": False, "message": res.get("message"), "edits_applied": res.get("edits_applied")}
-    profiles_by_sim = {p.simulation: {"time_h": p.time_h, "conc": p.conc_mg_L}
+    profiles_by_sim = {_sim_key(p.simulation): {"time_h": p.time_h, "conc": p.conc_mg_L}
                        for p in res["profiles"]}
     predicted = interaction_ratios(pairs, profiles_by_sim)
     out = {"ok": True, "victim": victim, "predicted_ratios": predicted,
