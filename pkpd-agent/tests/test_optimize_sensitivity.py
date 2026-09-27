@@ -34,7 +34,7 @@ class TestLocalSensitivity(unittest.TestCase):
     def test_flat_parameter_ranks_near_zero(self):
         s = _local_sensitivity(self._eval_at, self._log_sse, [], ["s1"],
                                self.optimized, self.names, self.best,
-                               self.lx, self.hx)
+                               self.lx, self.hx, [True] * len(self.names))
         self.assertEqual(s["p_strong"]["relative"], 1.0)   # most influential
         self.assertLess(s["p_weak"]["relative"], 0.05)     # data ignores it
         self.assertEqual(s["p_weak"]["obj_change"], 0.0)
@@ -62,7 +62,7 @@ class TestCollinearity(unittest.TestCase):
             return ((math.log10(pred["a"]) + math.log10(pred["b"])) ** 2, 1)
         s = _local_sensitivity(self._eval_at, log_sse, [], ["s1"],
                                self.optimized, self.names, self.best,
-                               self.lx, self.hx)
+                               self.lx, self.hx, [True] * len(self.names))
         # both look influential one-at-a-time
         self.assertGreater(s["a"]["relative"], 0.5)
         self.assertGreater(s["b"]["relative"], 0.5)
@@ -76,7 +76,7 @@ class TestCollinearity(unittest.TestCase):
             return (math.log10(pred["a"]) ** 2 + math.log10(pred["b"]) ** 2, 1)
         s = _local_sensitivity(self._eval_at, log_sse, [], ["s1"],
                                self.optimized, self.names, self.best,
-                               self.lx, self.hx)
+                               self.lx, self.hx, [True] * len(self.names))
         self.assertLess(s["a"]["collinearity"], 0.5)
 
 
@@ -126,6 +126,43 @@ class TestLinkedScaleFit(unittest.TestCase):
         self.assertEqual(r["sensitivity"]["CLa"].get("linked_group"),
                          r["sensitivity"]["CLb"].get("linked_group"))
         self.assertTrue(r.get("link_scales"))
+
+
+class TestLipophilicityLinearFit(unittest.TestCase):
+    """Lipophilicity is a LOG quantity already (logP) and may be <= 0, so it must be
+    fit in LINEAR space. Fitting it in log10 (the default) with a lower bound of 0
+    starts the search at an absurd ~0.004 and produces degenerate simulations —
+    the failure that makes a free-lipophilicity fit 'blow up'."""
+
+    class _LipCli:
+        def simulation_names(self, p):
+            return ["S"]
+
+        def build_and_run(self, path, edits=None, simulations=None,
+                          prune_simulations=False):
+            from pkpd_agent.engines.osp_cli import PredictedProfile
+            lip = (edits or {}).get("parameters", {}).get("Lipophilicity", 0.0)
+            conc = max(lip, 1e-6)                         # model conc == lipophilicity
+            prof = PredictedProfile(simulation="S", study="S", route="IV",
+                                    dose="10 mg", time_h=[1.0, 2.0],
+                                    conc_mg_L=[conc, conc])
+            return {"ok": True, "profiles": [prof]}
+
+    def _obs(self):
+        return [{"dataset": "S", "study": "S", "route": "IV", "dose": "10 mg",
+                 "time_h": [1.0, 2.0], "conc_mg_L": [2.5, 2.5]}]
+
+    def test_starts_at_linear_midpoint_and_recovers_value(self):
+        attempts = []
+        r = run_optimization(
+            self._LipCli(), "snap.json", self._obs(),
+            estimate={"Lipophilicity": [0, 4]}, fit_simulations=["S"], max_evals=100,
+            on_eval=lambda i, vals, sse, *a: attempts.append(vals["Lipophilicity"]))
+        self.assertTrue(r["ok"], r.get("message"))
+        # LINEAR search: start is the linear midpoint of [0,4], not the log ~0.004
+        self.assertAlmostEqual(attempts[0], 2.0, delta=0.01)
+        # and a bound starting at 0 no longer breaks the fit
+        self.assertAlmostEqual(r["optimized"]["Lipophilicity"], 2.5, delta=0.3)
 
 
 class TestEarlyAbortOnBrokenModel(unittest.TestCase):

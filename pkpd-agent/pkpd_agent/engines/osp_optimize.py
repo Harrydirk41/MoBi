@@ -27,6 +27,21 @@ from .osp_cli import OSPCli
 _ABORT_AFTER = 3
 
 
+def _is_linear_fit(name: str) -> bool:
+    """Parameters fit in LINEAR space, not the default log10. LIPOPHILICITY is the key
+    case: it is ALREADY a log quantity (logP/logD) and can be zero or negative, so
+    log10-transforming it is a category error — a bound like [0, 4] makes log10(lo)
+    -inf, the search starts at an absurd ~0.004, and every simulation comes out
+    degenerate (this is what makes a free-lipophilicity fit 'blow up'). Fit it on its
+    own linear scale instead."""
+    n = (name or "").split("@", 1)[0].strip().lower()
+    return "lipophil" in n or n in ("logp", "logd")
+
+
+def _to_value(x: float, is_log: bool) -> float:
+    return float(10 ** x) if is_log else float(x)
+
+
 class _ModelNeverRan(Exception):
     """Raised inside the objective when the model fails to build/run repeatedly
     before any successful evaluation - a structural error, not a fitting one."""
@@ -172,16 +187,20 @@ def run_optimization(cli: OSPCli, snapshot_path: str, observed: list[dict],
                    + [float(g["bounds"][1]) for g in groups], float)
     if len(names) == 0:
         return {"ok": False, "message": "nothing to estimate"}
-    # the fit runs in log10 space, so bounds must be strictly positive with hi>lo.
-    # A non-positive UPPER bound (or hi<=lo) is genuinely broken -> fail. But a
-    # lower bound of 0 is a common, benign ">= 0" intent; clamp it to a small
-    # fraction of the upper bound rather than failing the whole call and forcing
-    # the agent to burn a retry.
-    if np.any(his <= 0) or np.any(his <= los):
-        return {"ok": False, "message": "each parameter needs bounds [lo, hi] with "
-                "0 <= lo < hi and hi > 0 (the fit is in log space)"}
-    clamped = [names[i] for i in range(len(los)) if los[i] <= 0]
-    los = np.where(los <= 0, his * 1e-6, los)
+    # Most parameters (clearance, permeability, Km) span orders of magnitude and are
+    # fit in log10 space; LIPOPHILICITY is fit LINEARLY (it is already a log and may be
+    # <= 0). Bounds must be ordered; log-fit params additionally need positive bounds.
+    is_log = np.array([not _is_linear_fit(n) for n in names])
+    if np.any(his <= los):
+        return {"ok": False, "message": "each parameter needs bounds [lo, hi] with lo < hi"}
+    if np.any(his[is_log] <= 0):
+        return {"ok": False, "message": "a log-fit parameter needs bounds with hi > 0 "
+                "(lipophilicity may be <= 0 and is fit linearly)"}
+    # a lower bound of 0 on a LOG-fit param is a benign ">= 0" intent; clamp it to a
+    # small fraction of the upper bound rather than failing. Linear params keep lo as-is.
+    _needs_clamp = is_log & (los <= 0)
+    clamped = [names[i] for i in range(len(los)) if _needs_clamp[i]]
+    los = np.where(_needs_clamp, his * 1e-6, los)
 
     def expand(values: dict[str, float]) -> dict[str, float]:
         """Map optimization variables -> actual parameters: a group scale expands
@@ -240,7 +259,9 @@ def run_optimization(cli: OSPCli, snapshot_path: str, observed: list[dict],
     except (OSError, ValueError):
         linkage = None
 
-    lx, hx = np.log10(los), np.log10(his)
+    # search space: log10 for log-fit params, the raw value for linear-fit params
+    lx = np.array([np.log10(los[i]) if is_log[i] else los[i] for i in range(len(names))])
+    hx = np.array([np.log10(his[i]) if is_log[i] else his[i] for i in range(len(names))])
     history: list[dict] = []
 
     def eval_at(values: dict[str, float], sims):
@@ -262,7 +283,7 @@ def run_optimization(cli: OSPCli, snapshot_path: str, observed: list[dict],
     def objective(x):
         xc = np.clip(x, lx, hx)
         penalty = float(np.sum((x - xc) ** 2)) * 10.0
-        values = {n: float(10 ** xc[i]) for i, n in enumerate(names)}
+        values = {n: _to_value(xc[i], is_log[i]) for i, n in enumerate(names)}
         predicted, res = eval_at(values, subset)
         if predicted is None:
             err = res.get("message")
@@ -305,7 +326,7 @@ def run_optimization(cli: OSPCli, snapshot_path: str, observed: list[dict],
                             "parameter keys), not the bounds."),
                 "n_evals": len(history)}
     best = np.clip(res.x, lx, hx)
-    optimized = {n: float(10 ** best[i]) for i, n in enumerate(names)}
+    optimized = {n: _to_value(best[i], is_log[i]) for i, n in enumerate(names)}
 
     # parameters that hit a bound (within ~3% in log space) -> identifiability flag
     at_bound = []
@@ -333,7 +354,7 @@ def run_optimization(cli: OSPCli, snapshot_path: str, observed: list[dict],
         overlay = osp_score.overlay_series(observed_sub, predicted_sub)
     else:
         sensitivity = _local_sensitivity(eval_at, _log_sse, observed_sub, subset,
-                                         optimized, names, best, lx, hx)
+                                         optimized, names, best, lx, hx, is_log)
 
         # turn the identifiability EVIDENCE into concrete next-step ACTIONS so the
         # agent stops floating parameters the data cannot pin (the lipophilicity->0
@@ -382,7 +403,7 @@ def run_optimization(cli: OSPCli, snapshot_path: str, observed: list[dict],
 
 
 def _local_sensitivity(eval_at, log_sse, observed_sub, subset, optimized, names,
-                       best, lx, hx, step: float = 0.15) -> dict:
+                       best, lx, hx, is_log, step: float = 0.15) -> dict:
     """One-at-a-time local sensitivity around the fitted optimum.
 
     For each estimated parameter, multiply/divide it by 10**step (others held at
@@ -403,7 +424,7 @@ def _local_sensitivity(eval_at, log_sse, observed_sub, subset, optimized, names,
             if abs(xp - best[i]) < 1e-9:
                 continue
             pert = dict(optimized)
-            pert[n] = float(10 ** xp)
+            pert[n] = _to_value(xp, is_log[i])
             pred, _ = eval_at(pert, subset)
             if pred is None:
                 continue
@@ -411,7 +432,7 @@ def _local_sensitivity(eval_at, log_sse, observed_sub, subset, optimized, names,
         raw[n] = (sum(deltas) / len(deltas)) if deltas else 0.0
     top = max(raw.values()) if raw else 0.0
     coll = _collinearity(eval_at, log_sse, observed_sub, subset, optimized,
-                         names, best, lx, hx, base, step)
+                         names, best, lx, hx, is_log, base, step)
     out = {}
     for n, v in raw.items():
         partner, c = coll.get(n, (None, 0.0))
@@ -422,7 +443,7 @@ def _local_sensitivity(eval_at, log_sse, observed_sub, subset, optimized, names,
 
 
 def _collinearity(eval_at, log_sse, observed_sub, subset, optimized, names,
-                  best, lx, hx, base, step: float = 0.15) -> dict:
+                  best, lx, hx, is_log, base, step: float = 0.15) -> dict:
     """Pairwise collinearity (trade-off) around the fitted optimum.
 
     One-at-a-time sensitivity is blind to *correlated* parameters: two clearances
@@ -447,7 +468,7 @@ def _collinearity(eval_at, log_sse, observed_sub, subset, optimized, names,
         pert = dict(optimized)
         for k, dk in ((i, dj_i), (j, dj_j)):
             xp = float(np.clip(best[k] + dk, lx[k], hx[k]))
-            pert[names[k]] = float(10 ** xp)
+            pert[names[k]] = _to_value(xp, is_log[k])
         pred, _ = eval_at(pert, subset)
         if pred is None:
             return None
