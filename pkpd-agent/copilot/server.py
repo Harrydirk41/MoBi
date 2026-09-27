@@ -63,6 +63,26 @@ def _rw_series(project: str, kind: str = "test", cap: int = 400) -> list[dict]:
 
 # ---- runs registry -------------------------------------------------------- #
 _RUNS: dict[str, dict] = {}
+_RUNS_KEEP = 40                       # cap on retained finished runs (each holds its full log)
+_RUNS_TTL_S = 3600                    # drop a finished run's in-memory log after this long
+
+
+def _prune_runs() -> None:
+    """Drop old FINISHED runs so _RUNS (and each run's recorded event log) does not
+    grow without bound over a long-lived server. A finished run's trace is persisted to
+    disk (_persist_run) and reloadable, so dropping the in-memory copy is safe once it
+    is old or we are over the cap. Live/unfinished runs are always kept."""
+    import time as _t
+    now = _t.time()
+    done = [(rid, r) for rid, r in _RUNS.items() if r.get("done")]
+    stale = {rid for rid, r in done
+             if r.get("done_ts") and now - r["done_ts"] > _RUNS_TTL_S}
+    if len(done) - len(stale) > _RUNS_KEEP:            # still over cap: drop oldest done
+        extra = sorted((r for r in done if r[0] not in stale),
+                       key=lambda kv: kv[1].get("done_ts") or 0)
+        stale.update(rid for rid, _ in extra[: len(done) - len(stale) - _RUNS_KEEP])
+    for rid in stale:
+        _RUNS.pop(rid, None)
 
 
 class _LoggingQueue(queue.Queue):
@@ -84,13 +104,16 @@ class _LoggingQueue(queue.Queue):
         self._lock = threading.Lock()
 
     def put(self, item, *a, **k):
+        # Record to the replay log and fan out to live subscribers. We deliberately do
+        # NOT call super().put(): nothing ever .get()s from this base queue (every
+        # consumer reads its OWN subscriber queue via subscribe()), so storing there too
+        # only grew an unbounded, never-drained buffer for the run's whole lifetime.
         if isinstance(item, dict):
             with self._lock:
                 self.log.append(item)
                 subs = list(self._subs)
             for s in subs:
                 s.put(item)
-        return super().put(item, *a, **k)
 
     def subscribe(self):
         """Register a live subscriber. Returns (backlog_snapshot, sub_queue); the
@@ -108,12 +131,59 @@ class _LoggingQueue(queue.Queue):
                 self._subs.remove(s)
 
 
+def _variant_stem(f: dict) -> str:
+    """The benchmark BASE stem for a compound variant (matches the scoreboard's
+    `base`): the blanked snapshot's filename minus its variant suffix. Used to locate
+    the variant's OWN reference model / input / answer key, so a pediatric or DDI
+    report is not compared against the ADULT reference."""
+    base = os.path.basename(f.get("snapshot") or "")
+    for suf in (".ddi_blanked.json", ".hard_blanked.json", ".blanked.json"):
+        if base.endswith(suf):
+            return base[: -len(suf)]
+    return f.get("dir") or ""
+
+
 def _run_record_path(compound: str) -> str:
     # resolve the base dir WITHOUT _find/_task_dir (which would recurse through
     # _compounds -> _load_run -> here); a variant cid is "<Dir> · pediatric/DDI".
     comp_dir = str(compound).split(" · ")[0]
     slug = "".join(ch if ch.isalnum() else "_" for ch in str(compound))
     return os.path.join(_LIB, comp_dir, "report", f"copilot_run__{slug}.json")
+
+
+# summary sidecar: the run's outcome fields ONLY, no event trace. _compounds() (hit on
+# every /api/models poll, for every compound) reads this instead of json-parsing the
+# whole trace file just to show a GMFE and a timestamp.
+_SUMMARY_KEYS = ("compound", "ts", "model", "hard", "web", "self_extract",
+                 "fit_vision", "minimal", "in_sample_gmfe", "held_out_gmfe", "blind")
+
+
+def _run_summary_path(compound: str) -> str:
+    return _run_record_path(compound)[: -len(".json")] + ".summary.json"
+
+
+def _write_run_summary(compound: str, rec: dict) -> None:
+    try:
+        with open(_run_summary_path(compound), "w", encoding="utf-8") as fh:
+            json.dump({k: rec.get(k) for k in _SUMMARY_KEYS}, fh)
+    except OSError:
+        pass
+
+
+def _load_run_summary(compound: str) -> "dict | None":
+    """The slim outcome of a persisted run (no event trace). Falls back to the full
+    record — and back-fills the sidecar — for runs saved before sidecars existed."""
+    sp = _run_summary_path(compound)
+    if os.path.isfile(sp):
+        try:
+            return json.load(open(sp, encoding="utf-8"))
+        except (OSError, ValueError):
+            pass
+    rec = _load_run(compound)
+    if rec:
+        _write_run_summary(compound, rec)
+        return {k: rec.get(k) for k in _SUMMARY_KEYS}
+    return None
 
 
 def _persist_run(compound: str, events: list, p: dict) -> None:
@@ -148,6 +218,7 @@ def _persist_run(compound: str, events: list, p: dict) -> None:
         os.makedirs(os.path.dirname(path), exist_ok=True)
         with open(path, "w", encoding="utf-8") as fh:
             json.dump(rec, fh)
+        _write_run_summary(compound, rec)          # slim sidecar for /api/models polls
     except Exception:                            # noqa: BLE001
         pass
 
@@ -415,8 +486,8 @@ def _try_model(f: dict, edits: dict, subset: str = "building") -> dict:
         series.append({
             "study": o.get("study") or o["dataset"], "route": o.get("route", ""),
             "dose": o.get("dose", ""),
-            "observed": [[t, c] for t, c in zip(o.get("time_h", []), o.get("conc_mg_L", []))
-                         if c is not None],
+            "observed": _downsample([[t, c] for t, c in zip(o.get("time_h", []), o.get("conc_mg_L", []))
+                                     if c is not None]),
             "simulated": _downsample([[t, c] for t, c in zip(p["time_h"], p["pred_conc_mg_L"])
                                       if c is not None]) if p else []})
     return {"ok": True, "gmfe": gmfe, "by_route": by_route, "pk_gmfe": pk_gmfe,
@@ -430,10 +501,23 @@ def _short_method(s: str) -> str:
 
 def _reference_answer(f: dict) -> "dict | None":
     """The reference (ground-truth) structure + fitted values from the answer key.
-    POST-HOC only — used to build the report's comparison, never handed to the agent."""
+    POST-HOC only — used to build the report's comparison, never handed to the agent.
+
+    Selects the answer key for THIS variant: a DDI variant has a different-schema
+    (interaction-parameter) key that the structural comparison below does not apply
+    to, so it gets no standard comparison rather than the ADULT one; pediatric/adult
+    variants use their own `<stem>.answer_key.json`."""
     import glob as _glob
-    aks = [a for a in _glob.glob(os.path.join(_LIB, f["dir"], "answer_key", "*.answer_key.json"))
-           if "ddi" not in os.path.basename(a)]
+    if (f.get("kind") or "") == "ddi":
+        return None                                   # DDI key is a different schema
+    stem = _variant_stem(f)
+    exact = os.path.join(_LIB, f["dir"], "answer_key", stem + ".answer_key.json")
+    if os.path.isfile(exact):
+        aks = [exact]
+    else:                                             # fall back: any non-DDI key
+        aks = [a for a in _glob.glob(os.path.join(_LIB, f["dir"], "answer_key",
+                                                   "*.answer_key.json"))
+               if "ddi" not in os.path.basename(a)]
     if not aks:
         return None
     try:
@@ -478,7 +562,7 @@ def _report(f: dict, edits: dict, model: str | None = None) -> dict:
     ins = _try_model(f, edits, subset="building")
     held = _try_model(f, edits, subset="held_out")
     try:
-        ref = _reffit(f["dir"])
+        ref = _reffit(f["dir"], f)
     except Exception:                                    # noqa: BLE001
         ref = {"ok": False}
     ans = _reference_answer(f)
@@ -742,22 +826,38 @@ def _topology(project: str, snapd: dict) -> dict:
             "oral": oral, "formulations": [f.get("Name") for f in forms]}
 
 
-def _reffit(project: str) -> dict:
+def _reffit(project: str, f: "dict | None" = None) -> dict:
     """Run a FINISHED reference model (forward simulation only — no fitting) and
     return per-dataset observed + simulated curves for an interactive fit overlay.
-    Cached in-memory and on disk, so re-opening is instant. Needs PKSim.CLI."""
+    Cached in-memory and on disk, so re-opening is instant. Needs PKSim.CLI.
+
+    Variant-aware: with a compound descriptor ``f`` it runs THAT variant's own
+    finished reference (e.g. the pediatric model), keyed separately in the cache, so
+    a pediatric/DDI report is not overlaid with the ADULT reference curve. A DDI
+    variant has no faithful stand-alone reference simulation wired (its reference is
+    the victim model plus an interaction), so it is skipped rather than shown wrong."""
     project = _task_dir(project)                        # task id -> base dir
-    if project in _REFFIT_CACHE:
-        return {"ok": True, "series": _REFFIT_CACHE[project], "cached": True}
-    snap = os.path.join(_LIB, project, "json", f"{project}-Model.json")
-    inp = os.path.join(_LIB, project, "json_input", f"{project}-Model.input.json")
+    kind = (f or {}).get("kind") or "adult"
+    if kind == "ddi":
+        return {"ok": False, "error": "no faithful DDI reference simulation is wired "
+                "(the DDI reference is the victim model plus an interaction)"}
+    stem = _variant_stem(f) if f else f"{project}-Model"
+    key = (f or {}).get("compound") or project          # per-variant cache key
+    if key in _REFFIT_CACHE:
+        return {"ok": True, "series": _REFFIT_CACHE[key], "cached": True}
+    snap = os.path.join(_LIB, project, "json", f"{stem}.json")
+    inp = os.path.join(_LIB, project, "json_input", f"{stem}.input.json")
+    if not (os.path.isfile(snap) and os.path.isfile(inp)):   # fall back to the adult base
+        snap = os.path.join(_LIB, project, "json", f"{project}-Model.json")
+        inp = os.path.join(_LIB, project, "json_input", f"{project}-Model.input.json")
     if not (os.path.isfile(snap) and os.path.isfile(inp)):
-        return {"ok": False, "error": f"no finished snapshot for {project}"}
-    disk = os.path.join(_LIB, project, "benchmark", ".reffit.json")
+        return {"ok": False, "error": f"no finished snapshot for {stem}"}
+    _slug = "".join(ch if ch.isalnum() else "_" for ch in key)
+    disk = os.path.join(_LIB, project, "benchmark", f".reffit__{_slug}.json")
     if os.path.isfile(disk):
         try:
             s = json.load(open(disk, encoding="utf-8"))
-            _REFFIT_CACHE[project] = s
+            _REFFIT_CACHE[key] = s
             return {"ok": True, "series": s, "cached": True}
         except (OSError, ValueError):
             pass
@@ -769,8 +869,8 @@ def _reffit(project: str) -> dict:
     if not cli.pksim_cli_path or not os.path.exists(cli.pksim_cli_path):
         return {"ok": False, "error": "PKSim.CLI not found — set PKPD_PKSIM_CLI to run the fit."}
     with _SIM_LOCK:
-        if project in _REFFIT_CACHE:                # another request just built it
-            return {"ok": True, "series": _REFFIT_CACHE[project], "cached": True}
+        if key in _REFFIT_CACHE:                    # another request just built it
+            return {"ok": True, "series": _REFFIT_CACHE[key], "cached": True}
         observed = json.load(open(inp, encoding="utf-8"))["given_data"]["clinical_observed_data"]
         snapd = json.load(open(snap, encoding="utf-8"))
         res = cli.build_and_run(snap, edits={})
@@ -782,14 +882,14 @@ def _reffit(project: str) -> dict:
         series = []
         for o in observed:
             ds = o["dataset"]
-            obs = [[t, c] for t, c in zip(o.get("time_h", []), o.get("conc_mg_L", []))
-                   if c is not None]
+            obs = _downsample([[t, c] for t, c in zip(o.get("time_h", []), o.get("conc_mg_L", []))
+                               if c is not None])
             p = pred_by_ds.get(ds)
             sim = _downsample([[t, c] for t, c in zip(p["time_h"], p["pred_conc_mg_L"])
                                if c is not None]) if p else []
             series.append({"study": o.get("study") or ds, "route": o.get("route", ""),
                            "dose": o.get("dose", ""), "observed": obs, "simulated": sim})
-        _REFFIT_CACHE[project] = series
+        _REFFIT_CACHE[key] = series
         try:
             os.makedirs(os.path.dirname(disk), exist_ok=True)
             json.dump(series, open(disk, "w", encoding="utf-8"))
@@ -842,7 +942,7 @@ def _compounds() -> list[dict]:
             continue
         seen.add(cid)
         status, gmfe = _report_status(os.path.join(_LIB, comp, "report", stem + ".json"))
-        rec = _load_run(cid)                         # a persisted copilot run, if any
+        rec = _load_run_summary(cid)                 # slim outcome (no event trace)
         saved = None
         if rec:
             saved = {"held_out": rec.get("held_out_gmfe"),
@@ -1086,6 +1186,7 @@ def _run_agent(run_id: str, p: dict) -> None:
     finally:
         q.put({"type": "end"})
         _RUNS[run_id]["done"] = True
+        _RUNS[run_id]["done_ts"] = __import__("time").time()
         # persist the full trace + outcome so the page can reload/resume it later
         try:
             _persist_run(p.get("compound"), getattr(q, "log", []), p)
@@ -1266,15 +1367,19 @@ def _run_agent_locked(run_id, p, q) -> None:
     # 'report' event before 'end' (so it can't hit an HTTP timeout), and because the
     # batch worker waits for 'end', the next compound only starts once this report is
     # done. Best-effort: a report failure never sinks the run.
-    if edits:
+    # If the user cancelled, skip the report entirely: it runs more PK-Sim (minutes)
+    # and the user has already asked to stop. Check the flag here AND before the
+    # (also PK-Sim-backed) reference/postmortem step in case cancel arrives during it.
+    if edits and not should_stop():
         try:
             rep = _report(f, edits, model)
             q.put({"type": "report", "compound": compound, **rep})
             # POST-STOP reveal: the agent sees the reference and critiques its own
             # build. Strictly post-hoc (the graded run is already done) - never leaks.
-            pm = _postmortem(compound, rep, edits, model)
-            if pm:
-                q.put({"type": "postmortem", "compound": compound, "text": pm})
+            if not should_stop():
+                pm = _postmortem(compound, rep, edits, model)
+                if pm:
+                    q.put({"type": "postmortem", "compound": compound, "text": pm})
         except Exception as e:                       # noqa: BLE001
             q.put({"type": "report", "compound": compound,
                    "error": f"{type(e).__name__}: {e}"})
@@ -1412,8 +1517,9 @@ def create_app():
         # re-run starts from scratch and the batch no longer skips it).
         path = _run_record_path(compound)
         try:
-            if os.path.isfile(path):
-                os.remove(path)
+            for pth in (path, _run_summary_path(compound)):   # drop trace AND sidecar
+                if os.path.isfile(pth):
+                    os.remove(pth)
         except OSError:
             return JSONResponse({"ok": False}, status_code=500)
         return JSONResponse({"ok": True, "deleted": compound})
@@ -1430,6 +1536,7 @@ def create_app():
                 json.dump(rec, fh)
         except OSError:
             return JSONResponse({"ok": False}, status_code=500)
+        _write_run_summary(compound, rec)            # keep the slim sidecar in sync
         return JSONResponse({"ok": True})
 
     @app.get("/api/built")
@@ -1477,6 +1584,7 @@ def create_app():
         se = payload.get("self_extract")
         self_extract = os.path.isdir(_RW) if se is None else bool(se)
         run_id = uuid.uuid4().hex[:12]
+        _prune_runs()                                    # bound in-memory run history
         _RUNS[run_id] = {"queue": _LoggingQueue(), "done": False, "compound": compound}
         params = {"compound": compound, "model": model, "max_steps": max_steps,
                   "library": lib, "only": only, "self_extract": self_extract,
@@ -1589,11 +1697,13 @@ def _clear_cache() -> int:
     cache clears whenever the server restarts."""
     import glob as _glob
     n = 0
-    for fp in _glob.glob(os.path.join(_LIB, "*", "benchmark", ".reffit.json")):
-        try:
-            os.remove(fp); n += 1
-        except OSError:
-            pass
+    # legacy ".reffit.json" and the current per-variant ".reffit__<slug>.json"
+    for pat in (".reffit.json", ".reffit__*.json"):
+        for fp in _glob.glob(os.path.join(_LIB, "*", "benchmark", pat)):
+            try:
+                os.remove(fp); n += 1
+            except OSError:
+                pass
     _REFFIT_CACHE.clear()
     return n
 

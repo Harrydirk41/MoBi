@@ -464,5 +464,73 @@ class TestCopilotServer(unittest.TestCase):
             self.assertGreaterEqual(n, 1)
 
 
+class TestServerHelpers(unittest.TestCase):
+    """Unit tests for server helpers that do not need the OSP library on disk."""
+
+    def test_variant_stem_from_snapshot(self):
+        from copilot import server
+        self.assertEqual(server._variant_stem(
+            {"snapshot": "/x/Alfentanil-Model.blanked.json", "dir": "Alfentanil"}),
+            "Alfentanil-Model")
+        self.assertEqual(server._variant_stem(
+            {"snapshot": "/x/Alfentanil-Pediatrics-Model.blanked.json", "dir": "Alfentanil"}),
+            "Alfentanil-Pediatrics-Model")
+        self.assertEqual(server._variant_stem(
+            {"snapshot": "/x/Erythromycin-Model.ddi_blanked.json", "dir": "Erythromycin"}),
+            "Erythromycin-Model")
+
+    def test_reference_answer_none_for_ddi(self):
+        # a DDI variant's answer key is a different (interaction) schema; the standard
+        # structural comparison must NOT fall back to the adult key.
+        from copilot import server
+        self.assertIsNone(server._reference_answer(
+            {"kind": "ddi", "dir": "Erythromycin", "snapshot": "x.ddi_blanked.json"}))
+
+    def test_reffit_skips_ddi(self):
+        from copilot import server
+        r = server._reffit("Erythromycin", {"kind": "ddi", "dir": "Erythromycin",
+                                             "compound": "Erythromycin · DDI",
+                                             "snapshot": "x.ddi_blanked.json"})
+        self.assertFalse(r["ok"])
+        self.assertIn("DDI", r["error"])
+
+    def test_run_summary_sidecar_roundtrip(self):
+        import os as _os
+        import tempfile
+        from copilot import server
+        prev = server._LIB
+        tmp = tempfile.mkdtemp()
+        server._LIB = tmp
+        try:
+            _os.makedirs(_os.path.join(tmp, "Foo", "report"))
+            rec = {"compound": "Foo", "ts": 1.0, "in_sample_gmfe": 1.4,
+                   "held_out_gmfe": 1.6, "model": "m", "events": [1, 2, 3]}
+            server._write_run_summary("Foo", rec)
+            s = server._load_run_summary("Foo")
+            self.assertEqual(s["in_sample_gmfe"], 1.4)
+            self.assertEqual(s["held_out_gmfe"], 1.6)
+            self.assertNotIn("events", s)                    # slim: no trace
+        finally:
+            server._LIB = prev
+            __import__("shutil").rmtree(tmp, ignore_errors=True)
+
+    def test_prune_runs_drops_stale_finished(self):
+        import time as _t
+        from copilot import server
+        prev = dict(server._RUNS)
+        server._RUNS.clear()
+        try:
+            server._RUNS["live"] = {"done": False}
+            server._RUNS["old"] = {"done": True, "done_ts": _t.time() - server._RUNS_TTL_S - 10}
+            server._RUNS["fresh"] = {"done": True, "done_ts": _t.time()}
+            server._prune_runs()
+            self.assertIn("live", server._RUNS)              # unfinished kept
+            self.assertIn("fresh", server._RUNS)             # recent kept
+            self.assertNotIn("old", server._RUNS)            # stale dropped
+        finally:
+            server._RUNS.clear()
+            server._RUNS.update(prev)
+
+
 if __name__ == "__main__":
     unittest.main()
