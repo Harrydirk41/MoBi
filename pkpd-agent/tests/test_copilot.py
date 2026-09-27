@@ -532,5 +532,52 @@ class TestServerHelpers(unittest.TestCase):
             server._RUNS.update(prev)
 
 
+class TestClearanceAndHardMode(unittest.TestCase):
+    def test_clearance_processes_excludes_interaction_and_binding(self):
+        from pkpd_agent.engines.snapshot_edit import clearance_processes
+        snap = {"Compounds": [{"Processes": [
+            {"InternalName": "MetabolizationLiverMicrosomes_MM", "Molecule": "CYP1A2"},
+            {"InternalName": "GlomerularFiltration"},
+            {"InternalName": "MixedInhibition", "Molecule": "CYP1A2"},
+            {"InternalName": "CompetitiveInhibition", "Molecule": "CYP3A4"},
+            {"InternalName": "SpecificBinding", "Molecule": "GABRG2"},
+        ]}]}
+        clears = clearance_processes(snap)
+        self.assertIn("MetabolizationLiverMicrosomes_MM", clears)
+        self.assertIn("GlomerularFiltration", clears)          # renal counts as clearance
+        self.assertNotIn("MixedInhibition", clears)            # interaction, not clearance
+        self.assertNotIn("CompetitiveInhibition", clears)
+        self.assertNotIn("SpecificBinding", clears)            # PD target binding, not clearance
+
+    def test_no_processes_is_no_clearance(self):
+        from pkpd_agent.engines.snapshot_edit import clearance_processes
+        self.assertEqual(clearance_processes({"Compounds": [{"Processes": []}]}), [])
+
+    def test_persist_records_effective_hard_not_requested(self):
+        import os as _os, tempfile, shutil
+        from copilot import server
+        prev = server._LIB
+        tmp = tempfile.mkdtemp()
+        server._LIB = tmp
+        try:
+            _os.makedirs(_os.path.join(tmp, "Foo", "report"))
+            events = [{"type": "meta", "hard_unavailable": True},
+                      {"type": "done", "best_gmfe": 2.0, "best_edits": {}, "blind": True},
+                      {"type": "end"}]
+            # requested hard=True, but it fell back (hard_unavailable) -> record must say False
+            server._persist_run("Foo", events, {"compound": "Foo", "hard": True})
+            self.assertFalse(server._load_run("Foo")["hard"])
+            # a genuine hard run (meta hard:True) records True
+            _os.makedirs(_os.path.join(tmp, "Bar", "report"))
+            ev2 = [{"type": "meta", "hard": True},
+                   {"type": "done", "best_gmfe": 2.0, "best_edits": {}, "blind": True},
+                   {"type": "end"}]
+            server._persist_run("Bar", ev2, {"compound": "Bar", "hard": True})
+            self.assertTrue(server._load_run("Bar")["hard"])
+        finally:
+            server._LIB = prev
+            shutil.rmtree(tmp, ignore_errors=True)
+
+
 if __name__ == "__main__":
     unittest.main()

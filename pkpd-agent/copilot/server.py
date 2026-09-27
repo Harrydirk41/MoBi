@@ -200,9 +200,15 @@ def _persist_run(compound: str, events: list, p: dict) -> None:
         # the pipeline report (streamed before 'end') carries the held-out grade
         rep = next((e for e in reversed(events) if e.get("type") == "report"), {})
         held = ((rep.get("held_out") or {}).get("gmfe")) if rep else None
+        # record the EFFECTIVE structure-blind state, not what was requested: a hard
+        # run silently falls back to normal for a compound with no hard variant
+        # (meta emits hard_unavailable), so trust the meta events over the request flag.
+        metas = [e for e in events if e.get("type") == "meta"]
+        hard_eff = any(m.get("hard") for m in metas) and not any(
+            m.get("hard_unavailable") for m in metas)
         rec = {
             "compound": compound, "ts": __import__("time").time(),
-            "model": p.get("model"), "hard": bool(p.get("hard")),
+            "model": p.get("model"), "hard": bool(hard_eff),
             "web": bool(p.get("web")), "self_extract": bool(p.get("self_extract")),
             "fit_vision": bool(p.get("fit_vision", True)),
             "in_sample_gmfe": done.get("best_gmfe"),
@@ -961,9 +967,12 @@ def _compounds() -> list[dict]:
             if status == "new":                      # no CLI report — reflect the saved run
                 status = "done"
                 gmfe = rec.get("held_out_gmfe") or rec.get("in_sample_gmfe")
+        # does a structure-blind (hard) variant exist? the toggle is a silent no-op
+        # without one, so the UI can disable it per-compound instead of misleading.
+        has_hard = os.path.isfile(snap.replace(".blanked.json", ".hard_blanked.json"))
         out.append({"compound": cid, "dir": comp, "label": cid, "kind": kind,
                     "snapshot": snap, "input": inp, "status": status, "gmfe": gmfe,
-                    "saved": saved})
+                    "saved": saved, "has_hard": has_hard})
     return out
 
 

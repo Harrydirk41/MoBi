@@ -466,6 +466,13 @@ function select(name,status,gmfe){
   $("#fitGmfe").textContent="—";$("#fitBadge").innerHTML="";$("#editsBox").textContent="Press Build with agent.";
   $("#givensBox").textContent=GIVENS_HINT;
   renderCtx();                       // re-render so the target row disables itself
+  // structure-blind toggle: a compound with no hard variant would silently no-op it,
+  // so disable + dim the toggle instead of misleading the user into thinking it ran.
+  {const mm=(MODELS||[]).find(x=>x.compound===name), hb=$("#hardMode");
+   if(hb){const ok=!(mm&&mm.has_hard===false);
+     hb.disabled=!ok; if(!ok)hb.checked=false;
+     hb.title=ok?"":"No structure-blind variant exists for this compound — it would run in normal mode.";
+     const lab=hb.closest("label"); if(lab)lab.style.opacity=ok?"1":"0.5";}}
   attachedRun=null;
   // while the autonomous batch is live, clicking a running compound mirrors its trace here
   if(sbRunning&&SBRUN[name]&&RUNLOG[SBRUN[name]])attachRun(name);

@@ -91,6 +91,32 @@ def apply_edits(snapshot: dict, edits: dict | None) -> tuple[dict, dict]:
     return snap, report
 
 
+# process type fragments that are NOT drug elimination (they are interactions the
+# drug exerts on an enzyme, or pharmacodynamic target binding) — see clearance_processes.
+_NON_CLEARANCE = ("inhibition", "induction", "inducer", "inhibitor", "binding")
+
+
+def clearance_processes(snapshot: dict) -> list[str]:
+    """Names of the compound's CLEARANCE / disposition processes — the ones that
+    actually eliminate the drug (metabolizing enzymes, renal GlomerularFiltration /
+    KidneyClearance, transporter-mediated clearance). Excludes interaction processes
+    (the drug inhibiting or inducing an enzyme) and pharmacodynamic target BINDING,
+    which do not remove drug. Used to catch a physically-degenerate model with NO
+    elimination pathway at all — where the drug can never leave the body."""
+    comp = (snapshot.get("Compounds") or [{}])[0]
+    out = []
+    for p in comp.get("Processes") or []:
+        if not isinstance(p, dict):
+            continue
+        tag = " ".join(str(p.get(k) or "")
+                       for k in ("InternalName", "Name", "DataSource")).lower()
+        if any(w in tag for w in _NON_CLEARANCE):
+            continue
+        out.append(p.get("InternalName") or p.get("Name")
+                   or p.get("Molecule") or p.get("MoleculeName") or "process")
+    return out
+
+
 # --------------------------------------------------------------------------- #
 # DDI: tune a perpetrator's interaction (inhibition / induction) parameters
 # --------------------------------------------------------------------------- #

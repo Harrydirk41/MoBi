@@ -443,6 +443,33 @@ def register_osp_loop_tools(registry: ToolRegistry, config, ctx: dict) -> None:
                 _link_cache["v"] = None
         return _link_cache["v"]
 
+    _snap_cache: dict = {}
+
+    def _base_snapshot():
+        if "v" not in _snap_cache:
+            try:
+                _snap_cache["v"] = json.load(open(snapshot_path, encoding="utf-8"))
+            except (OSError, ValueError):
+                _snap_cache["v"] = {}
+        return _snap_cache["v"]
+
+    def _no_clearance_note(edits: dict) -> str:
+        """Warn if the model the agent built has NO elimination pathway at all — a
+        physically impossible model (the drug never leaves), which otherwise just
+        produces a silently terrible GMFE instead of a clear structural signal."""
+        try:
+            from ..engines.snapshot_edit import apply_edits, clearance_processes
+            final, _ = apply_edits(_base_snapshot(), edits)
+            if not clearance_processes(final):
+                return (" | ⚠ NO ELIMINATION PATHWAY: this model has no clearance process, "
+                        "so the drug is never eliminated (physically impossible — the curve "
+                        "cannot come down). ADD at least one clearance process before fitting: "
+                        "a metabolizing enzyme (add_processes with the clearing molecule) and/or "
+                        "renal clearance (GlomerularFiltration / KidneyClearance).")
+        except Exception:                        # noqa: BLE001 - a guard must never sink a run
+            pass
+        return ""
+
     def _hide_status(model: dict) -> dict:
         return {**model, "parameters": [{k: v for k, v in p.items() if k != "value_status"}
                                         for p in model.get("parameters", [])]}
@@ -561,13 +588,14 @@ def register_osp_loop_tools(registry: ToolRegistry, config, ctx: dict) -> None:
                                      + (f"@{d['molecule']}" if d['molecule'] else "")
                                      + f"={d['default']}" for d in defaulted)
                          + " — a default silently defines the model; set or fit these.")
+        no_clear = _no_clearance_note(edits)
         out = ToolResult.success(
             f"GMFE {overall.get('gmfe')} overall "
             f"(within2fold {overall.get('within_2fold_pct')}%); "
             f"best so far {session.get('osp_best_gmfe')}"
             + (" — a fit overlay is attached; read it for shape mismatches "
                "(distribution phase, terminal slope, Cmax/tmax)." if images else "")
-            + dflt_note,
+            + dflt_note + no_clear,
             gmfe_overall=overall.get("gmfe"),
             within_2fold_pct=overall.get("within_2fold_pct"),
             bias_overall=overall.get("bias"),
@@ -578,6 +606,7 @@ def register_osp_loop_tools(registry: ToolRegistry, config, ctx: dict) -> None:
             worst_datasets=worst,
             parameter_flags=flags,
             defaulted_process_params=defaulted or None,   # params silently at their default
+            no_elimination_pathway=bool(no_clear) or None,  # model has zero clearance -> degenerate
             edits_applied=applied,
             not_found=applied.get("not_found"),
             n_matched=len(predicted), n_total=len(observed),
