@@ -48,9 +48,30 @@ ADULT_IMPORTANCE = [
     "Propofol",       # LAST: TCI infusion arms not faithfully reproduced (untrustworthy ref)
 ]
 
+# adult compounds whose PUBLISHED reference the harness does not reproduce faithfully,
+# so their adult scoreboard row would be untrustworthy. Deprioritised everywhere and
+# EXCLUDED from the adult run default. (Variant-specific: Propofol's ADULT model has TCI
+# infusion arms the harness can't reproduce; its pediatric variant is a normal fit and is
+# NOT excluded.)
+UNTRUSTWORTHY_ADULT_REFERENCE = {"Propofol"}
+
 # adult first, then pediatric, then DDI (see principle #1)
 KIND_ORDER = {"adult": 0, "pediatric": 1, "ddi": 2}
 _BIG = 10_000
+
+
+def order_names(names) -> list:
+    """Sort compound directory names by importance (most-informative first); unlisted
+    names fall after listed ones, alphabetically. Used to order any subset (e.g. the
+    pediatric set) from the one ranking."""
+    return sorted(names, key=lambda n: (ADULT_IMPORTANCE.index(n)
+                                        if n in ADULT_IMPORTANCE else _BIG, n or ""))
+
+
+def adult_run_order() -> list:
+    """The adult compounds to run by default, most-informative first and with the
+    untrustworthy-reference ones removed. This is the scoreboard's run + display order."""
+    return [m for m in ADULT_IMPORTANCE if m not in UNTRUSTWORTHY_ADULT_REFERENCE]
 
 
 def task_sort_key(dir_name: str, kind: str) -> tuple:

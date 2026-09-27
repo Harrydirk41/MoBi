@@ -10,15 +10,15 @@ and writes the report (with its machine-readable .json) into <model>/report/.
 Two phases (default: both):
   --run        execute run_llm_build on each model (needs PK-Sim CLI + ANTHROPIC_API_KEY)
   --aggregate  read every model's report/*.json and print+write one markdown scoreboard,
-               ordered by the difficulty rank below, showing agent vs reference GMFE,
-               structure match, and parameter recovery (good / soft / bad).
+               ordered by the shared importance rank (pkpd_agent.bench.priority), showing
+               agent vs reference GMFE, structure match, and parameter recovery.
 
     python -m examples.run_osp_scoreboard --run --aggregate ^
         --models Vancomycin,Tizanidine,Sufentanil,Montelukast,Raltegravir,Mexiletine,^
                  Alfentanil,Sildenafil,Midazolam,Digoxin --target 1.6 --max-steps 6
 
-Difficulty ranking is an INFORMED ESTIMATE (mechanism complexity + #unknowns + data breadth),
-not a measured truth - the scoreboard is exactly what tests whether that ordering holds.
+The importance ranking is an INFORMED ESTIMATE (mechanism diversity + reference
+trustworthiness), not a measured truth - the scoreboard is exactly what tests it.
 """
 
 from __future__ import annotations
@@ -41,17 +41,19 @@ for _stream in (sys.stdout, sys.stderr):
 _HERE = os.path.dirname(os.path.abspath(__file__))
 _LIB = os.path.abspath(os.path.join(_HERE, "..", "..", "OSP-PBPK-Model-Library"))
 
-# easy -> hard (informed estimate; the run is what checks it). Every single-compound
-# model whose reference the harness reproduces faithfully is included. Propofol is
-# omitted: its TCI (target-controlled infusion) arms are not reproduced by the harness,
-# so its reference GMFE is not trustworthy - it would need infusion-protocol support.
-DEFAULT_ORDER = ["Vancomycin", "Tizanidine", "Triazolam", "Alprazolam", "Sufentanil",
-                 "Mexiletine", "Alfentanil", "Raltegravir", "Fluvoxamine", "Montelukast",
-                 "Dapagliflozin", "Sildenafil", "Midazolam", "Digoxin"]
+# Run + display order comes from the single source of truth (pkpd_agent.bench.priority),
+# shared with the web runner so the two never drift. Most-informative first (mechanism
+# diversity + reference trustworthiness); the untrustworthy-reference set (Propofol's TCI
+# adult model) is excluded from the adult default there.
+from pkpd_agent.bench import priority as _priority        # noqa: E402
+
+DEFAULT_ORDER = _priority.adult_run_order()
 # Pediatric variants that give the agent something to fit (blanked compound params); the
-# child physiology is already in the snapshot. Alfentanil-Pediatrics is a pure extrapolation
-# (0 fitted params - nothing for the agent to do) and is intentionally left out.
-PEDIATRIC_ORDER = ["Montelukast", "Propofol", "Raltegravir", "Sufentanil", "Vancomycin"]
+# child physiology is already in the snapshot. This is the SET of runnable pediatric
+# benchmarks (Alfentanil-Pediatrics is a pure extrapolation - 0 fitted params - so it is
+# left out); the ORDER is taken from the shared ranking.
+PEDIATRIC_ORDER = _priority.order_names(
+    ["Montelukast", "Propofol", "Raltegravir", "Sufentanil", "Vancomycin"])
 
 
 def _resolve(model: str, hard: bool = False, pediatric: bool = False) -> "dict | None":

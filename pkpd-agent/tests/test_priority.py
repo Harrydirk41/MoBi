@@ -40,6 +40,29 @@ class TestPriority(unittest.TestCase):
         k = task_sort_key("Midazolam", "adult")
         assert k == (0, 0, "Midazolam")
 
+    def test_adult_run_order_excludes_untrustworthy_reference(self):
+        from pkpd_agent.bench.priority import adult_run_order, UNTRUSTWORTHY_ADULT_REFERENCE
+        ro = adult_run_order()
+        assert "Propofol" in UNTRUSTWORTHY_ADULT_REFERENCE
+        assert "Propofol" not in ro                       # excluded from the adult default
+        assert set(ro) == set(ADULT_IMPORTANCE) - UNTRUSTWORTHY_ADULT_REFERENCE
+        assert ro[0] == "Midazolam"                       # still importance-ordered
+
+    def test_order_names_sorts_subset_and_keeps_unexcluded(self):
+        from pkpd_agent.bench.priority import order_names
+        # pediatric set: Propofol is NOT excluded here (only its ADULT ref is untrusted)
+        out = order_names(["Propofol", "Vancomycin", "Raltegravir"])
+        assert out == ["Vancomycin", "Raltegravir", "Propofol"]   # by importance index
+
+
+class TestScoreboardUsesSharedOrder(unittest.TestCase):
+    def test_scoreboard_orders_come_from_priority(self):
+        import examples.run_osp_scoreboard as SB
+        from pkpd_agent.bench import priority
+        self.assertEqual(SB.DEFAULT_ORDER, priority.adult_run_order())
+        self.assertNotIn("Propofol", SB.DEFAULT_ORDER)
+        self.assertIn("Propofol", SB.PEDIATRIC_ORDER)     # pediatric keeps it
+
 
 if __name__ == "__main__":
     unittest.main()
