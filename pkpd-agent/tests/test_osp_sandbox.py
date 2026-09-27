@@ -167,11 +167,25 @@ def test_seal_case_produces_answer_free_workspace(tmp_path):
 
 def test_strip_expression_profiles_removes_block():
     snap = {"ExpressionProfiles": [{"Molecule": "CYP3A4"}, {"Molecule": "P-gp"}],
+            "Individuals": [{"ExpressionProfiles": [{"Molecule": "CYP3A4"}]}],
             "Simulations": [{"ExpressionProfiles": [{"Molecule": "CYP3A4"}]}]}
     n = S.strip_expression_profiles(snap)
-    assert n == 2
+    assert n == 4                                        # 2 top-level + 1 individual + 1 sim
     assert snap["ExpressionProfiles"] == []
+    assert snap["Individuals"][0]["ExpressionProfiles"] == []
     assert snap["Simulations"][0]["ExpressionProfiles"] == []
+
+
+def test_label_scrub_blanks_enzyme_names_in_individual_labels():
+    snap = {"Individuals": [{"Name": "Japanese (P-gp modified, CYP3A4 36 h)"}],
+            "Simulations": [{"Individual": "Japanese (P-gp modified, CYP3A4 36 h)"}],
+            "SimulationClassifications": [{"Name": "CYP2D6_EMs_PMs"}]}
+    n = S._scrub_mechanism_names(snap, ["CYP3A4", "P-gp", "CYP2D6"])
+    assert n >= 3
+    # the simulation's individual reference stays consistent with the renamed individual
+    assert snap["Individuals"][0]["Name"] == snap["Simulations"][0]["Individual"]
+    assert "CYP3A4" not in snap["Individuals"][0]["Name"]
+    assert "CYP2D6" not in snap["SimulationClassifications"][0]["Name"]
 
 
 def test_hard_seal_strips_enzyme_identity_but_normal_keeps_it(tmp_path):
@@ -202,6 +216,12 @@ def test_hard_seal_strips_enzyme_identity_but_normal_keeps_it(tmp_path):
     assert json.load(open(ws_snap)).get("ExpressionProfiles") == []
     assert "CYP3A4" not in ws_snap.read_text()               # the giveaway is closed
 
+    # the seal-time self-check confirms no mechanism name survived into the snapshot,
+    # and the forbidden set records the enzyme names for the standalone verifier.
+    assert mf["hard_mechanism_leaks"] == 0
+    forb = json.load(open(tmp_path / "hard_out" / "judge" / "forbidden.json"))
+    assert "CYP3A4" in forb["mechanism_molecules"]
+
     # normal (non-hard): the expressed panel legitimately stays (it is the given skeleton)
     bp2 = tmp_path / "Drug-Model.blanked.json"; bp2.write_text(json.dumps(hard_snap))
     ip2 = tmp_path / "Drug-Model.input.json"; ip2.write_text(json.dumps(inp))
@@ -210,6 +230,36 @@ def test_hard_seal_strips_enzyme_identity_but_normal_keeps_it(tmp_path):
     assert mf2["stripped_expression_profiles"] == 0
     ws_snap2 = tmp_path / "norm_out" / "workspace" / "model.blanked.json"
     assert json.load(open(ws_snap2)).get("ExpressionProfiles")   # kept
+    # normal mode has no mechanism-molecule forbidden set (the enzyme is a given)
+    forb2 = json.load(open(tmp_path / "norm_out" / "judge" / "forbidden.json"))
+    assert forb2["mechanism_molecules"] == []
+
+
+def test_verifier_catches_enzyme_name_in_hard_snapshot(tmp_path):
+    # regression guard: if a hard workspace snapshot still NAMES the answer enzyme
+    # (e.g. the strip regressed), the verifier must flag it as a block-level leak -
+    # but the SAME name in task.input.json's candidate pool must NOT trip it.
+    ws = tmp_path / "workspace"; ws.mkdir()
+    jd = tmp_path / "judge"; jd.mkdir()
+    (ws / "model.blanked.json").write_text(json.dumps(
+        {"Compounds": [{"Name": "Drug"}],
+         "ExpressionProfiles": [{"Molecule": "CYP3A4"}]}))        # LEAK: names the enzyme
+    (ws / "task.input.json").write_text(json.dumps(
+        {"background": {"candidate_clearance_molecules": [{"molecule": "CYP3A4"}]}}))  # legit
+    (jd / "forbidden.json").write_text(json.dumps(
+        {"heldout_datasets": [], "reference_fitted_values": [],
+         "heldout_conc_tokens": [], "mechanism_molecules": ["CYP3A4"]}))
+    res = S.verify_workspace(str(ws), judge_dir=str(jd))
+    assert res["ok"] is False
+    kinds = {(l["kind"], l["where"]) for l in res["leaks"]}
+    assert ("mechanism-molecule-in-snapshot", "model.blanked.json") in kinds
+    # exactly one hit (the snapshot), NOT the pool in task.input.json
+    assert sum(1 for l in res["leaks"] if l["kind"] == "mechanism-molecule-in-snapshot") == 1
+
+    # clean snapshot (enzyme only in the pool) passes the mechanism check
+    (ws / "model.blanked.json").write_text(json.dumps({"Compounds": [{"Name": "Drug"}]}))
+    res2 = S.verify_workspace(str(ws), judge_dir=str(jd))
+    assert not [l for l in res2["leaks"] if l["kind"] == "mechanism-molecule-in-snapshot"]
 
 
 # --------------------------------------------------------------------------- #

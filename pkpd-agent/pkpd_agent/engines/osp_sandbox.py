@@ -247,6 +247,13 @@ def _num_tokens(v: float) -> set[str]:
     return toks
 
 
+def _scan_names(text: str, names) -> list[str]:
+    """Molecule NAMES (e.g. 'CYP3A4', 'P-gp') that occur verbatim in ``text``. Plain
+    substring match, case-sensitive: PK-Sim molecule names are exact identifiers, and
+    a conservative (over-flagging) guardrail is the right bias for a no-leak check."""
+    return [n for n in (names or []) if n and n in text]
+
+
 def _scan_text(text: str, tokens: set[str]) -> list[str]:
     """Return the tokens that appear as a contiguous numeric run in ``text``."""
     hits = []
@@ -287,18 +294,82 @@ def strip_expression_profiles(snap: dict) -> int:
     mode has already stripped every process, so nothing references these profiles, and
     the agent attaches expression on demand for whichever candidate it picks. Returns
     the number of profiles removed. Operates in place."""
+    n = 0
     eps = snap.get("ExpressionProfiles")
-    n = len(eps) if isinstance(eps, list) else 0
-    if n:
+    if isinstance(eps, list):
+        n += len(eps)
         snap["ExpressionProfiles"] = []
-        for sim in snap.get("Simulations") or []:       # drop any per-sim expression refs too
-            if isinstance(sim.get("ExpressionProfiles"), list):
-                sim["ExpressionProfiles"] = []
+    # the same enzyme names are ALSO referenced per-individual (e.g. an
+    # "CYP3A4|Human|Davis 1987" profile ref on each Individual) and per-simulation;
+    # clear those too, or the mechanism still reads straight off the snapshot.
+    for coll in ("Individuals", "Simulations"):
+        for node in snap.get(coll) or []:
+            if isinstance(node, dict) and isinstance(node.get("ExpressionProfiles"), list):
+                n += len(node["ExpressionProfiles"])
+                node["ExpressionProfiles"] = []
     return n
 
 
 def _is_hard_snapshot(blanked_path: str) -> bool:
     return "hard_blanked" in os.path.basename(blanked_path)
+
+
+def mechanism_molecule_names(snap: dict) -> list[str]:
+    """The enzyme/transporter names that reveal the clearance MECHANISM: every molecule
+    named in ExpressionProfiles (top-level and per individual/simulation) and in any
+    compound process. In hard mode these are the answer to 'what clears the drug' and
+    must not appear in the workspace model snapshot."""
+    mols: set[str] = set()
+    for ep in snap.get("ExpressionProfiles") or []:
+        if isinstance(ep, dict) and ep.get("Molecule"):
+            mols.add(ep["Molecule"])
+    for coll in ("Individuals", "Simulations"):
+        for node in snap.get(coll) or []:
+            for ep in (node.get("ExpressionProfiles") or []) if isinstance(node, dict) else []:
+                if isinstance(ep, dict) and ep.get("Molecule"):
+                    mols.add(ep["Molecule"])
+    for comp in snap.get("Compounds") or []:
+        for p in comp.get("Processes") or []:
+            if isinstance(p, dict) and (p.get("Molecule") or p.get("MoleculeName")):
+                mols.add(p.get("Molecule") or p.get("MoleculeName"))
+    return sorted(mols)
+
+
+_MECH_LABEL_FIELDS = (
+    ("Individuals", "Name"),               # e.g. "Japanese (P-gp modified, CYP3A4 36 h, EHC)"
+    ("Simulations", "Individual"),         # a simulation's reference to its individual (same string)
+    ("SimulationClassifications", "Name"),  # a grouping label, e.g. "CYP2D6_EMs_PMs"
+)
+
+
+def _scrub_mechanism_names(snap: dict, names) -> int:
+    """Blank mechanism molecule names out of the cosmetic LABEL fields only (individual
+    descriptive names, their simulation references, classification group names). This is
+    deliberately NOT a whole-snapshot text replace: the same names are also woven
+    STRUCTURALLY into the built simulation (per-tissue molecule-amount paths), and
+    renaming those would collapse distinct molecules (e.g. CYP2C8/CYP2C9 -> one token)
+    and can corrupt a PK-Sim load. Labels are safe because a simulation references its
+    individual by the same string, so the deterministic per-string scrub keeps that link
+    intact. Any residual STRUCTURAL occurrence is left in place and surfaced by the
+    hard_mechanism_leaks self-check (it needs generation-time handling, not JSON surgery).
+    Returns the number of label replacements. Operates in place."""
+    ordered = sorted({x for x in (names or []) if x}, key=len, reverse=True)
+    if not ordered:
+        return 0
+    def scrub(s: str) -> tuple[str, int]:
+        c = 0
+        for name in ordered:
+            if name in s:
+                c += s.count(name)
+                s = s.replace(name, "enzyme")
+        return s, c
+    n = 0
+    for coll, field in _MECH_LABEL_FIELDS:
+        for node in snap.get(coll) or []:
+            if isinstance(node, dict) and isinstance(node.get(field), str):
+                node[field], c = scrub(node[field])
+                n += c
+    return n
 
 
 def seal_case(blanked_path: str, input_path: str, out_dir: str,
@@ -333,6 +404,8 @@ def seal_case(blanked_path: str, input_path: str, out_dir: str,
     redacted, redactions = redact_fitted(json.loads(json.dumps(blanked)))
     stripped = strip_observed_blocks(redacted)
     hard = _is_hard_snapshot(blanked_path)
+    # mechanism names come from the SOURCE blanked snapshot (before the strip removes them)
+    mechanism_molecules = mechanism_molecule_names(blanked) if hard else []
     n_expr_stripped = 0
     if hard:
         # structure-blind: the expressed-enzyme set leaks the mechanism (see
@@ -342,8 +415,20 @@ def seal_case(blanked_path: str, input_path: str, out_dir: str,
         if n_expr_stripped:
             redactions.append({"action": "stripped-expression-profiles",
                                "where": "/ExpressionProfiles", "count": n_expr_stripped})
+    n_names_scrubbed = 0
+    if hard:
+        # stripping the expression BLOCKS is not enough: the enzyme names also live in
+        # cosmetic labels (individual names, classification groups, simulation<->individual
+        # refs). Blank those too. task.input.json's candidate pool keeps the real names
+        # (below), so the task stays solvable.
+        n_names_scrubbed = _scrub_mechanism_names(redacted, mechanism_molecules)
+    ws_snap_json = json.dumps(redacted, ensure_ascii=False, indent=1)
     with open(os.path.join(ws, "model.blanked.json"), "w", encoding="utf-8") as fh:
-        json.dump(redacted, fh, ensure_ascii=False, indent=1)
+        fh.write(ws_snap_json)
+    # self-check: mechanism names still present in the snapshot AFTER strip + label scrub.
+    # A residual here is a STRUCTURAL occurrence (a molecule woven into the built
+    # simulation) that JSON surgery can't safely remove; it is reported, not hidden.
+    hard_mechanism_leaks = len(_scan_names(ws_snap_json, mechanism_molecules)) if hard else 0
     ws_input = _workspace_input(inp, build_set, has_split)
     with open(os.path.join(ws, "task.input.json"), "w", encoding="utf-8") as fh:
         json.dump(ws_input, fh, ensure_ascii=False, indent=1)
@@ -374,10 +459,16 @@ def seal_case(blanked_path: str, input_path: str, out_dir: str,
     held_tokens: set[str] = set()
     for v in _heldout_conc_values(held_obs):
         held_tokens |= _num_tokens(v)
+    # HARD only (mechanism_molecules computed above from the pre-strip snapshot): the
+    # enzyme/transporter names that reveal the answer to "which molecule clears the
+    # drug". They must not appear in the workspace MODEL snapshot - but they legitimately
+    # DO appear in task.input.json's candidate pool (the answer sits among decoys), so
+    # the verifier scans only model.blanked.json for them, never the pool.
     forbidden = {
         "heldout_datasets": sorted(verif_set),
         "reference_fitted_values": ref_vals,
         "heldout_conc_tokens": sorted(held_tokens - build_tokens),
+        "mechanism_molecules": mechanism_molecules,   # hard only; scanned in the model snapshot
     }
     with open(os.path.join(jd, "forbidden.json"), "w", encoding="utf-8") as fh:
         json.dump(forbidden, fh, ensure_ascii=False, indent=1)
@@ -397,7 +488,11 @@ def seal_case(blanked_path: str, input_path: str, out_dir: str,
         "stripped_blocks": stripped,                        # observed/PI blocks removed from the sealed copy
         "hard": hard,                                        # structure-blind (mechanism-discovery) case
         "stripped_expression_profiles": n_expr_stripped,    # hard only: enzyme-identity block removed
+        "scrubbed_mechanism_names": n_names_scrubbed,       # hard only: enzyme names removed from labels
         "sealed_leaks": len(fitted_leaks(redacted)),        # must be 0 - the sealed copy is answer-free
+        # hard only: any mechanism molecule still NAMED in the workspace model snapshot
+        # (must be 0 - a regression in the strip/scrub would surface here).
+        "hard_mechanism_leaks": hard_mechanism_leaks,
     }
     with open(os.path.join(jd, "manifest.json"), "w", encoding="utf-8") as fh:
         json.dump(manifest, fh, ensure_ascii=False, indent=1)
@@ -549,6 +644,18 @@ def verify_workspace(workspace_dir: str, judge_dir: str | None = None,
             for hit in _scan_text(text, conc_tokens):
                 leaks.append({"kind": "heldout-concentration", "where": rel, "detail": hit})
         checks["heldout_conc_tokens_scanned"] = len(conc_tokens)
+
+        # (4) HARD mechanism identity (BLOCK) - the clearing enzyme/transporter names
+        # must not appear in the MODEL snapshot (structure-blind). Scanned ONLY there,
+        # not across all workspace files: task.input.json's candidate pool legitimately
+        # lists the answer among decoys, so a whole-workspace scan would false-positive.
+        mech = forb.get("mechanism_molecules") or []
+        if mech:
+            snap_text = ws_texts.get("model.blanked.json", "")
+            for hit in _scan_names(snap_text, mech):
+                leaks.append({"kind": "mechanism-molecule-in-snapshot",
+                              "where": "model.blanked.json", "detail": hit})
+            checks["mechanism_molecules_scanned"] = len(mech)
     else:
         checks["judge_dir"] = "absent - only structural check (1) ran"
 
