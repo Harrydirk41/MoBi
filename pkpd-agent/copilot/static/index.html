@@ -1199,6 +1199,7 @@ function handle(ev){
     if(ev.self_extract)t.push("agent extracts givens from the report");
     if(ev.hard)t.push("structure-blind: mechanism withheld, agent must discover it");
     if(ev.hard_unavailable)t.push("structure-blind requested but no hard snapshot — using normal");
+    if(ev.self_extract_suppressed)t.push("self-extract OFF in structure-blind mode (the report would reveal the withheld mechanism)");
     if(ev.web)t.push("web lookup ON — open literature/web (not a blind grade)");
     if(ev.fit_vision)t.push("fit vision ON — the agent sees its own predicted-vs-observed curves");
     if(t.length)th.appendChild(el("div","meta-line",t.join(" · ")));

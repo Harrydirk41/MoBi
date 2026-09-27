@@ -1242,11 +1242,13 @@ def _run_agent_locked(run_id, p, q) -> None:
     # enzyme identity stripped) + the hard input (a candidate_clearance_molecules
     # pool instead of the given enzyme), so the agent must DISCOVER the mechanism,
     # not just fit values into a given skeleton.
+    hard_active = False
     if p.get("hard"):
         hs = f["snapshot"].replace(".blanked.json", ".hard_blanked.json")
         hi = f["input"].replace(".input.json", ".hard.input.json")
         if os.path.isfile(hs) and os.path.isfile(hi):
             f = {**f, "snapshot": hs, "input": hi}
+            hard_active = True
             q.put({"type": "meta", "hard": True})
         else:
             q.put({"type": "meta", "hard_unavailable": True})
@@ -1300,6 +1302,14 @@ def _run_agent_locked(run_id, p, q) -> None:
     # context lake, and withhold the pre-digested givens. Confined to the handed
     # materials (no web) so leave-one-out holds.
     ctx_report = ctx_data = None
+    # STRUCTURE-BLIND guard: self-extract hands the agent the TARGET's own report,
+    # which names the metabolizing enzyme ("metabolized by CYP3A4") as known biology.
+    # In hard mode the enzyme is deliberately WITHHELD (the agent must discover it), so
+    # serving that report would defeat structure-blind. The two modes are contradictory
+    # — hard wins, and self-extract is suppressed with a notice.
+    if self_extract and hard_active:
+        q.put({"type": "meta", "self_extract_suppressed": "structure-blind"})
+        self_extract = False
     if self_extract:
         tdir = os.path.join(_RW, f["dir"], "test")
         reps = glob.glob(os.path.join(tdir, "report", "*.md"))
