@@ -914,9 +914,12 @@ def register_osp_loop_tools(registry: ToolRegistry, config, ctx: dict) -> None:
             session.put("osp_best_gmfe", gmfe)
             # store the FIXED parameters alongside the optimized ones - they are
             # part of the model (e.g. GFR fraction=0), so the report's re-run must
-            # apply them too or it reproduces a different model than was fitted.
+            # apply them too or it reproduces a different model than was fitted. Store
+            # the ENRICHED given_fix that the optimizer ACTUALLY held (with the
+            # _fix_given_physchem measurements folded in), not the raw args["fix"] -
+            # otherwise those pinned values are dropped and the graded model differs.
             session.put("osp_best_edits",
-                        {"parameters": r["optimized"], "fix": args.get("fix") or {},
+                        {"parameters": r["optimized"], "fix": dict(given_fix or {}),
                          **(args.get("structure") or {})})
             session.put("osp_best_sensitivity", r.get("sensitivity") or {})
         recs = r.get("recommendations") or []

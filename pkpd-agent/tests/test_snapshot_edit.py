@@ -180,6 +180,17 @@ class TestSimulationProcessMirroring(unittest.TestCase):
                  for sc in sim["Compounds"] for p in sc["Processes"]]
         self.assertNotIn("CYP3A4-1st order CL", names)
 
+    def test_sim_proc_match_disambiguates_co_molecule_processes(self):
+        # a compound can carry TWO processes on one molecule (CYP3A4 metabolism AND
+        # CYP3A4 inhibition). Removing one must not strip the other's sim ref, which
+        # molecule-only matching did -> the surviving process silently became inert.
+        from pkpd_agent.engines.snapshot_edit import _sim_proc_matches
+        metab = {"Molecule": "CYP3A4", "DataSource": "Isoherranen 2004"}
+        inhib = {"Molecule": "CYP3A4", "DataSource": "Isoherranen, 2004"}   # note the comma
+        sim_metab_ref = {"MoleculeName": "CYP3A4", "Name": "CYP3A4-Isoherranen 2004"}
+        self.assertTrue(_sim_proc_matches(sim_metab_ref, metab))    # its own ref matches
+        self.assertFalse(_sim_proc_matches(sim_metab_ref, inhib))   # the sibling's does NOT
+
     def test_add_liver_clearance_mirrors_with_hepatic_systemic_type(self):
         # regression: the compound InternalName is 'LiverClearance' but the
         # simulation SystemicProcessType PK-Sim maps is 'Hepatic'. Using

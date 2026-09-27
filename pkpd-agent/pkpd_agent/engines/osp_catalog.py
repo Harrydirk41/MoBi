@@ -171,7 +171,9 @@ PARAM_CATALOG: dict[str, dict[str, Any]] = {
     "Kd": {"description": "equilibrium dissociation constant of specific (target/"
            "tissue) binding - binding affinity (lower = tighter). Often refined "
            "against the data",
-           "range": [1e-6, 1e3], "unit": "µmol/l", "role": "estimate", "tier": "estimate"},
+           # nmol/l to match the SpecificBinding process's actual storage unit (the
+           # library snapshots store Kd in nmol/l); a µmol/l label here was a 1000x trap.
+           "range": [1e-3, 1e6], "unit": "nmol/l", "role": "estimate", "tier": "estimate"},
     # --- experimental physicochemical variants -------------------------------
     "Lipophilicity (experiment)": {
         "description": "experimentally measured lipophilicity (logP/logD) as an "

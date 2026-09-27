@@ -459,7 +459,12 @@ def _try_model(f: dict, edits: dict, subset: str = "building") -> dict:
     estimate = edits.get("estimate") or {}
     structure = {k: edits[k] for k in ("calculation_methods", "processes", "add_processes")
                  if k in edits}
-    fixp = edits.get("parameters") or edits.get("fix") or {}
+    # BOTH the fitted `parameters` and the pinned `fix` (literature/GFR=0/...) are part
+    # of the adopted model — merge them (a fitted value overrides a fixed one on key
+    # collision), never `or` (which silently dropped `fix` whenever any param was fitted,
+    # so the report re-ran a DIFFERENT model, e.g. renal sink back on). Matches
+    # report.assemble's {**fixed, **parameters}.
+    fixp = {**(edits.get("fix") or {}), **(edits.get("parameters") or {})}
     optimized = None
     with _SIM_LOCK:
         if estimate:
@@ -519,10 +524,16 @@ def _reference_answer(f: dict) -> "dict | None":
     exact = os.path.join(_LIB, f["dir"], "answer_key", stem + ".answer_key.json")
     if os.path.isfile(exact):
         aks = [exact]
-    else:                                             # fall back: any non-DDI key
-        aks = [a for a in _glob.glob(os.path.join(_LIB, f["dir"], "answer_key",
-                                                   "*.answer_key.json"))
-               if "ddi" not in os.path.basename(a)]
+    elif (f.get("kind") or "adult") == "adult":
+        # adult only: fall back to any non-DDI key (sorted for determinism). A
+        # pediatric/variant must NOT fall back — glob is unordered and the adult
+        # "<comp>-Model.answer_key.json" is a non-DDI match, so it would silently
+        # grade the variant against the ADULT answer key.
+        aks = sorted(a for a in _glob.glob(os.path.join(_LIB, f["dir"], "answer_key",
+                                                        "*.answer_key.json"))
+                     if "ddi" not in os.path.basename(a))
+    else:
+        return None                                   # variant has no own key -> no comparison
     if not aks:
         return None
     try:
@@ -586,8 +597,18 @@ def _report(f: dict, edits: dict, model: str | None = None) -> dict:
     comparison = None
     if ans:
         cm = edits.get("calculation_methods") or {}
-        amols = {p.get("molecule") for p in (edits.get("add_processes") or [])
-                 if isinstance(p, dict) and p.get("molecule")}
+        # clearing molecules of the FINAL model (base skeleton + edits), not just what
+        # the agent ADDED: in a normal task the enzyme is pre-wired in the blanked
+        # skeleton and never appears in add_processes, so reading add_processes alone
+        # reported every correct model as "differs".
+        from pkpd_agent.engines.snapshot_edit import apply_edits as _apply, clearance_molecules
+        try:
+            with open(f["snapshot"], encoding="utf-8") as _sf:
+                _final, _ = _apply(json.load(_sf), edits)
+            amols = set(clearance_molecules(_final))
+        except Exception:                                # noqa: BLE001
+            amols = {p.get("molecule") for p in (edits.get("add_processes") or [])
+                     if isinstance(p, dict) and p.get("molecule")}
         struct = [
             {"aspect": "partition method", "agent": cm.get("partition"),
              "reference": ans["partition"], "match": _meq(cm.get("partition"), ans["partition"])},
@@ -864,7 +885,12 @@ def _reffit(project: str, f: "dict | None" = None) -> dict:
         return {"ok": True, "series": _REFFIT_CACHE[key], "cached": True}
     snap = os.path.join(_LIB, project, "json", f"{stem}.json")
     inp = os.path.join(_LIB, project, "json_input", f"{stem}.input.json")
-    if not (os.path.isfile(snap) and os.path.isfile(inp)):   # fall back to the adult base
+    if not (os.path.isfile(snap) and os.path.isfile(inp)):
+        # Fall back to the adult base ONLY for the adult stem itself. A pediatric/variant
+        # must NOT borrow the adult finished model — overlaying the adult reference curve
+        # on a pediatric report would silently contradict the variant-awareness guarantee.
+        if kind != "adult":
+            return {"ok": False, "error": f"no finished reference model for variant {stem}"}
         snap = os.path.join(_LIB, project, "json", f"{project}-Model.json")
         inp = os.path.join(_LIB, project, "json_input", f"{project}-Model.input.json")
     if not (os.path.isfile(snap) and os.path.isfile(inp)):
@@ -916,14 +942,22 @@ def _reffit(project: str, f: "dict | None" = None) -> dict:
 
 
 def _report_status(rep: str):
+    # Read the schema report.write_json actually emits: {status, fit:{agent_gmfe,...},
+    # heldout:{agent_gmfe, pass, ...}} — NOT held_out/verdict/gmfe (the old keys never
+    # matched, so every real benchmark report silently read status="done", gmfe=None).
     status, gmfe = "new", None
     if os.path.isfile(rep):
         try:
             r = json.load(open(rep, encoding="utf-8"))
-            g = r.get("held_out") or {}
-            verdict = (r.get("verdict") or "").lower()
-            status = "pass" if "pass" in verdict else ("fail" if "fail" in verdict else "done")
-            gmfe = g.get("agent") or r.get("gmfe")
+            ho = r.get("heldout") or {}
+            fit = r.get("fit") or {}
+            if ho.get("pass") is True:
+                status = "pass"
+            elif ho.get("pass") is False:
+                status = "fail"
+            else:
+                status = "done"
+            gmfe = ho.get("agent_gmfe") or fit.get("agent_gmfe")
         except Exception:                               # noqa: BLE001
             pass
     return status, gmfe

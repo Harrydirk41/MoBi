@@ -117,6 +117,27 @@ def clearance_processes(snapshot: dict) -> list[str]:
     return out
 
 
+def clearance_molecules(snapshot: dict) -> list[str]:
+    """The MOLECULES (enzymes/transporters) of the compound's clearance processes in
+    the FINAL model — for comparing the agent's clearing enzymes to the reference. Unlike
+    inspecting only `add_processes`, this reads the merged snapshot, so a clearing enzyme
+    that was pre-wired in the (non-hard) skeleton is counted, not reported as missing.
+    Systemic clearances with no molecule (GFR) are naturally excluded."""
+    comp = (snapshot.get("Compounds") or [{}])[0]
+    out = set()
+    for p in comp.get("Processes") or []:
+        if not isinstance(p, dict):
+            continue
+        tag = " ".join(str(p.get(k) or "")
+                       for k in ("InternalName", "Name", "DataSource")).lower()
+        if any(w in tag for w in _NON_CLEARANCE):
+            continue
+        mol = p.get("Molecule") or p.get("MoleculeName")
+        if mol:
+            out.add(mol)
+    return sorted(out)
+
+
 # --------------------------------------------------------------------------- #
 # DDI: tune a perpetrator's interaction (inhibition / induction) parameters
 # --------------------------------------------------------------------------- #
@@ -195,7 +216,18 @@ def _sim_proc_matches(sim_proc: dict, comp_proc: dict) -> bool:
     """Does this simulation-level process reference the given compound process?"""
     mol = comp_proc.get("Molecule")
     if mol:                                   # enzyme / transporter
-        return sim_proc.get("MoleculeName") == mol
+        if sim_proc.get("MoleculeName") != mol:
+            return False
+        # A compound can carry SEVERAL processes on ONE molecule (e.g. CYP3A4
+        # metabolism AND CYP3A4 inhibition). The sim ref is named "{Molecule}-
+        # {DataSource}", so disambiguate by it — molecule alone would strip the
+        # sibling's ref when only one process is removed, silently killing that
+        # clearance. Fall back to molecule only when there's no DataSource to match on.
+        ds = comp_proc.get("DataSource")
+        spn = sim_proc.get("Name")
+        if ds and spn:
+            return spn == f"{mol}-{ds}"
+        return True
     ds = (comp_proc.get("DataSource") or "").lower()          # systemic (GFR, ...)
     spt = (sim_proc.get("SystemicProcessType") or "")
     if spt and ds and spt.lower() == ds:

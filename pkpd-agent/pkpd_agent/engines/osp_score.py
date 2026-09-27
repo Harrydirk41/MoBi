@@ -472,7 +472,12 @@ def pk_parameters(observed: list[dict], predicted_profiles: list[dict]) -> dict[
         paired = [(t, c, _interp(pr["time_h"], pr["pred_conc_mg_L"], t))
                   for t, c in zip(o["time_h"], o["conc_mg_L"])
                   if _finite(t) is not None and _finite(c) is not None]
-        paired = [(t, c, p) for t, c, p in paired if p is not None]
+        # keep only points where BOTH obs and pred are positive, so the two AUC
+        # integrals span the SAME grid. Otherwise a point that is a reported zero/BLQ on
+        # one side but positive on the other is dropped from one trapezoid and kept in
+        # the other (_pk_params filters c>0 per side), re-introducing a divergent-window
+        # AUC bias despite pairing on the overlap.
+        paired = [(t, c, p) for t, c, p in paired if p is not None and p > 0 and c > 0]
         if len(paired) < 2:
             continue
         obs = _pk_params([t for t, _, _ in paired], [c for _, c, _ in paired])

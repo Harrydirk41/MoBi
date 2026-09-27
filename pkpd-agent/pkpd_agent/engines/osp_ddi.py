@@ -54,7 +54,13 @@ def _pair_key(sim_name: str) -> tuple[str, str | None]:
     route folds Oral->PO. A control (victim alone) and its treatment (victim +
     perpetrator) share the study author+year; a perpetrator's own PK arm from a
     different study has a different author+year, so it will not pair with the
-    victim's control."""
+    victim's control.
+
+    NB: the VICTIM DOSE is deliberately NOT part of the key. A treatment arm's name
+    carries BOTH the victim and the perpetrator dose, so parsing "the dose" from it is
+    ambiguous and keying on it drops legitimate control/treatment pairs. (Cross-dose
+    mispairing within one study/route is a real but narrow risk handled at the
+    pairing-consumer level, not here.)"""
     _, route, _ = OSPCli._parse_sim_name(sim_name)
     m = re.search(r"([A-Za-z]{3,})[ _]?((?:19|20)\d{2})", sim_name)
     study = (m.group(1) + m.group(2)).lower() if m else \

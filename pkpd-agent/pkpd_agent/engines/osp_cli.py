@@ -507,12 +507,18 @@ class OSPCli:
         # (victim) molecule's plasma, else the perpetrator's would be scored.
         if target_molecule:
             tl = target_molecule.lower()
+            # Match the molecule as an EXACT pipe-delimited path segment, not a
+            # substring: a parent name nests inside its metabolites' ("Itraconazole" in
+            # "Hydroxy-Itraconazole", "Midazolam" in "1-OH-Midazolam"), so a substring
+            # test would score the parent against a daughter's plasma column.
+            def _has_mol(h):
+                return tl in [s.strip().lower() for s in h.split("|")]
             for i, h in conc_cols:
                 hl = h.lower()
-                if tl in hl and "peripheralvenousblood" in hl and "plasma" in hl:
+                if _has_mol(h) and "peripheralvenousblood" in hl and "plasma" in hl:
                     return i
             for i, h in conc_cols:
-                if tl in h.lower():
+                if _has_mol(h):
                     return i
             # metabolite cascade: each molecule must match its OWN column; do NOT
             # fall back to the parent's plasma (that would score every daughter

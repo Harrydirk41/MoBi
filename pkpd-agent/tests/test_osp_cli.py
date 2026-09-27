@@ -119,6 +119,18 @@ class TestVictimColumnSelection(unittest.TestCase):
     def test_default_first_plasma_when_no_target(self):
         self.assertEqual(OSPCli._pick_conc_column(self.HDR), 2)
 
+    # B#1: parent name is a substring of its metabolite; the parent must pick its
+    # OWN pipe-delimited segment, not the metabolite column it is nested inside.
+    NEST_HDR = ["IndividualId", "Time [min]",
+                "Organism|PeripheralVenousBlood|Hydroxy-Itraconazole|Plasma (Peripheral Venous Blood) [µmol/l]",
+                "Organism|PeripheralVenousBlood|Itraconazole|Plasma (Peripheral Venous Blood) [µmol/l]"]
+
+    def test_parent_not_matched_against_metabolite_column(self):
+        # "Itraconazole" is a substring of "Hydroxy-Itraconazole" (col 2), but the
+        # exact-segment match must select the parent's own column (col 3).
+        self.assertEqual(OSPCli._pick_conc_column(self.NEST_HDR, "Itraconazole"), 3)
+        self.assertEqual(OSPCli._pick_conc_column(self.NEST_HDR, "Hydroxy-Itraconazole"), 2)
+
 
 if __name__ == "__main__":
     unittest.main()
