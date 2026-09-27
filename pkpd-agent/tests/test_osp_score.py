@@ -11,6 +11,22 @@ def _obs(dataset, study, route, dose, t, c):
             "time_h": t, "conc_mg_L": c}
 
 
+class TestArmKeyFalsePositives(unittest.TestCase):
+    def test_food_does_not_match_author_name(self):
+        # "Fedorak" must NOT be read as a fed arm (word-boundary), else it would
+        # reject a correct pairing with the study's fasted simulation.
+        self.assertIsNone(osp_score._food("Fedorak 1995 iv"))
+        self.assertEqual(osp_score._food("Shah 2006 tablet fed"), "fed")
+        self.assertEqual(osp_score._food("high-fat, fed state"), "fed")
+        self.assertEqual(osp_score._food("overnight fasted"), "fasted")
+
+    def test_infusion_ignores_dosing_frequency(self):
+        # "q8h" is a dosing interval, not a 480 min infusion.
+        self.assertIsNone(osp_score._infusion("Mex 200 mg po q8h"))
+        self.assertEqual(osp_score._infusion("Digoxin iv, 0.5 mg, 3 h"), "180min")
+        self.assertEqual(osp_score._infusion("iv bolus"), "bolus")
+
+
 class TestMapping(unittest.TestCase):
     def test_dose_unit_equivalence_and_fanout(self):
         observed = [

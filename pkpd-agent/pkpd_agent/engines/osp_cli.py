@@ -63,11 +63,18 @@ def _conc_to_mg_L(value: float, unit: str, mol_weight: float | None) -> float | 
     u = unit.strip().lower()
     if u in _MASS_PER_L:
         return value * _MASS_PER_L[u]
-    if "mol" in u and mol_weight:                        # µmol/l, nmol/l ...
-        f = mol_weight / 1000.0                           # µmol/L * g/mol / 1000 = mg/L
-        if u.startswith("nmol"):
-            f /= 1000.0
-        return value * f
+    if "mol" in u and mol_weight:                        # molar: µmol/l, nmol/l, mmol/l ...
+        # base: µmol/L * g/mol / 1000 = mg/L. Scale by the SI prefix on the amount
+        # unit, so pmol/mmol/mol are NOT silently treated as µmol (a 1e3-1e6x error
+        # that would corrupt the AUC/GMFE grade). Bare "mol/l" (no prefix) is 1e6 µmol.
+        base = mol_weight / 1000.0
+        for pre, fac in (("mmol", 1e3), ("µmol", 1.0), ("umol", 1.0),
+                         ("nmol", 1e-3), ("pmol", 1e-6), ("fmol", 1e-9)):
+            if u.startswith(pre):
+                return value * base * fac
+        if u.startswith("mol"):                          # unprefixed mol/l
+            return value * base * 1e6
+        return None                                      # e.g. "osmol/l" -> caller skips
     return None                                          # unknown -> caller skips
 
 

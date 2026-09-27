@@ -11,7 +11,7 @@ import os
 import tempfile
 import unittest
 
-from pkpd_agent.engines.osp_cli import OSPCli
+from pkpd_agent.engines.osp_cli import OSPCli, _conc_to_mg_L
 
 CLI = OSPCli(pksim_cli_path="/nonexistent")
 
@@ -105,6 +105,31 @@ class TestSimulationPruning(unittest.TestCase):
         out = OSPCli._prune_simulations(self.SNAP, ["zzz"])
         self.assertEqual(len(out["Simulations"]), 4)   # unchanged
 
+
+
+class TestConcUnitConversion(unittest.TestCase):
+    MW = 400.0                                            # g/mol
+
+    def test_molar_prefixes_scale_correctly(self):
+        # µmol/L -> mg/L is MW/1000; every other prefix scales relative to µmol.
+        self.assertAlmostEqual(_conc_to_mg_L(1.0, "µmol/l", self.MW), 0.4)
+        self.assertAlmostEqual(_conc_to_mg_L(1.0, "umol/l", self.MW), 0.4)
+        self.assertAlmostEqual(_conc_to_mg_L(1.0, "nmol/l", self.MW), 0.4e-3)
+        self.assertAlmostEqual(_conc_to_mg_L(1.0, "pmol/l", self.MW), 0.4e-6)
+        self.assertAlmostEqual(_conc_to_mg_L(1.0, "mmol/l", self.MW), 0.4e3)
+        self.assertAlmostEqual(_conc_to_mg_L(1.0, "mol/l", self.MW), 0.4e6)
+
+    def test_mmol_not_silently_treated_as_umol(self):
+        # regression: mmol/L was 1000x under-scaled (treated as µmol), corrupting AUC.
+        self.assertNotAlmostEqual(_conc_to_mg_L(1.0, "mmol/l", self.MW),
+                                  _conc_to_mg_L(1.0, "µmol/l", self.MW))
+
+    def test_molar_without_mw_returns_none(self):
+        self.assertIsNone(_conc_to_mg_L(1.0, "µmol/l", None))
+
+    def test_mass_units_unaffected(self):
+        self.assertAlmostEqual(_conc_to_mg_L(2.0, "mg/l", self.MW), 2.0)
+        self.assertAlmostEqual(_conc_to_mg_L(2.0, "ng/ml", self.MW), 2e-3)
 
 
 class TestVictimColumnSelection(unittest.TestCase):

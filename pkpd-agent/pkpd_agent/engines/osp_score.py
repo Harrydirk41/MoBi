@@ -129,7 +129,9 @@ def _food(s: str | None) -> str | None:
     t = (s or "").lower()
     if "fasted" in t or "fasting" in t:
         return "fasted"
-    if "fed" in t:
+    # word-boundary "fed": a substring test matched author names like "Fedorak",
+    # spuriously tagging a study "fed" and rejecting its (correct) fasted pairing.
+    if re.search(r"\bfed\b", t):
         return "fed"
     return None
 
@@ -141,7 +143,10 @@ def _infusion(s: str | None) -> str | None:
     t = (s or "").lower()
     if "bolus" in t:
         return "bolus"
-    m = re.search(r"(\d+\.?\d*)\s*(h|hr|hour|min)\b", t)
+    # A dosing FREQUENCY like "q8h" (every 8 h) is not an infusion duration; the
+    # bare-number regex used to read it as a 480 min infusion and reject a legitimate
+    # bolus/oral pair. Exclude a digit immediately preceded by "q".
+    m = re.search(r"(?<!q)(\d+\.?\d*)\s*(h|hr|hour|min)\b", t)
     if not m:
         return None
     val = float(m.group(1))
