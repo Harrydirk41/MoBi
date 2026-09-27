@@ -235,6 +235,37 @@ def test_hard_seal_strips_enzyme_identity_but_normal_keeps_it(tmp_path):
     assert forb2["mechanism_molecules"] == []
 
 
+def test_hard_seal_keeps_loadable_original_when_enzyme_is_structural(tmp_path):
+    # When the enzyme name is woven STRUCTURALLY into the built simulation (not just in
+    # ExpressionProfiles/labels), stripping would dangle the molecule. Seal must KEEP the
+    # original loadable snapshot and REPORT the leak, not ship a half-stripped copy.
+    hard_snap = {
+        "Compounds": [{"Name": "Drug", "Processes": []}],
+        "ExpressionProfiles": [{"Molecule": "CYP3A4", "Parameters": []}],
+        # a molecule-amount path that names the enzyme structurally (survives any safe strip)
+        "Simulations": [{"Name": "PO", "Parameters": [
+            {"Path": "Organism|Liver|CYP3A4|Reference concentration", "Value": 1.0}],
+            "Compounds": []}],
+    }
+    inp = {"given_data": {"clinical_observed_data": [
+        {"dataset": "S", "study": "A", "route": "PO", "dose": "1 mg", "conc_mg_L": [0.1]}]},
+        "background": {"candidate_clearance_molecules": [{"molecule": "CYP3A4"}]}}
+    bp = tmp_path / "Drug-Model.hard_blanked.json"; bp.write_text(json.dumps(hard_snap))
+    ip = tmp_path / "Drug-Model.hard.input.json"; ip.write_text(json.dumps(inp))
+    mf = S.seal_case(str(bp), str(ip), str(tmp_path / "out"), task_name="Drug")
+    assert mf["hard"] is True
+    assert mf["hard_mechanism_leaks"] >= 1               # reported, not hidden
+    assert mf["stripped_expression_profiles"] == 0       # nothing stripped (kept loadable)
+    ws = json.load(open(tmp_path / "out" / "workspace" / "model.blanked.json"))
+    # original kept: the molecule-amount path (and its ExpressionProfile) still present
+    assert ws.get("ExpressionProfiles")                  # not stripped -> loadable
+    # and verify_workspace flags it
+    res = S.verify_workspace(str(tmp_path / "out" / "workspace"),
+                             judge_dir=str(tmp_path / "out" / "judge"))
+    assert res["ok"] is False
+    assert any(l["kind"] == "mechanism-molecule-in-snapshot" for l in res["leaks"])
+
+
 def test_verifier_catches_enzyme_name_in_hard_snapshot(tmp_path):
     # regression guard: if a hard workspace snapshot still NAMES the answer enzyme
     # (e.g. the strip regressed), the verifier must flag it as a block-level leak -

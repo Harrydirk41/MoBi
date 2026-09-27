@@ -406,29 +406,44 @@ def seal_case(blanked_path: str, input_path: str, out_dir: str,
     hard = _is_hard_snapshot(blanked_path)
     # mechanism names come from the SOURCE blanked snapshot (before the strip removes them)
     mechanism_molecules = mechanism_molecule_names(blanked) if hard else []
-    n_expr_stripped = 0
+    n_expr_stripped = n_names_scrubbed = 0
+    hard_mechanism_leaks = 0
     if hard:
-        # structure-blind: the expressed-enzyme set leaks the mechanism (see
-        # strip_expression_profiles). Remove it from the workspace copy only; the
-        # judge copy keeps the original for grading.
-        n_expr_stripped = strip_expression_profiles(redacted)
-        if n_expr_stripped:
-            redactions.append({"action": "stripped-expression-profiles",
-                               "where": "/ExpressionProfiles", "count": n_expr_stripped})
-    n_names_scrubbed = 0
-    if hard:
-        # stripping the expression BLOCKS is not enough: the enzyme names also live in
-        # cosmetic labels (individual names, classification groups, simulation<->individual
-        # refs). Blank those too. task.input.json's candidate pool keeps the real names
-        # (below), so the task stays solvable.
-        n_names_scrubbed = _scrub_mechanism_names(redacted, mechanism_molecules)
-    ws_snap_json = json.dumps(redacted, ensure_ascii=False, indent=1)
+        # Structure-blind: the expressed-enzyme set leaks the mechanism. Try to seal it
+        # clean on a TRIAL copy: strip the expression blocks + blank enzyme names out of
+        # cosmetic labels. Then verify NO mechanism name remains anywhere.
+        #
+        # ALL-OR-NOTHING per compound: adopt the stripped copy ONLY if it is provably
+        # clean (no enzyme name occurs anywhere). residual == 0 also proves nothing else
+        # references those molecules by name, so removing the expression blocks left no
+        # dangling reference and the snapshot stays loadable. If a name survives, it is
+        # woven STRUCTURALLY into the built simulation (per-tissue molecule amounts);
+        # stripping the expression would then leave a dangling molecule and could make the
+        # snapshot unloadable. So we KEEP the original (loadable) snapshot and report the
+        # leak honestly — a genuine seal is a generation-time change (build the hard
+        # snapshot without the enzyme molecule), not post-hoc JSON surgery.
+        trial = json.loads(json.dumps(redacted))
+        n_expr = strip_expression_profiles(trial)
+        n_names = _scrub_mechanism_names(trial, mechanism_molecules)
+        trial_json = json.dumps(trial, ensure_ascii=False, indent=1)
+        residual = _scan_names(trial_json, mechanism_molecules)
+        if not residual:
+            redacted, ws_snap_json = trial, trial_json
+            n_expr_stripped, n_names_scrubbed = n_expr, n_names
+            if n_expr:
+                redactions.append({"action": "stripped-expression-profiles",
+                                   "where": "/ExpressionProfiles", "count": n_expr})
+        else:
+            ws_snap_json = json.dumps(redacted, ensure_ascii=False, indent=1)
+            hard_mechanism_leaks = len(residual)
+            redactions.append({"action": "hard-mechanism-embedded-structurally",
+                               "detail": "enzyme woven into the built simulation; workspace "
+                                         "NOT sealed clean (needs a generation-time fix)",
+                               "residual_names": residual})
+    else:
+        ws_snap_json = json.dumps(redacted, ensure_ascii=False, indent=1)
     with open(os.path.join(ws, "model.blanked.json"), "w", encoding="utf-8") as fh:
         fh.write(ws_snap_json)
-    # self-check: mechanism names still present in the snapshot AFTER strip + label scrub.
-    # A residual here is a STRUCTURAL occurrence (a molecule woven into the built
-    # simulation) that JSON surgery can't safely remove; it is reported, not hidden.
-    hard_mechanism_leaks = len(_scan_names(ws_snap_json, mechanism_molecules)) if hard else 0
     ws_input = _workspace_input(inp, build_set, has_split)
     with open(os.path.join(ws, "task.input.json"), "w", encoding="utf-8") as fh:
         json.dump(ws_input, fh, ensure_ascii=False, indent=1)
