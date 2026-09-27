@@ -1013,6 +1013,13 @@ def _compounds() -> list[dict]:
         out.append({"compound": cid, "dir": comp, "label": cid, "kind": kind,
                     "snapshot": snap, "input": inp, "status": status, "gmfe": gmfe,
                     "saved": saved, "has_hard": has_hard})
+    # order most-informative first (adult > pediatric > DDI, mechanism-diverse within),
+    # so a partial run / the default batch covers the tasks that most inform the
+    # scoreboard. `priority` (0-based rank) lets the UI show or re-sort by it.
+    from pkpd_agent.bench.priority import order_tasks
+    out = order_tasks(out)
+    for i, t in enumerate(out):
+        t["priority"] = i
     return out
 
 
@@ -1498,11 +1505,28 @@ def create_app():
             return fh.read()
 
     @app.get("/api/models")
-    def models():
+    def models(kind: str | None = None, only: str | None = None, limit: int | None = None):
+        """Tasks in importance order (most-informative first). Optional selection so a
+        caller can run a subset first without a picker UI:
+          * kind=adult|pediatric|ddi  - only that task kind
+          * only=Midazolam,Digoxin    - only these compounds/dirs (order still by priority)
+          * limit=N                   - the top N after the above filters
+        `priority` is preserved from the full ordered list, so it stays meaningful under
+        a filter (it is the global rank, not the position within the filtered subset)."""
+        cs = _compounds()
+        if kind:
+            kinds = {k.strip().lower() for k in kind.split(",") if k.strip()}
+            cs = [c for c in cs if c["kind"] in kinds]
+        if only:
+            want = {s.strip().lower() for s in only.split(",") if s.strip()}
+            cs = [c for c in cs
+                  if c["dir"].lower() in want or str(c["compound"]).lower() in want]
+        if limit is not None and limit >= 0:
+            cs = cs[:limit]
         return JSONResponse([{k: c.get(k) for k in
                               ("compound", "status", "gmfe", "label", "kind", "dir",
-                               "saved", "has_hard")}
-                             for c in _compounds()])
+                               "saved", "has_hard", "priority")}
+                             for c in cs])
 
     @app.get("/api/library")
     def library(compound: str, same_type: bool = True):

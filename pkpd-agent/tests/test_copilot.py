@@ -41,6 +41,33 @@ class TestCopilotServer(unittest.TestCase):
         self.assertIn("Triazolam", comps)
         self.assertIn("Digoxin", comps)
 
+    def test_models_ordered_by_priority(self):
+        # tasks come back most-informative first: monotonically increasing priority,
+        # adult kinds ahead of pediatric/DDI, so a partial/default batch runs the
+        # tasks that most inform the scoreboard first.
+        ms = self.c.get("/api/models").json()
+        prios = [m["priority"] for m in ms]
+        self.assertEqual(prios, sorted(prios))            # returned in priority order
+        self.assertEqual(prios, list(range(len(prios))))  # 0..n-1, unique
+        kinds = [m["kind"] for m in ms]
+        if "adult" in kinds and "ddi" in kinds:
+            self.assertLess(kinds.index("adult"), kinds.index("ddi"))  # adult before DDI
+
+    def test_models_selection_filters(self):
+        # kind filter
+        adults = self.c.get("/api/models?kind=adult").json()
+        self.assertTrue(adults)
+        self.assertTrue(all(m["kind"] == "adult" for m in adults))
+        # only=... selects specific compounds, still in priority order
+        sel = self.c.get("/api/models?only=Digoxin,Midazolam").json()
+        dirs = [m["dir"] for m in sel]
+        self.assertEqual(set(dirs), {"Digoxin", "Midazolam"})
+        self.assertEqual(dirs, ["Midazolam", "Digoxin"])   # Midazolam ranks first
+        # limit=N takes the top N
+        top2 = self.c.get("/api/models?limit=2").json()
+        self.assertEqual(len(top2), 2)
+        self.assertEqual([m["priority"] for m in top2], [0, 1])
+
     def test_library_is_leave_one_out(self):
         r = self.c.get("/api/library?compound=Triazolam&same_type=true")
         self.assertEqual(r.status_code, 200)
