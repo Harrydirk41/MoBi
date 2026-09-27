@@ -558,6 +558,19 @@ class TestClearanceAndHardMode(unittest.TestCase):
         from pkpd_agent.engines.snapshot_edit import clearance_processes
         self.assertEqual(clearance_processes({"Compounds": [{"Processes": []}]}), [])
 
+    def test_hard_mode_redacts_enzyme_in_citation_source(self):
+        # in hard mode a physchem citation must not name the withheld enzyme
+        from pkpd_agent.tools.osp_loop_tools import _redact_hard_sources
+        lit = [{"parameter": "Ki", "value": 1.0,
+                "source": "In vitro inhibition of CYP1A2 by drug X"},
+               {"parameter": "fu", "value": 0.2, "source": "Claassen 1983"}]
+        pool = [{"molecule": "CYP1A2"}, {"molecule": "CYP2D6"}]
+        out = _redact_hard_sources(lit, pool)
+        self.assertNotIn("CYP1A2", out[0]["source"])
+        self.assertIn("[enzyme withheld]", out[0]["source"])
+        self.assertEqual(out[1]["source"], "Claassen 1983")   # non-enzyme citation intact
+        self.assertEqual(out[0]["value"], 1.0)                 # value preserved
+
     def test_persist_records_effective_hard_not_requested(self):
         import os as _os, tempfile, shutil
         from copilot import server

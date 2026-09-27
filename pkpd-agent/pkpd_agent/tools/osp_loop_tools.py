@@ -149,6 +149,31 @@ def _current_model(snapshot_path: str) -> dict[str, Any]:
     }
 
 
+def _redact_hard_sources(lit: "list | None", pool: "list | None") -> "list | None":
+    """In structure-blind (hard) mode, the metabolizing enzyme's IDENTITY is withheld
+    so the agent must discover it. A physchem given's parameter names are already
+    generic (Ki, Km, Vmax), but its literature CITATION can still name the enzyme
+    ('In vitro inhibition of CYP1A2 by ...') — which the agent reads. Redact any
+    candidate-pool molecule token from the citation text, keeping the value and the
+    rest of the citation intact."""
+    if not lit:
+        return lit
+    toks = sorted({m.get("molecule") for m in (pool or [])
+                   if isinstance(m, dict) and m.get("molecule")},
+                  key=len, reverse=True)                # longest first, avoid partials
+    out = []
+    for p in lit:
+        p = dict(p)
+        s = p.get("source")
+        if isinstance(s, str):
+            for t in toks:
+                if t and t in s:
+                    s = s.replace(t, "[enzyme withheld]")
+            p["source"] = s
+        out.append(p)
+    return out
+
+
 def _observed_overview(observed: list[dict]) -> dict[str, Any]:
     routes: dict[str, dict] = {}
     for o in observed:
@@ -511,8 +536,16 @@ def register_osp_loop_tools(registry: ToolRegistry, config, ctx: dict) -> None:
             # agent must pick the clearing molecule(s) out of this candidate pool.
             candidate_clearance_molecules=bg.get("candidate_clearance_molecules"),
             compound_identity=gd.get("compound_identity"),
-            literature_physicochemical=gd.get("literature_physicochemical")
-            or inp.get("literature_physicochemical"),
+            # in hard mode, redact enzyme names that leak through a physchem
+            # citation's source text (the identity is what the agent must discover).
+            literature_physicochemical=(
+                _redact_hard_sources(
+                    gd.get("literature_physicochemical")
+                    or inp.get("literature_physicochemical"),
+                    bg.get("candidate_clearance_molecules"))
+                if inp.get("mode") == "hard"
+                else (gd.get("literature_physicochemical")
+                      or inp.get("literature_physicochemical"))),
             unknowns_guidance=inp.get("unknowns_guidance"),
             # LIBRARY-ASSISTED mode: an INDEX of finished models of OTHER compounds
             # (leave-one-out); the agent must osp_read_reference to see any one's
