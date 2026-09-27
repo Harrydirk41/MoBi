@@ -63,3 +63,9 @@ class TestResolveSims(unittest.TestCase):
     def test_unmatched_reported(self):
         got, un = self._r(["Nope 2050"], self.sims)
         self.assertEqual(got, []); self.assertEqual(un, ["Nope 2050"])
+
+    def test_near_miss_does_not_spuriously_match(self):
+        # a wrong year is a genuine non-match: it must be reported unmatched, NOT
+        # rescued onto a same-author sim (which would bias the fit).
+        got, un = self._r(["Kroboth 1999 - 1.0 mg"], self.sims)
+        self.assertEqual(got, []); self.assertEqual(un, ["Kroboth 1999 - 1.0 mg"])

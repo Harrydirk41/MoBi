@@ -165,6 +165,53 @@ def test_seal_case_produces_answer_free_workspace(tmp_path):
     assert "1.37405" not in ws_text
 
 
+def test_strip_expression_profiles_removes_block():
+    snap = {"ExpressionProfiles": [{"Molecule": "CYP3A4"}, {"Molecule": "P-gp"}],
+            "Simulations": [{"ExpressionProfiles": [{"Molecule": "CYP3A4"}]}]}
+    n = S.strip_expression_profiles(snap)
+    assert n == 2
+    assert snap["ExpressionProfiles"] == []
+    assert snap["Simulations"][0]["ExpressionProfiles"] == []
+
+
+def test_hard_seal_strips_enzyme_identity_but_normal_keeps_it(tmp_path):
+    # A hard (structure-blind) snapshot: processes already stripped, but the
+    # ExpressionProfiles still NAME the clearing enzyme - which for many compounds IS
+    # the answer. Sealing a hard case must remove that block from the workspace so a
+    # filesystem agent can't read the mechanism off the raw snapshot.
+    hard_snap = {
+        "Compounds": [{"Name": "Drug",
+                       "Parameters": [{"Name": "Molecular weight", "Value": 300.0}],
+                       "Processes": []}],                    # hard: structure stripped
+        "ExpressionProfiles": [{"Molecule": "CYP3A4", "Parameters": []}],
+        "Simulations": [{"Name": "PO_1mg", "Parameters": [], "Compounds": []}],
+    }
+    inp = {"given_data": {"clinical_observed_data": [
+        {"dataset": "StudyA", "study": "A", "route": "PO", "dose": "1 mg",
+         "conc_mg_L": [0.1, 0.05]}]},
+        "background": {"candidate_clearance_molecules": [
+            {"molecule": "CYP3A4"}, {"molecule": "CYP2D6"}, {"molecule": "UGT1A1"}]}}
+
+    # hard: name must be gone from the workspace snapshot
+    bp = tmp_path / "Drug-Model.hard_blanked.json"; bp.write_text(json.dumps(hard_snap))
+    ip = tmp_path / "Drug-Model.hard.input.json"; ip.write_text(json.dumps(inp))
+    mf = S.seal_case(str(bp), str(ip), str(tmp_path / "hard_out"), task_name="Drug")
+    assert mf["hard"] is True
+    assert mf["stripped_expression_profiles"] == 1
+    ws_snap = tmp_path / "hard_out" / "workspace" / "model.blanked.json"
+    assert json.load(open(ws_snap)).get("ExpressionProfiles") == []
+    assert "CYP3A4" not in ws_snap.read_text()               # the giveaway is closed
+
+    # normal (non-hard): the expressed panel legitimately stays (it is the given skeleton)
+    bp2 = tmp_path / "Drug-Model.blanked.json"; bp2.write_text(json.dumps(hard_snap))
+    ip2 = tmp_path / "Drug-Model.input.json"; ip2.write_text(json.dumps(inp))
+    mf2 = S.seal_case(str(bp2), str(ip2), str(tmp_path / "norm_out"), task_name="Drug")
+    assert mf2["hard"] is False
+    assert mf2["stripped_expression_profiles"] == 0
+    ws_snap2 = tmp_path / "norm_out" / "workspace" / "model.blanked.json"
+    assert json.load(open(ws_snap2)).get("ExpressionProfiles")   # kept
+
+
 # --------------------------------------------------------------------------- #
 # verify_workspace
 # --------------------------------------------------------------------------- #

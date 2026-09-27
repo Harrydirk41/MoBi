@@ -276,6 +276,31 @@ def _workspace_input(inp: dict, build_datasets: set[str], has_split: bool) -> di
     return out
 
 
+def strip_expression_profiles(snap: dict) -> int:
+    """Remove the ExpressionProfiles block (which NAMES the expressed enzymes /
+    transporters). In STRUCTURE-BLIND (hard) mode the reference model's expressed set
+    is exactly — or a tight superset of — the answer (for several compounds it equals
+    the answer), so a filesystem agent that reads the raw workspace snapshot would get
+    the mechanism for free, bypassing the discovery pool. The web-runner already hides
+    this at the tool layer (options() serves the fixed candidate panel, not the real
+    expressed set); this closes the same leak for the raw-file flow. Safe because hard
+    mode has already stripped every process, so nothing references these profiles, and
+    the agent attaches expression on demand for whichever candidate it picks. Returns
+    the number of profiles removed. Operates in place."""
+    eps = snap.get("ExpressionProfiles")
+    n = len(eps) if isinstance(eps, list) else 0
+    if n:
+        snap["ExpressionProfiles"] = []
+        for sim in snap.get("Simulations") or []:       # drop any per-sim expression refs too
+            if isinstance(sim.get("ExpressionProfiles"), list):
+                sim["ExpressionProfiles"] = []
+    return n
+
+
+def _is_hard_snapshot(blanked_path: str) -> bool:
+    return "hard_blanked" in os.path.basename(blanked_path)
+
+
 def seal_case(blanked_path: str, input_path: str, out_dir: str,
               reference_path: str | None = None, task_name: str | None = None) -> dict:
     """Build ``out_dir/workspace`` (answer-free) and ``out_dir/judge`` (answers) from a case.
@@ -307,6 +332,16 @@ def seal_case(blanked_path: str, input_path: str, out_dir: str,
     # agent. Redact them from the sealed copy so the workspace carries no answer.
     redacted, redactions = redact_fitted(json.loads(json.dumps(blanked)))
     stripped = strip_observed_blocks(redacted)
+    hard = _is_hard_snapshot(blanked_path)
+    n_expr_stripped = 0
+    if hard:
+        # structure-blind: the expressed-enzyme set leaks the mechanism (see
+        # strip_expression_profiles). Remove it from the workspace copy only; the
+        # judge copy keeps the original for grading.
+        n_expr_stripped = strip_expression_profiles(redacted)
+        if n_expr_stripped:
+            redactions.append({"action": "stripped-expression-profiles",
+                               "where": "/ExpressionProfiles", "count": n_expr_stripped})
     with open(os.path.join(ws, "model.blanked.json"), "w", encoding="utf-8") as fh:
         json.dump(redacted, fh, ensure_ascii=False, indent=1)
     ws_input = _workspace_input(inp, build_set, has_split)
@@ -360,6 +395,8 @@ def seal_case(blanked_path: str, input_path: str, out_dir: str,
         "source_blank_leaks": len(fitted_leaks(blanked)),   # fitted values still in the SOURCE blanked snapshot
         "redactions": len(redactions),                      # fitted values removed for the sealed copy
         "stripped_blocks": stripped,                        # observed/PI blocks removed from the sealed copy
+        "hard": hard,                                        # structure-blind (mechanism-discovery) case
+        "stripped_expression_profiles": n_expr_stripped,    # hard only: enzyme-identity block removed
         "sealed_leaks": len(fitted_leaks(redacted)),        # must be 0 - the sealed copy is answer-free
     }
     with open(os.path.join(jd, "manifest.json"), "w", encoding="utf-8") as fh:

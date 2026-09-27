@@ -61,10 +61,13 @@ def _resolve_sims(requested, all_sims):
     matched, unmatched = [], []
     for r in requested or []:
         rt = toks(r)
+        # token-subset ONLY: every requested token must appear in the sim's tokens.
+        # A char-sorted-substring fallback used to "rescue" near-misses, but it
+        # matched almost anything (all of a short request's characters tend to appear
+        # in any sim's sorted characters) and could silently pull a WRONG simulation
+        # into the fit, biasing calibration. A genuine non-match is now reported as
+        # unmatched so the agent corrects the label — safe for a benchmark.
         hits = [s for s in all_sims if rt and rt.issubset(toks(s))]
-        if not hits:                                # looser: joined-substring
-            rj = "".join(sorted(rt))
-            hits = [s for s in all_sims if rj and rj in "".join(sorted(toks(s)))]
         (matched.extend(hits) if hits else unmatched.append(r))
     seen, out = set(), []
     for x in matched:

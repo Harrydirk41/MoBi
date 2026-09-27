@@ -36,8 +36,13 @@ def _study_key(o: dict) -> str:
     """Stable per-study id for grouping - author+year when present, else a
     route+dose signature, else the dataset name."""
     ds = o.get("dataset", "")
+    # route+dose signature ONLY when there is a route or dose; the old
+    # f"{route}|{dose}" was always truthy ("None|None"), so the final `or ds`
+    # was dead and datasets missing all of study/route/dose collapsed onto one
+    # bogus "None|None" group instead of staying distinct by dataset name.
+    sig = f"{o.get('route')}|{o.get('dose')}" if (o.get("route") or o.get("dose")) else ""
     return (osp_score._study_token(ds) or osp_score._study_token(o.get("study"))
-            or f"{o.get('route')}|{o.get('dose')}" or ds)
+            or sig or ds)
 
 
 def _route(o: dict) -> str:
