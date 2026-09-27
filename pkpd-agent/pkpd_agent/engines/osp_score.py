@@ -248,6 +248,20 @@ def linkage_from_snapshot(snap: dict) -> dict[str, str]:
     return link
 
 
+# characters PK-Sim's FileHelper.RemoveIllegalCharactersFrom strips when it names a
+# result file/dir from a simulation name (the Windows invalid-filename set, a superset
+# of Linux's, so the comparison holds whichever OS generated the reference dirs).
+_ILLEGAL_FILE_CHARS = '<>:"/\\|?*'
+_ILLEGAL_FILE_RE = re.compile("[" + re.escape(_ILLEGAL_FILE_CHARS) + "\x00-\x1f]")
+
+
+def _sim_key(name: "str | None") -> str:
+    """A simulation name normalized the way PK-Sim's result-file naming normalizes it,
+    so a linkage entry (raw snapshot name, e.g. '... 0.05 mg/kg') matches the profile
+    read back from the run's output directory (illegal chars stripped, e.g. '0.05 mgkg')."""
+    return _ILLEGAL_FILE_RE.sub("", name or "")
+
+
 def map_predictions(profiles: list, observed: list[dict], linkage: dict | None = None):
     """-> (predicted_profiles[list of dicts], unmatched[list of dataset names]).
 
@@ -261,13 +275,19 @@ def map_predictions(profiles: list, observed: list[dict], linkage: dict | None =
     # ZERO datasets - so the guard is truthiness, not `is not None` (which made an
     # empty linkage produce a blank GMFE while the loop scored the same model fine).
     use_linkage = bool(linkage)
-    prof_by_sim = {p.simulation: p for p in profiles} if use_linkage else {}
+    # PK-Sim names each result file/dir with RemoveIllegalCharactersFrom(simName), so a
+    # simulation named ".../0.05 mg/kg" comes back as ".../0.05 mgkg" (the '/' is a
+    # filesystem-illegal char and is stripped). The snapshot's OutputMappings linkage
+    # still holds the RAW name (with '/'), so a per-kg-dosed compound (alfentanil: every
+    # sim is "mg/kg") would match NOTHING and blow up. Normalize both sides by the same
+    # illegal-char stripping so the linked name and the run's profile name compare equal.
+    prof_by_sim = {_sim_key(p.simulation): p for p in profiles} if use_linkage else {}
     for o in observed:
         ds = o["dataset"]
         best = None
         if use_linkage:
             sim = linkage.get(ds)
-            best = prof_by_sim.get(sim) if sim else None    # unmapped or no-profile -> None
+            best = prof_by_sim.get(_sim_key(sim)) if sim else None   # unmapped/no-profile -> None
         else:
             # name-based fallback: each observation takes its best-scoring simulation.
             # NON-exclusive on purpose: several observed arms of one study (e.g. patient
