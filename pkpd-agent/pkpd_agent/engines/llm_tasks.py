@@ -129,14 +129,23 @@ def default_web_call(config, max_searches: int = 8, tool_version: str = "web_sea
     final text blocks. Non-deterministic by nature (live search) - that is the trade vs the
     cached Route-A material. Falls back to the older tool id if the newer one is rejected."""
     import anthropic
+    from .web_block import search_blocklist, fetch_blocklist
     client = anthropic.Anthropic()
 
     def call(system: str, user: str) -> str:
         for ver in (tool_version, "web_search_20250305"):
             fetch_ver = "web_fetch_20260209" if ver.endswith("20260209") else None
-            tools = [{"type": ver, "name": "web_search", "max_uses": max_searches}]
+            # Wall the OSP answer source off (path-scoped for search, bare-host for
+            # fetch). Route B has the model read the literature ITSELF, so an
+            # unblocked web tool here would let it fetch the compound's own finished
+            # OSP model — the exact leak the benchmark forbids.
+            search_blk = search_blocklist()
+            tools = [{"type": ver, "name": "web_search", "max_uses": max_searches,
+                      "blocked_domains": search_blk}]
             if fetch_ver:                              # let it READ pages, not just search
-                tools.append({"type": fetch_ver, "name": "web_fetch", "max_uses": max_searches})
+                tools.append({"type": fetch_ver, "name": "web_fetch",
+                              "max_uses": max_searches,
+                              "blocked_domains": fetch_blocklist()})
             try:
                 resp = client.messages.create(
                     model=config.model, max_tokens=16000, system=system, tools=tools,

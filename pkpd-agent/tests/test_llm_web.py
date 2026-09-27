@@ -50,20 +50,31 @@ class TestNativeWebTools(unittest.TestCase):
         self.assertIn("web_search_20260209", types_)
         self.assertIn("web_fetch_20260209", types_)
 
-    def test_answer_source_domains_are_blocked_but_general_github_is_open(self):
-        # only the OSP org path + site host the benchmark answers; both web tools
-        # block THOSE so web assists modeling without leaking the compound's own
-        # finished model — while the rest of GitHub stays searchable.
+    def test_answer_source_domains_are_blocked_per_tool_semantics(self):
+        # The OSP org path + site host the benchmark answers. The block must match
+        # each web tool's ACTUAL filtering rule (verified against the server-tools
+        # docs), not a single naive list:
+        #   web_search - subpaths honored -> block the OSP org PATH, keep the rest
+        #                of GitHub searchable.
+        #   web_fetch  - matches on domain ONLY, path entries never match -> a
+        #                path-scoped block would be a no-op and leave the answer
+        #                repos fetchable, so block the bare GitHub HOSTS.
         resp = _blk(stop_reason="end_turn", content=[_blk(type="text", text="done")])
         p = _policy([resp], web=True)
         p.decide(ModelingSession(goal="g"))
-        webs = [t for t in p._seen[0]["tools"] if str(t.get("type")).startswith("web_")]
-        self.assertTrue(webs)
-        for t in webs:
-            blk = t.get("blocked_domains") or []
-            self.assertIn("github.com/Open-Systems-Pharmacology", blk)
-            self.assertIn("open-systems-pharmacology.org", blk)
-            self.assertNotIn("github.com", blk)          # general GitHub is NOT blocked
+        tools = {t["type"]: t for t in p._seen[0]["tools"]}
+
+        ws = tools["web_search_20260209"]["blocked_domains"]
+        self.assertIn("github.com/Open-Systems-Pharmacology", ws)   # path-scoped
+        self.assertIn("open-systems-pharmacology.org", ws)
+        self.assertNotIn("github.com", ws)                          # rest of GitHub open
+
+        wf = tools["web_fetch_20260209"]["blocked_domains"]
+        self.assertIn("github.com", wf)                             # bare host (path ignored)
+        self.assertIn("raw.githubusercontent.com", wf)
+        self.assertIn("open-systems-pharmacology.org", wf)
+        # a path entry on fetch would silently never match -> must NOT be relied on
+        self.assertNotIn("github.com/Open-Systems-Pharmacology", wf)
 
     def test_older_model_web_search_also_blocked(self):
         resp = _blk(stop_reason="end_turn", content=[_blk(type="text", text="done")])
@@ -131,6 +142,68 @@ class TestNativeWebTools(unittest.TestCase):
         s = ModelingSession(goal="g")
         p.decide(s)
         self.assertIsNone(s.get("web_lookups"))
+
+
+class TestRouteBWebCallBlocked(unittest.TestCase):
+    """default_web_call (Route B: the model reads the literature itself) MUST carry
+    the same answer-source block; an unblocked web tool here was a total leak."""
+
+    def test_default_web_call_attaches_blocklists(self):
+        import sys
+        import pkpd_agent.engines.llm_tasks as LT
+        seen = []
+
+        class _Msgs:
+            def create(self, **kw):
+                seen.append(kw)
+                return _blk(stop_reason="end_turn",
+                            content=[_blk(type="text", text="ok")])
+
+        class _Client:
+            messages = _Msgs()
+
+        cfg = AgentConfig(mock=False)
+        cfg.model = "claude-sonnet-5"
+        # `anthropic` is imported inside the closure; inject a fake module so the
+        # test runs without the SDK installed and without any network.
+        fake = types.ModuleType("anthropic")
+        fake.Anthropic = lambda *a, **k: _Client()
+        fake.BadRequestError = type("BadRequestError", (Exception,), {})
+        prev = sys.modules.get("anthropic")
+        sys.modules["anthropic"] = fake
+        try:
+            call = LT.default_web_call(cfg)
+            call("sys", "user")
+        finally:
+            if prev is None:
+                del sys.modules["anthropic"]
+            else:
+                sys.modules["anthropic"] = prev
+
+        tools = {t["type"]: t for t in seen[0]["tools"]}
+        ws = tools["web_search_20260209"]["blocked_domains"]
+        wf = tools["web_fetch_20260209"]["blocked_domains"]
+        self.assertIn("github.com/Open-Systems-Pharmacology", ws)
+        self.assertIn("github.com", wf)                    # bare host for fetch
+        self.assertIn("open-systems-pharmacology.org", wf)
+
+
+class TestWebBlockSemantics(unittest.TestCase):
+    def test_search_is_path_scoped_fetch_is_host_scoped(self):
+        from pkpd_agent.engines.web_block import (
+            search_blocklist, fetch_blocklist, web_tools)
+        s = search_blocklist()
+        f = fetch_blocklist()
+        # search: OSP org PATH blocked, bare github NOT (rest of GitHub searchable)
+        self.assertIn("github.com/Open-Systems-Pharmacology", s)
+        self.assertNotIn("github.com", s)
+        # fetch: bare hosts (path entries never match a fetch URL)
+        self.assertIn("github.com", f)
+        self.assertIn("raw.githubusercontent.com", f)
+        self.assertNotIn("github.com/Open-Systems-Pharmacology", f)
+        # older model gets basic search only, no unblockable fetch path
+        old = web_tools("claude-haiku-4-5")
+        self.assertEqual([t["type"] for t in old], ["web_search_20250305"])
 
 
 if __name__ == "__main__":

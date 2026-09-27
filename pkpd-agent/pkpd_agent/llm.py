@@ -168,37 +168,16 @@ class LLMPolicy:
         m = (self.config.model or "").lower()
         return "haiku" not in m and "claude-3" not in m and "claude-2" not in m
 
-    # The benchmark ANSWERS live in the OSP model library: its website, and its
-    # GitHub org (Open-Systems-Pharmacology/OSP-PBPK-Model-Library and the
-    # <Compound>-Model repos). Block those at the SOURCE — but ONLY the OSP org
-    # path, so the rest of GitHub and the open web stay searchable for genuine
-    # literature (DMPK, physchem, published clinical PK, other modeling approaches).
-    # A code-level invariant, not a heuristic. Path-scoped so general GitHub is not
-    # walled off. NOTE: a personal MIRROR of a model outside this org (e.g. a
-    # user's own <Compound>-Model fork) is not caught by an org-path block.
-    _BLOCKED_DOMAINS = [
-        "github.com/Open-Systems-Pharmacology",
-        "raw.githubusercontent.com/Open-Systems-Pharmacology",
-        "open-systems-pharmacology.org",
-    ]
-
     def _web_tools(self) -> list[dict[str, Any]]:
-        """Anthropic's native, server-side web tools (the model goes online, not
-        us). Newer Claude-5-family models get the dynamic-filtering variants +
-        web_fetch; older ones get basic web_search only. Both are pinned with
-        blocked_domains so the answer source is walled off (see _BLOCKED_DOMAINS)."""
+        """Anthropic's native, server-side web tools (the model goes online, not us),
+        with the OSP answer source walled off. Delegated to engines.web_block, which
+        is the single source of truth for the block AND applies the correct per-tool
+        semantics — path-scoped for web_search, bare-host for web_fetch (which ignores
+        path entries; see web_block for why that distinction is load-bearing)."""
         if not self.web:
             return []
-        blocked = list(self._BLOCKED_DOMAINS)
-        m = (self.config.model or "").lower()
-        new = any(k in m for k in ("opus-5", "opus-4", "sonnet-5", "sonnet-4-6"))
-        if new:
-            return [{"type": "web_search_20260209", "name": "web_search",
-                     "blocked_domains": blocked},
-                    {"type": "web_fetch_20260209", "name": "web_fetch",
-                     "blocked_domains": blocked}]
-        return [{"type": "web_search_20250305", "name": "web_search",
-                 "blocked_domains": blocked}]
+        from .engines.web_block import web_tools
+        return web_tools(self.config.model)
 
     def _record_web(self, session, content) -> None:
         """Transparency: log the model's server-side searches/fetches + result
