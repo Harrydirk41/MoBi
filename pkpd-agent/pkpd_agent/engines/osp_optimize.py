@@ -120,6 +120,31 @@ def pick_subset(sim_names: list[str], k: int = 4) -> list[str]:
 # objective: mean squared log fold error over matched points
 # --------------------------------------------------------------------------- #
 
+def _why_no_points(observed: list[dict], predicted: list[dict]) -> str:
+    """Diagnose WHY an eval scored zero points — so a degenerate run says which of
+    two very different failures it is, instead of a bare 'no fit'. Either no observed
+    dataset matched a built simulation (a linkage / subset / pruning mismatch), or
+    datasets matched but the simulated curve did not overlap the observed sample
+    times (an empty or off-window simulation)."""
+    preds = {p["dataset"]: p for p in predicted}
+    matched = [o for o in observed if o["dataset"] in preds]
+    if not matched:
+        return (f"no observed dataset matched a built simulation: "
+                f"{len(predicted)} simulated profile(s) vs {len(observed)} observed "
+                "dataset(s) — a linkage/subset/pruning mismatch, not a parameter issue")
+    o = matched[0]
+    pr = preds[o["dataset"]]
+    pts = [t for t in (pr.get("time_h") or []) if osp_score._finite(t) is not None]
+    conc = [c for c in (pr.get("pred_conc_mg_L") or []) if osp_score._finite(c) is not None]
+    otimes = [t for t in (o.get("time_h") or []) if osp_score._finite(t) is not None]
+    span = (f"predicted t=[{min(pts):.3g},{max(pts):.3g}]h" if pts else "predicted curve EMPTY")
+    npos = sum(1 for c in conc if c > 0)
+    return (f"{len(matched)} dataset(s) matched but no scorable point: {span} "
+            f"({npos}/{len(conc)} predicted conc > 0) vs observed times "
+            f"[{min(otimes):.3g},{max(otimes):.3g}]h — the simulated curve is empty, "
+            "all non-positive, or off the observed window")
+
+
 def _log_sse(observed: list[dict], predicted: list[dict]) -> tuple[float, int]:
     preds = {p["dataset"]: p for p in predicted}
     total, n = 0.0, 0
@@ -302,6 +327,8 @@ def run_optimization(cli: OSPCli, snapshot_path: str, observed: list[dict],
         sse, npts = _log_sse(observed_sub, predicted)
         if npts > 0:
             state["n_scored"] += 1
+        elif "empty_reason" not in state:
+            state["empty_reason"] = _why_no_points(observed_sub, predicted)
         history.append({"values": values, "log_sse": round(sse, 5), "n": npts})
         if on_eval:
             on_eval(len(history), values, round(sse, 5))
@@ -332,18 +359,19 @@ def run_optimization(cli: OSPCli, snapshot_path: str, observed: list[dict],
     # the "best" here would be a meaningless garbage fit, so fail loudly with an
     # actionable message instead — the cause is a DEGENERATE model, not the bounds.
     if state["n_ok"] > 0 and state["n_scored"] == 0:
+        why = state.get("empty_reason", "")
         return {"ok": False, "scored_nothing": True,
                 "message": (f"the model built and ran on all {len(history)} attempts but "
-                            "not one produced a scorable curve — every simulation was "
-                            "empty or ended before the observed sample times (n=0 points "
-                            "matched). This is a DEGENERATE MODEL, not a bounds problem: a "
-                            "clearance parameter is likely stuck at/near zero (no "
-                            "elimination), a fitted value railed to a physically "
-                            "meaningless extreme, or the added process has no effect. "
-                            "Check that every clearance process actually has its rate "
-                            "fitted (not left at a 0 default), and that estimate bounds "
-                            "bracket physically sensible values, then retry. Parameters "
-                            f"attempted: {', '.join(names)}."),
+                            "not one produced a scorable curve (n=0 points matched). "
+                            + (f"Diagnosis: {why}. " if why else "")
+                            + "If datasets matched but the curve was empty/off-window it "
+                            "is a DEGENERATE MODEL (a clearance stuck at ~0, a value "
+                            "railed to an extreme, or an inert added process) — check "
+                            "every clearance process has its rate fitted and bounds are "
+                            "sensible. If NO dataset matched, the simulation set does not "
+                            "line up with the observed data (a linkage/subset problem), "
+                            "not the parameters. "
+                            f"Parameters attempted: {', '.join(names)}."),
                 "n_evals": len(history)}
     best = np.clip(res.x, lx, hx)
     optimized = {n: _to_value(best[i], is_log[i]) for i, n in enumerate(names)}
